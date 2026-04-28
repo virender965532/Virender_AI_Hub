@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Virender AI Hub{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block extra_head %}{% endblock %}
+  <style>
+    .interview-layout {
+  display: flex;
+  gap: 20px;
+  padding: 30px;
+  width: 100% !important;
+}
+
+.interview-sidebar {
+  width: 320px;
+  padding: 20px;
+}
+
+.interview-sidebar label {
+  margin-top: 15px;
+  display: block;
+  font-size: 13px;
+  color: #aaa;
+}
+
+.input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 6px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: white;
+}
+/* FIX SELECT DROPDOWN */
+.input,
+select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 6px;
+
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+
+  backdrop-filter: blur(10px);
+  outline: none;
+
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  cursor: pointer;
+}
+
+/* Dropdown arrow fix */
+select {
+  background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='20' viewBox='0 0 24 24' width='20'><path d='M7 10l5 5 5-5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
+}
+
+/* OPTION styling (important) */
+select option {
+  background: #0b0f1a;
+  color: #fff;
+}
+
+/* LIMIT DROPDOWN HEIGHT */
+select {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* SCROLLBAR (optional but clean) */
+select::-webkit-scrollbar {
+  width: 6px;
+}
+select::-webkit-scrollbar-thumb {
+  background: #6366f1;
+  border-radius: 10px;
+}
+
+/* HOVER + FOCUS EFFECT */
+select:hover {
+  border-color: #6366f1;
+}
+select:focus {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.4);
+}
+
+.btn-primary {
+  margin-top: 20px;
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(90deg,#6366f1,#8b5cf6);
+  border: none;
+  color: white;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.interview-chat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 80vh;
+}
+
+.chat-header {
+  padding: 15px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.chat-box {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.msg {
+  margin-bottom: 15px;
+  padding: 12px;
+  border-radius: 10px;
+}
+
+.question {
+  background: rgba(255,255,255,0.05);
+}
+
+.answer {
+  background: rgba(99,102,241,0.3);
+  text-align: right;
+}
+
+.feedback {
+  background: rgba(16,185,129,0.15);
+}
+
+.chat-input {
+  display: flex;
+  padding: 15px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.chat-input textarea {
+  flex: 1;
+  padding: 10px;
+  background: rgba(255,255,255,0.05);
+  color: white;
+}
+
+.chat-input button {
+  margin-left: 10px;
+  padding: 10px 20px;
+  background: #f97316;
+  border: none;
+  color: white;
+  border-radius: 6px;
+}
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="bg-glow bg-glow--1"></div>
+  <div class="bg-glow bg-glow--2"></div>
+
+  <header class="site-header glass">
+    <div class="site-header__inner">
+      <a href="{{ url_for('main.home') }}" class="logo">
+        <span class="logo__mark">◆</span>
+        <span class="logo__text">Virender <span class="logo__accent">AI Hub</span></span>
+      </a>
+      <nav class="nav">
+        <a href="{{ url_for('main.home') }}" class="nav__link">Home</a>
+        <a href="{{ url_for('main.interview_ui') }}" class="nav__link nav__link--cta">Interview Simulator</a>
+        <a href="{{ url_for('main.job_search') }}" class="nav__link  nav__link--cta">Job Search</a>
+        <a href="{{ url_for('main.home') }}" class="nav__link nav__link--cta">Stock Market Prediction</a>
+        <a href="{{ url_for('main.home') }}" class="nav__link nav__link--cta">Ask Virender</a>
+        <a href="{{ url_for('main.home') }}" class="nav__link">Login</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <p>Virender AI Hub · Synthetic intelligence orchestration layer</p>
+  </footer>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

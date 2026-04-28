@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% block title %}Interview Simulator — Virender AI Hub{% endblock %}
+
+{% block content %}
+
+<section class="interview-layout">
+
+  <!-- LEFT PANEL -->
+  <aside class="interview-sidebar glass">
+    <h2 class="neon-text">⚡ Interview Setup</h2>
+
+    <label>Role</label>
+    <select id="role" class="input">
+      <option>Backend Engineer</option>
+      <option>Frontend Engineer</option>
+      <option>Full-Stack Engineer</option>
+      <option>AI / ML Engineer</option>
+      <option>Data Scientist</option>
+      <option>DevOps / Platform Engineer</option>
+      <option>Product Manager</option>
+      <option>Javascript</option>
+      <option>Typescript</option>
+      <option>React js</option>
+      <option>Next js</option>
+      <option>Node js</option>
+      <option>Python</option>
+      <option>GraphQL</option>
+      <option>Microservices</option>
+      <option>Mysql</option>
+      <option>MongoDB</option>
+      <option>Open Search</option>
+      <option>Vector Database</option>
+      <option>AWS</option>
+      <option>Azure</option>
+      <option>GCP</option>
+      <option>AWS Lambda</option>
+      <option>AWS S3</option>
+      <option>AWS RDS</option>
+      <option>AWS EC2</option>
+      <option>AWS EBS</option>
+      <option>AWS EFS</option>
+      <option>Docker</option>
+      <option>Kubernetes</option>
+      <option>CI/CD</option>
+      <option>Git</option>
+      <option>RAG</option>
+      <option>LangGraph</option>
+      <option>Agentic AI</option>
+      <option>System Design</option>
+    </select>
+
+    <label>Difficulty</label>
+    <select id="difficulty" class="input">
+      <option>Junior</option>
+      <option>Mid-level</option>
+      <option>Senior</option>
+      <option>Expert</option>
+      <option>Staff / Principal</option>
+    </select>
+
+    <label>Number of Questions</label>
+    <input type="number" id="num" value="3" class="input"/>
+
+    <button class="btn-primary" onclick="startInterview()">
+      ▶ Start Interview
+    </button>
+
+  </aside>
+
+
+  <!-- RIGHT PANEL -->
+  <div class="interview-chat glass">
+
+    <div class="chat-header">
+      💬 Interview Session
+    </div>
+
+    <div class="chat-box" id="chat"></div>
+
+    <div class="chat-input">
+      <textarea id="answer" placeholder="Type your answer..."></textarea>
+      <button onclick="submitAnswer()">Submit →</button>
+    </div>
+
+  </div>
+
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+
+let questionCount = 1;
+
+async function startInterview() {
+    const res = await fetch("/api/interview/start", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            role: document.getElementById("role").value,
+            difficulty: document.getElementById("difficulty").value,
+            num_questions: document.getElementById("num").value
+        })
+    });
+
+    const data = await res.json();
+
+    const chat = document.getElementById("chat");
+    chat.innerHTML = "";
+    questionCount = 1;
+
+    addQuestion(data.state.current_question);
+}
+
+async function submitAnswer() {
+    const answerText = document.getElementById("answer").value;
+    if (!answerText) return;
+
+    addAnswer(answerText);
+
+    const res = await fetch("/api/interview/answer", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({answer: answerText})
+    });
+
+    const data = await res.json();
+
+    addFeedback(data.state.feedback);
+
+    if (data.state.active) {
+        addQuestion(data.state.current_question);
+    } else {
+        addFeedback("🎉 Interview Completed!");
+    }
+
+    document.getElementById("answer").value = "";
+}
+
+function addQuestion(q) {
+    const chat = document.getElementById("chat");
+
+    chat.innerHTML += `
+        <div class="msg question">
+            <b>Question ${questionCount++}</b><br>${q}
+        </div>
+    `;
+}
+
+function addAnswer(a) {
+    const chat = document.getElementById("chat");
+
+    chat.innerHTML += `
+        <div class="msg answer">${a}</div>
+    `;
+}
+
+function addFeedback(f) {
+    const chat = document.getElementById("chat");
+
+    chat.innerHTML += `
+        <div class="msg feedback">${f}</div>
+    `;
+}
+
+</script>
+{% endblock %}

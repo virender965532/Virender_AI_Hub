@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}AutoJob Nexus — Virender AI Hub{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <p class="hero__eyebrow neon-text">AutoJob Nexus</p>
+  <h1 class="hero__title">Naukri <span class="hero__accent">intelligence</span></h1>
+  <p class="hero__subtitle">
+    Secure login uses credentials from your <code class="inline-code">.env</code> file.
+    After login, listings load from <strong>jobs-in-india</strong> — Selenium may take a minute.
+  </p>
+</section>
+
+<div id="job-app" class="job-app">
+  <div id="loading-state" class="loading-panel glass" role="status" aria-live="polite">
+    <div class="loading-panel__row">
+      <div class="spinner" aria-hidden="true"></div>
+      <div>
+        <p class="loading-panel__text">Scraping in progress…</p>
+        <p class="loading-panel__hint">Visible Chrome: login → listings → scroll. With full JD fetch, each job page opens in the same session (can take several minutes).</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="error-state" class="alert alert--error glass hidden" role="alert"></div>
+
+  <div id="results-state" class="hidden">
+    <div class="results-toolbar glass results-toolbar--controls">
+      <div class="results-toolbar__left">
+        <span id="job-count" class="results-toolbar__count"></span>
+        <label class="job-control-label" for="sort-select">Sort</label>
+        <select id="sort-select" class="job-select" onchange="sortJobs(this.value)" aria-label="Sort jobs">
+          <option value="">Sort By</option>
+          <option value="title">Title</option>
+          <option value="company">Company</option>
+          <option value="location">Location</option>
+          <option value="package">Package</option>
+          <option value="experience">Experience</option>
+          <option value="posted">Posted</option>
+          <option value="relevant">Relevance</option>
+        </select>
+        <label class="job-control-label" for="job-keyword">Filter</label>
+        <input type="search" id="job-keyword" class="job-filter-input" placeholder="Keyword in title, company, location, skills, description…" autocomplete="off" />
+        <label class="job-toolbar-check" title="When off, SRP-only scrape is faster; relevance uses card skills only.">
+          <input type="checkbox" id="chk-enrich-jd" checked />
+          <span>Full job descriptions</span>
+        </label>
+        <label class="job-toolbar-check">
+          <input type="checkbox" id="chk-relevant-only" />
+          <span>Relevant only</span>
+        </label>
+      </div>
+      <button type="button" id="btn-refresh" class="btn btn--ghost">Re-run scrape</button>
+    </div>
+    <div class="job-table-wrap glass">
+      <table class="job-table" id="job-table">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Company</th>
+            <th>Location</th>
+            <th>Package</th>
+            <th>Skills</th>
+            <th>Relevance</th>
+            <th>Experience</th>
+            <th>Posted</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="job-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/job_search.js') }}"></script>
+{% endblock %}

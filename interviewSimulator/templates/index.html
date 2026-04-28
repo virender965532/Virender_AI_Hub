@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Interview Simulator</title>
+</head>
+<body>
+
+<h2>AI Interview Simulator</h2>
+
+<select id="role">
+    <option>Backend Engineer</option>
+    <option>Frontend Engineer</option>
+    <option>Full-Stack Engineer</option>
+</select>
+
+<select id="difficulty">
+    <option>Junior</option>
+    <option>Mid-level</option>
+    <option>Senior</option>
+</select>
+
+<input id="num" type="number" value="5"/>
+
+<button onclick="start()">Start</button>
+
+<hr>
+
+<div id="chat"></div>
+
+<textarea id="answer"></textarea>
+<button onclick="submitAnswer()">Submit</button>
+
+<script src="/static/app.js"></script>
+
+</body>
+</html>

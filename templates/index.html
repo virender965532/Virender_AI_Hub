@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %} Virender AI Hub — Command Center{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <p class="hero__eyebrow neon-text">Virender AI Hub</p>
+  <h1 class="hero__title">Welcome to <span class="hero__accent">Virender AI Hub</span></h1>
+  <p class="hero__subtitle">
+    Deploy autonomous AI modules across research, automation, and workforce intelligence.
+  </p>
+</section>
+
+<section class="card-grid" aria-label="AI modules">
+  <a href="{{ url_for('main.interview_ui') }}" class="module-card module-card--link glass module-card--featured" data-tilt>
+    <div class="module-card__glow"></div>
+    <div class="module-card__badge">Live</div>
+    <div class="module-card__icon module-card__icon--pulse" aria-hidden="true">◎</div>
+    <h2 class="module-card__title">Real Time Interview Simulator</h2>
+    <p class="module-card__desc">Real Time Interview Simulator with multi-agent orchestration.</p>
+    <span class="module-card__tag module-card__tag--accent">Automation</span>
+  </a>
+
+  <a href="{{ url_for('main.job_search') }}" class="module-card module-card--link glass module-card--featured" data-tilt>
+    <div class="module-card__glow"></div>
+    <div class="module-card__badge">Live</div>
+    <div class="module-card__icon module-card__icon--pulse" aria-hidden="true">⬡</div>
+    <h2 class="module-card__title">Real Time Job Search</h2>
+    <p class="module-card__desc">Real Time Job Search with multi-agent orchestration.</p>
+    <span class="module-card__tag module-card__tag--accent">Automation</span>
+  </a>
+
+  <article class="module-card glass" data-tilt>
+    <div class="module-card__glow"></div>
+    <div class="module-card__badge">Coming Soon</div>
+    <div class="module-card__icon module-card__icon--pulse" aria-hidden="true">◇</div>
+    <h2 class="module-card__title">Stock Market Prediction</h2>
+    <p class="module-card__desc">Stock Market Prediction with multi-agent orchestration.</p>
+    <span class="module-card__tag module-card__tag--accent">Automation</span>
+  </article>
+
+  <article class="module-card glass" data-tilt>
+    <div class="module-card__glow"></div>
+    <div class="module-card__badge">Coming Soon</div>
+    <div class="module-card__icon module-card__icon--pulse" aria-hidden="true">⎔</div>
+    <h2 class="module-card__title">Ask Virender</h2>
+    <p class="module-card__desc">Ask Virender with multi-agent orchestration.</p>
+    <span class="module-card__tag module-card__tag--accent">Automation</span>
+  </article>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/home.js') }}"></script>
+{% endblock %}
