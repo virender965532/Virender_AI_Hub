@@ -127,7 +127,9 @@ async function submitAnswer() {
 
     const data = await res.json();
 
-    addFeedback(data.state.feedback);
+    const formattedFeedback = formatFeedback(data.state.feedback);
+
+    addFeedback(formattedFeedback);
 
     if (data.state.active) {
         addQuestion(data.state.current_question);
@@ -136,6 +138,64 @@ async function submitAnswer() {
     }
 
     document.getElementById("answer").value = "";
+}
+
+function formatFeedback(text) {
+    if (!text) return "";
+
+    // Remove extra spacing
+    text = text.replace(/\n\s*\n+/g, "\n");
+
+    // =========================
+    // ✅ CODE BLOCKS ```
+    // =========================
+    text = text.replace(
+        /```(\w+)?\n([\s\S]*?)```/g,
+        (match, lang, code) => {
+            return `
+<pre class="code-block">
+<code class="language-${lang || ""}">
+${escapeHtml(code)}
+</code>
+</pre>`;
+        }
+    );
+
+    // =========================
+    // ✅ HEADINGS (#, ##, ###)
+    // Works even without space
+    // ###Heading
+    // =========================
+    text = text
+        .replace(/^###\s*(.+)$/gm, "<h3>$1</h3>")
+        .replace(/^##\s*(.+)$/gm, "<h2>$1</h2>")
+        .replace(/^#\s*(.+)$/gm, "<h1>$1</h1>");
+
+    // =========================
+    // ✅ BOLD TEXT (*text*, **text**, ****text***)
+    // Handles uneven stars
+    // =========================
+    text = text.replace(/\*{1,}([^*]+?)\*{1,}/g, "<strong>$1</strong>");
+
+    // =========================
+    // ✅ NUMBERED LISTS
+    // =========================
+    text = text.replace(/^\d+\.\s(.+)/gm, "<li>$1</li>");
+    text = text.replace(/(<li>.*<\/li>)/gs, "<ul>$1</ul>");
+
+    // =========================
+    // ✅ LINE BREAKS
+    // =========================
+    text = text.replace(/\n/g, "<br>");
+
+    return text;
+}
+
+function escapeHtml(text) {
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
 }
 
 function addQuestion(q) {

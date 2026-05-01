@@ -59,20 +59,20 @@ def start_interview():
 def answer_interview():
     payload = request.get_json(silent=True) or {}
     answer = payload.get("answer", "").strip()
-
+    logger.info(f"Answer: {answer}")
     if not answer:
         return jsonify({"ok": False, "error": "Answer is required"}), 400
 
     try:
         state = load_state()
-
+        logger.info(f"State: {state}")
         if not state:
             return jsonify({"ok": False, "error": "No active session"}), 400
 
         state["user_answer"] = answer
-
+        logger.info(f"State before running graph: {state}")
         state = run_interview_graph(state, action="answer")
-
+        logger.info(f"State after running graph: {state}")
         save_state(state)
 
         return jsonify({"ok": True, "state": state})
