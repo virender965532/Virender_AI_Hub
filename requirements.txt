@@ -8,3 +8,4 @@ openai>=1.30.0
 langgraph>=0.2.0
 langchain-core>=0.2.0
 IPython>=9.13.0
+huggingface_hub>=0.28.0

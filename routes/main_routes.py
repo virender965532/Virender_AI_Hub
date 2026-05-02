@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import logging
-from flask import Blueprint, jsonify, render_template, request
+from flask import Blueprint, jsonify, render_template, request, Response
 
 from services.naukri_service import run_job_detail, run_login_and_fetch_jobs
 
 # 👉 NEW IMPORTS
 from interviewSimulator.graph import run_interview_graph
 from interviewSimulator.memory import load_state, save_state
+from interviewSimulator.tts import get_tts_options, synthesize_speech
 
 logger = logging.getLogger(__name__)
 
@@ -80,6 +81,47 @@ def answer_interview():
     except Exception as e:
         logger.exception("Interview answer failed")
         return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@main_bp.route("/api/interview/tts/options", methods=["GET"])
+def interview_tts_options():
+    """Models and voice ids for the interview TTS UI."""
+    return jsonify(get_tts_options())
+
+
+@main_bp.route("/api/interview/tts", methods=["POST"])
+def interview_tts():
+    """Synthesize speech for interview question text (requires HF_TOKEN)."""
+    payload = request.get_json(silent=True) or {}
+    text = (payload.get("text") or "").strip()
+    if not text:
+        return jsonify({"ok": False, "error": "text is required"}), 400
+
+    model = (payload.get("model") or "").strip() or None
+    voice = payload.get("voice")
+    if voice is not None and not isinstance(voice, str):
+        voice = str(voice)
+
+    result = synthesize_speech(text, model=model, voice=voice)
+    if not result.get("ok"):
+        return jsonify(
+            {
+                "ok": False,
+                "error": result.get("error")
+                or "TTS failed. Set HF_TOKEN or HUGGING_FACE_HUB_TOKEN in .env and restart the server.",
+            }
+        ), 503
+
+    audio = result["audio"]
+    mime = result["mime"]
+    return Response(
+        audio,
+        mimetype=mime,
+        headers={
+            "Content-Length": str(len(audio)),
+            "Cache-Control": "no-store",
+        },
+    )
 
 
 # ================= JOB SEARCH =================

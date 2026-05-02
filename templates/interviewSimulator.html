@@ -61,6 +61,29 @@
     <label>Number of Questions</label>
     <input type="number" id="num" value="3" class="input"/>
 
+    <label class="interview-tts-label">
+      <input type="checkbox" id="readAloud" checked />
+      Read questions aloud (HF TTS)
+    </label>
+
+    <label for="ttsModel">TTS engine</label>
+    <select id="ttsModel" class="input" title="Hugging Face Inference via fal-ai">
+      <option value="ResembleAI/chatterbox">Chatterbox</option>
+      <option value="hexgrad/Kokoro-82M">Kokoro 82M</option>
+    </select>
+
+    <label for="ttsVoice">Voice (model)</label>
+    <select id="ttsVoice" class="input">
+      <option value="">Random</option>
+    </select>
+
+    <label for="browserSystemVoice">Browser voice (fallback)</label>
+    <select id="browserSystemVoice" class="input" title="Used when HF TTS fails or when you click Browser voice">
+      <option value="">Default (OS picks)</option>
+    </select>
+
+    <p id="ttsTokenHint" class="tts-env-hint" hidden></p>
+
     <button class="btn-primary" onclick="startInterview()">
       ▶ Start Interview
     </button>
@@ -92,6 +115,272 @@
 <script>
 
 let questionCount = 1;
+let _ttsOptions = null;
+
+function readAloudEnabled() {
+    const el = document.getElementById("readAloud");
+    return el && el.checked;
+}
+
+async function ensureTtsOptions() {
+    if (_ttsOptions) return _ttsOptions;
+    const res = await fetch("/api/interview/tts/options", { cache: "no-store" });
+    if (!res.ok) return null;
+    _ttsOptions = await res.json();
+    return _ttsOptions;
+}
+
+function saveTtsPrefs() {
+    const m = document.getElementById("ttsModel");
+    const v = document.getElementById("ttsVoice");
+    if (m && m.value) localStorage.setItem("interviewTtsModel", m.value);
+    if (v) localStorage.setItem("interviewTtsVoice", v.value);
+}
+
+function applyVoicesForModel(modelId) {
+    const voiceSel = document.getElementById("ttsVoice");
+    if (!_ttsOptions || !voiceSel) return;
+    const spec = _ttsOptions.models.find((x) => x.id === modelId) || _ttsOptions.models[0];
+    const saved = localStorage.getItem("interviewTtsVoice");
+    voiceSel.innerHTML = "";
+    for (const vo of spec.voices || []) {
+        const opt = document.createElement("option");
+        opt.value = vo.id;
+        opt.textContent = vo.label;
+        voiceSel.appendChild(opt);
+    }
+    const defV =
+        (_ttsOptions.defaultVoiceByModel && _ttsOptions.defaultVoiceByModel[modelId]) ||
+        (voiceSel.options[0] && voiceSel.options[0].value) ||
+        "";
+    const ok = [...voiceSel.options].some((o) => o.value === saved);
+    voiceSel.value = ok ? saved : defV;
+}
+
+function fillBrowserSystemVoiceSelect() {
+    const sel = document.getElementById("browserSystemVoice");
+    if (!sel || !window.speechSynthesis) return;
+    const saved = localStorage.getItem("interviewBrowserVoiceUri") || "";
+    const voices = window.speechSynthesis.getVoices().slice();
+    voices.sort((a, b) => {
+        const la = (a.lang || "").toLowerCase();
+        const lb = (b.lang || "").toLowerCase();
+        if (la !== lb) return la.localeCompare(lb);
+        return (a.name || "").localeCompare(b.name || "");
+    });
+    sel.innerHTML = '<option value="">Default (OS picks)</option>';
+    for (const v of voices) {
+        const opt = document.createElement("option");
+        opt.value = v.voiceURI;
+        opt.textContent = `${v.name} (${v.lang || "?"})`;
+        sel.appendChild(opt);
+    }
+    if (saved && [...sel.options].some((o) => o.value === saved)) {
+        sel.value = saved;
+    }
+}
+
+function setupBrowserSystemVoiceSelect() {
+    const sel = document.getElementById("browserSystemVoice");
+    if (!sel || sel.dataset.bound === "1") return;
+    sel.dataset.bound = "1";
+    sel.addEventListener("change", () => {
+        localStorage.setItem("interviewBrowserVoiceUri", sel.value);
+    });
+    if (window.speechSynthesis) {
+        window.speechSynthesis.addEventListener("voiceschanged", fillBrowserSystemVoiceSelect);
+    }
+    fillBrowserSystemVoiceSelect();
+    setTimeout(fillBrowserSystemVoiceSelect, 400);
+}
+
+function getSelectedSystemVoice() {
+    const sel = document.getElementById("browserSystemVoice");
+    if (!sel || !sel.value || !window.speechSynthesis) return null;
+    return window.speechSynthesis.getVoices().find((v) => v.voiceURI === sel.value) || null;
+}
+
+async function initInterviewTtsUi() {
+    const modelSel = document.getElementById("ttsModel");
+    const voiceSel = document.getElementById("ttsVoice");
+    if (!modelSel || !voiceSel) return;
+    const opts = await ensureTtsOptions();
+    if (!opts || !opts.models || !opts.models.length) return;
+    const hint = document.getElementById("ttsTokenHint");
+    if (hint && opts.hf_token_configured === false) {
+        hint.hidden = false;
+        hint.textContent =
+            "HF token missing on server: add HF_TOKEN or HUGGING_FACE_HUB_TOKEN to .env, restart Flask. Model voices only work after that.";
+    } else if (hint) {
+        hint.hidden = true;
+        hint.textContent = "";
+    }
+    modelSel.innerHTML = "";
+    for (const m of opts.models) {
+        const opt = document.createElement("option");
+        opt.value = m.id;
+        opt.textContent = m.label;
+        if (m.hint) opt.title = m.hint;
+        modelSel.appendChild(opt);
+    }
+    const savedM = localStorage.getItem("interviewTtsModel") || opts.defaultModel;
+    modelSel.value = [...modelSel.options].some((o) => o.value === savedM)
+        ? savedM
+        : opts.defaultModel;
+    applyVoicesForModel(modelSel.value);
+    modelSel.addEventListener("change", () => {
+        applyVoicesForModel(modelSel.value);
+        saveTtsPrefs();
+    });
+    voiceSel.addEventListener("change", saveTtsPrefs);
+    setupBrowserSystemVoiceSelect();
+}
+
+function ttsRequestPayload(text) {
+    const modelEl = document.getElementById("ttsModel");
+    const voiceEl = document.getElementById("ttsVoice");
+    const model = (modelEl && modelEl.value) || "ResembleAI/chatterbox";
+    const voice = voiceEl ? voiceEl.value : "";
+    return { text, model, voice };
+}
+
+function plainTextForSpeech(raw) {
+    if (!raw) return "";
+    let s = String(raw);
+    s = s.replace(/<[^>]*>/g, " ");
+    s = s.replace(/\*{1,2}([^*]+)\*{1,2}/g, "$1");
+    s = s.replace(/\s+/g, " ").trim();
+    return s.slice(0, 5000);
+}
+
+function speakWithBrowser(text) {
+    const plain = plainTextForSpeech(text);
+    if (!plain || !window.speechSynthesis) return false;
+    try {
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(plain);
+        const v = getSelectedSystemVoice();
+        if (v) u.voice = v;
+        u.rate = 0.9;
+        u.volume = 1;
+        u.pitch = 1;
+        window.speechSynthesis.speak(u);
+        return true;
+    } catch (_) {
+        return false;
+    }
+}
+
+function appendBrowserVoiceNotice(questionEl, reason) {
+    if (questionEl.querySelector("[data-tts-browser-notice]")) return;
+    questionEl.insertAdjacentHTML(
+        "beforeend",
+        `<div class="tts-hint tts-hint--browser" data-tts-browser-notice="1">${escapeHtml(reason)}</div>`
+    );
+}
+
+function appendBrowserVoiceButton(questionEl, text) {
+    if (!questionEl || questionEl.querySelector("[data-tts-browser-btn]")) return;
+    const broBtn = document.createElement("button");
+    broBtn.type = "button";
+    broBtn.setAttribute("data-tts-browser-btn", "1");
+    broBtn.className = "tts-browser-btn";
+    broBtn.textContent = "Browser voice";
+    broBtn.title =
+        "Reads this question with your system text-to-speech. Click if the clip is silent, will not play, or you hear nothing.";
+    if (!window.speechSynthesis) {
+        broBtn.disabled = true;
+        broBtn.title = "Speech synthesis is not available in this browser.";
+    }
+    broBtn.onclick = () => {
+        const a = questionEl.querySelector("audio.interview-tts-audio");
+        if (a) {
+            try {
+                a.pause();
+            } catch (_) {}
+        }
+        if (window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+        }
+        speakWithBrowser(text);
+    };
+    questionEl.appendChild(broBtn);
+}
+
+/**
+ * Loads TTS for this question and appends an <audio controls> bar.
+ * If the model clip cannot play or the API fails, falls back to the browser Speech Synthesis API so you still hear the question.
+ */
+async function attachQuestionAudio(questionEl, text) {
+    if (!readAloudEnabled() || !text || !questionEl) return;
+    let browserSpoke = false;
+    function tryBrowserVoice(reason) {
+        if (browserSpoke) return;
+        if (speakWithBrowser(text)) {
+            browserSpoke = true;
+            appendBrowserVoiceNotice(questionEl, reason);
+        }
+    }
+    try {
+        const res = await fetch("/api/interview/tts", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(ttsRequestPayload(text)),
+            cache: "no-store",
+        });
+        if (!res.ok) {
+            let detail = `HTTP ${res.status}`;
+            try {
+                const err = await res.json();
+                if (err && err.error) detail = err.error;
+            } catch (_) { /* not JSON */ }
+            questionEl.insertAdjacentHTML(
+                "beforeend",
+                `<div class="tts-hint tts-hint--err">Question audio: ${escapeHtml(detail)}</div>`
+            );
+            tryBrowserVoice("Model voice unavailable; using browser text-to-speech instead.");
+            return;
+        }
+        const mime = (res.headers.get("Content-Type") || "audio/wav").split(";")[0].trim();
+        const buf = await res.arrayBuffer();
+        if (!buf.byteLength) {
+            questionEl.insertAdjacentHTML(
+                "beforeend",
+                `<div class="tts-hint tts-hint--err">Question audio: empty response</div>`
+            );
+            tryBrowserVoice("No audio data; using browser text-to-speech instead.");
+            return;
+        }
+        const blob = new Blob([buf], { type: mime });
+        const url = URL.createObjectURL(blob);
+        const audio = document.createElement("audio");
+        audio.className = "interview-tts-audio";
+        audio.controls = true;
+        audio.preload = "auto";
+        audio.volume = 1;
+        audio.src = url;
+        audio.addEventListener("ended", () => URL.revokeObjectURL(url), { once: true });
+        audio.addEventListener("error", () => {
+            const err = audio.error;
+            const detail = err ? `MediaError code ${err.code}` : "decode/load failed";
+            tryBrowserVoice(`Model clip could not play (${detail}). Using browser text-to-speech instead.`);
+        });
+        questionEl.appendChild(audio);
+        try {
+            await audio.play();
+        } catch (_) {
+            /* Autoplay blocked — use the on-screen play button, or press Play on the page */
+        }
+    } catch (e) {
+        questionEl.insertAdjacentHTML(
+            "beforeend",
+            `<div class="tts-hint tts-hint--err">Question audio: ${escapeHtml(String(e && e.message ? e.message : e))}</div>`
+        );
+        tryBrowserVoice("Network error; using browser text-to-speech instead.");
+    } finally {
+        appendBrowserVoiceButton(questionEl, text);
+    }
+}
 
 async function startInterview() {
     const res = await fetch("/api/interview/start", {
@@ -110,7 +399,9 @@ async function startInterview() {
     chat.innerHTML = "";
     questionCount = 1;
 
-    addQuestion(data.state.current_question);
+    const q = data.state.current_question;
+    const qEl = addQuestion(q);
+    await attachQuestionAudio(qEl, q);
 }
 
 async function submitAnswer() {
@@ -132,7 +423,9 @@ async function submitAnswer() {
     addFeedback(formattedFeedback);
 
     if (data.state.active) {
-        addQuestion(data.state.current_question);
+        const q = data.state.current_question;
+        const qEl = addQuestion(q);
+        await attachQuestionAudio(qEl, q);
     } else {
         addFeedback("🎉 Interview Completed!");
     }
@@ -200,12 +493,11 @@ function escapeHtml(text) {
 
 function addQuestion(q) {
     const chat = document.getElementById("chat");
-
-    chat.innerHTML += `
-        <div class="msg question">
-            <b>Question ${questionCount++}</b><br>${q}
-        </div>
-    `;
+    const wrap = document.createElement("div");
+    wrap.className = "msg question";
+    wrap.innerHTML = `<b>Question ${questionCount++}</b><br>${q}`;
+    chat.appendChild(wrap);
+    return wrap;
 }
 
 function addAnswer(a) {
@@ -224,5 +516,8 @@ function addFeedback(f) {
     `;
 }
 
+document.addEventListener("DOMContentLoaded", () => {
+    initInterviewTtsUi().catch(() => {});
+});
 </script>
 {% endblock %}
