@@ -3,6 +3,8 @@ from __future__ import annotations
 import logging
 from flask import Blueprint, jsonify, render_template, request, Response
 
+from jobSearch.graph import run_job_search_workflow
+from jobSearch.state import initial_workflow_state
 from services.naukri_service import run_job_detail, run_login_and_fetch_jobs
 
 # 👉 NEW IMPORTS
@@ -126,6 +128,51 @@ def interview_tts():
 
 # ================= JOB SEARCH =================
 
+# def _parse_headless_param(val: object, *, default: bool = True) -> bool:
+#     if val is None:
+#         return default
+#     if isinstance(val, bool):
+#         return val
+#     s = str(val).strip().lower()
+#     return s not in ("0", "false", "no")
+
+# @main_bp.route("/job-search")
+# def job_search():
+#     return render_template("job_search.html")
+
+# @main_bp.route("/job-detail")
+# def job_detail_page():
+#     url = (request.args.get("url") or "").strip()
+#     if not url:
+#         return jsonify({"ok": False, "error": "Missing url query parameter."}), 400
+
+#     headless = _parse_headless_param(request.args.get("headless"), default=True)
+
+#     try:
+#         detail = run_job_detail(url=url, headless=headless)
+#         return render_template("job_detail.html", detail=detail)
+
+#     except Exception as e:
+#         logger.exception("Job detail scrape failed")
+#         return jsonify({"ok": False, "error": str(e)}), 500
+
+
+# @main_bp.route("/api/jobs/naukri", methods=["POST"])
+# def api_naukri_jobs():
+#     payload = request.get_json(silent=True) or {}
+
+#     headless = _parse_headless_param(payload.get("headless"), default=True)
+
+#     try:
+#         jobs = run_login_and_fetch_jobs(headless=headless)
+#         return jsonify({"ok": True, "jobs": jobs})
+
+#     except Exception as e:
+#         logger.exception("Naukri automation failed")
+#         return jsonify({"ok": False, "error": str(e)}), 500
+
+
+# ===================JobSearch with playwriter ==================
 def _parse_headless_param(val: object, *, default: bool = True) -> bool:
     if val is None:
         return default
@@ -140,35 +187,25 @@ def job_search():
 
 @main_bp.route("/job-detail")
 def job_detail_page():
-    url = (request.args.get("url") or "").strip()
-    if not url:
-        return jsonify({"ok": False, "error": "Missing url query parameter."}), 400
-
-    headless = _parse_headless_param(request.args.get("headless"), default=True)
-
-    try:
-        detail = run_job_detail(url=url, headless=headless)
-        return render_template("job_detail.html", detail=detail)
-
-    except Exception as e:
-        logger.exception("Job detail scrape failed")
-        return jsonify({"ok": False, "error": str(e)}), 500
-
+    return jsonify({"ok": True, "message": "Job detail page"}), 200
+    
 
 @main_bp.route("/api/jobs/naukri", methods=["POST"])
-def api_naukri_jobs():
-    payload = request.get_json(silent=True) or {}
-
-    headless = _parse_headless_param(payload.get("headless"), default=True)
-
+async def api_naukri_jobs():
     try:
-        jobs = run_login_and_fetch_jobs(headless=headless)
-        return jsonify({"ok": True, "jobs": jobs})
-
+        payload = request.get_json(silent=True) or {}
+        enrich = payload.get("enrich_jd")
+        initial = initial_workflow_state()
+        if enrich is not None:
+            initial["enrich_jd"] = bool(enrich)
+        result = await run_job_search_workflow(initial_state=initial)
+        return jsonify(
+            {"ok": True, "message": "Naukri jobs", "jobs": result.get("jobs", [])}
+        ), 200
     except Exception as e:
-        logger.exception("Naukri automation failed")
+        logger.exception("Naukri job search workflow failed")
         return jsonify({"ok": False, "error": str(e)}), 500
-
+    
 
 # ================= STOCK MARKET PREDICTION =================
 

@@ -42,7 +42,32 @@
   function jobDetailUrl(job) {
     var u = job.jd_url != null ? String(job.jd_url).trim() : "";
     if (!u && job.job_url != null) u = String(job.job_url).trim();
+    if (!u && job.link != null) u = String(job.link).trim();
     return u;
+  }
+
+  function jobPackageText(job) {
+    if (job.package != null && String(job.package).trim() !== "") {
+      return String(job.package);
+    }
+    return job.salary == null ? "" : String(job.salary);
+  }
+
+  function formatPosted(job) {
+    if (job.uploaded_at != null && String(job.uploaded_at).trim() !== "") {
+      return String(job.uploaded_at).trim();
+    }
+    if (job.posted != null && job.posted !== "") {
+      var ts = Number(job.posted);
+      if (!isNaN(ts)) {
+        try {
+          return new Date(ts * 1000).toLocaleString();
+        } catch (e) {
+          return String(job.posted);
+        }
+      }
+    }
+    return "";
   }
 
   function jobIsRelevant(job) {
@@ -66,7 +91,9 @@
       job.posted,
       job.job_url,
       job.jd_url,
-      job.description,
+      job.is_remote,
+      job.relevant_percentage,
+      job.uploaded_at,
     ]
       .map(function (x) {
         return String(x == null ? "" : x).toLowerCase();
@@ -89,36 +116,50 @@
   }
 
   function relevanceBadgeHtml(job) {
+    var pct = Number(job.relevant_percentage);
+    if (isNaN(pct)) pct = 0;
+    var pctStr = pct + "%";
+    var titleOk =
+      "All of React, Next, Node, JavaScript, TypeScript appear in skills; no Java / C# / .NET.";
+    var titleNo = "Needs all five stack skills and no Java/C#/NET in the skill list.";
     if (jobIsRelevant(job)) {
-      return '<span class="job-badge job-badge--relevant" title="Matches target stack (React/Next/Node/TS/JS)">✅ Relevant</span>';
+      return (
+        '<span class="job-badge job-badge--relevant" title="' +
+        titleOk +
+        '">✅ Relevant · ' +
+        escapeHtml(pctStr) +
+        "</span>"
+      );
     }
-    return '<span class="job-badge job-badge--not" title="Excluded stack or not enough target skills">❌ Not relevant</span>';
+    return (
+      '<span class="job-badge job-badge--not" title="' +
+      titleNo +
+      '">❌ Not relevant · ' +
+      escapeHtml(pctStr) +
+      "</span>"
+    );
   }
 
   function renderJobs(jobs) {
     tbody.innerHTML = "";
     jobs.forEach(function (job) {
-      var date;
-      if (job.posted != null) {
-        date = new Date(Number(job.posted) * 1000);
-      }
       var loc = jobLocationText(job);
+      var remote = job.is_remote === true ? "Yes" : "No";
       var skillsFull = jobSkillsText(job);
       var skills = truncate(skillsFull, 72);
-      var pkg = job.package != null ? String(job.package) : "";
-      var posted = date != null ? date.toString() : "";
+      var pkg = jobPackageText(job);
+      var posted = formatPosted(job);
       var url = jobDetailUrl(job);
       var relHtml = relevanceBadgeHtml(job);
 
       var actions = "—";
       if (url) {
         actions =
-          '<button type="button" class="btn btn--ghost" onclick="openJob(' +
-          JSON.stringify(url) +
-          ')">View Job</button>' +
-          ' <a class="btn btn--ghost" href="/job-detail?url=' +
-          encodeURIComponent(url) +
-          '" target="_blank" rel="noopener noreferrer">JD</a>';
+          '<a class="btn btn--ghost" href="' +
+          String(url)
+            .replace(/&/g, "&amp;")
+            .replace(/"/g, "&quot;") +
+          '">View Job</a>';
       }
 
       var tr = document.createElement("tr");
@@ -133,6 +174,8 @@
         "</td><td>" +
         escapeHtml(loc) +
         "</td><td>" +
+        escapeHtml(remote) +
+        "</td><td>" +
         escapeHtml(pkg) +
         '</td><td title="' +
         escapeHtml(skillsFull) +
@@ -141,7 +184,7 @@
         "</td><td>" +
         relHtml +
         "</td><td>" +
-        escapeHtml(job.experience) +
+        escapeHtml(job.experience == null ? "" : String(job.experience)) +
         "</td><td>" +
         escapeHtml(posted) +
         '</td><td class="job-actions-cell">' +
@@ -182,13 +225,21 @@
       });
     } else if (criteria === "posted") {
       jobs.sort(function (a, b) {
-        return String(b.posted || "").localeCompare(String(a.posted || ""));
+        var ap = Number(a.posted || 0);
+        var bp = Number(b.posted || 0);
+        if (!isNaN(ap) && !isNaN(bp) && (ap !== 0 || bp !== 0)) {
+          if (bp !== ap) return bp - ap;
+        }
+        return formatPosted(b).localeCompare(formatPosted(a));
       });
     } else if (criteria === "relevant") {
       jobs.sort(function (a, b) {
         var ar = jobIsRelevant(a) ? 1 : 0;
         var br = jobIsRelevant(b) ? 1 : 0;
         if (br !== ar) return br - ar;
+        var ap = Number(a.relevant_percentage || 0);
+        var bp = Number(b.relevant_percentage || 0);
+        if (bp !== ap) return bp - ap;
         return String(a.title).localeCompare(String(b.title));
       });
     }
@@ -199,7 +250,7 @@
   window.renderJobs = renderJobs;
 
   window.openJob = function (url) {
-    if (url) window.open(url, "_blank", "noopener,noreferrer");
+    if (url) window.location.assign(url);
   };
 
   function fetchJobs() {
@@ -207,7 +258,7 @@
     setVisible(errorEl, false);
     setVisible(resultsEl, false);
 
-    var enrich = enrichChk ? enrichChk.checked : true;
+    var enrich = enrichChk ? enrichChk.checked : false;
 
     fetch("/api/jobs/naukri", {
       method: "POST",
@@ -216,6 +267,7 @@
     })
       .then(function (res) {
         return res.json().then(function (data) {
+          console.log(data);
           return { ok: res.ok, data: data };
         });
       })

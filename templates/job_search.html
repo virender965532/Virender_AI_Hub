@@ -17,7 +17,7 @@
       <div class="spinner" aria-hidden="true"></div>
       <div>
         <p class="loading-panel__text">Scraping in progress…</p>
-        <p class="loading-panel__hint">Visible Chrome: login → listings → scroll. With full JD fetch, each job page opens in the same session (can take several minutes).</p>
+        <p class="loading-panel__hint">Visible Chrome: login → listings → scroll. Optional “open each JD” fetches posted date from the job page (slower).</p>
       </div>
     </div>
   </div>
@@ -40,10 +40,10 @@
           <option value="relevant">Relevance</option>
         </select>
         <label class="job-control-label" for="job-keyword">Filter</label>
-        <input type="search" id="job-keyword" class="job-filter-input" placeholder="Keyword in title, company, location, skills, description…" autocomplete="off" />
-        <label class="job-toolbar-check" title="When off, SRP-only scrape is faster; relevance uses card skills only.">
-          <input type="checkbox" id="chk-enrich-jd" checked />
-          <span>Full job descriptions</span>
+        <input type="search" id="job-keyword" class="job-filter-input" placeholder="Keyword in title, company, location, skills…" autocomplete="off" />
+        <label class="job-toolbar-check" title="When on, opens each job page to refresh posted date (skills always come from the listing).">
+          <input type="checkbox" id="chk-enrich-jd" />
+          <span>Fetch posted date from job page</span>
         </label>
         <label class="job-toolbar-check">
           <input type="checkbox" id="chk-relevant-only" />
@@ -59,6 +59,7 @@
             <th>Title</th>
             <th>Company</th>
             <th>Location</th>
+            <th>Remote</th>
             <th>Package</th>
             <th>Skills</th>
             <th>Relevance</th>
