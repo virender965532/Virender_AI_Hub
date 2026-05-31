@@ -246,9 +246,18 @@ body {
 
 /* Module cards */
 .card-grid {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(240px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 1.25rem;
+  max-width: 1020px;
+  margin: 0 auto;
+}
+
+.card-grid .module-card {
+  flex: 0 1 calc(33.333% - 0.84rem);
+  min-width: 240px;
+  max-width: 320px;
 }
 
 .module-card {
@@ -277,6 +286,9 @@ body {
 }
 .module-card:nth-child(4) {
   animation-delay: 0.26s;
+}
+.module-card:nth-child(5) {
+  animation-delay: 0.33s;
 }
 
 .module-card:hover {

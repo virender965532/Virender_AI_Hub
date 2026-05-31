@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from flask import Blueprint, jsonify, render_template, request, Response
+from flask import Blueprint, jsonify, render_template, request, Response, send_file
 
 from jobSearch.graph import run_job_search_workflow
 from jobSearch.state import initial_workflow_state
@@ -11,6 +11,7 @@ from services.naukri_service import run_job_detail, run_login_and_fetch_jobs
 from interviewSimulator.graph import run_interview_graph
 from interviewSimulator.memory import load_state, save_state
 from interviewSimulator.tts import get_tts_options, synthesize_speech
+from pageIndex.basicPageIndex import DOC_ID, PDF_PATH, ask_pageindex_question
 
 logger = logging.getLogger(__name__)
 
@@ -205,7 +206,57 @@ async def api_naukri_jobs():
     except Exception as e:
         logger.exception("Naukri job search workflow failed")
         return jsonify({"ok": False, "error": str(e)}), 500
-    
+
+
+# ===================Basic RAG Search ==================
+
+@main_bp.route("/basic-rag-search")
+def basic_rag_search():
+    return render_template("index.html")
+
+
+# ===================Dynamic RAG Search ==================
+@main_bp.route("/dynamic-rag-search")
+def dynamic_rag_search():
+    return render_template("index.html")
+
+
+# ===================Page Index RAG Search ==================
+@main_bp.route("/page-index-rag-search")
+def page_index_rag_search():
+    return render_template(
+        "page_index_rag_search.html",
+        doc_id=DOC_ID,
+    )
+
+
+@main_bp.route("/api/page-index-rag-search/pdf")
+def page_index_rag_pdf():
+    if not PDF_PATH.exists():
+        return jsonify({"ok": False, "error": "PDF file not found on server."}), 404
+    return send_file(
+        PDF_PATH,
+        mimetype="application/pdf",
+        as_attachment=False,
+        download_name=PDF_PATH.name,
+    )
+
+
+@main_bp.route("/api/page-index-rag-search/ask", methods=["POST"])
+def page_index_rag_ask():
+    payload = request.get_json(silent=True) or {}
+    query = (payload.get("query") or "").strip()
+    if not query:
+        return jsonify({"ok": False, "error": "Question is required."}), 400
+
+    try:
+        result = ask_pageindex_question(query)
+        return jsonify({"ok": True, **result}), 200
+    except ValueError as e:
+        return jsonify({"ok": False, "error": str(e)}), 400
+    except Exception as e:
+        logger.exception("Page Index RAG question failed")
+        return jsonify({"ok": False, "error": str(e)}), 500
 
 # ================= STOCK MARKET PREDICTION =================
 
