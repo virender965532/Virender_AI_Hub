@@ -85,36 +85,99 @@ def _compress_tree(nodes: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return out
 
 
-def llm_tree_search(query: str, tree: list[dict[str, Any]]) -> tuple[dict[str, Any], dict[str, Any]]:
+def llm_tree_search(
+    query: str,
+    tree: list[dict[str, Any]]
+) -> tuple[dict[str, Any], dict[str, Any]]:
+
     compressed_tree = _compress_tree(tree)
 
-    prompt = f"""You are given a query and a document's tree structure (like a Table of Contents).
-Your task: identify which node IDs most likely contain the answer to the query.
-Think step-by-step and reason through the query.
+    prompt = f"""
+You are an expert retrieval planner for a RAG system.
 
-Query: {query}
+You are given:
+1. A user query
+2. A hierarchical document tree
+
+Your task is NOT just to find the direct answer.
+
+Your task is to retrieve:
+
+1. Direct answer sections
+2. Supporting conceptual sections
+3. Implementation-related sections
+4. Real-world examples/projects
+5. Design patterns related to the query
+
+Rules:
+
+- Return between 3 and 8 node IDs.
+- Always include the most relevant node.
+- Also include supporting nodes that help explain:
+  - why the concept matters
+  - how to implement it
+  - real-world usage
+  - best practices
+- Prefer child nodes over parent nodes.
+- Never invent node IDs.
+
+Examples:
+
+Query:
+"What are guardrails?"
+
+Good retrieval:
+- Guardrails
+- Building Blocks
+- Multi-Agent Pattern
+- Financial Analyst
+
+Bad retrieval:
+- Guardrails only
+
+Query:
+"How does memory work?"
+
+Good retrieval:
+- Memory
+- Building Blocks
+- Human-like Memory Project
+
+Return ONLY JSON:
+
+{{
+  "thinking": "brief reasoning",
+  "node_list": ["node1", "node2"]
+}}
+
+User Query:
+{query}
+
 Document Tree:
 {json.dumps(compressed_tree, indent=2)}
-
-Reply ONLY in this exact JSON format:
-{{
-    "thinking": "<your step-by-step reasoning>",
-    "node_list": ["node_id1", "node_id2"]
-}}
 """
 
     started_at = _utc_now_iso()
     t0 = time.perf_counter()
+
     response = OPENAI_CLIENT.chat.completions.create(
         model=MODEL_NAME,
-        messages=[{"role": "user", "content": prompt}],
+        messages=[
+            {
+                "role": "user",
+                "content": prompt,
+            }
+        ],
         response_format={"type": "json_object"},
     )
+
     elapsed_ms = round((time.perf_counter() - t0) * 1000, 2)
     ended_at = _utc_now_iso()
 
     payload = json.loads(response.choices[0].message.content)
+
     usage = _extract_token_usage(response)
+
     api_log = {
         "stage": "tree_search",
         "model": MODEL_NAME,
@@ -124,6 +187,7 @@ Reply ONLY in this exact JSON format:
         "elapsed_ms": elapsed_ms,
         **usage,
     }
+
     return payload, api_log
 
 
@@ -138,46 +202,76 @@ def find_nodes_by_ids(tree: list[dict[str, Any]], node_ids: list[str]) -> list[d
     return found
 
 
-def generate_answer(query: str, nodes: list[dict[str, Any]]) -> tuple[str, dict[str, Any]]:
+def generate_answer(
+    query: str,
+    nodes: list[dict[str, Any]]
+) -> tuple[str, dict[str, Any]]:
+
     if not nodes:
-        return "No relevant information found in the document.", {
-            "stage": "answer_generation",
-            "model": MODEL_NAME,
-            "query": query,
-            "request_started_at": _utc_now_iso(),
-            "response_received_at": _utc_now_iso(),
-            "elapsed_ms": 0,
-            "prompt_tokens": 0,
-            "completion_tokens": 0,
-            "total_tokens": 0,
-        }
+        return "No relevant information found.", {}
 
     context_parts = []
+
     for node in nodes:
         context_parts.append(
             f"""
-SECTION: {node.get('title', 'Unknown')}
-PAGE: {node.get('page_index', '?')}
+SECTION: {node.get('title')}
+PAGE: {node.get('page_index')}
 
 CONTENT:
-{node.get('text', 'No content available')}
+{node.get('text', '')}
 """
         )
 
-    context_str = "\n\n" + ("\n" + "-" * 80 + "\n").join(context_parts)
+    context_str = "\n\n".join(context_parts)
 
     prompt = f"""
-You are an expert document analyst.
+You are a senior AI Architect, AI Tutor and Technical Writer.
 
-Your task is to answer the user's query using ONLY the provided document context.
+Use the provided document context as the primary source.
 
-Rules:
-1. Use only information found in the context.
-2. Do not make up information.
-3. Cite every major claim using:
-   (Section: <title>, Page: <page>)
-4. If the answer is not present in the context, say so.
-5. Write a clear and detailed answer.
+Important:
+
+- Do NOT merely summarize.
+- Teach the concept.
+- Connect ideas across sections.
+- Explain implementation details.
+- Use real-world examples.
+- Give actionable guidance.
+
+Every document-derived claim MUST contain:
+
+(Section: <title>, Page: <page>)
+
+Output format:
+
+# Direct Answer
+
+Short answer in 2-3 sentences.
+
+# What The Document Says
+
+Explain the concept using citations.
+
+# Why It Matters
+
+Explain why this concept is important.
+
+# How To Apply It
+
+Give practical implementation guidance.
+
+# Real-World Example
+
+Provide an example based on the document.
+
+# Common Mistakes
+
+List common mistakes.
+
+# Key Takeaways
+
+Summarize in bullet points.
 
 User Query:
 {query}
@@ -188,21 +282,41 @@ Document Context:
 
     started_at = _utc_now_iso()
     t0 = time.perf_counter()
+
     response = OPENAI_CLIENT.chat.completions.create(
         model=MODEL_NAME,
         messages=[
             {
                 "role": "system",
-                "content": "You answer questions using only the provided document context.",
+                "content": """
+You are an expert AI Architect.
+
+Your job is to transform document facts into practical knowledge.
+
+Do not simply repeat the document.
+
+Explain:
+- what
+- why
+- how
+- examples
+- implementation
+- pitfalls
+"""
             },
-            {"role": "user", "content": prompt},
+            {
+                "role": "user",
+                "content": prompt,
+            },
         ],
-        temperature=0,
+        temperature=0.4,
     )
+
     elapsed_ms = round((time.perf_counter() - t0) * 1000, 2)
     ended_at = _utc_now_iso()
 
     usage = _extract_token_usage(response)
+
     api_log = {
         "stage": "answer_generation",
         "model": MODEL_NAME,
@@ -212,6 +326,7 @@ Document Context:
         "elapsed_ms": elapsed_ms,
         **usage,
     }
+
     return response.choices[0].message.content.strip(), api_log
 
 

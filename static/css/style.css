@@ -171,6 +171,86 @@ body {
   box-shadow: 0 0 28px rgba(185, 103, 255, 0.35);
 }
 
+.nav__dropdown {
+  position: relative;
+}
+
+.nav__dropdown-toggle {
+  list-style: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.nav__dropdown-toggle::-webkit-details-marker {
+  display: none;
+}
+
+.nav__dropdown-toggle::after {
+  content: "▾";
+  font-size: 0.75em;
+  opacity: 0.85;
+  /* transition: transform var(--transition); */
+}
+
+.nav__dropdown[open] .nav__dropdown-toggle::after {
+  transform: rotate(180deg);
+}
+
+.nav__dropdown-menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  min-width: 280px;
+  padding: 0.5rem;
+  border-radius: var(--radius);
+  background: #0c0e1c;
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.65), 0 0 24px rgba(56, 182, 255, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  z-index: 100;
+  /* animation: fadeUp 0.25s ease both; */
+}
+
+.nav__dropdown-item {
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 0.55rem 0.85rem;
+  border-radius: 12px;
+  background: #12142a;
+  /* transition: color var(--transition), background var(--transition), box-shadow var(--transition); */
+}
+
+.nav__dropdown-item:hover {
+  color: var(--neon-cyan);
+  background: #1a1d38;
+  box-shadow: 0 0 16px rgba(56, 182, 255, 0.15);
+}
+
+.nav__dropdown-item--soon {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.nav__dropdown-item--soon::after {
+  content: "Coming Soon";
+  float: right;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+
+.nav__dropdown-item--soon:hover {
+  color: var(--text-muted);
+  background: #12142a;
+  box-shadow: none;
+}
+
 /* Main */
 .main-content {
   position: relative;

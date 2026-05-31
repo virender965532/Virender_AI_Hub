@@ -22,12 +22,20 @@
         <span class="logo__text">Virender <span class="logo__accent">AI Hub</span></span>
       </a>
       <nav class="nav">
-        <a href="{{ url_for('main.home') }}" class="nav__link">Home</a>
-        <a href="{{ url_for('main.interview_ui') }}" class="nav__link nav__link--cta">Interview Simulator</a>
-        <a href="{{ url_for('main.job_search') }}" class="nav__link  nav__link--cta">Job Search</a>
-        <a href="{{ url_for('main.home') }}" class="nav__link nav__link--cta">Stock Market Prediction</a>
-        <a href="{{ url_for('main.home') }}" class="nav__link nav__link--cta">Ask Virender</a>
-        <a href="{{ url_for('main.home') }}" class="nav__link">Login</a>
+        <details class="nav__dropdown">
+          <summary class="nav__link nav__link--cta nav__dropdown-toggle">All Tools</summary>
+          <div class="nav__dropdown-menu">
+            <a href="{{ url_for('main.interview_ui') }}" class="nav__dropdown-item">Real Time Interview Simulator</a>
+            <a href="{{ url_for('main.job_search') }}" class="nav__dropdown-item">Real Time Job Search</a>
+            <a href="{{ url_for('main.page_index_rag_search') }}" class="nav__dropdown-item">Page Index RAG Search</a>
+            <a href="{{ url_for('main.basic_rag_search') }}" class="nav__dropdown-item">Basic RAG Search</a>
+            <a href="{{ url_for('main.dynamic_rag_search') }}" class="nav__dropdown-item">Dynamic RAG Search</a>
+            <span class="nav__dropdown-item nav__dropdown-item--soon">Advanced Optimized RAG Search</span>
+            <span class="nav__dropdown-item nav__dropdown-item--soon">Ask Virender Career Consultant</span>
+            <span class="nav__dropdown-item nav__dropdown-item--soon">Stock Market Prediction</span>
+          </div>
+        </details>
+        <a href="{{ url_for('main.home') }}" class="nav__dropdown-item">Login</a>
       </nav>
     </div>
   </header>
@@ -39,6 +47,15 @@
   <footer class="site-footer">
     <p>Virender AI Hub · Synthetic intelligence orchestration layer</p>
   </footer>
+  <script>
+    document.addEventListener('click', (e) => {
+      document.querySelectorAll('.nav__dropdown[open]').forEach((dropdown) => {
+        if (!dropdown.contains(e.target)) {
+          dropdown.removeAttribute('open');
+        }
+      });
+    });
+  </script>
   {% block scripts %}{% endblock %}
 </body>
 </html>
