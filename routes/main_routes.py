@@ -12,6 +12,7 @@ from interviewSimulator.graph import run_interview_graph
 from interviewSimulator.memory import load_state, save_state
 from interviewSimulator.tts import get_tts_options, synthesize_speech
 from pageIndex.basicPageIndex import DOC_ID, PDF_PATH, ask_pageindex_question
+from simpleRAG.simpleRAG import PDF_PATH as SIMPLE_RAG_PDF_PATH, ask_simple_rag_question
 
 logger = logging.getLogger(__name__)
 
@@ -208,17 +209,81 @@ async def api_naukri_jobs():
         return jsonify({"ok": False, "error": str(e)}), 500
 
 
-# ===================Basic RAG Search ==================
+# ===================Simple RAG Search ==================
 
 @main_bp.route("/basic-rag-search")
 def basic_rag_search():
-    return render_template("index.html")
+    return render_template(
+        "simple_rag_search.html",
+        pdf_name=SIMPLE_RAG_PDF_PATH.name,
+    )
+
+
+@main_bp.route("/api/simple-rag-search/pdf")
+def simple_rag_pdf():
+    if not SIMPLE_RAG_PDF_PATH.exists():
+        return jsonify({"ok": False, "error": "PDF file not found on server."}), 404
+    return send_file(
+        SIMPLE_RAG_PDF_PATH,
+        mimetype="application/pdf",
+        as_attachment=False,
+        download_name=SIMPLE_RAG_PDF_PATH.name,
+    )
+
+
+@main_bp.route("/api/simple-rag-search/ask", methods=["POST"])
+def simple_rag_ask():
+    payload = request.get_json(silent=True) or {}
+    query = (payload.get("query") or "").strip()
+    if not query:
+        return jsonify({"ok": False, "error": "Question is required."}), 400
+
+    try:
+        result = ask_simple_rag_question(query)
+        return jsonify({"ok": True, **result}), 200
+    except ValueError as e:
+        return jsonify({"ok": False, "error": str(e)}), 400
+    except Exception as e:
+        logger.exception("Simple RAG question failed")
+        return jsonify({"ok": False, "error": str(e)}), 500
 
 
 # ===================Dynamic RAG Search ==================
 @main_bp.route("/dynamic-rag-search")
 def dynamic_rag_search():
-    return render_template("index.html")
+    return render_template(
+        "dynamic_rag_search.html",
+        pdf_name=SIMPLE_RAG_PDF_PATH.name,
+    )
+
+
+@main_bp.route("/api/simple-rag-search/pdf")
+def simple_rag_pdf():
+    if not SIMPLE_RAG_PDF_PATH.exists():
+        return jsonify({"ok": False, "error": "PDF file not found on server."}), 404
+    return send_file(
+        SIMPLE_RAG_PDF_PATH,
+        mimetype="application/pdf",
+        as_attachment=False,
+        download_name=SIMPLE_RAG_PDF_PATH.name,
+    )
+
+
+@main_bp.route("/api/simple-rag-search/ask", methods=["POST"])
+def simple_rag_ask():
+    payload = request.get_json(silent=True) or {}
+    query = (payload.get("query") or "").strip()
+    if not query:
+        return jsonify({"ok": False, "error": "Question is required."}), 400
+
+    try:
+        result = ask_simple_rag_question(query)
+        return jsonify({"ok": True, **result}), 200
+    except ValueError as e:
+        return jsonify({"ok": False, "error": str(e)}), 400
+    except Exception as e:
+        logger.exception("Simple RAG question failed")
+        return jsonify({"ok": False, "error": str(e)}), 500
 
 
 # ===================Page Index RAG Search ==================
