@@ -1,312 +1,1078 @@
 {% extends "base.html" %}
-{% block title %}Virender AI Hub — Simple RAG Search{% endblock %}
+
+{% block title %}Virender AI Hub — Dynamic RAG Search{% endblock %}
+
+
 
 {% block extra_head %}
+
 <style>
+
   .simple-rag-layout {
+
     display: grid;
-    grid-template-columns: 1.2fr 1fr;
+
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+
     gap: 1.25rem;
+
     align-items: stretch;
+
   }
+
+
 
   .simple-rag-panel {
+
     padding: 1rem;
+
     min-height: 72vh;
+
   }
+
+
 
   .simple-rag-title {
+
     margin: 0 0 0.75rem;
+
     font-family: var(--font-display);
+
     letter-spacing: 0.06em;
+
     color: var(--neon-cyan);
+
   }
+
+
 
   .simple-rag-subtle {
+
     color: var(--text-muted);
+
     margin: 0 0 1rem;
+
   }
 
-  .pdf-frame-wrap {
+
+
+  .doc-frame-wrap {
+
     border: 1px solid rgba(120, 160, 255, 0.25);
+
     border-radius: 12px;
+
     overflow: hidden;
+
     height: calc(72vh - 5.5rem);
+
     background: rgba(9, 10, 20, 0.75);
+
   }
 
-  .pdf-frame {
+
+
+  .doc-frame {
+
     width: 100%;
+
     height: 100%;
+
     border: 0;
+
   }
+
+
+
+  .doc-text-preview {
+
+    width: 100%;
+
+    height: 100%;
+
+    margin: 0;
+
+    padding: 1rem;
+
+    overflow: auto;
+
+    border: 0;
+
+    background: transparent;
+
+    color: var(--text);
+
+    font-family: var(--font-body);
+
+    font-size: 0.92rem;
+
+    line-height: 1.5;
+
+    white-space: pre-wrap;
+
+    word-break: break-word;
+
+  }
+
+
+
+  .upload-panel {
+
+    max-width: 640px;
+
+    margin: 0 auto;
+
+    padding: 1.5rem;
+
+  }
+
+
+
+  .upload-form {
+
+    display: grid;
+
+    gap: 0.85rem;
+
+  }
+
+
+
+  .upload-input-wrap {
+
+    display: grid;
+
+    gap: 0.5rem;
+
+  }
+
+
+
+  .upload-input {
+
+    border-radius: 10px;
+
+    padding: 0.75rem;
+
+    border: 1px dashed rgba(120, 160, 255, 0.45);
+
+    background: rgba(7, 9, 20, 0.9);
+
+    color: var(--text);
+
+    font-family: var(--font-body);
+
+  }
+
+
+
+  .upload-hint {
+
+    color: var(--text-muted);
+
+    font-size: 0.88rem;
+
+    margin: 0;
+
+  }
+
+
 
   .qa-form {
+
     display: grid;
+
     gap: 0.75rem;
+
   }
+
+
 
   .qa-label {
+
     font-family: var(--font-display);
+
     font-size: 0.8rem;
+
     letter-spacing: 0.08em;
+
     text-transform: uppercase;
+
     color: var(--text-muted);
+
   }
+
+
 
   .qa-textarea {
+
     width: 100%;
+
     min-height: 140px;
+
     resize: vertical;
+
     border-radius: 10px;
+
     padding: 0.85rem 1rem;
+
     border: 1px solid rgba(120, 160, 255, 0.3);
+
     background: rgba(7, 9, 20, 0.9);
+
     color: var(--text);
+
     font-family: var(--font-body);
+
     font-size: 1rem;
+
     line-height: 1.45;
+
   }
+
+
 
   .qa-textarea:focus {
+
     outline: none;
+
     border-color: var(--neon-blue);
+
     box-shadow: 0 0 0 2px rgba(56, 182, 255, 0.2);
+
   }
+
+
 
   .qa-button {
+
     justify-self: start;
+
     border: 1px solid rgba(92, 240, 232, 0.4);
+
     border-radius: 999px;
+
     padding: 0.5rem 1.15rem;
+
     color: var(--neon-cyan);
+
     background: rgba(56, 182, 255, 0.08);
+
     cursor: pointer;
+
     font-weight: 600;
+
     transition: all var(--transition);
+
   }
+
+
 
   .qa-button:hover {
+
     box-shadow: 0 0 20px rgba(56, 182, 255, 0.28);
+
   }
+
+
 
   .qa-button:disabled {
+
     opacity: 0.6;
+
     cursor: not-allowed;
+
   }
+
+
 
   .qa-answer-wrap {
+
     margin-top: 1rem;
+
     padding: 0.9rem;
+
     border-radius: 10px;
+
     border: 1px solid rgba(120, 160, 255, 0.22);
+
     background: rgba(9, 12, 25, 0.82);
+
   }
+
+
 
   .qa-answer {
+
     white-space: normal;
+
     word-break: break-word;
+
     line-height: 1.55;
+
   }
+
+
 
   .qa-answer h4 {
+
     margin: 0 0 0.5rem;
+
     color: var(--neon-cyan);
+
     font-family: var(--font-display);
+
     letter-spacing: 0.06em;
+
   }
+
+
 
   .qa-citation-link {
+
     color: var(--neon-blue);
+
     text-decoration: underline;
+
     cursor: pointer;
+
   }
+
+
 
   .qa-error {
+
     color: #ffc9d0;
+
     border: 1px solid rgba(255, 120, 140, 0.45);
+
     background: rgba(45, 12, 20, 0.55);
+
     border-radius: 10px;
+
     padding: 0.7rem 0.85rem;
+
     margin-top: 0.85rem;
+
   }
+
+
 
   .qa-log-wrap {
+
     margin-top: 0.85rem;
+
   }
+
+
 
   .qa-log-title {
+
     margin: 0 0 0.35rem;
+
     color: var(--text-muted);
+
     font-size: 0.85rem;
+
     letter-spacing: 0.08em;
+
     text-transform: uppercase;
+
   }
 
+
+
   .qa-log {
+
     margin: 0;
+
     max-height: 220px;
+
     overflow: auto;
+
     border-radius: 10px;
+
     padding: 0.75rem;
+
     border: 1px solid rgba(120, 160, 255, 0.2);
+
     background: rgba(4, 7, 18, 0.95);
+
     color: #bfe9ff;
+
     font-size: 0.84rem;
+
     line-height: 1.35;
+
+  }
+
+
+
+  .replace-upload-wrap {
+    margin-bottom: 0.75rem;
+  }
+
+  #uploadSection.hidden,
+  #workspaceSection.hidden {
+    display: none !important;
   }
 
   @media (max-width: 980px) {
+
     .simple-rag-layout {
+
       grid-template-columns: 1fr;
+
     }
+
     .simple-rag-panel {
+
       min-height: auto;
+
     }
-    .pdf-frame-wrap {
+
+    .doc-frame-wrap {
+
       height: 60vh;
+
     }
+
   }
+
 </style>
+
 {% endblock %}
 
+
+
 {% block content %}
-<section class="hero">
-  <p class="hero__eyebrow neon-text">Simple RAG Search</p>
-  <h1 class="hero__title">Ask questions from <span class="hero__accent">VIRU Simple RAG Search</span></h1>
-  <p class="hero__subtitle">Left: source PDF. Right: question box, generated answer, and OpenAI call logs.</p>
+
+<section class="hero" id="heroSection">
+  <p class="hero__eyebrow neon-text">Dynamic RAG Search</p>
+  <h1 class="hero__title">Ask questions from <span class="hero__accent">your uploaded document</span></h1>
+  <p class="hero__subtitle" id="heroSubtitle">
+    {% if uploaded_file %}
+      Preview your document on the left and ask questions on the right.
+    {% else %}
+      Upload a document below to begin.
+    {% endif %}
+  </p>
 </section>
 
-<section class="simple-rag-layout" aria-label="Simple RAG workspace">
-  <article class="glass simple-rag-panel">
-    <h2 class="simple-rag-title">Document Viewer</h2>
-    <p class="simple-rag-subtle">Source: {{ pdf_name }}</p>
-    <div class="pdf-frame-wrap">
-      <iframe
-        id="pdfFrame"
-        class="pdf-frame"
-        title="AI Agents guidebook PDF"
-        src="{{ url_for('main.simple_rag_pdf') }}#page=1"
-      ></iframe>
+<section id="uploadSection" class="glass upload-panel{% if uploaded_file %} hidden{% endif %}" aria-label="Document upload">
+
+  <h2 class="simple-rag-title">Upload Document</h2>
+
+  <p class="simple-rag-subtle">Supported formats: {{ supported_extensions | join(', ') }}</p>
+
+  <form id="uploadForm" class="upload-form" enctype="multipart/form-data">
+
+    <div class="upload-input-wrap">
+
+      <label for="fileInput" class="qa-label">Choose File</label>
+
+      <input
+
+        id="fileInput"
+
+        class="upload-input"
+
+        type="file"
+
+        name="file"
+
+        accept=".pdf,.txt,.docx,.doc,.xlsx,.xls"
+
+        required
+
+      />
+
+      <p class="upload-hint">Only PDF, TXT, Word (.doc/.docx), and Excel (.xls/.xlsx) files are allowed.</p>
+
     </div>
-  </article>
+
+    <button id="uploadBtn" type="submit" class="qa-button">Upload &amp; Index Document</button>
+
+  </form>
+
+  <div id="uploadError" class="qa-error" hidden></div>
+
+</section>
+
+
+
+<section id="workspaceSection" class="simple-rag-layout{% if not uploaded_file %} hidden{% endif %}" aria-label="Dynamic RAG workspace">
 
   <article class="glass simple-rag-panel">
-    <h2 class="simple-rag-title">Ask From This PDF</h2>
+
+    <h2 class="simple-rag-title">Document Viewer</h2>
+
+    <p class="simple-rag-subtle">Source: <span id="docName">{{ uploaded_file.name if uploaded_file else '' }}</span></p>
+
+    <div class="replace-upload-wrap">
+
+      <button id="replaceDocBtn" type="button" class="qa-button">Replace Document</button>
+
+    </div>
+
+    <div class="doc-frame-wrap">
+
+      <iframe
+
+        id="pdfFrame"
+
+        class="doc-frame"
+
+        title="Uploaded PDF preview"
+
+        hidden
+
+      ></iframe>
+
+      <pre id="textPreview" class="doc-text-preview" hidden></pre>
+
+    </div>
+
+  </article>
+
+
+
+  <article class="glass simple-rag-panel">
+
+    <h2 class="simple-rag-title">Ask From This Document</h2>
+
     <form id="qaForm" class="qa-form" autocomplete="off">
+
       <label for="queryInput" class="qa-label">Your Question</label>
+
       <textarea
+
         id="queryInput"
+
         class="qa-textarea"
-        placeholder="Example: What is guardrails and how to use them?"
+
+        placeholder="Example: What are the key topics covered in this document?"
+
         required
+
       ></textarea>
+
       <button id="generateBtn" type="submit" class="qa-button">Generate Answer</button>
+
     </form>
+
+
 
     <div id="qaError" class="qa-error" hidden></div>
 
+
+
     <div class="qa-answer-wrap" id="answerWrap" hidden>
+
       <div class="qa-answer" id="answerBox"></div>
+
       <div class="qa-log-wrap">
+
         <p class="qa-log-title">OpenAI API Logs (JSON)</p>
+
         <pre class="qa-log" id="logBox"></pre>
+
       </div>
+
     </div>
+
   </article>
+
 </section>
+
 {% endblock %}
+
+
 
 {% block scripts %}
+
 <script>
+
   (function () {
+
+    const ALLOWED_EXTENSIONS = new Set(
+
+      {{ supported_extensions | tojson }}.map((ext) => ext.toLowerCase())
+
+    );
+
+
+
+    const uploadSection = document.getElementById("uploadSection");
+
+    const workspaceSection = document.getElementById("workspaceSection");
+
+    const uploadForm = document.getElementById("uploadForm");
+
+    const fileInput = document.getElementById("fileInput");
+
+    const uploadBtn = document.getElementById("uploadBtn");
+
+    const uploadError = document.getElementById("uploadError");
+
+    const replaceDocBtn = document.getElementById("replaceDocBtn");
+
+
+
     const qaForm = document.getElementById("qaForm");
+
     const queryInput = document.getElementById("queryInput");
+
     const generateBtn = document.getElementById("generateBtn");
+
     const answerWrap = document.getElementById("answerWrap");
+
     const answerBox = document.getElementById("answerBox");
+
     const logBox = document.getElementById("logBox");
+
     const qaError = document.getElementById("qaError");
+
     const pdfFrame = document.getElementById("pdfFrame");
-    const pdfBaseUrl = "{{ url_for('main.simple_rag_pdf') }}";
+
+    const textPreview = document.getElementById("textPreview");
+
+    const docNameEl = document.getElementById("docName");
+    const heroSubtitle = document.getElementById("heroSubtitle");
+
+    const documentUrl = "{{ url_for('main.dynamic_rag_document') }}";
+
+    const previewUrl = "{{ url_for('main.dynamic_rag_preview') }}";
+
+    const uploadUrl = "{{ url_for('main.dynamic_rag_upload') }}";
+
+    const askUrl = "{{ url_for('main.dynamic_rag_ask') }}";
+
+
+
+    let currentExtension = {{ (uploaded_file.extension if uploaded_file else '') | tojson }};
+
+
 
     function escapeHtml(str) {
+
       return str
+
         .replaceAll("&", "&amp;")
+
         .replaceAll("<", "&lt;")
+
         .replaceAll(">", "&gt;")
+
         .replaceAll('"', "&quot;")
+
         .replaceAll("'", "&#39;");
+
     }
+
+
+
+    function getFileExtension(filename) {
+
+      const dotIndex = filename.lastIndexOf(".");
+
+      if (dotIndex === -1) {
+
+        return "";
+
+      }
+
+      return filename.slice(dotIndex).toLowerCase();
+
+    }
+
+
+
+    function validateSelectedFile(file) {
+
+      if (!file) {
+
+        return "Please choose a file to upload.";
+
+      }
+
+      const extension = getFileExtension(file.name);
+
+      if (!ALLOWED_EXTENSIONS.has(extension)) {
+
+        return `Unsupported file type "${extension || "(none)"}". Allowed: ${[...ALLOWED_EXTENSIONS].join(", ")}`;
+
+      }
+
+      return "";
+
+    }
+
+
+
+    function showUploadError(message) {
+
+      uploadError.hidden = false;
+
+      uploadError.textContent = message;
+
+    }
+
+
+
+    function clearUploadError() {
+
+      uploadError.hidden = true;
+
+      uploadError.textContent = "";
+
+    }
+
+
+
+    function showWorkspace() {
+      uploadSection.classList.add("hidden");
+      workspaceSection.classList.remove("hidden");
+      if (heroSubtitle) {
+        heroSubtitle.textContent =
+          "Preview your document on the left and ask questions on the right.";
+      }
+    }
+
+    function showUploadPanel() {
+      workspaceSection.classList.add("hidden");
+      uploadSection.classList.remove("hidden");
+      if (heroSubtitle) {
+        heroSubtitle.textContent = "Upload a document below to begin.";
+      }
+      fileInput.value = "";
+      clearUploadError();
+    }
+
+
 
     function markdownLiteToHtml(mdText) {
+
       let html = escapeHtml(mdText || "");
+
       html = html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+
       html = html.replace(/\n/g, "<br>");
 
+
+
       const citationRegex = /\(Section:\s*([^,]+),\s*Page:\s*(\d+)\)/g;
+
       html = html.replace(citationRegex, (_, section, page) => {
+
         const cleanSection = section.trim();
+
         const cleanPage = String(page).trim();
+
         return `(<a href="#" class="qa-citation-link" data-page="${cleanPage}" data-section="${escapeHtml(cleanSection)}">Section: ${escapeHtml(cleanSection)}</a>, <a href="#" class="qa-citation-link" data-page="${cleanPage}" data-section="${escapeHtml(cleanSection)}">Page: ${cleanPage}</a>)`;
+
       });
 
+
+
       return `<h4>Answer</h4>${html}`;
+
     }
+
+
 
     function jumpPdfToPage(page) {
-      const pageNumber = Number.parseInt(page, 10);
-      if (!Number.isInteger(pageNumber) || pageNumber <= 0) {
+
+      if (currentExtension !== ".pdf") {
+
         return;
+
       }
-      pdfFrame.src = `${pdfBaseUrl}#page=${pageNumber}`;
+
+      const pageNumber = Number.parseInt(page, 10);
+
+      if (!Number.isInteger(pageNumber) || pageNumber <= 0) {
+
+        return;
+
+      }
+
+      pdfFrame.src = `${documentUrl}#page=${pageNumber}`;
+
       pdfFrame.scrollIntoView({ behavior: "smooth", block: "start" });
+
     }
 
-    answerBox.addEventListener("click", (event) => {
-      const target = event.target;
-      if (!(target instanceof HTMLElement) || !target.classList.contains("qa-citation-link")) {
-        return;
-      }
-      event.preventDefault();
-      jumpPdfToPage(target.dataset.page || "1");
-    });
 
-    qaForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const query = queryInput.value.trim();
-      if (!query) {
+
+    async function loadDocumentPreview() {
+
+      pdfFrame.hidden = true;
+
+      textPreview.hidden = true;
+
+
+
+      if (currentExtension === ".pdf") {
+
+        pdfFrame.hidden = false;
+
+        pdfFrame.src = `${documentUrl}#page=1`;
+
         return;
+
       }
 
-      generateBtn.disabled = true;
-      generateBtn.textContent = "Generating...";
+
+
+      const response = await fetch(previewUrl);
+
+      const payload = await response.json();
+
+      if (!response.ok || !payload.ok) {
+
+        throw new Error(payload.error || "Failed to load document preview.");
+
+      }
+
+
+
+      textPreview.hidden = false;
+
+      textPreview.textContent = payload.preview || "";
+
+    }
+
+
+
+    async function handleSuccessfulUpload(fileInfo) {
+
+      currentExtension = (fileInfo.extension || "").toLowerCase();
+
+      docNameEl.textContent = fileInfo.name || "";
+
+      answerWrap.hidden = true;
+
+      answerBox.innerHTML = "";
+
+      logBox.textContent = "";
+
       qaError.hidden = true;
+
       qaError.textContent = "";
 
+
+
+      showWorkspace();
+
+      await loadDocumentPreview();
+
+    }
+
+
+
+    fileInput.addEventListener("change", () => {
+
+      clearUploadError();
+
+      const validationError = validateSelectedFile(fileInput.files[0]);
+
+      if (validationError) {
+
+        showUploadError(validationError);
+
+      }
+
+    });
+
+
+
+    uploadForm.addEventListener("submit", async (event) => {
+
+      event.preventDefault();
+
+      clearUploadError();
+
+
+
+      const selectedFile = fileInput.files[0];
+
+      const validationError = validateSelectedFile(selectedFile);
+
+      if (validationError) {
+
+        showUploadError(validationError);
+
+        return;
+
+      }
+
+
+
+      uploadBtn.disabled = true;
+
+      uploadBtn.textContent = "Uploading...";
+
+
+
       try {
-        const response = await fetch("{{ url_for('main.simple_rag_ask') }}", {
+
+        const formData = new FormData();
+
+        formData.append("file", selectedFile);
+
+
+
+        const response = await fetch(uploadUrl, {
+
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ query }),
+
+          body: formData,
+
         });
+
         const payload = await response.json();
 
+
+
         if (!response.ok || !payload.ok) {
-          throw new Error(payload.error || "Failed to generate answer.");
+
+          throw new Error(payload.error || "Upload failed.");
+
         }
 
-        answerWrap.hidden = false;
-        answerBox.innerHTML = markdownLiteToHtml(payload.answer || "");
-        logBox.textContent = JSON.stringify(payload.api_logs || [], null, 2);
+
+
+        await handleSuccessfulUpload(payload.file);
+
       } catch (error) {
-        qaError.hidden = false;
-        qaError.textContent = error instanceof Error ? error.message : "Request failed.";
+
+        showUploadError(error instanceof Error ? error.message : "Upload failed.");
+
       } finally {
-        generateBtn.disabled = false;
-        generateBtn.textContent = "Generate Answer";
+
+        uploadBtn.disabled = false;
+
+        uploadBtn.textContent = "Upload & Index Document";
+
       }
+
     });
+
+
+
+    replaceDocBtn.addEventListener("click", () => {
+
+      showUploadPanel();
+
+    });
+
+
+
+    answerBox.addEventListener("click", (event) => {
+
+      const target = event.target;
+
+      if (!(target instanceof HTMLElement) || !target.classList.contains("qa-citation-link")) {
+
+        return;
+
+      }
+
+      event.preventDefault();
+
+      jumpPdfToPage(target.dataset.page || "1");
+
+    });
+
+
+
+    qaForm.addEventListener("submit", async (event) => {
+
+      event.preventDefault();
+
+      const query = queryInput.value.trim();
+
+      if (!query) {
+
+        return;
+
+      }
+
+
+
+      generateBtn.disabled = true;
+
+      generateBtn.textContent = "Generating...";
+
+      qaError.hidden = true;
+
+      qaError.textContent = "";
+
+
+
+      try {
+
+        const response = await fetch(askUrl, {
+
+          method: "POST",
+
+          headers: { "Content-Type": "application/json" },
+
+          body: JSON.stringify({ query }),
+
+        });
+
+        const payload = await response.json();
+
+
+
+        if (!response.ok || !payload.ok) {
+
+          throw new Error(payload.error || "Failed to generate answer.");
+
+        }
+
+
+
+        answerWrap.hidden = false;
+
+        answerBox.innerHTML = markdownLiteToHtml(payload.answer || "");
+
+        logBox.textContent = JSON.stringify(payload.api_logs || [], null, 2);
+
+      } catch (error) {
+
+        qaError.hidden = false;
+
+        qaError.textContent = error instanceof Error ? error.message : "Request failed.";
+
+      } finally {
+
+        generateBtn.disabled = false;
+
+        generateBtn.textContent = "Generate Answer";
+
+      }
+
+    });
+
+
+
+    if (currentExtension) {
+      showWorkspace();
+      loadDocumentPreview().catch((error) => {
+        qaError.hidden = false;
+        qaError.textContent = error instanceof Error ? error.message : "Preview failed.";
+      });
+    } else {
+      showUploadPanel();
+    }
+
   })();
+
 </script>
+
 {% endblock %}
+
+

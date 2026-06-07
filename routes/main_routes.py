@@ -13,6 +13,14 @@ from interviewSimulator.memory import load_state, save_state
 from interviewSimulator.tts import get_tts_options, synthesize_speech
 from pageIndex.basicPageIndex import DOC_ID, PDF_PATH, ask_pageindex_question
 from simpleRAG.simpleRAG import PDF_PATH as SIMPLE_RAG_PDF_PATH, ask_simple_rag_question
+from dynamicRAG.dynamicRAG import (
+    SUPPORTED_EXTENSIONS,
+    ask_dynamic_rag_question,
+    get_document_preview_text,
+    get_uploaded_file,
+    get_uploaded_file_info,
+    save_uploaded_file,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -249,40 +257,106 @@ def simple_rag_ask():
 
 
 # ===================Dynamic RAG Search ==================
+
+_DYNAMIC_RAG_MIME_TYPES = {
+    ".pdf": "application/pdf",
+    ".txt": "text/plain; charset=utf-8",
+    ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ".doc": "application/msword",
+    ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    ".xls": "application/vnd.ms-excel",
+}
+
+
 @main_bp.route("/dynamic-rag-search")
 def dynamic_rag_search():
+    uploaded = get_uploaded_file_info()
     return render_template(
         "dynamic_rag_search.html",
-        pdf_name=SIMPLE_RAG_PDF_PATH.name,
+        uploaded_file=uploaded,
+        supported_extensions=sorted(SUPPORTED_EXTENSIONS),
     )
 
 
-@main_bp.route("/api/simple-rag-search/pdf")
-def simple_rag_pdf():
-    if not SIMPLE_RAG_PDF_PATH.exists():
-        return jsonify({"ok": False, "error": "PDF file not found on server."}), 404
+@main_bp.route("/api/dynamic-rag-search/upload", methods=["POST"])
+def dynamic_rag_upload():
+    uploaded_file = request.files.get("file")
+    if not uploaded_file or not uploaded_file.filename:
+        return jsonify({"ok": False, "error": "No file was uploaded."}), 400
+
+    try:
+        saved_path = save_uploaded_file(uploaded_file)
+        return jsonify(
+            {
+                "ok": True,
+                "file": {
+                    "name": saved_path.name,
+                    "extension": saved_path.suffix.lower(),
+                },
+            }
+        ), 200
+    except ValueError as e:
+        return jsonify({"ok": False, "error": str(e)}), 400
+    except Exception as e:
+        logger.exception("Dynamic RAG file upload failed")
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@main_bp.route("/api/dynamic-rag-search/document")
+def dynamic_rag_document():
+    uploaded = get_uploaded_file()
+    if not uploaded:
+        return jsonify({"ok": False, "error": "No document uploaded yet."}), 404
+
+    mimetype = _DYNAMIC_RAG_MIME_TYPES.get(
+        uploaded.suffix.lower(), "application/octet-stream"
+    )
     return send_file(
-        SIMPLE_RAG_PDF_PATH,
-        mimetype="application/pdf",
+        uploaded,
+        mimetype=mimetype,
         as_attachment=False,
-        download_name=SIMPLE_RAG_PDF_PATH.name,
+        download_name=uploaded.name,
     )
 
 
-@main_bp.route("/api/simple-rag-search/ask", methods=["POST"])
-def simple_rag_ask():
+@main_bp.route("/api/dynamic-rag-search/preview")
+def dynamic_rag_preview():
+    try:
+        preview_text = get_document_preview_text()
+        uploaded = get_uploaded_file()
+        return jsonify(
+            {
+                "ok": True,
+                "preview": preview_text,
+                "file": {
+                    "name": uploaded.name if uploaded else "",
+                    "extension": uploaded.suffix.lower() if uploaded else "",
+                },
+            }
+        ), 200
+    except FileNotFoundError as e:
+        return jsonify({"ok": False, "error": str(e)}), 404
+    except Exception as e:
+        logger.exception("Dynamic RAG preview failed")
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@main_bp.route("/api/dynamic-rag-search/ask", methods=["POST"])
+def dynamic_rag_ask():
     payload = request.get_json(silent=True) or {}
     query = (payload.get("query") or "").strip()
     if not query:
         return jsonify({"ok": False, "error": "Question is required."}), 400
 
     try:
-        result = ask_simple_rag_question(query)
+        result = ask_dynamic_rag_question(query)
         return jsonify({"ok": True, **result}), 200
     except ValueError as e:
         return jsonify({"ok": False, "error": str(e)}), 400
+    except FileNotFoundError as e:
+        return jsonify({"ok": False, "error": str(e)}), 404
     except Exception as e:
-        logger.exception("Simple RAG question failed")
+        logger.exception("Dynamic RAG question failed")
         return jsonify({"ok": False, "error": str(e)}), 500
 
 

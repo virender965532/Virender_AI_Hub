@@ -22,11 +22,11 @@ load_dotenv()
 
 logger = logging.getLogger(__name__)
 
-MODEL_NAME = "gpt-4o-mini"
-EMBEDDING_MODEL = "text-embedding-3-small"
-TOP_K = 4
-CHUNK_SIZE = 1000
-CHUNK_OVERLAP = 200
+MODEL_NAME = os.getenv("SIMPLE_RAG_MODEL", "gpt-4o-mini")
+EMBEDDING_MODEL = os.getenv("SIMPLE_RAG_EMBEDDING_MODEL", "text-embedding-3-small")
+TOP_K = os.getenv("SIMPLE_RAG_TOP_K", 4)
+CHUNK_SIZE = os.getenv("SIMPLE_RAG_CHUNK_SIZE", 1000)
+CHUNK_OVERLAP = os.getenv("SIMPLE_RAG_CHUNK_OVERLAP", 200)
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 PDF_PATH = (
@@ -37,7 +37,7 @@ PDF_PATH = (
     / "AI Agents guidebook.pdf"
 )
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+OPENAI_API_KEY = os.getenv("SIMPLE_RAG_OPENAI_API_KEY", "")
 OPENAI_CLIENT = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
 
 _trace_id_ctx: ContextVar[str | None] = ContextVar("simple_rag_trace_id", default=None)
@@ -50,7 +50,7 @@ def _utc_now_iso() -> str:
 def _setup_openai_tracing() -> bool:
     """Enable OpenTelemetry OpenAI instrumentation when available."""
     try:
-        from opentelemetry.instrumentation.openai_v2 import OpenAIInstrumentor
+        from opentelemetry.instrumentation.openai_v2 import OpenAIInstrumentor  # pyright: ignore[reportMissingImports]
 
         OpenAIInstrumentor().instrument()
         logger.info("OpenAI OpenTelemetry tracing enabled for Simple RAG.")
