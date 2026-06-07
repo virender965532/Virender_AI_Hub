@@ -17,11 +17,11 @@ load_dotenv()
 
 logger = logging.getLogger(__name__)
 
-PAGEINDEX_API_KEY = os.getenv("PAGEINDEX_API_KEY", "")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+PAGEINDEX_API_KEY = os.getenv("PAGE_INDEX_API_KEY", "")
+OPENAI_API_KEY = os.getenv("PAGE_INDEX_OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY", "")
 
-DOC_ID = "pi-cmps9bjmz00hr01quulhissiy"
-MODEL_NAME = "gpt-4o-mini"
+DOC_ID = os.getenv("PAGE_INDEX_DOC_ID", "pi-cmps9bjmz00hr01quulhissiy")
+MODEL_NAME = os.getenv("PAGE_INDEX_MODEL", "gpt-4o-mini")
 # MODEL_NAME = "gpt-5.4"
 
 BASE_DIR = Path(__file__).resolve().parents[1]
@@ -34,7 +34,17 @@ PDF_PATH = (
 )
 
 PI_CLIENT = PageIndexClient(api_key=PAGEINDEX_API_KEY)
-OPENAI_CLIENT = OpenAI(api_key=OPENAI_API_KEY)
+OPENAI_CLIENT = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
+
+_ANSWER_SYSTEM_PROMPT = """You are an expert AI Architect and tutor.
+
+Transform document facts into practical knowledge. Do not simply repeat the document.
+
+When the question has multiple parts:
+1. From the document — Use the provided context for definitions and examples. Every document-derived claim MUST include a citation: (Section: <title>, Page: <page>).
+2. Practical application — If the user asks for code, custom guardrails, or implementation details not literally in the document, apply concepts from the context and provide concrete runnable Python when requested. Wrap all Python code in markdown fences using ```python on its own line, with correct 4-space indentation inside the block. Label this section clearly and do not add document citations to generated code.
+
+Synthesize and explain in your own words."""
 
 
 def _utc_now_iso() -> str:
@@ -68,6 +78,19 @@ def _get_pageindex_tree() -> list[dict[str, Any]]:
     if not isinstance(tree, list):
         raise RuntimeError("PageIndex tree could not be loaded.")
     return tree
+
+
+def _focused_retrieval_query(query: str) -> str:
+    """Use the topic-defining part of multi-part questions for tree search."""
+    lines = [line.strip() for line in query.splitlines() if line.strip()]
+    if len(lines) <= 1:
+        return query
+
+    for line in lines:
+        if "?" in line:
+            return line
+
+    return lines[0]
 
 
 def _compress_tree(nodes: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -225,52 +248,37 @@ CONTENT:
 
     context_str = "\n\n".join(context_parts)
 
-    prompt = f"""
-You are a senior AI Architect, AI Tutor and Technical Writer.
-
-Use the provided document context as the primary source.
+    user_prompt = f"""Use the document context below to answer the question.
 
 Important:
-
 - Do NOT merely summarize.
-- Teach the concept.
-- Connect ideas across sections.
-- Explain implementation details.
-- Use real-world examples.
-- Give actionable guidance.
-
-Every document-derived claim MUST contain:
-
-(Section: <title>, Page: <page>)
+- Teach the concept and connect ideas across sections.
+- Every document-derived claim MUST include: (Section: <title>, Page: <page>)
 
 Output format:
 
 # Direct Answer
-
-Short answer in 2-3 sentences.
+Short answer in 2-3 sentences with citations.
 
 # What The Document Says
-
 Explain the concept using citations.
 
 # Why It Matters
-
 Explain why this concept is important.
 
 # How To Apply It
-
-Give practical implementation guidance.
+Give practical implementation guidance from the document.
 
 # Real-World Example
-
 Provide an example based on the document.
 
-# Common Mistakes
+# Practical Application
+If the user asks for Python code or custom guardrails, provide runnable Python here inspired by document concepts. Use ```python fences with proper indentation. Do not add document citations to generated code.
 
+# Common Mistakes
 List common mistakes.
 
 # Key Takeaways
-
 Summarize in bullet points.
 
 User Query:
@@ -286,28 +294,8 @@ Document Context:
     response = OPENAI_CLIENT.chat.completions.create(
         model=MODEL_NAME,
         messages=[
-            {
-                "role": "system",
-                "content": """
-You are an expert AI Architect.
-
-Your job is to transform document facts into practical knowledge.
-
-Do not simply repeat the document.
-
-Explain:
-- what
-- why
-- how
-- examples
-- implementation
-- pitfalls
-"""
-            },
-            {
-                "role": "user",
-                "content": prompt,
-            },
+            {"role": "system", "content": _ANSWER_SYSTEM_PROMPT},
+            {"role": "user", "content": user_prompt},
         ],
         temperature=0.4,
     )
@@ -343,7 +331,8 @@ def ask_pageindex_question(query: str) -> dict[str, Any]:
     # doc_id = upload_result["doc_id"]
 
     tree = _get_pageindex_tree()
-    search_result, search_log = llm_tree_search(cleaned_query, tree)
+    retrieval_query = _focused_retrieval_query(cleaned_query)
+    search_result, search_log = llm_tree_search(retrieval_query, tree)
     node_ids = search_result.get("node_list", [])
     nodes = find_nodes_by_ids(tree, node_ids)
     answer, answer_log = generate_answer(cleaned_query, nodes)

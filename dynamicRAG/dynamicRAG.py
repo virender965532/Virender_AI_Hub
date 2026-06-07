@@ -30,19 +30,37 @@ load_dotenv()
 
 logger = logging.getLogger(__name__)
 
+
+def _env_int(name: str, default: int) -> int:
+    raw = os.getenv(name)
+    if raw is None or raw.strip() == "":
+        return default
+    return int(raw)
+
+
 MODEL_NAME = os.getenv("DYNAMIC_RAG_MODEL", "gpt-4o-mini")
 EMBEDDING_MODEL = os.getenv("DYNAMIC_RAG_EMBEDDING_MODEL", "text-embedding-3-small")
-TOP_K = os.getenv("DYNAMIC_RAG_TOP_K", 4)
-CHUNK_SIZE = os.getenv("DYNAMIC_RAG_CHUNK_SIZE", 1000)
-CHUNK_OVERLAP = os.getenv("DYNAMIC_RAG_CHUNK_OVERLAP", 200)
+TOP_K = _env_int("DYNAMIC_RAG_TOP_K", 4)
+CHUNK_SIZE = _env_int("DYNAMIC_RAG_CHUNK_SIZE", 1000)
+CHUNK_OVERLAP = _env_int("DYNAMIC_RAG_CHUNK_OVERLAP", 200)
 
 MODULE_DIR = Path(__file__).resolve().parent
 UPLOADS_DIR = MODULE_DIR / "uploads"
 
 SUPPORTED_EXTENSIONS = frozenset({".pdf", ".txt", ".docx", ".doc", ".xlsx", ".xls"})
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+OPENAI_API_KEY = os.getenv("DYNAMIC_RAG_OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY", "")
 OPENAI_CLIENT = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
+
+_ANSWER_SYSTEM_PROMPT = """You are a helpful assistant answering questions using an uploaded document as the primary source.
+
+Generate a clear, complete answer — do not dump raw context text.
+
+When the question has multiple parts:
+1. From the document — Use only the provided context for definitions and document examples. Every claim here MUST include a citation: (Section: <title>, Page: <number>).
+2. Practical application — If the user asks for code, custom guardrails, or implementation details not literally in the document, apply concepts from the context (validation checkpoints, output filtering, fallback mechanisms, etc.) and provide concrete runnable Python when requested. Wrap all Python code in markdown fences using ```python on its own line, with correct 4-space indentation inside the block. Label this section clearly and do not add document citations to generated code.
+
+Synthesize and explain in your own words."""
 
 _trace_id_ctx: ContextVar[str | None] = ContextVar("dynamic_rag_trace_id", default=None)
 
@@ -310,6 +328,31 @@ def _chunk_section_label(content: str, metadata: dict[str, Any]) -> str:
     return "Document"
 
 
+def _focused_retrieval_query(query: str) -> str:
+    """Use the topic-defining part of multi-part questions for vector search."""
+    lines = [line.strip() for line in query.splitlines() if line.strip()]
+    if len(lines) <= 1:
+        return query
+
+    for line in lines:
+        if "?" in line:
+            return line
+
+    return lines[0]
+
+
+def _dedupe_chunks(chunks: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    seen: set[tuple[str, int]] = set()
+    unique: list[dict[str, Any]] = []
+    for chunk in chunks:
+        key = (chunk["section"], chunk["page"])
+        if key in seen:
+            continue
+        seen.add(key)
+        unique.append(chunk)
+    return unique
+
+
 @lru_cache(maxsize=1)
 def _get_vector_db(cache_key: str) -> FAISS:
     if not cache_key:
@@ -372,12 +415,18 @@ def _retrieve_chunks(
     trace_id: str,
 ) -> tuple[list[dict[str, Any]], dict[str, Any], dict[str, Any]]:
     vector_db = _get_vector_db(_vector_db_cache_key())
-    query_vector, embed_log = _embed_query(query, trace_id)
+    retrieval_query = _focused_retrieval_query(query)
+    query_vector, embed_log = _embed_query(retrieval_query, trace_id)
 
     started_at = _utc_now_iso()
     t0 = time.perf_counter()
 
-    docs = vector_db.similarity_search_by_vector(query_vector, k=TOP_K)
+    fetch_k = max(TOP_K * 3, TOP_K)
+    docs = vector_db.max_marginal_relevance_search_by_vector(
+        query_vector,
+        k=TOP_K,
+        fetch_k=fetch_k,
+    )
 
     elapsed_ms = round((time.perf_counter() - t0) * 1000, 2)
     ended_at = _utc_now_iso()
@@ -394,15 +443,19 @@ def _retrieve_chunks(
             }
         )
 
+    retrieved = _dedupe_chunks(retrieved)
+
     retrieval_log = {
         "stage": "vector_retrieval",
         "query": query,
+        "retrieval_query": retrieval_query,
         "trace_id": trace_id,
         "openai_tracing_enabled": OPENAI_TRACING_ENABLED,
         "request_started_at": started_at,
         "response_received_at": ended_at,
         "elapsed_ms": elapsed_ms,
         "top_k": TOP_K,
+        "fetch_k": fetch_k,
         "retrieved_sections": [
             {"section": item["section"], "page": item["page"]} for item in retrieved
         ],
@@ -438,29 +491,25 @@ CONTENT:
 
     context_str = "\n\n".join(context_parts)
 
-    prompt = f"""
-Answer the question using only the provided context from the uploaded document "{document_name}".
-
-Rules:
-- Be clear and practical.
-- Every document-derived claim MUST include a citation in this exact format:
-  (Section: <section title>, Page: <page number>)
-- Use the SECTION and PAGE values from the context blocks.
-- If the context is insufficient, say so briefly.
+    user_prompt = f"""Use the context below from the uploaded document "{document_name}" to answer the question.
 
 Context:
 {context_str}
 
 Question:
 {query}
-"""
+
+Write a synthesized answer (not a copy of the context). Include citations for document facts. If the question asks for Python code or custom guardrails, add a practical example section with runnable code inspired by the concepts in the context."""
 
     started_at = _utc_now_iso()
     t0 = time.perf_counter()
 
     response = OPENAI_CLIENT.chat.completions.create(
         model=MODEL_NAME,
-        messages=[{"role": "user", "content": prompt}],
+        messages=[
+            {"role": "system", "content": _ANSWER_SYSTEM_PROMPT},
+            {"role": "user", "content": user_prompt},
+        ],
         temperature=0.3,
         store=True,
         extra_headers={"X-Client-Trace-Id": trace_id},

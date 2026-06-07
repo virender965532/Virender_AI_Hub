@@ -340,6 +340,146 @@
 
 
 
+  .qa-code-viewer {
+
+    margin: 0.85rem 0;
+
+    border-radius: 10px;
+
+    border: 1px solid rgba(120, 160, 255, 0.28);
+
+    background: rgba(4, 7, 18, 0.98);
+
+    overflow: hidden;
+
+  }
+
+
+
+  .qa-code-viewer__header {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 0.75rem;
+
+    padding: 0.45rem 0.75rem;
+
+    border-bottom: 1px solid rgba(120, 160, 255, 0.18);
+
+    background: rgba(12, 18, 36, 0.95);
+
+  }
+
+
+
+  .qa-code-viewer__lang {
+
+    font-family: var(--font-display);
+
+    font-size: 0.72rem;
+
+    letter-spacing: 0.1em;
+
+    text-transform: uppercase;
+
+    color: var(--neon-cyan);
+
+  }
+
+
+
+  .qa-code-viewer__copy {
+
+    border: 1px solid rgba(92, 240, 232, 0.35);
+
+    border-radius: 999px;
+
+    padding: 0.2rem 0.65rem;
+
+    color: var(--neon-cyan);
+
+    background: rgba(56, 182, 255, 0.08);
+
+    cursor: pointer;
+
+    font-size: 0.75rem;
+
+    font-weight: 600;
+
+    transition: all var(--transition);
+
+  }
+
+
+
+  .qa-code-viewer__copy:hover {
+
+    box-shadow: 0 0 14px rgba(56, 182, 255, 0.24);
+
+  }
+
+
+
+  .qa-code-viewer__pre {
+
+    margin: 0;
+
+    padding: 0.9rem 1rem;
+
+    overflow: auto;
+
+    max-height: 420px;
+
+    font-family: "Consolas", "Courier New", monospace;
+
+    font-size: 0.88rem;
+
+    line-height: 1.5;
+
+    color: #d9ecff;
+
+    tab-size: 4;
+
+    white-space: pre;
+
+  }
+
+
+
+  .qa-code-viewer__code {
+
+    display: block;
+
+    font-family: inherit;
+
+  }
+
+
+
+  .qa-inline-code {
+
+    padding: 0.1rem 0.35rem;
+
+    border-radius: 4px;
+
+    background: rgba(56, 182, 255, 0.12);
+
+    border: 1px solid rgba(120, 160, 255, 0.22);
+
+    font-family: "Consolas", "Courier New", monospace;
+
+    font-size: 0.92em;
+
+    color: #bfe9ff;
+
+  }
+
+
+
   .qa-error {
 
     color: #ffc9d0;
@@ -753,11 +893,35 @@
 
     function markdownLiteToHtml(mdText) {
 
-      let html = escapeHtml(mdText || "");
+      const codeBlocks = [];
+
+      let text = mdText || "";
+
+
+
+      text = text.replace(/```(\w*)\r?\n([\s\S]*?)```/g, (_, lang, code) => {
+
+        const index = codeBlocks.length;
+
+        codeBlocks.push({
+
+          lang: (lang || "python").trim() || "python",
+
+          code: code.replace(/\s+$/, ""),
+
+        });
+
+        return `@@CODE_BLOCK_${index}@@`;
+
+      });
+
+
+
+      let html = escapeHtml(text);
 
       html = html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
 
-      html = html.replace(/\n/g, "<br>");
+      html = html.replace(/`([^`\n]+)`/g, "<code class=\"qa-inline-code\">$1</code>");
 
 
 
@@ -770,6 +934,46 @@
         const cleanPage = String(page).trim();
 
         return `(<a href="#" class="qa-citation-link" data-page="${cleanPage}" data-section="${escapeHtml(cleanSection)}">Section: ${escapeHtml(cleanSection)}</a>, <a href="#" class="qa-citation-link" data-page="${cleanPage}" data-section="${escapeHtml(cleanSection)}">Page: ${cleanPage}</a>)`;
+
+      });
+
+
+
+      html = html.replace(/\n/g, "<br>");
+
+
+
+      html = html.replace(/@@CODE_BLOCK_(\d+)@@/g, (_, idx) => {
+
+        const block = codeBlocks[Number(idx)];
+
+        if (!block) {
+
+          return "";
+
+        }
+
+        const langLabel = escapeHtml(block.lang);
+
+        const codeHtml = escapeHtml(block.code);
+
+        return (
+
+          `<div class="qa-code-viewer">` +
+
+          `<div class="qa-code-viewer__header">` +
+
+          `<span class="qa-code-viewer__lang">${langLabel}</span>` +
+
+          `<button type="button" class="qa-code-viewer__copy" data-code="${codeHtml}">Copy</button>` +
+
+          `</div>` +
+
+          `<pre class="qa-code-viewer__pre"><code class="qa-code-viewer__code">${codeHtml}</code></pre>` +
+
+          `</div>`
+
+        );
 
       });
 
@@ -969,11 +1173,65 @@
 
 
 
-    answerBox.addEventListener("click", (event) => {
+    answerBox.addEventListener("click", async (event) => {
 
       const target = event.target;
 
-      if (!(target instanceof HTMLElement) || !target.classList.contains("qa-citation-link")) {
+      if (!(target instanceof HTMLElement)) {
+
+        return;
+
+      }
+
+
+
+      if (target.classList.contains("qa-code-viewer__copy")) {
+
+        const code = target.dataset.code || "";
+
+        const decoded = code
+
+          .replaceAll("&amp;", "&")
+
+          .replaceAll("&lt;", "<")
+
+          .replaceAll("&gt;", ">")
+
+          .replaceAll("&quot;", '"')
+
+          .replaceAll("&#39;", "'");
+
+        try {
+
+          await navigator.clipboard.writeText(decoded);
+
+          target.textContent = "Copied!";
+
+          window.setTimeout(() => {
+
+            target.textContent = "Copy";
+
+          }, 1200);
+
+        } catch (_error) {
+
+          target.textContent = "Failed";
+
+          window.setTimeout(() => {
+
+            target.textContent = "Copy";
+
+          }, 1200);
+
+        }
+
+        return;
+
+      }
+
+
+
+      if (!target.classList.contains("qa-citation-link")) {
 
         return;
 
