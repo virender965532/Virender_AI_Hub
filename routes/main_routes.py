@@ -21,6 +21,15 @@ from dynamicRAG.dynamicRAG import (
     get_uploaded_file_info,
     save_uploaded_file,
 )
+from enterpriseRAG.config.settings import SUPPORTED_EXTENSIONS as ENTERPRISE_RAG_EXTENSIONS
+from enterpriseRAG.enterpriseRAG import (
+    ask_enterprise_rag_question,
+    get_document_preview_text as enterprise_preview_text,
+    get_supported_roles,
+    get_uploaded_file as enterprise_get_uploaded_file,
+    get_uploaded_file_info as enterprise_get_uploaded_file_info,
+    save_uploaded_file as enterprise_save_uploaded_file,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -396,6 +405,127 @@ def page_index_rag_ask():
     except Exception as e:
         logger.exception("Page Index RAG question failed")
         return jsonify({"ok": False, "error": str(e)}), 500
+
+# ================= ENTERPRISE MULTI-AGENT RAG =================
+
+_ENTERPRISE_RAG_MIME_TYPES = {
+    ".pdf": "application/pdf",
+    ".txt": "text/plain",
+    ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ".doc": "application/msword",
+    ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    ".xls": "application/vnd.ms-excel",
+}
+
+
+@main_bp.route("/enterprise-rag-search")
+def enterprise_rag_search():
+    return render_template(
+        "enterprise_rag_search.html",
+        roles=get_supported_roles(),
+        supported_extensions=sorted(ENTERPRISE_RAG_EXTENSIONS),
+    )
+
+
+@main_bp.route("/api/enterprise-rag-search/upload-status")
+def enterprise_rag_upload_status():
+    info = enterprise_get_uploaded_file_info()
+    if not info:
+        return jsonify({"ok": True, "file": None}), 200
+    return jsonify({"ok": True, "file": info}), 200
+
+
+@main_bp.route("/api/enterprise-rag-search/upload", methods=["POST"])
+def enterprise_rag_upload():
+    uploaded_file = request.files.get("file")
+    if not uploaded_file or not uploaded_file.filename:
+        return jsonify({"ok": False, "error": "No file was uploaded."}), 400
+
+    try:
+        saved_path = enterprise_save_uploaded_file(uploaded_file)
+        return jsonify(
+            {
+                "ok": True,
+                "file": {
+                    "name": saved_path.name,
+                    "extension": saved_path.suffix.lower(),
+                },
+            }
+        ), 200
+    except ValueError as e:
+        return jsonify({"ok": False, "error": str(e)}), 400
+    except Exception as e:
+        logger.exception("Enterprise RAG file upload failed")
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@main_bp.route("/api/enterprise-rag-search/document")
+def enterprise_rag_document():
+    uploaded = enterprise_get_uploaded_file()
+    if not uploaded:
+        return jsonify({"ok": False, "error": "No document uploaded yet."}), 404
+
+    mimetype = _ENTERPRISE_RAG_MIME_TYPES.get(
+        uploaded.suffix.lower(), "application/octet-stream"
+    )
+    return send_file(
+        uploaded,
+        mimetype=mimetype,
+        as_attachment=False,
+        download_name=uploaded.name,
+    )
+
+
+@main_bp.route("/api/enterprise-rag-search/preview")
+def enterprise_rag_preview():
+    try:
+        preview_text = enterprise_preview_text()
+        uploaded = enterprise_get_uploaded_file()
+        return jsonify(
+            {
+                "ok": True,
+                "preview": preview_text,
+                "file": {
+                    "name": uploaded.name if uploaded else "",
+                    "extension": uploaded.suffix.lower() if uploaded else "",
+                },
+            }
+        ), 200
+    except FileNotFoundError as e:
+        return jsonify({"ok": False, "error": str(e)}), 404
+    except Exception as e:
+        logger.exception("Enterprise RAG preview failed")
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@main_bp.route("/api/enterprise-rag-search/roles")
+def enterprise_rag_roles():
+    return jsonify({"ok": True, "roles": get_supported_roles()}), 200
+
+
+@main_bp.route("/api/enterprise-rag-search/ask", methods=["POST"])
+def enterprise_rag_ask():
+    payload = request.get_json(silent=True) or {}
+    query = (payload.get("query") or "").strip()
+    role = (payload.get("role") or "Enterprise Architect").strip()
+    session_id = (payload.get("session_id") or "default").strip()
+
+    if not query:
+        return jsonify({"ok": False, "error": "Question is required."}), 400
+
+    try:
+        result = ask_enterprise_rag_question(
+            query, role=role, session_id=session_id
+        )
+        return jsonify({"ok": True, **result}), 200
+    except ValueError as e:
+        return jsonify({"ok": False, "error": str(e)}), 400
+    except FileNotFoundError as e:
+        return jsonify({"ok": False, "error": str(e)}), 404
+    except Exception as e:
+        logger.exception("Enterprise RAG question failed")
+        return jsonify({"ok": False, "error": str(e)}), 500
+
 
 # ================= STOCK MARKET PREDICTION =================
 
