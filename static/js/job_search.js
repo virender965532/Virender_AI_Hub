@@ -8,6 +8,7 @@
   var resultsEl = document.getElementById("results-state");
   var tbody = document.getElementById("job-tbody");
   var countEl = document.getElementById("job-count");
+  var thresholdNoteEl = document.getElementById("job-threshold-note");
   var refreshBtn = document.getElementById("btn-refresh");
   var sortSelect = document.getElementById("sort-select");
   var keywordInput = document.getElementById("job-keyword");
@@ -69,8 +70,15 @@
     return "";
   }
 
-  /** Minimum relevance score (inclusive). */
+  /** Minimum relevance score (inclusive); synced from API response. */
   var MIN_RELEVANCE_PCT = 80;
+
+  function updateThresholdNote() {
+    if (!thresholdNoteEl) return;
+    thresholdNoteEl.textContent =
+      "Showing jobs with relevance \u2265 " + MIN_RELEVANCE_PCT + "% (server threshold).";
+  }
+  updateThresholdNote();
 
   function jobRelevanceScore(job) {
     var pct = Number(job.relevant_percentage);
@@ -139,6 +147,20 @@
 
   function renderJobs(jobs) {
     tbody.innerHTML = "";
+    if (!jobs.length && allJobs.length) {
+      var trEmpty = document.createElement("tr");
+      trEmpty.innerHTML =
+        '<td colspan="10" class="job-skills-cell">' +
+        escapeHtml(
+          "No jobs meet the " +
+            MIN_RELEVANCE_PCT +
+            "% relevance threshold. " +
+            allJobs.length +
+            " job(s) were scraped — lower NAUKRI_JOB_RELEVANCE_MIN_PCT in .env or check skills on the listing."
+        ) +
+        "</td>";
+      tbody.appendChild(trEmpty);
+    }
     jobs.forEach(function (job) {
       var loc = jobLocationText(job);
       var remote = job.is_remote === true ? "Yes" : "No";
@@ -188,7 +210,22 @@
     });
     var q = keywordInput && keywordInput.value ? keywordInput.value.trim() : "";
     var suffix = q ? " (filtered)" : "";
+    var aboveThreshold = allJobs.filter(jobMeetsThreshold).length;
+    if (allJobs.length && !jobs.length && !q) {
+      countEl.textContent =
+        "0 of " +
+        allJobs.length +
+        " scraped jobs meet the " +
+        MIN_RELEVANCE_PCT +
+        "% relevance threshold" +
+        suffix;
+      return;
+    }
     countEl.textContent = jobs.length + " positions" + suffix;
+    if (allJobs.length && aboveThreshold !== allJobs.length && !q) {
+      countEl.textContent +=
+        " (" + aboveThreshold + " of " + allJobs.length + " scraped meet threshold)";
+    }
   }
 
   /**
@@ -273,6 +310,19 @@
           return;
         }
         allJobs = payload.data.jobs || [];
+        if (payload.data.relevance_min_pct != null) {
+          var threshold = Number(payload.data.relevance_min_pct);
+          if (!isNaN(threshold)) {
+            MIN_RELEVANCE_PCT = threshold;
+            updateThresholdNote();
+          }
+        }
+        if (payload.data.errors && payload.data.errors.length) {
+          console.warn("Job search workflow notes:", payload.data.errors);
+        }
+        if (payload.data.display_complete === false) {
+          console.warn("Playwright job panel injection did not complete.");
+        }
         if (sortSelect) {
           sortSelect.value = "";
         }

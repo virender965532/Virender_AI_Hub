@@ -39,7 +39,7 @@
       <div class="spinner" aria-hidden="true"></div>
       <div>
         <p class="loading-panel__text">Scraping in progress…</p>
-        <p class="loading-panel__hint">Visible Chrome: login → listings → scroll. Optional “open each JD” fetches posted date from the job page (slower).</p>
+        <p class="loading-panel__hint">Visible Chrome: login → listings → scroll. Posted date is read from each listing card. Optional “open job pages” fetches the full JD (slower).</p>
       </div>
     </div>
   </div>
@@ -63,11 +63,11 @@
         </select>
         <label class="job-control-label" for="job-keyword">Filter</label>
         <input type="search" id="job-keyword" class="job-filter-input" placeholder="Keyword in title, company, location, skills…" autocomplete="off" />
-        <label class="job-toolbar-check" title="When on, opens each job page to refresh posted date (skills always come from the listing).">
+        <label class="job-toolbar-check" title="When on, opens each matched job page for full description (slower). Posted date always comes from the listing.">
           <input type="checkbox" id="chk-enrich-jd" />
-          <span>Fetch posted date from job page</span>
+          <span>Open job pages for full description</span>
         </label>
-        <span class="job-toolbar-note">Showing jobs with relevance ≥ 80%</span>
+        <span id="job-threshold-note" class="job-toolbar-note">Showing jobs with relevance at or above the server threshold.</span>
       </div>
       <button type="button" id="btn-refresh" class="btn btn--ghost">Re-run scrape</button>
     </div>

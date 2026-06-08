@@ -54,14 +54,21 @@
   }
 
   function pickPosted(card) {
-    const postedRe = /\d+\s*(h|d|w|mo)\s*ago|today|yesterday|just\s+now/i;
+    const dayEl = card.querySelector("span.job-post-day, .job-post-day");
+    if (dayEl) {
+      const direct = text(dayEl);
+      if (direct) return direct;
+    }
+
+    const postedRe =
+      /\d+\s*(h|hrs?|hours?|d|days?|w|weeks?|mo|months?)\s*ago|few\s+hours?\s*ago|few\s+days?\s*ago|today|yesterday|just\s+now/i;
     const sels = [
       "p.flex.items-center.text-body12R",
       "p.flex.items-center.pt-1.text-body12R",
       "p.text-body12R.text-n400",
-      "span.job-post-day",
       "span[class*='job-post']",
       ".type br2 fleft grey-text",
+      "div.row6 span",
     ];
     for (const css of sels) {
       for (const el of card.querySelectorAll(css)) {

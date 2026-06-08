@@ -21,10 +21,9 @@ from services.naukri_service import (
 )
 
 from ..state import JobRecord, WorkflowState
+from ..utils.job_match_scoring import calculate_job_match
 
 logger = logging.getLogger(__name__)
-
-TARGET_SKILLS = frozenset({"react", "next", "node", "javascript", "typescript"})
 
 
 def _env_str(name: str, default: str) -> str:
@@ -141,59 +140,17 @@ def _location_is_remote(location: str) -> bool:
     )
 
 
-def _skill_blob(skills: list[str]) -> str:
-    return " ".join(str(s).strip() for s in skills if s and str(s).strip()).lower()
-
-
-def _has_excluded_skill(blob: str) -> bool:
-    """True if any forbidden stack keyword appears (java / c# / .net), not substring-only hacks."""
-    if re.search(r"\bjava\b", blob):
-        return True
-    if "c#" in blob:
-        return True
-    if ".net" in blob or re.search(r"\bdotnet\b", blob) or re.search(r"\basp\.net\b", blob):
-        return True
-    if re.search(r"\bnet\b", blob):
-        return True
-    return False
-
-
-def _matched_targets(blob: str) -> set[str]:
-    """Which entries from TARGET_SKILLS appear in the normalized skill text blob."""
-    found: set[str] = set()
-    dotless = blob.replace(".", " ")
-    for target in TARGET_SKILLS:
-        if target == "javascript":
-            if "javascript" in dotless or re.search(r"\bjs\b", dotless):
-                found.add("javascript")
-        elif target == "typescript":
-            if "typescript" in dotless or re.search(r"\bts\b", dotless):
-                found.add("typescript")
-        elif target in dotless:
-            found.add(target)
-    return found
-
-
 def compute_stack_relevance(skills: list[str]) -> tuple[bool, float]:
-    ok = False
-    pct = 0.0
+    """Weighted profile match score with excluded-stack penalty (Java, C#, .NET, Golang)."""
     try:
-        """
-        Relevant iff every TARGET_SKILLS token is reflected in the skill list and no TARGET_NOT
-        skill appears (java, c#, net per user rules).
-        Percentage = matched targets / |TARGET_SKILLS| * 100.
-        """
-        blob = _skill_blob(skills)
-        if not blob:
-            return False, 0.0
-        excluded = _has_excluded_skill(blob)
-        found = _matched_targets(blob)
-        pct = round(100.0 * len(found) / len(TARGET_SKILLS), 1)
-        ok = found and not excluded
+        result = calculate_job_match(skills)
+        pct = float(result["score"])
+        excluded = bool(result.get("excluded_technologies"))
+        ok = bool(result["matched_skills"]) and not excluded
+        return ok, pct
     except Exception as e:
-        logger.exception(f"compute_stack_relevance failed: {e}")
+        logger.exception("compute_stack_relevance failed: %s", e)
         return False, 0.0
-    return ok, pct
 
 async def _click_read_more_if_present(page: Page) -> None:
     try:
@@ -296,43 +253,6 @@ async def _enrich_one_job(
     job["is_relevant"] = ok
     job["relevant_percentage"] = pct
     return enrich_count
-
-
-async def _fetch_posted_if_missing(
-    page: Page,
-    job: JobRecord,
-    *,
-    listing_url: str,
-) -> None:
-    """Visit the job page when SRP did not include a posted date."""
-    if str(job.get("uploaded_at") or "").strip():
-        return
-    link = str(job.get("link") or "").strip()
-    if not link:
-        return
-
-    delay = NAUKRI_JD_PAGE_DELAY
-    for attempt in range(NAUKRI_JD_RETRIES):
-        try:
-            detail = await _scrape_job_detail_page(page, link)
-            _apply_posted_raw(job, str(detail.get("posted_raw") or ""))
-            break
-        except Exception as e:  # noqa: BLE001
-            logger.warning(
-                "Posted-date scrape attempt %s/%s failed for %s: %s",
-                attempt + 1,
-                NAUKRI_JD_RETRIES,
-                link,
-                e,
-            )
-            await asyncio.sleep(delay * (attempt + 1))
-
-    try:
-        await page.goto(listing_url, wait_until="domcontentloaded", timeout=90_000)
-    except Exception as e:  # noqa: BLE001
-        logger.warning("Could not return to listing URL after posted scrape: %s", e)
-
-    await asyncio.sleep(delay)
 
 
 async def _scroll_for_more_cards(page: Page, *, target_cards: int | None = None) -> None:
@@ -471,10 +391,6 @@ async def _fetch_with_page(page: Page, *, enrich_jd: bool) -> list[JobRecord]:
                 job["relevant_percentage"] = pct
 
             if _passes_relevance_threshold(job):
-                if not str(job.get("uploaded_at") or "").strip():
-                    await _fetch_posted_if_missing(
-                        page, job, listing_url=listing_url
-                    )
                 relevant_jobs.append(job)
                 logger.info(
                     "Matched job %s/%s (%.1f%%): %s @ %s",

@@ -4,7 +4,9 @@ import logging
 from flask import Blueprint, jsonify, render_template, request, Response, send_file
 
 from jobSearch.graph import run_job_search_workflow
+from jobSearch.nodes.fetch_jobs_node import RELEVANCE_MIN_PCT
 from jobSearch.state import initial_workflow_state
+from jobSearch.utils.job_payload import job_record_to_dict
 from services.naukri_service import run_job_detail, run_login_and_fetch_jobs
 
 # 👉 NEW IMPORTS
@@ -218,8 +220,18 @@ async def api_naukri_jobs():
         if enrich is not None:
             initial["enrich_jd"] = bool(enrich)
         result = await run_job_search_workflow(initial_state=initial)
+        jobs = result.get("jobs") or []
+        workflow_errors = list(result.get("errors") or [])
+        display_ok = bool(result.get("display_complete"))
         return jsonify(
-            {"ok": True, "message": "Naukri jobs", "jobs": result.get("jobs", [])}
+            {
+                "ok": True,
+                "message": "Naukri jobs",
+                "jobs": [job_record_to_dict(j) for j in jobs],
+                "relevance_min_pct": RELEVANCE_MIN_PCT,
+                "display_complete": display_ok,
+                "errors": workflow_errors,
+            }
         ), 200
     except Exception as e:
         logger.exception("Naukri job search workflow failed")

@@ -71,11 +71,23 @@
   }
 
   function pickPosted() {
-    const postedRe = /\d+\s*(h|d|w|mo)\s*ago|today|yesterday|just\s+now/i;
+    const postedRe =
+      /\d+\s*(h|hrs?|hours?|d|days?|w|weeks?|mo|months?)\s*ago|few\s+hours?\s*ago|few\s+days?\s*ago|today|yesterday|just\s+now/i;
+    for (let a = 0; a < arguments.length; a++) {
+      const scope = arguments[a];
+      if (!scope) continue;
+      const dayEl = scope.querySelector("span.job-post-day, .job-post-day");
+      if (dayEl) {
+        const direct = dayEl.innerText ? dayEl.innerText.trim() : "";
+        if (direct) return direct;
+      }
+    }
     const sels = [
       "p.flex.items-center.text-body12R",
       "p.flex.items-center.pt-1.text-body12R",
       "p.text-body12R.text-n400",
+      "span[class*='job-post']",
+      "div.row6 span",
     ];
     for (let a = 0; a < arguments.length; a++) {
       const scope = arguments[a];
@@ -160,7 +172,7 @@
       location: meta.location || "—",
       salary: meta.salary || "",
       skills: meta.skills || "",
-      posted: pickPosted(right, left),
+      posted: pickPosted(card, right, left),
       link: jobLink(card, right),
     });
   }

@@ -477,6 +477,12 @@ def _extract_posted_text(raw: str) -> int | None:
     if "yesterday" in raw:
         return int((now - timedelta(days=1)).timestamp())
 
+    if re.search(r"few\s+hours?\s*ago", raw):
+        return int((now - timedelta(hours=2)).timestamp())
+
+    if re.search(r"few\s+days?\s*ago", raw):
+        return int((now - timedelta(days=2)).timestamp())
+
     return None
 
 
