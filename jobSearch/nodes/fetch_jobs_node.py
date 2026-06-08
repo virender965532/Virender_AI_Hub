@@ -8,6 +8,7 @@ import os
 import re
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlencode
 
 from playwright.async_api import Page
 
@@ -26,8 +27,79 @@ logger = logging.getLogger(__name__)
 TARGET_SKILLS = frozenset({"react", "next", "node", "javascript", "typescript"})
 
 
-def _srp_job_limit() -> int:
-    """Max job cards to read from the search-results page (see NAUKRI_NO_OF_JOBS)."""
+def _env_str(name: str, default: str) -> str:
+    raw = (os.getenv(name) or "").strip()
+    return raw if raw else default
+
+
+def _env_int(name: str, default: int, *, minimum: int = 1) -> int:
+    raw = (os.getenv(name) or "").strip()
+    if not raw:
+        return default
+    try:
+        return max(minimum, int(raw))
+    except ValueError:
+        logger.warning("Invalid %s=%r; using %s", name, raw, default)
+        return default
+
+
+def _env_float(name: str, default: float) -> float:
+    raw = (os.getenv(name) or "").strip()
+    if not raw:
+        return default
+    try:
+        return float(raw)
+    except ValueError:
+        logger.warning("Invalid %s=%r; using %s", name, raw, default)
+        return default
+
+
+def _env_bool(name: str, default: bool = False) -> bool:
+    raw = (os.getenv(name) or "").strip().lower()
+    if not raw:
+        return default
+    return raw in ("1", "true", "yes")
+
+
+NAUKRI_JOBS_BASE_URL = _env_str(
+    "NAUKRI_JOBS_BASE_URL", "https://www.naukri.com/javascript-jobs"
+)
+NAUKRI_JOB_KEYWORD = _env_str("NAUKRI_JOB_KEYWORD", "javascript")
+NAUKRI_JOB_AGE = _env_str("NAUKRI_JOB_AGE", "1")
+NAUKRI_CTC_FILTERS = _env_str(
+    "NAUKRI_CTC_FILTERS", "25to50,50to75,75to100,100to500"
+)
+RELEVANCE_MIN_PCT = _env_float("NAUKRI_JOB_RELEVANCE_MIN_PCT", 80.0)
+_MAX_SRP_PAGES = _env_int("NAUKRI_JOB_MAX_PAGES", 100)
+NAUKRI_IS_EMAIL_REQUIRED = _env_bool("NAUKRI_IS_EMAIL_REQUIRED", False)
+
+
+def _build_srp_query() -> str:
+    """Build SRP query string from NAUKRI_JOB_KEYWORD, NAUKRI_JOB_AGE, NAUKRI_CTC_FILTERS."""
+    params: list[tuple[str, str]] = [
+        ("k", NAUKRI_JOB_KEYWORD),
+        ("jobAge", NAUKRI_JOB_AGE),
+    ]
+    for band in NAUKRI_CTC_FILTERS.split(","):
+        band = band.strip()
+        if band:
+            params.append(("ctcFilter", band))
+    return "?" + urlencode(params)
+
+
+NAUKRI_JS_JOBS_QUERY = _build_srp_query()
+
+
+def _passes_relevance_threshold(job: JobRecord) -> bool:
+    """True when stack match score is at least RELEVANCE_MIN_PCT."""
+    try:
+        return float(job.get("relevant_percentage") or 0) >= RELEVANCE_MIN_PCT
+    except (TypeError, ValueError):
+        return False
+
+
+def _relevant_job_cap() -> int:
+    """Max relevant jobs to collect across paginated SRP pages (see NAUKRI_NO_OF_JOBS)."""
     raw = (os.getenv("NAUKRI_NO_OF_JOBS") or "").strip()
     if raw:
         try:
@@ -37,11 +109,11 @@ def _srp_job_limit() -> int:
     return 25
 
 
-NAUKRI_JS_JOBS_URL = (
-    "https://www.naukri.com/javascript-jobs"
-    "?k=javascript"
-    "&ctcFilter=25to50&ctcFilter=50to75&ctcFilter=75to100&ctcFilter=100to500"
-)
+def _srp_page_url(page_num: int) -> str:
+    """Build paginated Naukri SRP URL; page 1 has no suffix, page 2+ uses ``-2``, ``-3``, etc."""
+    if page_num <= 1:
+        return NAUKRI_JOBS_BASE_URL + NAUKRI_JS_JOBS_QUERY
+    return f"{NAUKRI_JOBS_BASE_URL}-{page_num}{NAUKRI_JS_JOBS_QUERY}"
 
 _BROWSER_SCRIPTS = Path(__file__).resolve().parent.parent / "browser_scripts"
 
@@ -103,21 +175,25 @@ def _matched_targets(blob: str) -> set[str]:
 
 
 def compute_stack_relevance(skills: list[str]) -> tuple[bool, float]:
-    """
-    Relevant iff every TARGET_SKILLS token is reflected in the skill list and no TARGET_NOT
-    skill appears (java, c#, net per user rules).
-    Percentage = matched targets / |TARGET_SKILLS| * 100.
-    """
-    blob = _skill_blob(skills)
-    if not blob:
+    ok = False
+    pct = 0.0
+    try:
+        """
+        Relevant iff every TARGET_SKILLS token is reflected in the skill list and no TARGET_NOT
+        skill appears (java, c#, net per user rules).
+        Percentage = matched targets / |TARGET_SKILLS| * 100.
+        """
+        blob = _skill_blob(skills)
+        if not blob:
+            return False, 0.0
+        excluded = _has_excluded_skill(blob)
+        found = _matched_targets(blob)
+        pct = round(100.0 * len(found) / len(TARGET_SKILLS), 1)
+        ok = found and not excluded
+    except Exception as e:
+        logger.exception(f"compute_stack_relevance failed: {e}")
         return False, 0.0
-
-    excluded = _has_excluded_skill(blob)
-    found = _matched_targets(blob)
-    pct = round(100.0 * len(found) / len(TARGET_SKILLS), 1)
-    ok = len(found) == len(TARGET_SKILLS) and not excluded
     return ok, pct
-
 
 async def _click_read_more_if_present(page: Page) -> None:
     try:
@@ -145,6 +221,17 @@ async def _click_read_more_if_present(page: Page) -> None:
         pass
 
 
+def _apply_posted_raw(job: JobRecord, raw_posted: str) -> None:
+    """Set uploaded_at / posted timestamp from raw Naukri text such as ``5d ago``."""
+    raw_posted = str(raw_posted or "").strip()
+    if not raw_posted:
+        return
+    job["uploaded_at"] = raw_posted
+    ts = _extract_posted_text(raw_posted)
+    if ts is not None:
+        job["posted"] = ts
+
+
 async def _scrape_job_detail_page(page: Page, url: str) -> dict[str, Any]:
     await page.goto(url, wait_until="domcontentloaded", timeout=90_000)
     await page.wait_for_selector("#jobs-desc", timeout=50_000)
@@ -160,31 +247,21 @@ async def _scrape_job_detail_page(page: Page, url: str) -> dict[str, Any]:
     }
 
 
-async def _enrich_jobs_with_details(
+async def _enrich_one_job(
     page: Page,
-    jobs: list[JobRecord],
+    job: JobRecord,
     *,
     listing_url: str,
-) -> None:
-    """Visit each job URL (optional); merge posted/location from JD page. Skills stay from SRP."""
-    limit = NAUKRI_MAX_JD_ENRICH
+    enrich_jd: bool,
+    enrich_count: int,
+) -> int:
+    """Enrich a single job (optional JD visit) and set relevance fields. Returns updated enrich_count."""
     delay = NAUKRI_JD_PAGE_DELAY
+    limit = NAUKRI_MAX_JD_ENRICH
+    link = str(job.get("link") or "").strip()
+    should_scrape = enrich_jd and link and (limit <= 0 or enrich_count < limit)
 
-    for idx, job in enumerate(jobs):
-        link = str(job.get("link") or "").strip()
-
-        if limit > 0 and idx >= limit:
-            ok, pct = compute_stack_relevance(list(job.get("skills") or []))
-            job["is_relevant"] = ok
-            job["relevant_percentage"] = pct
-            continue
-
-        if not link:
-            ok, pct = compute_stack_relevance(list(job.get("skills") or []))
-            job["is_relevant"] = ok
-            job["relevant_percentage"] = pct
-            continue
-
+    if should_scrape:
         detail: dict[str, Any] | None = None
         for attempt in range(NAUKRI_JD_RETRIES):
             try:
@@ -201,36 +278,70 @@ async def _enrich_jobs_with_details(
                 await asyncio.sleep(delay * (attempt + 1))
 
         if detail:
-            raw_posted = detail.get("posted_raw") or ""
-            if raw_posted:
-                job["uploaded_at"] = raw_posted
-                ts = _extract_posted_text(raw_posted)
-                if ts is not None:
-                    job["posted"] = ts
+            _apply_posted_raw(job, str(detail.get("posted_raw") or ""))
             loc = detail.get("location") or ""
             if loc:
                 job["location"] = loc
 
-        job["is_remote"] = _location_is_remote(str(job.get("location") or ""))
-        ok, pct = compute_stack_relevance(list(job.get("skills") or []))
-        job["is_relevant"] = ok
-        job["relevant_percentage"] = pct
-
+        enrich_count += 1
         await asyncio.sleep(delay)
+
+        try:
+            await page.goto(listing_url, wait_until="domcontentloaded", timeout=90_000)
+        except Exception as e:  # noqa: BLE001
+            logger.warning("Could not return to listing URL after JD enrichment: %s", e)
+
+    job["is_remote"] = _location_is_remote(str(job.get("location") or ""))
+    ok, pct = compute_stack_relevance(list(job.get("skills") or []))
+    job["is_relevant"] = ok
+    job["relevant_percentage"] = pct
+    return enrich_count
+
+
+async def _fetch_posted_if_missing(
+    page: Page,
+    job: JobRecord,
+    *,
+    listing_url: str,
+) -> None:
+    """Visit the job page when SRP did not include a posted date."""
+    if str(job.get("uploaded_at") or "").strip():
+        return
+    link = str(job.get("link") or "").strip()
+    if not link:
+        return
+
+    delay = NAUKRI_JD_PAGE_DELAY
+    for attempt in range(NAUKRI_JD_RETRIES):
+        try:
+            detail = await _scrape_job_detail_page(page, link)
+            _apply_posted_raw(job, str(detail.get("posted_raw") or ""))
+            break
+        except Exception as e:  # noqa: BLE001
+            logger.warning(
+                "Posted-date scrape attempt %s/%s failed for %s: %s",
+                attempt + 1,
+                NAUKRI_JD_RETRIES,
+                link,
+                e,
+            )
+            await asyncio.sleep(delay * (attempt + 1))
 
     try:
         await page.goto(listing_url, wait_until="domcontentloaded", timeout=90_000)
     except Exception as e:  # noqa: BLE001
-        logger.warning("Could not return to listing URL after JD enrichment: %s", e)
+        logger.warning("Could not return to listing URL after posted scrape: %s", e)
+
+    await asyncio.sleep(delay)
 
 
-async def _scroll_for_more_cards(page: Page, *, target_cards: int) -> None:
-    """Scroll lazy-loaded SRP until we have at least ``target_cards`` cards or the list stops growing."""
+async def _scroll_for_more_cards(page: Page, *, target_cards: int | None = None) -> None:
+    """Scroll lazy-loaded SRP until card count stabilizes or ``target_cards`` is reached."""
     xpath = (
         "//div[contains(@class,'rounded-3xl') and contains(@class,'bg-n800') "
         "and contains(@class,'cursor-pointer')]"
     )
-    max_rounds = max(24, min(80, target_cards * 3))
+    max_rounds = 80 if target_cards is None else max(24, min(80, target_cards * 3))
     last_count = -1
     stable = 0
     for _ in range(max_rounds):
@@ -238,16 +349,16 @@ async def _scroll_for_more_cards(page: Page, *, target_cards: int) -> None:
             count = await page.locator(f"xpath={xpath}").count()
         except Exception:  # noqa: BLE001
             count = 0
-        if count >= target_cards:
+        if target_cards is not None and count >= target_cards:
             logger.info("SRP shows %s job cards (need %s)", count, target_cards)
             return
         if count == last_count:
             stable += 1
             if stable >= 3:
                 logger.info(
-                    "SRP card count stable at %s before reaching target %s",
+                    "SRP card count stable at %s%s",
                     count,
-                    target_cards,
+                    f" before reaching target {target_cards}" if target_cards is not None else "",
                 )
                 break
         else:
@@ -260,7 +371,7 @@ async def _scroll_for_more_cards(page: Page, *, target_cards: int) -> None:
             await page.wait_for_load_state("domcontentloaded", timeout=4000)
 
 
-async def _extract_jobs(page: Page, *, limit: int) -> list[JobRecord]:
+async def _extract_jobs(page: Page, *, limit: int | None = None) -> list[JobRecord]:
     primary: list[dict[str, Any]] = await page.evaluate(_EXTRACT_TOPTIER_JS)
     if not primary:
         primary = await page.evaluate(_EXTRACT_LEGACY_JS)
@@ -268,7 +379,7 @@ async def _extract_jobs(page: Page, *, limit: int) -> list[JobRecord]:
     out: list[JobRecord] = []
     seen: set[str] = set()
     for row in primary:
-        if len(out) >= limit:
+        if limit is not None and len(out) >= limit:
             break
         link = str(row.get("link") or "").strip()
         key = link or f"{row.get('title','')}|{row.get('company','')}"
@@ -282,30 +393,27 @@ async def _extract_jobs(page: Page, *, limit: int) -> list[JobRecord]:
             sk_list = [str(s).strip() for s in skills_raw if str(s).strip()]
         else:
             sk_list = _split_csv_trim(str(skills_raw or ""))
-        out.append(
-            {
-                "title": str(row.get("title") or "").strip() or "—",
-                "company": str(row.get("company") or "").strip() or "—",
-                "experience": str(row.get("experience") or "").strip() or "—",
-                "location": loc,
-                "salary": salary,
-                "link": link,
-                "description": "",
-                "skills": sk_list,
-                "is_remote": _location_is_remote(loc),
-                "uploaded_at": "",
-                "is_relevant": False,
-                "relevant_percentage": 0.0,
-            }
-        )
-    return out[:limit]
+        record: JobRecord = {
+            "title": str(row.get("title") or "").strip() or "—",
+            "company": str(row.get("company") or "").strip() or "—",
+            "experience": str(row.get("experience") or "").strip() or "—",
+            "location": loc,
+            "salary": salary,
+            "link": link,
+            "description": "",
+            "skills": sk_list,
+            "is_remote": _location_is_remote(loc),
+            "uploaded_at": "",
+            "is_relevant": False,
+            "relevant_percentage": 0.0,
+        }
+        _apply_posted_raw(record, str(row.get("posted") or ""))
+        out.append(record)
+    return out[:limit] if limit is not None else out
 
 
-async def _fetch_with_page(page: Page, *, enrich_jd: bool) -> list[JobRecord]:
-    listing_url = NAUKRI_JS_JOBS_URL
-    cap = _srp_job_limit()
+async def _load_srp_page(page: Page, listing_url: str) -> None:
     await page.goto(listing_url, wait_until="domcontentloaded")
-
     try:
         await page.wait_for_selector(
             "#jobs-list-header, div.srp-jobtuple-wrapper, div.cust-job-tuple, "
@@ -315,25 +423,86 @@ async def _fetch_with_page(page: Page, *, enrich_jd: bool) -> list[JobRecord]:
     except Exception:  # noqa: BLE001
         logger.warning("Primary SRP markers not found; continuing with scroll/extract.")
 
-    await _scroll_for_more_cards(page, target_cards=cap)
-    jobs = await _extract_jobs(page, limit=cap)
-    logger.info("Fetched %s job rows from SRP (cap=%s)", len(jobs), cap)
 
-    if enrich_jd:
-        await _enrich_jobs_with_details(page, jobs, listing_url=listing_url)
-    else:
-        for job in jobs:
-            ok, pct = compute_stack_relevance(list(job.get("skills") or []))
-            job["is_relevant"] = ok
-            job["relevant_percentage"] = pct
+async def _fetch_with_page(page: Page, *, enrich_jd: bool) -> list[JobRecord]:
+    cap = _relevant_job_cap()
+    relevant_jobs: list[JobRecord] = []
+    seen: set[str] = set()
+    enrich_count = 0
+    total_scanned = 0
 
-    relevant_only = [j for j in jobs if j.get("is_relevant")]
+    for page_num in range(1, _MAX_SRP_PAGES + 1):
+        if len(relevant_jobs) >= cap:
+            break
+
+        listing_url = _srp_page_url(page_num)
+        logger.info("Fetching SRP page %s: %s", page_num, listing_url)
+        await _load_srp_page(page, listing_url)
+        await _scroll_for_more_cards(page)
+        page_jobs = await _extract_jobs(page)
+        logger.info("Page %s: extracted %s job rows", page_num, len(page_jobs))
+
+        new_jobs: list[JobRecord] = []
+        for job in page_jobs:
+            link = str(job.get("link") or "").strip()
+            key = link or f"{job.get('title', '')}|{job.get('company', '')}"
+            if key in seen:
+                continue
+            seen.add(key)
+            new_jobs.append(job)
+
+        if not new_jobs:
+            logger.info("Page %s: no new jobs; stopping pagination", page_num)
+            break
+
+        for job in new_jobs:
+            total_scanned += 1
+            if enrich_jd:
+                enrich_count = await _enrich_one_job(
+                    page,
+                    job,
+                    listing_url=listing_url,
+                    enrich_jd=True,
+                    enrich_count=enrich_count,
+                )
+            else:
+                ok, pct = compute_stack_relevance(list(job.get("skills") or []))
+                job["is_relevant"] = ok
+                job["relevant_percentage"] = pct
+
+            if _passes_relevance_threshold(job):
+                if not str(job.get("uploaded_at") or "").strip():
+                    await _fetch_posted_if_missing(
+                        page, job, listing_url=listing_url
+                    )
+                relevant_jobs.append(job)
+                logger.info(
+                    "Matched job %s/%s (%.1f%%): %s @ %s",
+                    len(relevant_jobs),
+                    cap,
+                    float(job.get("relevant_percentage") or 0),
+                    job.get("title"),
+                    job.get("company"),
+                )
+                if len(relevant_jobs) >= cap:
+                    break
+
+        logger.info(
+            "After page %s: %s relevant / %s cap (%s jobs scanned on page)",
+            page_num,
+            len(relevant_jobs),
+            cap,
+            len(new_jobs),
+        )
+
     logger.info(
-        "Keeping %s relevant jobs (dropped %s non-relevant)",
-        len(relevant_only),
-        len(jobs) - len(relevant_only),
+        "Pagination complete: kept %s jobs at %.0f%%+ relevance (scanned %s total, cap=%s)",
+        len(relevant_jobs),
+        RELEVANCE_MIN_PCT,
+        total_scanned,
+        cap,
     )
-    return relevant_only
+    return relevant_jobs
 
 
 async def fetch_jobs_node(state: WorkflowState) -> dict[str, Any]:

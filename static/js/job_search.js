@@ -12,7 +12,6 @@
   var sortSelect = document.getElementById("sort-select");
   var keywordInput = document.getElementById("job-keyword");
   var enrichChk = document.getElementById("chk-enrich-jd");
-  var relevantOnlyChk = document.getElementById("chk-relevant-only");
 
   /** Full list from API */
   var allJobs = [];
@@ -70,14 +69,16 @@
     return "";
   }
 
-  function jobIsRelevant(job) {
-    return job.is_relevant === true;
+  /** Minimum relevance score (inclusive). */
+  var MIN_RELEVANCE_PCT = 80;
+
+  function jobRelevanceScore(job) {
+    var pct = Number(job.relevant_percentage);
+    return isNaN(pct) ? 0 : pct;
   }
 
-  function truncate(s, max) {
-    s = String(s || "");
-    if (s.length <= max) return s;
-    return s.slice(0, max - 1) + "…";
+  function jobMeetsThreshold(job) {
+    return jobRelevanceScore(job) >= MIN_RELEVANCE_PCT;
   }
 
   function jobHaystack(job) {
@@ -103,10 +104,7 @@
 
   function getFilteredJobs() {
     var q = (keywordInput && keywordInput.value ? keywordInput.value : "").trim().toLowerCase();
-    var list = allJobs.slice();
-    if (relevantOnlyChk && relevantOnlyChk.checked) {
-      list = list.filter(jobIsRelevant);
-    }
+    var list = allJobs.filter(jobMeetsThreshold);
     if (q) {
       list = list.filter(function (j) {
         return jobHaystack(j).indexOf(q) !== -1;
@@ -116,13 +114,12 @@
   }
 
   function relevanceBadgeHtml(job) {
-    var pct = Number(job.relevant_percentage);
-    if (isNaN(pct)) pct = 0;
+    var pct = jobRelevanceScore(job);
     var pctStr = pct + "%";
     var titleOk =
-      "All of React, Next, Node, JavaScript, TypeScript appear in skills; no Java / C# / .NET.";
-    var titleNo = "Needs all five stack skills and no Java/C#/NET in the skill list.";
-    if (jobIsRelevant(job)) {
+      "Relevance score is " + MIN_RELEVANCE_PCT + "% or higher based on matched stack skills.";
+    var titleLow = "Below " + MIN_RELEVANCE_PCT + "% relevance threshold.";
+    if (jobMeetsThreshold(job)) {
       return (
         '<span class="job-badge job-badge--relevant" title="' +
         titleOk +
@@ -133,7 +130,7 @@
     }
     return (
       '<span class="job-badge job-badge--not" title="' +
-      titleNo +
+      titleLow +
       '">❌ Not relevant · ' +
       escapeHtml(pctStr) +
       "</span>"
@@ -146,7 +143,6 @@
       var loc = jobLocationText(job);
       var remote = job.is_remote === true ? "Yes" : "No";
       var skillsFull = jobSkillsText(job);
-      var skills = truncate(skillsFull, 72);
       var pkg = jobPackageText(job);
       var posted = formatPosted(job);
       var url = jobDetailUrl(job);
@@ -159,11 +155,11 @@
           String(url)
             .replace(/&/g, "&amp;")
             .replace(/"/g, "&quot;") +
-          '">View Job</a>';
+          '" target="_blank" rel="noopener noreferrer">View Job</a>';
       }
 
       var tr = document.createElement("tr");
-      if (jobIsRelevant(job)) {
+      if (jobMeetsThreshold(job)) {
         tr.className = "job-row--relevant";
       }
       tr.innerHTML =
@@ -177,10 +173,8 @@
         escapeHtml(remote) +
         "</td><td>" +
         escapeHtml(pkg) +
-        '</td><td title="' +
+        '</td><td class="job-skills-cell">' +
         escapeHtml(skillsFull) +
-        '">' +
-        escapeHtml(skills) +
         "</td><td>" +
         relHtml +
         "</td><td>" +
@@ -234,11 +228,8 @@
       });
     } else if (criteria === "relevant") {
       jobs.sort(function (a, b) {
-        var ar = jobIsRelevant(a) ? 1 : 0;
-        var br = jobIsRelevant(b) ? 1 : 0;
-        if (br !== ar) return br - ar;
-        var ap = Number(a.relevant_percentage || 0);
-        var bp = Number(b.relevant_percentage || 0);
+        var ap = jobRelevanceScore(a);
+        var bp = jobRelevanceScore(b);
         if (bp !== ap) return bp - ap;
         return String(a.title).localeCompare(String(b.title));
       });
@@ -304,11 +295,6 @@
   }
   if (keywordInput) {
     keywordInput.addEventListener("input", function () {
-      sortJobs(currentSort);
-    });
-  }
-  if (relevantOnlyChk) {
-    relevantOnlyChk.addEventListener("change", function () {
       sortJobs(currentSort);
     });
   }

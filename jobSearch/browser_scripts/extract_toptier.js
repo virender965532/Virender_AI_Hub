@@ -70,6 +70,26 @@
     return out;
   }
 
+  function pickPosted() {
+    const postedRe = /\d+\s*(h|d|w|mo)\s*ago|today|yesterday|just\s+now/i;
+    const sels = [
+      "p.flex.items-center.text-body12R",
+      "p.flex.items-center.pt-1.text-body12R",
+      "p.text-body12R.text-n400",
+    ];
+    for (let a = 0; a < arguments.length; a++) {
+      const scope = arguments[a];
+      if (!scope) continue;
+      for (const css of sels) {
+        for (const p of scope.querySelectorAll(css)) {
+          const t = p.innerText ? p.innerText.trim() : "";
+          if (t && postedRe.test(t)) return t;
+        }
+      }
+    }
+    return "";
+  }
+
   function jobLink(card, right) {
     const roots = [right, card];
     for (const root of roots) {
@@ -140,6 +160,7 @@
       location: meta.location || "—",
       salary: meta.salary || "",
       skills: meta.skills || "",
+      posted: pickPosted(right, left),
       link: jobLink(card, right),
     });
   }

@@ -53,6 +53,25 @@
     return out;
   }
 
+  function pickPosted(card) {
+    const postedRe = /\d+\s*(h|d|w|mo)\s*ago|today|yesterday|just\s+now/i;
+    const sels = [
+      "p.flex.items-center.text-body12R",
+      "p.flex.items-center.pt-1.text-body12R",
+      "p.text-body12R.text-n400",
+      "span.job-post-day",
+      "span[class*='job-post']",
+      ".type br2 fleft grey-text",
+    ];
+    for (const css of sels) {
+      for (const el of card.querySelectorAll(css)) {
+        const t = text(el);
+        if (t && postedRe.test(t)) return t;
+      }
+    }
+    return "";
+  }
+
   const jobs = [];
   for (const card of cards) {
     let title = "";
@@ -80,8 +99,15 @@
       if (experience) break;
     }
     let salary = "";
-    const salEl = card.querySelector("[class*='salary'], .salary, span[class*='package']");
-    salary = text(salEl);
+    for (const s of ["span.sal-wrap", ".sal-wrap", "[class*='sal-wrap']"]) {
+      const el = card.querySelector(s);
+      salary = text(el);
+      if (salary) break;
+    }
+    if (!salary) {
+      const salEl = card.querySelector("[class*='salary'], .salary, span[class*='package']");
+      salary = text(salEl);
+    }
 
     const metaUl = parseMetaUl(card);
     if (metaUl.location && !location) location = metaUl.location;
@@ -98,6 +124,14 @@
       }
     }
 
+    let skills = metaUl.skills || "";
+    const tagLis = card.querySelectorAll("ul.tags-gt li, ul[class*='tags-gt'] li");
+    if (tagLis.length) {
+      skills = Array.from(tagLis)
+        .map((li) => text(li))
+        .filter(Boolean);
+    }
+
     if (!title && !company) continue;
     jobs.push({
       title: title || "—",
@@ -105,7 +139,8 @@
       experience: experience || "—",
       location: location || "—",
       salary,
-      skills: metaUl.skills || "",
+      skills,
+      posted: pickPosted(card),
       link,
     });
   }

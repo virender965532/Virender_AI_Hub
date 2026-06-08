@@ -67,9 +67,18 @@ async def launch_session(*, headless: bool = False) -> PlaywrightSession:
         ),
         locale="en-IN",
     )
+
+    async def _block_heavy_assets(route) -> None:
+        if route.request.resource_type in {"image", "media", "font"}:
+            await route.abort()
+        else:
+            await route.continue_()
+
+    await context.route("**/*", _block_heavy_assets)
+
     page = await context.new_page()
-    page.set_default_timeout(25_000)
-    page.set_default_navigation_timeout(45_000)
+    page.set_default_timeout(20_000)
+    page.set_default_navigation_timeout(35_000)
     logger.info("Playwright Chromium launched (headless=%s)", headless)
     return PlaywrightSession(playwright=pw, browser=browser, context=context, page=page)
 

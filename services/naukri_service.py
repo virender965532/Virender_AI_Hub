@@ -447,23 +447,26 @@ def _extract_posted_text(raw: str) -> int | None:
         return None
 
     raw = raw.strip().lower()
-    now = datetime.now(timezone.utc)  # ✅ always UTC
+    now = datetime.now(timezone.utc)
 
-    # Match patterns like 5d ago, 2h ago, 1w ago, 3mo ago
-    m = re.match(r"^(\d+)\s*(h|d|w|mo)\s*ago\b", raw)
+    # Match patterns like 5d ago, 5 days ago, posted 2 weeks ago
+    m = re.search(
+        r"(\d+)\s*(hours?|hrs?|h|days?|d|weeks?|w|months?|mos?|mo)\s*ago",
+        raw,
+    )
 
     if m:
         value = int(m.group(1))
         unit = m.group(2)
 
-        if unit == "h":
+        if unit.startswith("h"):
             dt = now - timedelta(hours=value)
-        elif unit == "d":
+        elif unit.startswith("d"):
             dt = now - timedelta(days=value)
-        elif unit == "w":
+        elif unit.startswith("w"):
             dt = now - timedelta(weeks=value)
-        elif unit == "mo":
-            dt = now - timedelta(days=value * 30)  # approx
+        else:
+            dt = now - timedelta(days=value * 30)
 
         return int(dt.timestamp())
 

@@ -1,6 +1,28 @@
 {% extends "base.html" %}
 {% block title %}AutoJob Nexus — Virender AI Hub{% endblock %}
 
+{% block extra_head %}
+<style>
+  .job-table .job-skills-cell {
+    white-space: normal;
+    word-break: break-word;
+    min-width: 12rem;
+    max-width: 28rem;
+    line-height: 1.45;
+  }
+  .job-table .job-actions-cell a[target="_blank"]::after {
+    content: " ↗";
+    font-size: 0.75em;
+    opacity: 0.75;
+  }
+  .job-toolbar-note {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-left: 0.25rem;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
 <section class="page-head">
   <p class="hero__eyebrow neon-text">AutoJob Nexus</p>
@@ -45,10 +67,7 @@
           <input type="checkbox" id="chk-enrich-jd" />
           <span>Fetch posted date from job page</span>
         </label>
-        <label class="job-toolbar-check">
-          <input type="checkbox" id="chk-relevant-only" />
-          <span>Relevant only</span>
-        </label>
+        <span class="job-toolbar-note">Showing jobs with relevance ≥ 80%</span>
       </div>
       <button type="button" id="btn-refresh" class="btn btn--ghost">Re-run scrape</button>
     </div>

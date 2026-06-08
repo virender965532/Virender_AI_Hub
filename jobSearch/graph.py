@@ -25,7 +25,7 @@ async def _fetch_wrapper(state: WorkflowState) -> dict[str, Any]:
 
 async def _display_wrapper(state: WorkflowState) -> dict[str, Any]:
     return await display_jobs_node(state)
-
+9
 
 def build_graph() -> Any:
     graph = StateGraph(WorkflowState)
