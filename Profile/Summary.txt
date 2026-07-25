@@ -1,0 +1,79 @@
+Virender Kumar
+Senior Full Stack MERN Developer
+Noida, Uttar Pradesh, India
+
+Phone: +91 7428355297
+Email: virenderfullstack@gmail.com
+LinkedIn: https://www.linkedin.com/in/virender-kumar-555470150
+
+PROFILE SUMMARY
+Innovative Senior Full Stack Engineer with 7+ years of experience in building and deploying scalable, high-performance web applications. Expertise in React.js, Next.js, Angular, Node.js, Strapi, and Microservices architecture. Skilled in API integrations (REST, GraphQL, SOAP), CI/CD pipelines, and cloud deployments (AWS, Vercel). Strong foundational knowledge of TypeScript, Docker, database architecture, and DevOps practices. Proven ability to improve application performance, security, developer workflows, and user experience.
+
+TECHNICAL SKILLS
+
+Frontend:
+React.js, Next.js, Angular, Redux Toolkit, TypeScript, JavaScript (ES6+), Tailwind CSS, Bootstrap, HTML5, CSS, Responsive Web Design, SPA Development
+
+Backend:
+Node.js, Strapi CMS, Laravel, Microservices Architecture, API Gateway, GraphQL, REST API Development, Server-Side Rendering (SSR), System Design, SOLID Principles
+
+Database:
+MySQL, PostgreSQL, MongoDB, Mongoose ORM, Database Schema Design, Indexing & Query Optimization
+
+Cloud & DevOps:
+AWS (EC2, S3, Lambda, CloudWatch, RDS), Vercel, CI/CD Pipelines, Docker, Docker Compose, Git / GitHub / GitLab
+
+Other:
+Security Best Practices, Workflow Automation, UI/UX Integration
+
+WORK EXPERIENCE
+
+Impressico Business Solutions — Full Stack Developer
+Noida, Uttar Pradesh | Aug 2024 – Present
+• Optimized Vercel CI/CD deployment pipeline, reducing build and production deployment failures by 90%, enabling faster and more reliable
+release cycles.
+• Reduced backend API calls by 80% by implementing Next.js Static Site Generation (SSG) and caching strategies, significantly improving
+application performance and user experience.
+• Led Strapi CMS upgrade from Version 4 to Version 5, refactoring custom plugins, middleware, and database queries — achieving 30%
+improvement in backend response time and enhanced memory efficiency in production.
+• Reduced monthly infrastructure costs by $100+ by replacing third-party dependencies with optimized, custom-built React hooks and reusable internal
+modules.
+• Designed and deployed automated CRON-based data synchronization services between Strapi CMS and HubSpot, ensuring reliable productiongrade data consistency.
+• Strengthened platform security by implementing advanced HTTP security headers, rate limiting, and bot mitigation strategies, significantly
+reducing malicious traffic.
+• Contributed to post-acquisition integration efforts for Pi.ai (Inflection AI) under Microsoft’s ecosystem, ensuring smooth technical transition and
+system compatibilit
+
+Biz2Credit — Full Stack Developer / Senior Software Engineer
+Noida, Uttar Pradesh | Aug 2021 – Aug 2024
+• Developed and integrated eSign and eNACH modules for Tata Capital SME Loan platform.
+• Designed the “Sugam Loan” workflow to improve loan approval process and UX.
+• Reduced production bugs by 75% through proactive debugging and optimization.
+• Architected reusable workflow systems across multiple loan products.
+
+HestaBit — Senior Software Engineer
+Noida, Uttar Pradesh | May 2020 – Aug 2021
+
+ProProfs — Software Engineer
+Noida Sector 81 | Nov 2018 – Jan 2020
+
+KEY PROJECTS
+• Gunner Roofing — Next.js, Node.js, TypeScript, MongoDB
+• Legal Technology Hub — Next.js, Node.js, PGSQL, Strapi, AWS
+• Pi Next — Next.js, Node.js, TypeScript, MongoDB
+• LOS — NBFC in a Box (Biz2Credit) — React, Node, TypeScript, MongoDB
+• Tata SME Loan (Tata Capital) — Angular, Node.js, AWS, MongoDB
+• Psydro Marketplace — Node.js, Laravel, MySQL, ElasticSearch, Stripe
+• Psydro Review Platform — Node.js, Laravel, MySQL, GraphQL
+• Positiply — Laravel, SQL, JavaScript
+• Handover — Laravel, SQL, JavaScript
+• Planet Employee — Laravel, SQL, JavaScript
+• TouchTight — Laravel, SQL, JavaScript
+• ProProfs Live Chat — PHP, MySQL, JavaScript
+
+EDUCATION
+Bachelor of Technology (B.Tech) — Computer Science & Engineering
+HRM Institute of Technology & Management (2013 – 2017)
+• 10th CBSE — 86% (Scored 100/100 in Mathematics)
+• 12th CBSE — 66%
+• B.Tech — 68%

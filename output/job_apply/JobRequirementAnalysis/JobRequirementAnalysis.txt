@@ -1,0 +1,63 @@
+### Job Breakdown for Front End Developer Role
+
+#### Key Responsibilities:
+1. **Collaboration**: Work with cross-functional teams to define, design, and implement new features.
+2. **Code Maintenance**: Create and maintain a clean, efficient, and reusable codebase.
+3. **Testing**: Conduct thorough testing to ensure applications are robust and reliable.
+4. **Troubleshooting**: Identify and debug issues to ensure smooth application functionality.
+5. **Communication**: Regularly communicate with stakeholders to gather requirements and update on progress.
+6. **Mentorship**: Guide junior developers by providing mentorship on best practices and conducting code reviews.
+7. **Continuous Improvement**: Actively seek to improve development processes and workflows.
+8. **Industry Awareness**: Stay updated with the latest trends and best practices in front-end development.
+
+#### Required Skills:
+- **Hard Skills**:
+  - Strong proficiency in JavaScript, TypeScript, and ES6+ syntax.
+  - Experience with the React framework and ability to write clean, testable code.
+  - Familiarity with unit testing and debugging techniques.
+  - Competence in working with REST APIs and GraphQL.
+  
+- **Soft Skills**:
+  - Strong collaboration and teamwork capabilities.
+  - Excellent communication skills (written and verbal) in English.
+  - Solution-oriented mindset with the ability to address customer needs promptly.
+  - Adaptability to work in a dynamic, agile environment among a geographically distributed team.
+
+#### Seniority Level:
+- **Mid to Senior Level**: The requirement of 3+ years of applied experience suggests a mid-level role, but responsibilities such as mentorship indicate that senior-level skills are also important.
+
+#### Mandatory vs. Nice-to-Have Qualifications:
+- **Mandatory Qualifications**:
+  - Formal training or certification in JavaScript and 3+ years of applied experience.
+  - Strong knowledge of JavaScript, TypeScript, and ES6+.
+  - Proficiency in React.
+  - Excellent communication skills in English.
+
+- **Nice-to-Have Qualifications**:
+  - Experience with React Native (in TypeScript or JavaScript).
+  - Native app development experience (Kotlin for Android, Swift for iOS).
+  - Familiarity with the latest React features (e.g., Suspense, Hooks).
+  - Experience with end-to-end testing tools (Detox, Appium, WebdriverIO).
+
+#### Suggested Interview Topics:
+1. **Technical Skills**:
+   - Discuss specific JavaScript and TypeScript projects the candidate has worked on.
+   - Evaluate understanding of React, including components, hooks, and lifecycle methods.
+   - Test coding skills through live coding challenges or take-home assignments that involve building or debugging React applications.
+
+2. **Problem-Solving Ability**:
+   - Present scenarios or case studies where the candidate had to troubleshoot and debug applications.
+
+3. **Collaboration**:
+   - Ask for examples of past collaboration with cross-functional teams and how they handled communication with stakeholders.
+
+4. **Mentorship Experience**:
+   - Explore any experience candidates have in mentoring junior developers and their approach to code reviews.
+
+5. **Continuous Learning**:
+   - Inquire how candidates keep abreast of industry trends and their attitude towards continuous improvement in development practices.
+
+6. **Agile Development**:
+   - Discuss their experience working in an Agile environment and how they handle changing requirements or rapid iterations. 
+
+This detailed breakdown provides a comprehensive overview of what is expected for the Front End Developer role, aiding in candidate selection and interview preparation.

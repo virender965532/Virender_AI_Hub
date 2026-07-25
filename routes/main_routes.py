@@ -3,6 +3,8 @@ from __future__ import annotations
 import logging
 from flask import Blueprint, jsonify, render_template, request, Response, send_file
 
+from jobApplyPro import run_recruitment_pipeline
+from jobApplyPro.config import RESUME_FILENAME
 from jobSearch.graph import run_job_search_workflow
 from jobSearch.nodes.fetch_jobs_node import RELEVANCE_MIN_PCT
 from jobSearch.state import initial_workflow_state
@@ -205,6 +207,41 @@ def _parse_headless_param(val: object, *, default: bool = True) -> bool:
 @main_bp.route("/job-search")
 def job_search():
     return render_template("job_search.html")
+
+
+@main_bp.route("/job-apply")
+def job_apply():
+    return render_template("job_apply.html", resume_file=RESUME_FILENAME)
+
+
+@main_bp.route("/api/job-apply/submit", methods=["POST"])
+async def api_job_apply_submit():
+    payload = request.get_json(silent=True) or {}
+    job_description = (payload.get("job_description") or "").strip()
+    hiring_email = (payload.get("hiring_manager_email") or "").strip()
+
+    if not job_description:
+        return jsonify({"ok": False, "error": "Job description is required."}), 400
+    if not hiring_email:
+        return jsonify({"ok": False, "error": "Hiring manager email is required."}), 400
+    if "@" not in hiring_email or "." not in hiring_email.split("@")[-1]:
+        return jsonify({"ok": False, "error": "Enter a valid hiring manager email."}), 400
+
+    try:
+        result = await run_recruitment_pipeline(
+            job_requirement_text=job_description,
+            hiring_manager_email=hiring_email,
+        )
+        if not result:
+            return jsonify({"ok": False, "error": "Pipeline returned no result."}), 500
+        return jsonify({"ok": True, **result}), 200
+    except FileNotFoundError as e:
+        return jsonify({"ok": False, "error": str(e)}), 404
+    except ValueError as e:
+        return jsonify({"ok": False, "error": str(e)}), 400
+    except Exception as e:
+        logger.exception("Job apply pipeline failed")
+        return jsonify({"ok": False, "error": str(e)}), 500
 
 @main_bp.route("/job-detail")
 def job_detail_page():

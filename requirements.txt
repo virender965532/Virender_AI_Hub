@@ -5,6 +5,7 @@ selenium>=4.15.0
 webdriver-manager>=4.0.0
 undetected-chromedriver>=3.5.0
 openai>=1.30.0
+openai-agents>=0.0.16
 langgraph>=0.2.0
 langchain-core>=0.2.0
 langchain-community>=0.3.0

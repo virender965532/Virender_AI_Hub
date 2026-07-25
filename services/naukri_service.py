@@ -113,7 +113,7 @@ def _analyze_skill_text_blob(norm: str) -> bool:
     Run target / excluded rules on one normalized blob (e.g. full JD).
     Counts every target that appears anywhere in the text (not only the first map_to_base_skill hit).
     """
-    target_skills = {"react", "next", "node", "javascript", "typescript"}
+    target_skills = {"react", "next", "node", "javascript", "typescript", "mern", "fullstack", "full stack"}
     found_excluded: set[str] = set()
     if re.search(r"\bjava\b", norm):
         found_excluded.add("java")

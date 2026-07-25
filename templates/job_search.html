@@ -3,6 +3,28 @@
 
 {% block extra_head %}
 <style>
+  .page-head--with-action {
+    position: relative;
+    padding-right: 11rem;
+  }
+  .page-head__action {
+    position: absolute;
+    top: 0;
+    right: 0;
+    white-space: nowrap;
+  }
+  @media (max-width: 640px) {
+    .page-head--with-action {
+      padding-right: 0;
+      padding-top: 2.75rem;
+    }
+    .page-head__action {
+      top: 0;
+      right: 0;
+      font-size: 0.85rem;
+      padding: 0.35rem 0.85rem;
+    }
+  }
   .job-table .job-skills-cell {
     white-space: normal;
     word-break: break-word;
@@ -24,7 +46,8 @@
 {% endblock %}
 
 {% block content %}
-<section class="page-head">
+<section class="page-head page-head--with-action">
+  <a href="{{ url_for('main.job_apply') }}" class="page-head__action btn btn--ghost">Job Apply Pro →</a>
   <p class="hero__eyebrow neon-text">AutoJob Nexus</p>
   <h1 class="hero__title">Naukri <span class="hero__accent">intelligence</span></h1>
   <p class="hero__subtitle">

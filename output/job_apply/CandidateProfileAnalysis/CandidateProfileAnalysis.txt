@@ -1,0 +1,116 @@
+### Candidate Profile: Virender Kumar
+
+**Contact Information**  
+- **Phone**: +91 7428355297  
+- **Email**: virenderfullstack@gmail.com  
+- **LinkedIn**: [LinkedIn Profile](https://linkedin.com/in/virender-kumar555470150)  
+- **Location**: Noida, Uttar Pradesh, India  
+
+---
+
+### Summary
+Virender Kumar is a dynamic Senior Full Stack Engineer with over 7.5 years of experience in developing scalable, high-performance cloud-native applications. He possesses strong expertise in the MERN stack, Next.js, and microservices architectures, along with a track record in fintech and enterprise platforms, particularly related to loan processing systems.
+
+---
+
+### Skills
+
+#### Frontend
+- Next.js
+- React.js
+- Redux
+- Typescript
+- Javascript (ES6+)
+- Angular
+- Tailwind CSS
+- Bootstrap
+- HTML5
+- CSS3
+
+#### Backend
+- Node.js
+- Express.js
+- Strapi CMS (v4 to v5 Migration)
+- REST & GRAPH APIs
+- Microservices Architecture
+- Authentication (JWT, OAuth2)
+- API Gateway Design
+- Security Best Practices
+
+#### Database
+- MongoDB
+- PostgreSQL
+- MySQL (RDBMS)
+
+#### Deployment
+- AWS
+- Vercel
+- Git (GitHub/GitLab)
+- Docker
+- CI/CD Pipeline
+
+---
+
+### Work Experience
+
+1. **Impressico Business Solutions Private Limited**  
+   *Full Stack Engineer | 2024 – Present*  
+   - **Achievements**: 
+     - Optimized CI/CD pipelines, reducing deployment failures by 90%.
+     - Improved application performance by 80% through caching strategies.
+     - Achieved significant backend performance improvements with Strapi CMS upgrade.
+     - Reduced infrastructure costs and enhanced system security.
+
+2. **Biz2credit Private Limited**  
+   *Full Stack Engineer | 2021 – 2024*  
+   - **Achievements**:
+     - Developed secure digital loan processing modules.
+     - Increased loan approval efficiency through optimized workflows.
+     - Reduced production defects by 75% through refactoring and testing improvements.
+
+3. **Hestabit Private Limited**  
+   *Senior Software Developer (Laravel) | 2020 – 2021*  
+
+4. **Proprofs**  
+   *Software Developer (PHP) | 2021 – 2024*  
+
+---
+
+### Notable Projects
+
+- **Impressico**
+  - **Legal Technology Hub** (Aug 2024 – Present) - Next.js, TypeScript, Node.js, PostgreSQL, Strapi, AWS
+  - **Gunner Roofing Platform** (Oct 2025 – Present) - Next.js, TypeScript, Node.js, MongoDB
+  - **Pi Next** (Sept 2025) - Next.js, TypeScript, Node.js, MongoDB
+
+- **Biz2Credit**
+  - **Loan Origination System – NBFC in a Box** (Jul 2022 – Aug 2024) - React, Node.js, TypeScript, MongoDB, Express.js
+  - **Tata Capital SME Loan Platform** (Aug 2021 – Aug 2024) - Angular, React, Node.js, AWS Lambda, MongoDB
+
+---
+
+### Experience Summary
+
+- **Frontend Development**: 7.5 Years
+- **Backend Development**: 7.5 Years
+- **Microservices & Architecture**: 5+ Years
+- **Cloud Services (AWS)**: 4+ Years
+- **Database Management**: 5+ Years
+
+---
+
+### Suggested Strengths to Highlight
+
+1. **Performance Optimization**: Proven ability to significantly enhance application performance through caching and optimization techniques.
+2. **Cost Reduction Experience**: Successfully reduced infrastructure costs and resource utilization through custom solutions.
+3. **Security Implementation**: Strong background in implementing advanced security measures to protect applications.
+4. **Cross-functional Collaboration**: Contributed to integration efforts and technical transitions in corporate settings, showcasing adaptability and teamwork.
+5. **Framework and Technology Versatility**: Adept with various technologies including Next.js, MERN, microservices, and cloud deployment strategies.
+
+--- 
+
+### Gaps
+- Exposure in newer frameworks beyond MERN and cloud services.
+- Experience in areas like mobile development or non-MERN stacks could be beneficial.
+
+This structured profile highlights Virender Kumar's skills, experiences, notable achievements, and strengths that should be emphasized for future opportunities in full-stack engineering roles.
