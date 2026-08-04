@@ -6,7 +6,10 @@ from flask import Blueprint, jsonify, render_template, request, Response, send_f
 from jobApplyPro import run_recruitment_pipeline
 from jobApplyPro.config import RESUME_FILENAME
 from jobSearch.graph import run_job_search_workflow
-from jobSearch.nodes.fetch_jobs_node import RELEVANCE_MIN_PCT
+from jobSearch.nodes.fetch_jobs_node import (
+    get_naukri_search_defaults,
+    parse_ctc_filters,
+)
 from jobSearch.state import initial_workflow_state
 from jobSearch.utils.job_payload import job_record_to_dict
 from services.naukri_service import run_job_detail, run_login_and_fetch_jobs
@@ -206,7 +209,10 @@ def _parse_headless_param(val: object, *, default: bool = True) -> bool:
 
 @main_bp.route("/job-search")
 def job_search():
-    return render_template("job_search.html")
+    return render_template(
+        "job_search.html",
+        naukri_defaults=get_naukri_search_defaults(),
+    )
 
 
 @main_bp.route("/job-apply")
@@ -252,20 +258,68 @@ def job_detail_page():
 async def api_naukri_jobs():
     try:
         payload = request.get_json(silent=True) or {}
+        defaults = get_naukri_search_defaults()
         enrich = payload.get("enrich_jd")
+
+        keyword = (payload.get("keyword") or "").strip() or defaults["keyword"]
+        job_age = str(payload.get("job_age") or defaults["job_age"]).strip() or defaults[
+            "job_age"
+        ]
+        # Explicit list from UI (may be empty = no CTC filter). Fall back only when omitted.
+        if "ctc_filters" in payload:
+            ctc_filters = parse_ctc_filters(payload.get("ctc_filters"))
+        else:
+            ctc_filters = list(defaults["ctc_filters"])
+
+        try:
+            if "no_of_jobs" in payload and payload.get("no_of_jobs") is not None:
+                no_of_jobs = int(payload.get("no_of_jobs"))
+            else:
+                no_of_jobs = int(defaults["no_of_jobs"])
+        except (TypeError, ValueError):
+            no_of_jobs = int(defaults["no_of_jobs"])
+        no_of_jobs = max(1, no_of_jobs)
+
+        try:
+            if "max_pages" in payload and payload.get("max_pages") is not None:
+                max_pages = int(payload.get("max_pages"))
+            else:
+                max_pages = int(defaults["max_pages"])
+        except (TypeError, ValueError):
+            max_pages = int(defaults["max_pages"])
+        max_pages = max(1, max_pages)
+
+        try:
+            if payload.get("relevance_min_pct") is not None:
+                relevance_min_pct = float(payload.get("relevance_min_pct"))
+            else:
+                relevance_min_pct = float(defaults["relevance_min_pct"])
+        except (TypeError, ValueError):
+            relevance_min_pct = float(defaults["relevance_min_pct"])
+
         initial = initial_workflow_state()
+        initial["job_keyword"] = keyword
+        initial["job_age"] = job_age
+        initial["ctc_filters"] = ctc_filters
+        initial["no_of_jobs"] = no_of_jobs
+        initial["max_pages"] = max_pages
+        initial["relevance_min_pct"] = relevance_min_pct
         if enrich is not None:
             initial["enrich_jd"] = bool(enrich)
+
         result = await run_job_search_workflow(initial_state=initial)
         jobs = result.get("jobs") or []
         workflow_errors = list(result.get("errors") or [])
         display_ok = bool(result.get("display_complete"))
+        used_relevance = result.get("relevance_min_pct")
+        if used_relevance is None:
+            used_relevance = relevance_min_pct
         return jsonify(
             {
                 "ok": True,
                 "message": "Naukri jobs",
                 "jobs": [job_record_to_dict(j) for j in jobs],
-                "relevance_min_pct": RELEVANCE_MIN_PCT,
+                "relevance_min_pct": used_relevance,
                 "display_complete": display_ok,
                 "errors": workflow_errors,
             }

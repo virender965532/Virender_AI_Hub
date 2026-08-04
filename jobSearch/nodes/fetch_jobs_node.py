@@ -60,45 +60,44 @@ def _env_bool(name: str, default: bool = False) -> bool:
     return raw in ("1", "true", "yes")
 
 
-NAUKRI_JOBS_BASE_URL = _env_str(
-    "NAUKRI_JOBS_BASE_URL", "https://www.naukri.com/javascript-jobs"
-)
-NAUKRI_JOB_KEYWORD = _env_str("NAUKRI_JOB_KEYWORD", "javascript")
-NAUKRI_JOB_AGE = _env_str("NAUKRI_JOB_AGE", "1")
-NAUKRI_CTC_FILTERS = _env_str(
-    "NAUKRI_CTC_FILTERS", "50to75,75to100,100to500"
+NAUKRI_JOB_KEYWORD_DEFAULT = _env_str("NAUKRI_JOB_KEYWORD", "javascript")
+NAUKRI_JOB_AGE_DEFAULT = _env_str("NAUKRI_JOB_AGE", "3")
+NAUKRI_CTC_FILTERS_DEFAULT = _env_str(
+    "NAUKRI_CTC_FILTERS", "25to50,50to75,75to100,100to500"
 )
 RELEVANCE_MIN_PCT = _env_float("NAUKRI_JOB_RELEVANCE_MIN_PCT", 80.0)
-_MAX_SRP_PAGES = _env_int("NAUKRI_JOB_MAX_PAGES", 100)
+_MAX_SRP_PAGES_DEFAULT = _env_int("NAUKRI_JOB_MAX_PAGES", 100)
 NAUKRI_IS_EMAIL_REQUIRED = _env_bool("NAUKRI_IS_EMAIL_REQUIRED", False)
 
-
-def _build_srp_query() -> str:
-    """Build SRP query string from NAUKRI_JOB_KEYWORD, NAUKRI_JOB_AGE, NAUKRI_CTC_FILTERS."""
-    params: list[tuple[str, str]] = [
-        ("k", NAUKRI_JOB_KEYWORD),
-        ("jobAge", NAUKRI_JOB_AGE),
-    ]
-    for band in NAUKRI_CTC_FILTERS.split(","):
-        band = band.strip()
-        if band:
-            params.append(("ctcFilter", band))
-    return "?" + urlencode(params)
-
-
-NAUKRI_JS_JOBS_QUERY = _build_srp_query()
+# Naukri ctcFilter query values with UI labels.
+CTC_FILTER_OPTIONS: list[dict[str, str]] = [
+    {"value": "0to3", "label": "0-3 Lakhs"},
+    {"value": "3to6", "label": "3-6 Lakhs"},
+    {"value": "6to10", "label": "6-10 Lakhs"},
+    {"value": "10to15", "label": "10-15 Lakhs"},
+    {"value": "15to25", "label": "15-25 Lakhs"},
+    {"value": "25to50", "label": "25-50 Lakhs"},
+    {"value": "50to75", "label": "50-75 Lakhs"},
+    {"value": "75to100", "label": "75-100 Lakhs"},
+    {"value": "100to500", "label": "1-5 Cr"},
+]
+_CTC_FILTER_VALUES = {opt["value"] for opt in CTC_FILTER_OPTIONS}
 
 
-def _passes_relevance_threshold(job: JobRecord) -> bool:
-    """True when stack match score is at least RELEVANCE_MIN_PCT."""
-    try:
-        return float(job.get("relevant_percentage") or 0) >= RELEVANCE_MIN_PCT
-    except (TypeError, ValueError):
-        return False
+def parse_ctc_filters(raw: str | list[str] | None) -> list[str]:
+    """Normalize CTC filter values from CSV string or list; drop unknowns."""
+    if isinstance(raw, list):
+        parts = [str(x).strip() for x in raw]
+    else:
+        parts = [p.strip() for p in str(raw or "").split(",")]
+    out: list[str] = []
+    for band in parts:
+        if band and band in _CTC_FILTER_VALUES and band not in out:
+            out.append(band)
+    return out
 
 
-def _relevant_job_cap() -> int:
-    """Max relevant jobs to collect across paginated SRP pages (see NAUKRI_NO_OF_JOBS)."""
+def _env_no_of_jobs_default() -> int:
     raw = (os.getenv("NAUKRI_NO_OF_JOBS") or "").strip()
     if raw:
         try:
@@ -108,11 +107,82 @@ def _relevant_job_cap() -> int:
     return 25
 
 
-def _srp_page_url(page_num: int) -> str:
+def get_naukri_search_defaults() -> dict[str, Any]:
+    """Defaults for the job-search UI (sourced from .env)."""
+    return {
+        "keyword": NAUKRI_JOB_KEYWORD_DEFAULT,
+        "job_age": NAUKRI_JOB_AGE_DEFAULT,
+        "ctc_filters": parse_ctc_filters(NAUKRI_CTC_FILTERS_DEFAULT),
+        "no_of_jobs": _env_no_of_jobs_default(),
+        "max_pages": _MAX_SRP_PAGES_DEFAULT,
+        "relevance_min_pct": RELEVANCE_MIN_PCT,
+        "ctc_options": CTC_FILTER_OPTIONS,
+    }
+
+
+def keyword_to_naukri_slug(keyword: str) -> str:
+    """
+    Map a free-text keyword to Naukri's jobs path slug.
+
+    Examples:
+      javascript -> javascript
+      node.js    -> node-dot-js
+      node js    -> node-js
+      nodejs     -> nodejs
+    """
+    raw = (keyword or "").strip().lower()
+    if not raw:
+        raw = NAUKRI_JOB_KEYWORD_DEFAULT
+    # Dots become the literal token "-dot-" (Naukri convention).
+    slug = raw.replace(".", "-dot-")
+    slug = re.sub(r"\s+", "-", slug)
+    slug = re.sub(r"-{2,}", "-", slug).strip("-")
+    return slug or NAUKRI_JOB_KEYWORD_DEFAULT
+
+
+def build_jobs_base_url(keyword: str) -> str:
+    """Build ``https://www.naukri.com/{slug}-jobs`` for the given keyword."""
+    return f"https://www.naukri.com/{keyword_to_naukri_slug(keyword)}-jobs"
+
+
+def _build_srp_query(
+    keyword: str, *, job_age: str, ctc_filters: list[str]
+) -> str:
+    """Build SRP query string from keyword, job age, and CTC bands."""
+    k = (keyword or "").strip() or NAUKRI_JOB_KEYWORD_DEFAULT
+    age = (job_age or "").strip() or NAUKRI_JOB_AGE_DEFAULT
+    params: list[tuple[str, str]] = [
+        ("k", k),
+        ("jobAge", age),
+    ]
+    for band in ctc_filters:
+        band = band.strip()
+        if band:
+            params.append(("ctcFilter", band))
+    return "?" + urlencode(params)
+
+
+def _passes_relevance_threshold(job: JobRecord, *, min_pct: float) -> bool:
+    """True when stack match score is at least ``min_pct``."""
+    try:
+        return float(job.get("relevant_percentage") or 0) >= min_pct
+    except (TypeError, ValueError):
+        return False
+
+
+def _srp_page_url(
+    page_num: int,
+    *,
+    keyword: str,
+    job_age: str,
+    ctc_filters: list[str],
+) -> str:
     """Build paginated Naukri SRP URL; page 1 has no suffix, page 2+ uses ``-2``, ``-3``, etc."""
+    base = build_jobs_base_url(keyword)
+    query = _build_srp_query(keyword, job_age=job_age, ctc_filters=ctc_filters)
     if page_num <= 1:
-        return NAUKRI_JOBS_BASE_URL + NAUKRI_JS_JOBS_QUERY
-    return f"{NAUKRI_JOBS_BASE_URL}-{page_num}{NAUKRI_JS_JOBS_QUERY}"
+        return base + query
+    return f"{base}-{page_num}{query}"
 
 _BROWSER_SCRIPTS = Path(__file__).resolve().parent.parent / "browser_scripts"
 
@@ -344,18 +414,38 @@ async def _load_srp_page(page: Page, listing_url: str) -> None:
         logger.warning("Primary SRP markers not found; continuing with scroll/extract.")
 
 
-async def _fetch_with_page(page: Page, *, enrich_jd: bool) -> list[JobRecord]:
-    cap = _relevant_job_cap()
+async def _fetch_with_page(
+    page: Page,
+    *,
+    enrich_jd: bool,
+    keyword: str,
+    job_age: str,
+    ctc_filters: list[str],
+    no_of_jobs: int,
+    max_pages: int,
+    relevance_min_pct: float,
+) -> list[JobRecord]:
+    cap = max(1, int(no_of_jobs))
+    pages_limit = max(1, int(max_pages))
+    min_pct = float(relevance_min_pct)
     relevant_jobs: list[JobRecord] = []
     seen: set[str] = set()
     enrich_count = 0
     total_scanned = 0
+    search_keyword = (keyword or "").strip() or NAUKRI_JOB_KEYWORD_DEFAULT
+    age = (job_age or "").strip() or NAUKRI_JOB_AGE_DEFAULT
+    bands = list(ctc_filters or [])
 
-    for page_num in range(1, _MAX_SRP_PAGES + 1):
+    for page_num in range(1, pages_limit + 1):
         if len(relevant_jobs) >= cap:
             break
 
-        listing_url = _srp_page_url(page_num)
+        listing_url = _srp_page_url(
+            page_num,
+            keyword=search_keyword,
+            job_age=age,
+            ctc_filters=bands,
+        )
         logger.info("Fetching SRP page %s: %s", page_num, listing_url)
         await _load_srp_page(page, listing_url)
         await _scroll_for_more_cards(page)
@@ -390,7 +480,7 @@ async def _fetch_with_page(page: Page, *, enrich_jd: bool) -> list[JobRecord]:
                 job["is_relevant"] = ok
                 job["relevant_percentage"] = pct
 
-            if _passes_relevance_threshold(job):
+            if _passes_relevance_threshold(job, min_pct=min_pct):
                 relevant_jobs.append(job)
                 logger.info(
                     "Matched job %s/%s (%.1f%%): %s @ %s",
@@ -414,11 +504,70 @@ async def _fetch_with_page(page: Page, *, enrich_jd: bool) -> list[JobRecord]:
     logger.info(
         "Pagination complete: kept %s jobs at %.0f%%+ relevance (scanned %s total, cap=%s)",
         len(relevant_jobs),
-        RELEVANCE_MIN_PCT,
+        min_pct,
         total_scanned,
         cap,
     )
     return relevant_jobs
+
+
+def _resolve_fetch_config(state: WorkflowState) -> dict[str, Any]:
+    """Merge workflow state overrides with .env defaults."""
+    defaults = get_naukri_search_defaults()
+    keyword = str(state.get("job_keyword") or defaults["keyword"]).strip()
+    if not keyword:
+        keyword = defaults["keyword"]
+
+    job_age = str(state.get("job_age") or defaults["job_age"]).strip()
+    if not job_age:
+        job_age = defaults["job_age"]
+
+    raw_ctc = state.get("ctc_filters")
+    if raw_ctc is None:
+        ctc_filters = list(defaults["ctc_filters"])
+    else:
+        # Empty list is valid (no CTC filter applied on Naukri SRP).
+        ctc_filters = parse_ctc_filters(raw_ctc)
+
+    try:
+        raw_jobs = state.get("no_of_jobs")
+        no_of_jobs = (
+            int(defaults["no_of_jobs"])
+            if raw_jobs is None
+            else int(raw_jobs)
+        )
+    except (TypeError, ValueError):
+        no_of_jobs = int(defaults["no_of_jobs"])
+    no_of_jobs = max(1, no_of_jobs)
+
+    try:
+        raw_pages = state.get("max_pages")
+        max_pages = (
+            int(defaults["max_pages"])
+            if raw_pages is None
+            else int(raw_pages)
+        )
+    except (TypeError, ValueError):
+        max_pages = int(defaults["max_pages"])
+    max_pages = max(1, max_pages)
+
+    try:
+        relevance_min_pct = float(
+            state.get("relevance_min_pct")
+            if state.get("relevance_min_pct") is not None
+            else defaults["relevance_min_pct"]
+        )
+    except (TypeError, ValueError):
+        relevance_min_pct = float(defaults["relevance_min_pct"])
+
+    return {
+        "keyword": keyword,
+        "job_age": job_age,
+        "ctc_filters": ctc_filters,
+        "no_of_jobs": no_of_jobs,
+        "max_pages": max_pages,
+        "relevance_min_pct": relevance_min_pct,
+    }
 
 
 async def fetch_jobs_node(state: WorkflowState) -> dict[str, Any]:
@@ -429,10 +578,35 @@ async def fetch_jobs_node(state: WorkflowState) -> dict[str, Any]:
         return {"jobs": [], "fetch_complete": False, "errors": errs}
 
     enrich_jd = bool(state.get("enrich_jd", False))
+    cfg = _resolve_fetch_config(state)
+    logger.info(
+        "Fetch config: keyword=%r age=%s ctc=%s no_of_jobs=%s max_pages=%s relevance_min=%s enrich_jd=%s",
+        cfg["keyword"],
+        cfg["job_age"],
+        cfg["ctc_filters"],
+        cfg["no_of_jobs"],
+        cfg["max_pages"],
+        cfg["relevance_min_pct"],
+        enrich_jd,
+    )
     page: Page = session.page
     try:
-        jobs = await _fetch_with_page(page, enrich_jd=enrich_jd)
-        return {"jobs": jobs, "fetch_complete": True, "errors": errs}
+        jobs = await _fetch_with_page(
+            page,
+            enrich_jd=enrich_jd,
+            keyword=cfg["keyword"],
+            job_age=cfg["job_age"],
+            ctc_filters=cfg["ctc_filters"],
+            no_of_jobs=cfg["no_of_jobs"],
+            max_pages=cfg["max_pages"],
+            relevance_min_pct=cfg["relevance_min_pct"],
+        )
+        return {
+            "jobs": jobs,
+            "fetch_complete": True,
+            "errors": errs,
+            "relevance_min_pct": cfg["relevance_min_pct"],
+        }
     except Exception as e:  # noqa: BLE001
         logger.exception("fetch_jobs_node failed")
         errs.append(str(e))

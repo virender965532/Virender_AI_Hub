@@ -42,6 +42,49 @@
     color: var(--text-muted);
     margin-left: 0.25rem;
   }
+  .search-config {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    padding: 1rem 1.15rem;
+    margin-bottom: 1.25rem;
+  }
+  .search-config__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.75rem 1rem;
+  }
+  .search-config__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-width: 7.5rem;
+  }
+  .search-config__field--grow {
+    flex: 1;
+    min-width: 12rem;
+  }
+  .search-config__num {
+    width: 7.5rem;
+    max-width: 7.5rem;
+    flex: 0 0 auto;
+  }
+  .ctc-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem 0.85rem;
+  }
+  .ctc-grid .job-toolbar-check {
+    margin: 0;
+  }
+  .search-config__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1rem;
+    margin-top: 0.15rem;
+  }
 </style>
 {% endblock %}
 
@@ -52,12 +95,57 @@
   <h1 class="hero__title">Naukri <span class="hero__accent">intelligence</span></h1>
   <p class="hero__subtitle">
     Secure login uses credentials from your <code class="inline-code">.env</code> file.
-    After login, listings load from <strong>jobs-in-india</strong> — Selenium may take a minute.
+    Adjust filters below (defaults come from env), then fetch listings.
   </p>
 </section>
 
 <div id="job-app" class="job-app">
-  <div id="loading-state" class="loading-panel glass" role="status" aria-live="polite">
+  <div class="search-config glass">
+    <div class="search-config__row">
+      <div class="search-config__field search-config__field--grow">
+        <label class="job-control-label" for="search-keyword">Search keyword</label>
+        <input
+          type="search"
+          id="search-keyword"
+          class="job-filter-input"
+          placeholder="e.g. javascript, node.js, node js"
+          autocomplete="off"
+        />
+      </div>
+      <div class="search-config__field">
+        <label class="job-control-label" for="job-age">Job age (days)</label>
+        <input type="number" id="job-age" class="job-filter-input search-config__num" min="1" step="1" />
+      </div>
+      <div class="search-config__field">
+        <label class="job-control-label" for="no-of-jobs">Max jobs</label>
+        <input type="number" id="no-of-jobs" class="job-filter-input search-config__num" min="1" step="1" />
+      </div>
+      <div class="search-config__field">
+        <label class="job-control-label" for="max-pages">Max pages</label>
+        <input type="number" id="max-pages" class="job-filter-input search-config__num" min="1" step="1" />
+      </div>
+      <div class="search-config__field">
+        <label class="job-control-label" for="relevance-min">Relevance %</label>
+        <input type="number" id="relevance-min" class="job-filter-input search-config__num" min="0" max="100" step="1" />
+      </div>
+    </div>
+
+    <div>
+      <p class="job-control-label" style="margin-bottom: 0.45rem;">CTC filter</p>
+      <div id="ctc-filter-grid" class="ctc-grid" role="group" aria-label="CTC salary bands"></div>
+    </div>
+
+    <div class="search-config__actions">
+      <label class="job-toolbar-check" title="When on, opens each matched job page for full description (slower). Posted date always comes from the listing.">
+        <input type="checkbox" id="chk-enrich-jd" />
+        <span>Open job pages for full description</span>
+      </label>
+      <span id="naukri-url-preview" class="job-toolbar-note" aria-live="polite"></span>
+      <button type="button" id="btn-fetch" class="btn">Fetch jobs</button>
+    </div>
+  </div>
+
+  <div id="loading-state" class="loading-panel glass hidden" role="status" aria-live="polite">
     <div class="loading-panel__row">
       <div class="spinner" aria-hidden="true"></div>
       <div>
@@ -86,10 +174,6 @@
         </select>
         <label class="job-control-label" for="job-keyword">Filter</label>
         <input type="search" id="job-keyword" class="job-filter-input" placeholder="Keyword in title, company, location, skills…" autocomplete="off" />
-        <label class="job-toolbar-check" title="When on, opens each matched job page for full description (slower). Posted date always comes from the listing.">
-          <input type="checkbox" id="chk-enrich-jd" />
-          <span>Open job pages for full description</span>
-        </label>
         <span id="job-threshold-note" class="job-toolbar-note">Showing jobs with relevance at or above the server threshold.</span>
       </div>
       <button type="button" id="btn-refresh" class="btn btn--ghost">Re-run scrape</button>
@@ -118,5 +202,6 @@
 {% endblock %}
 
 {% block scripts %}
+<script id="naukri-defaults" type="application/json">{{ naukri_defaults | tojson }}</script>
 <script src="{{ url_for('static', filename='js/job_search.js') }}"></script>
 {% endblock %}

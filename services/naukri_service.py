@@ -40,16 +40,29 @@ NAUKRI_HOME = "https://www.naukri.com"
 NAUKRI_SORT_BY = os.getenv("NAUKRI_SORT_BY", "r")
 NAUKRI_JOB_AGE = os.getenv("NAUKRI_JOB_AGE", "3")
 
-# Base URL for JavaScript jobs with CTC filters
-NAUKRI_BASE_URL = "https://www.naukri.com/javascript-jobs"
+def _keyword_to_naukri_slug(keyword: str) -> str:
+    """Map keyword to Naukri path slug (node.js -> node-dot-js, node js -> node-js)."""
+    raw = (keyword or "").strip().lower() or "javascript"
+    slug = raw.replace(".", "-dot-")
+    slug = re.sub(r"\s+", "-", slug)
+    slug = re.sub(r"-{2,}", "-", slug).strip("-")
+    return slug or "javascript"
 
-# Final URL
-NAUKRI_JOBS_INDIA = (
-    f"{NAUKRI_BASE_URL}"
-    f"?sort={NAUKRI_SORT_BY}"
-    f"&jobAge={NAUKRI_JOB_AGE}" 
-    f"&ctcFilter=25to50&ctcFilter=50to75&ctcFilter=75to100"
-)
+
+def build_naukri_jobs_url(keyword: str = "javascript") -> str:
+    """Build Naukri jobs listing URL for a search keyword."""
+    base = f"https://www.naukri.com/{_keyword_to_naukri_slug(keyword)}-jobs"
+    return (
+        f"{base}"
+        f"?sort={NAUKRI_SORT_BY}"
+        f"&jobAge={NAUKRI_JOB_AGE}"
+        f"&ctcFilter=25to50&ctcFilter=50to75&ctcFilter=75to100"
+    )
+
+
+# Default listing URL (javascript); prefer build_naukri_jobs_url(keyword) for dynamic searches.
+NAUKRI_BASE_URL = "https://www.naukri.com/javascript-jobs"
+NAUKRI_JOBS_INDIA = build_naukri_jobs_url("javascript")
 
 
 # Debug artifacts (project root / scraper_debug)

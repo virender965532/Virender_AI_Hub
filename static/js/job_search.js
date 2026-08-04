@@ -10,9 +10,38 @@
   var countEl = document.getElementById("job-count");
   var thresholdNoteEl = document.getElementById("job-threshold-note");
   var refreshBtn = document.getElementById("btn-refresh");
+  var fetchBtn = document.getElementById("btn-fetch");
   var sortSelect = document.getElementById("sort-select");
   var keywordInput = document.getElementById("job-keyword");
+  var searchKeywordInput = document.getElementById("search-keyword");
+  var jobAgeInput = document.getElementById("job-age");
+  var noOfJobsInput = document.getElementById("no-of-jobs");
+  var maxPagesInput = document.getElementById("max-pages");
+  var relevanceInput = document.getElementById("relevance-min");
+  var ctcGridEl = document.getElementById("ctc-filter-grid");
+  var urlPreviewEl = document.getElementById("naukri-url-preview");
   var enrichChk = document.getElementById("chk-enrich-jd");
+
+  function loadDefaults() {
+    var el = document.getElementById("naukri-defaults");
+    if (!el) return {};
+    try {
+      return JSON.parse(el.textContent || "{}") || {};
+    } catch (e) {
+      console.warn("Could not parse naukri defaults", e);
+      return {};
+    }
+  }
+
+  var defaults = loadDefaults();
+  var DEFAULT_SEARCH_KEYWORD = defaults.keyword || "javascript";
+  var DEFAULT_JOB_AGE = String(defaults.job_age != null ? defaults.job_age : "3");
+  var DEFAULT_NO_OF_JOBS = Number(defaults.no_of_jobs) || 25;
+  var DEFAULT_MAX_PAGES = Number(defaults.max_pages) || 100;
+  var DEFAULT_RELEVANCE = Number(defaults.relevance_min_pct);
+  if (isNaN(DEFAULT_RELEVANCE)) DEFAULT_RELEVANCE = 80;
+  var DEFAULT_CTC = Array.isArray(defaults.ctc_filters) ? defaults.ctc_filters.slice() : [];
+  var CTC_OPTIONS = Array.isArray(defaults.ctc_options) ? defaults.ctc_options : [];
 
   /** Full list from API */
   var allJobs = [];
@@ -21,6 +50,135 @@
 
   function setVisible(el, show) {
     el.classList.toggle("hidden", !show);
+  }
+
+  /**
+   * Map free-text keyword to Naukri path slug.
+   * javascript -> javascript, node.js -> node-dot-js, node js -> node-js
+   */
+  function keywordToNaukriSlug(keyword) {
+    var raw = String(keyword == null ? "" : keyword)
+      .trim()
+      .toLowerCase();
+    if (!raw) raw = DEFAULT_SEARCH_KEYWORD;
+    var slug = raw
+      .replace(/\./g, "-dot-")
+      .replace(/\s+/g, "-")
+      .replace(/-{2,}/g, "-")
+      .replace(/^-+|-+$/g, "");
+    return slug || DEFAULT_SEARCH_KEYWORD;
+  }
+
+  function buildNaukriJobsUrl(keyword) {
+    return "https://www.naukri.com/" + keywordToNaukriSlug(keyword) + "-jobs";
+  }
+
+  function getSearchKeyword() {
+    var value =
+      searchKeywordInput && searchKeywordInput.value
+        ? searchKeywordInput.value.trim()
+        : "";
+    return value || DEFAULT_SEARCH_KEYWORD;
+  }
+
+  function getSelectedCtcFilters() {
+    if (!ctcGridEl) return DEFAULT_CTC.slice();
+    var checked = ctcGridEl.querySelectorAll('input[type="checkbox"][data-ctc]:checked');
+    var out = [];
+    checked.forEach(function (chk) {
+      out.push(chk.getAttribute("data-ctc"));
+    });
+    return out;
+  }
+
+  function getJobAge() {
+    var v = jobAgeInput && jobAgeInput.value ? String(jobAgeInput.value).trim() : "";
+    return v || DEFAULT_JOB_AGE;
+  }
+
+  function getNoOfJobs() {
+    var n = noOfJobsInput ? Number(noOfJobsInput.value) : DEFAULT_NO_OF_JOBS;
+    if (isNaN(n) || n < 1) return DEFAULT_NO_OF_JOBS;
+    return Math.floor(n);
+  }
+
+  function getMaxPages() {
+    var n = maxPagesInput ? Number(maxPagesInput.value) : DEFAULT_MAX_PAGES;
+    if (isNaN(n) || n < 1) return DEFAULT_MAX_PAGES;
+    return Math.floor(n);
+  }
+
+  function getRelevanceMin() {
+    var n = relevanceInput ? Number(relevanceInput.value) : DEFAULT_RELEVANCE;
+    if (isNaN(n)) return DEFAULT_RELEVANCE;
+    return n;
+  }
+
+  function buildPreviewQuery() {
+    var params = [];
+    params.push("k=" + encodeURIComponent(getSearchKeyword()));
+    params.push("jobAge=" + encodeURIComponent(getJobAge()));
+    getSelectedCtcFilters().forEach(function (band) {
+      params.push("ctcFilter=" + encodeURIComponent(band));
+    });
+    return "?" + params.join("&");
+  }
+
+  function updateUrlPreview() {
+    if (!urlPreviewEl) return;
+    urlPreviewEl.textContent =
+      "URL: " + buildNaukriJobsUrl(getSearchKeyword()) + buildPreviewQuery();
+  }
+
+  function renderCtcOptions() {
+    if (!ctcGridEl) return;
+    var selected = {};
+    DEFAULT_CTC.forEach(function (v) {
+      selected[v] = true;
+    });
+    ctcGridEl.innerHTML = "";
+    CTC_OPTIONS.forEach(function (opt) {
+      var value = opt.value;
+      var label = opt.label || value;
+      var id = "ctc-" + value;
+      var wrap = document.createElement("label");
+      wrap.className = "job-toolbar-check";
+      wrap.htmlFor = id;
+      var input = document.createElement("input");
+      input.type = "checkbox";
+      input.id = id;
+      input.setAttribute("data-ctc", value);
+      input.checked = !!selected[value];
+      input.addEventListener("change", updateUrlPreview);
+      var span = document.createElement("span");
+      span.textContent = label;
+      wrap.appendChild(input);
+      wrap.appendChild(span);
+      ctcGridEl.appendChild(wrap);
+    });
+  }
+
+  function applyDefaultsToForm() {
+    if (searchKeywordInput) searchKeywordInput.value = DEFAULT_SEARCH_KEYWORD;
+    if (jobAgeInput) jobAgeInput.value = DEFAULT_JOB_AGE;
+    if (noOfJobsInput) noOfJobsInput.value = String(DEFAULT_NO_OF_JOBS);
+    if (maxPagesInput) maxPagesInput.value = String(DEFAULT_MAX_PAGES);
+    if (relevanceInput) relevanceInput.value = String(DEFAULT_RELEVANCE);
+    renderCtcOptions();
+    MIN_RELEVANCE_PCT = DEFAULT_RELEVANCE;
+    updateThresholdNote();
+    updateUrlPreview();
+  }
+
+  function collectSearchConfig() {
+    return {
+      keyword: getSearchKeyword(),
+      job_age: getJobAge(),
+      ctc_filters: getSelectedCtcFilters(),
+      no_of_jobs: getNoOfJobs(),
+      max_pages: getMaxPages(),
+      relevance_min_pct: getRelevanceMin(),
+    };
   }
 
   function escapeHtml(s) {
@@ -70,15 +228,14 @@
     return "";
   }
 
-  /** Minimum relevance score (inclusive); synced from API response. */
-  var MIN_RELEVANCE_PCT = 80;
+  /** Minimum relevance score (inclusive); synced from form / API response. */
+  var MIN_RELEVANCE_PCT = DEFAULT_RELEVANCE;
 
   function updateThresholdNote() {
     if (!thresholdNoteEl) return;
     thresholdNoteEl.textContent =
       "Showing jobs with relevance \u2265 " + MIN_RELEVANCE_PCT + "% (server threshold).";
   }
-  updateThresholdNote();
 
   function jobRelevanceScore(job) {
     var pct = Number(job.relevant_percentage);
@@ -281,17 +438,43 @@
     if (url) window.location.assign(url);
   };
 
+  function setFetchBusy(busy) {
+    if (fetchBtn) fetchBtn.disabled = busy;
+    if (refreshBtn) refreshBtn.disabled = busy;
+  }
+
   function fetchJobs() {
     setVisible(loadingEl, true);
     setVisible(errorEl, false);
     setVisible(resultsEl, false);
+    setFetchBusy(true);
 
     var enrich = enrichChk ? enrichChk.checked : false;
+    var config = collectSearchConfig();
+    if (searchKeywordInput) {
+      searchKeywordInput.value = config.keyword;
+    }
+    if (jobAgeInput) jobAgeInput.value = config.job_age;
+    if (noOfJobsInput) noOfJobsInput.value = String(config.no_of_jobs);
+    if (maxPagesInput) maxPagesInput.value = String(config.max_pages);
+    if (relevanceInput) relevanceInput.value = String(config.relevance_min_pct);
+    MIN_RELEVANCE_PCT = config.relevance_min_pct;
+    updateThresholdNote();
+    updateUrlPreview();
 
     fetch("/api/jobs/naukri", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ headless: false, enrich_jd: enrich }),
+      body: JSON.stringify({
+        headless: false,
+        enrich_jd: enrich,
+        keyword: config.keyword,
+        job_age: config.job_age,
+        ctc_filters: config.ctc_filters,
+        no_of_jobs: config.no_of_jobs,
+        max_pages: config.max_pages,
+        relevance_min_pct: config.relevance_min_pct,
+      }),
     })
       .then(function (res) {
         return res.json().then(function (data) {
@@ -301,6 +484,7 @@
       })
       .then(function (payload) {
         setVisible(loadingEl, false);
+        setFetchBusy(false);
         if (!payload.ok || !payload.data.ok) {
           var msg =
             (payload.data && payload.data.error) ||
@@ -335,19 +519,42 @@
       })
       .catch(function () {
         setVisible(loadingEl, false);
+        setFetchBusy(false);
         errorEl.textContent = "Network error — is the Flask server running?";
         setVisible(errorEl, true);
       });
   }
 
+  if (fetchBtn) {
+    fetchBtn.addEventListener("click", fetchJobs);
+  }
   if (refreshBtn) {
     refreshBtn.addEventListener("click", fetchJobs);
   }
+  if (searchKeywordInput) {
+    searchKeywordInput.addEventListener("input", updateUrlPreview);
+    searchKeywordInput.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        fetchJobs();
+      }
+    });
+  }
+  [jobAgeInput, noOfJobsInput, maxPagesInput, relevanceInput].forEach(function (el) {
+    if (!el) return;
+    el.addEventListener("input", updateUrlPreview);
+    el.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        fetchJobs();
+      }
+    });
+  });
   if (keywordInput) {
     keywordInput.addEventListener("input", function () {
       sortJobs(currentSort);
     });
   }
 
-  fetchJobs();
+  applyDefaultsToForm();
 })();

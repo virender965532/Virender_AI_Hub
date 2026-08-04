@@ -31,6 +31,12 @@ class WorkflowState(TypedDict, total=False):
     fetch_complete: bool
     display_complete: bool
     enrich_jd: bool
+    job_keyword: str
+    job_age: str
+    ctc_filters: list[str]
+    no_of_jobs: int
+    max_pages: int
+    relevance_min_pct: float
 
 
 def initial_workflow_state() -> WorkflowState:
@@ -41,4 +47,10 @@ def initial_workflow_state() -> WorkflowState:
         "fetch_complete": False,
         "display_complete": False,
         "enrich_jd": False,
+        "job_keyword": "javascript",
+        "job_age": "3",
+        "ctc_filters": [],
+        "no_of_jobs": 25,
+        "max_pages": 100,
+        "relevance_min_pct": 80.0,
     }

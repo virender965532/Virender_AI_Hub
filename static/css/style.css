@@ -549,6 +549,16 @@ body {
   margin-bottom: 1rem;
 }
 
+.search-toolbar {
+  margin-bottom: 1.25rem;
+}
+
+.search-toolbar #btn-fetch:disabled,
+.results-toolbar #btn-refresh:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .results-toolbar__count {
   font-family: var(--font-display);
   letter-spacing: 0.08em;
