@@ -1,0 +1,597 @@
+{% extends "base.html" %}
+{% block title %}Virender AI Hub — Autonomous Multi-Agent RAG{% endblock %}
+
+{% block extra_head %}
+<style>
+  .enterprise-layout {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 1rem;
+    align-items: start;
+  }
+  .enterprise-main { display: grid; gap: 1rem; }
+  .enterprise-sidebar { display: grid; gap: 0.85rem; position: sticky; top: 1rem; }
+  .ep-panel {
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid rgba(120, 160, 255, 0.2);
+    background: rgba(9, 10, 20, 0.75);
+  }
+  .ep-title {
+    margin: 0 0 0.75rem;
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    color: var(--neon-cyan);
+    text-transform: uppercase;
+  }
+  .ep-chat {
+    display: grid;
+    grid-template-rows: 1fr auto;
+    min-height: 420px;
+  }
+  .ep-messages {
+    overflow-y: auto;
+    max-height: 360px;
+    padding: 0.5rem;
+    display: grid;
+    gap: 0.75rem;
+  }
+  .ep-msg {
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    line-height: 1.5;
+    font-size: 0.92rem;
+  }
+  .ep-msg--user {
+    background: rgba(0, 180, 255, 0.12);
+    border: 1px solid rgba(0, 180, 255, 0.25);
+    margin-left: 2rem;
+  }
+  .ep-msg--assistant {
+    background: rgba(120, 80, 255, 0.1);
+    border: 1px solid rgba(120, 80, 255, 0.22);
+    margin-right: 1rem;
+  }
+  .ep-msg--assistant h3, .ep-msg--assistant h4 {
+    margin: 0.75rem 0 0.35rem;
+    font-family: var(--font-display);
+    color: var(--neon-cyan);
+    letter-spacing: 0.04em;
+  }
+  .ep-msg--assistant h3:first-child, .ep-msg--assistant h4:first-child { margin-top: 0; }
+  .qa-inline-code {
+    padding: 0.1rem 0.35rem;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.35);
+    font-family: "Consolas", "Courier New", monospace;
+    font-size: 0.85em;
+    color: #b8e4ff;
+  }
+  .qa-code-viewer {
+    margin: 0.85rem 0;
+    border-radius: 10px;
+    border: 1px solid rgba(120, 160, 255, 0.28);
+    background: rgba(4, 7, 18, 0.98);
+    overflow: hidden;
+  }
+  .qa-code-viewer__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.45rem 0.75rem;
+    border-bottom: 1px solid rgba(120, 160, 255, 0.18);
+    background: rgba(12, 18, 36, 0.95);
+  }
+  .qa-code-viewer__lang {
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--neon-cyan);
+  }
+  .qa-code-viewer__copy {
+    border: 1px solid rgba(92, 240, 232, 0.35);
+    border-radius: 999px;
+    padding: 0.2rem 0.65rem;
+    color: var(--neon-cyan);
+    background: rgba(56, 182, 255, 0.08);
+    cursor: pointer;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .qa-code-viewer__copy:hover { box-shadow: 0 0 14px rgba(56, 182, 255, 0.24); }
+  .qa-code-viewer__pre {
+    margin: 0;
+    padding: 0.9rem 1rem;
+    overflow: auto;
+    max-height: 420px;
+    font-family: "Consolas", "Courier New", monospace;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: #d9ecff;
+    background: rgba(2, 4, 12, 0.95);
+  }
+  .qa-code-viewer__code { white-space: pre; }
+  .confidence-ring--low { border-color: rgba(74, 222, 128, 0.6); color: #4ade80; }
+  .confidence-ring--mid { border-color: rgba(251, 191, 36, 0.6); color: #fbbf24; }
+  .confidence-ring--high { border-color: rgba(248, 113, 113, 0.6); color: #f87171; }
+  .ep-input-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+  .ep-input, .ep-select {
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(120, 160, 255, 0.25);
+    border-radius: 8px;
+    color: var(--text);
+    padding: 0.65rem 0.85rem;
+    font-family: var(--font-body);
+  }
+  .ep-btn {
+    background: linear-gradient(135deg, rgba(0, 200, 255, 0.25), rgba(120, 80, 255, 0.25));
+    border: 1px solid rgba(0, 200, 255, 0.4);
+    border-radius: 8px;
+    color: var(--neon-cyan);
+    padding: 0.65rem 1.2rem;
+    cursor: pointer;
+    font-family: var(--font-display);
+    letter-spacing: 0.05em;
+  }
+  .ep-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .ep-role-bar {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.75rem;
+    align-items: center;
+    margin-bottom: 0.75rem;
+  }
+  .ep-role-bar label { color: var(--text-muted); font-size: 0.85rem; }
+  .agent-trace { display: grid; gap: 0.35rem; }
+  .agent-trace__item {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.5rem;
+    font-size: 0.78rem;
+    padding: 0.35rem 0.5rem;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.03);
+  }
+  .agent-trace__name { color: var(--neon-cyan); }
+  .agent-trace__ms { color: var(--text-muted); font-family: monospace; }
+  .agent-flow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    align-items: center;
+    font-size: 0.72rem;
+  }
+  .agent-flow__node {
+    padding: 0.25rem 0.5rem;
+    border-radius: 999px;
+    background: rgba(0, 200, 255, 0.12);
+    border: 1px solid rgba(0, 200, 255, 0.25);
+    color: var(--neon-cyan);
+  }
+  .agent-flow__arrow { color: var(--text-muted); }
+  .confidence-ring {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    margin: 0 auto 0.5rem;
+    border: 3px solid rgba(0, 200, 255, 0.4);
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    color: var(--neon-cyan);
+  }
+  .metric-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+  .metric-card {
+    padding: 0.5rem;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.04);
+    text-align: center;
+  }
+  .metric-card__val {
+    font-family: var(--font-display);
+    color: var(--neon-cyan);
+    font-size: 1rem;
+  }
+  .metric-card__label { font-size: 0.7rem; color: var(--text-muted); }
+  .source-list, .tool-list, .guard-list {
+    max-height: 160px;
+    overflow-y: auto;
+    font-size: 0.78rem;
+    display: grid;
+    gap: 0.35rem;
+  }
+  .source-item {
+    padding: 0.4rem 0.5rem;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.03);
+    border-left: 2px solid rgba(0, 200, 255, 0.5);
+  }
+  .guard-ok { color: #4ade80; }
+  .guard-warn { color: #fbbf24; }
+  .guard-fail { color: #f87171; }
+  .upload-zone {
+    border: 2px dashed rgba(120, 160, 255, 0.3);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+  .upload-zone input[type=file] { margin: 0.5rem 0; }
+  .ep-status { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem; }
+  .ep-loading {
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--neon-cyan);
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+  }
+  .ep-loading.active { display: flex; }
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid rgba(0, 200, 255, 0.2);
+    border-top-color: var(--neon-cyan);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (max-width: 1100px) {
+    .enterprise-layout { grid-template-columns: 1fr; }
+    .enterprise-sidebar { position: static; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="hero" style="padding-bottom: 0.5rem;">
+  <p class="hero__eyebrow neon-text">Enterprise AI Operating System</p>
+  <h1 class="hero__title">Autonomous <span class="hero__accent">Multi-Agent RAG</span></h1>
+  <p class="hero__subtitle">18-agent LangGraph orchestration · Hybrid retrieval · Self-RAG · Role intelligence · Enterprise guardrails</p>
+</section>
+
+<div class="upload-zone glass" id="uploadZone">
+  <p class="simple-rag-subtle">Upload enterprise knowledge document (PDF, TXT, Word, Excel)</p>
+  <form id="uploadForm" enctype="multipart/form-data">
+    <input type="file" id="fileInput" name="file" accept=".pdf,.txt,.docx,.doc,.xlsx,.xls">
+    <button type="submit" class="ep-btn">Upload Document</button>
+  </form>
+  <p class="ep-status" id="uploadStatus">No document uploaded</p>
+</div>
+
+<div class="enterprise-layout">
+  <div class="enterprise-main">
+    <!-- 1. Chat Interface -->
+    <div class="ep-panel ep-chat glass">
+      <h2 class="ep-title">◈ Intelligence Chat</h2>
+      <div class="ep-role-bar">
+        <label for="roleSelect">Role Intelligence</label>
+        <select id="roleSelect" class="ep-select"></select>
+      </div>
+      <div class="ep-messages" id="messages"></div>
+      <div class="ep-input-row">
+        <input type="text" id="queryInput" class="ep-input" placeholder="Ask a complex enterprise question..." autocomplete="off">
+        <button id="askBtn" class="ep-btn">Analyze</button>
+      </div>
+      <div class="ep-loading" id="loadingIndicator">
+        <div class="spinner"></div>
+        <span>18 agents orchestrating retrieval & reasoning...</span>
+      </div>
+    </div>
+
+    <!-- 2. Agent Workflow Visualization -->
+    <div class="ep-panel glass">
+      <h2 class="ep-title">◈ Agent Workflow</h2>
+      <div class="agent-flow" id="agentFlow">
+        <span class="agent-flow__node">Intent</span><span class="agent-flow__arrow">→</span>
+        <span class="agent-flow__node">Role</span><span class="agent-flow__arrow">→</span>
+        <span class="agent-flow__node">Planner</span><span class="agent-flow__arrow">→</span>
+        <span class="agent-flow__node">Multi-Query</span><span class="agent-flow__arrow">→</span>
+        <span class="agent-flow__node">Strategy</span><span class="agent-flow__arrow">→</span>
+        <span class="agent-flow__node">Retrieve</span><span class="agent-flow__arrow">→</span>
+        <span class="agent-flow__node">Compress</span><span class="agent-flow__arrow">→</span>
+        <span class="agent-flow__node">Verify</span><span class="agent-flow__arrow">→</span>
+        <span class="agent-flow__node">Rerank</span><span class="agent-flow__arrow">→</span>
+        <span class="agent-flow__node">Generate</span><span class="agent-flow__arrow">→</span>
+        <span class="agent-flow__node">Critic</span><span class="agent-flow__arrow">→</span>
+        <span class="agent-flow__node">Reflect</span><span class="agent-flow__arrow">→</span>
+        <span class="agent-flow__node">Governance</span><span class="agent-flow__arrow">→</span>
+        <span class="agent-flow__node">Format</span>
+      </div>
+    </div>
+
+    <!-- 3. Retrieval Trace -->
+    <div class="ep-panel glass">
+      <h2 class="ep-title">◈ Retrieval Trace</h2>
+      <div id="retrievalTrace" class="source-list">
+        <p class="ep-status">Strategy, subqueries, and retrieval decisions appear here.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="enterprise-sidebar">
+    <!-- 4. Confidence Score -->
+    <div class="ep-panel glass">
+      <h2 class="ep-title">◈ Confidence</h2>
+      <div class="confidence-ring" id="confidenceRing">—</div>
+      <p class="ep-status" style="text-align:center;" id="confidenceLabel">Awaiting query</p>
+    </div>
+
+    <!-- 5. Sources Panel -->
+    <div class="ep-panel glass">
+      <h2 class="ep-title">◈ Sources</h2>
+      <div class="source-list" id="sourcesPanel">
+        <p class="ep-status">Cited sources will appear here.</p>
+      </div>
+    </div>
+
+    <!-- 6. Agent Trace View -->
+    <div class="ep-panel glass">
+      <h2 class="ep-title">◈ Agent Trace</h2>
+      <div class="agent-trace" id="agentTrace">
+        <p class="ep-status">Latency per agent.</p>
+      </div>
+    </div>
+
+    <!-- 7. Tool Usage -->
+    <div class="ep-panel glass">
+      <h2 class="ep-title">◈ Tool Usage</h2>
+      <div class="tool-list" id="toolUsage">
+        <p class="ep-status">Tool invocations tracked here.</p>
+      </div>
+    </div>
+
+    <!-- 8. Guardrail Status -->
+    <div class="ep-panel glass">
+      <h2 class="ep-title">◈ Guardrails</h2>
+      <div class="guard-list" id="guardrailStatus">
+        <p class="ep-status">Input · Retrieval · Generation · Output checks.</p>
+      </div>
+    </div>
+
+    <!-- 9 & 10. Token & Latency -->
+    <div class="ep-panel glass">
+      <h2 class="ep-title">◈ Metrics</h2>
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-card__val" id="tokenTotal">0</div>
+          <div class="metric-card__label">Tokens</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-card__val" id="latencyTotal">0ms</div>
+          <div class="metric-card__label">Latency</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-card__val" id="chunkCount">0</div>
+          <div class="metric-card__label">Chunks</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-card__val" id="agentCount">0</div>
+          <div class="metric-card__label">Agents</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const ROLES = {{ roles | tojson }};
+const sessionId = 'session_' + Math.random().toString(36).slice(2);
+
+function $(id) { return document.getElementById(id); }
+
+function escapeHtml(text) {
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function renderAnswer(text) {
+  const codeBlocks = [];
+  let processed = text || '';
+
+  processed = processed.replace(/```(\w*)\r?\n([\s\S]*?)```/g, (_, lang, code) => {
+    const index = codeBlocks.length;
+    codeBlocks.push({
+      lang: (lang || 'python').trim() || 'python',
+      code: code.replace(/\s+$/, ''),
+    });
+    return `@@CODE_BLOCK_${index}@@`;
+  });
+
+  let html = escapeHtml(processed);
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/`([^`\n]+)`/g, '<code class="qa-inline-code">$1</code>');
+  html = html.replace(/^### (.+)$/gm, '<h4>$1</h4>');
+  html = html.replace(/^## (.+)$/gm, '<h3>$1</h3>');
+  html = html.replace(/^- (.+)$/gm, '<li>$1</li>');
+  html = html.replace(/\n/g, '<br>');
+
+  html = html.replace(/@@CODE_BLOCK_(\d+)@@/g, (_, idx) => {
+    const block = codeBlocks[Number(idx)];
+    if (!block) return '';
+    const langLabel = escapeHtml(block.lang);
+    const codeHtml = escapeHtml(block.code);
+    return (
+      '<div class="qa-code-viewer">' +
+      '<div class="qa-code-viewer__header">' +
+      '<span class="qa-code-viewer__lang">' + langLabel + '</span>' +
+      '<button type="button" class="qa-code-viewer__copy">Copy</button>' +
+      '</div>' +
+      '<pre class="qa-code-viewer__pre"><code class="qa-code-viewer__code">' + codeHtml + '</code></pre>' +
+      '</div>'
+    );
+  });
+
+  return html;
+}
+
+function addMessage(role, text) {
+  const div = document.createElement('div');
+  div.className = 'ep-msg ep-msg--' + role;
+  if (role === 'assistant') {
+    div.innerHTML = renderAnswer(text);
+  } else {
+    div.textContent = text;
+  }
+  $('messages').appendChild(div);
+  div.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+document.getElementById('messages').addEventListener('click', async (e) => {
+  const btn = e.target.closest('.qa-code-viewer__copy');
+  if (!btn) return;
+  const code = btn.closest('.qa-code-viewer')?.querySelector('.qa-code-viewer__code')?.textContent || '';
+  try {
+    await navigator.clipboard.writeText(code);
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = 'Copy'; }, 1500);
+  } catch (_) {
+    btn.textContent = 'Failed';
+    setTimeout(() => { btn.textContent = 'Copy'; }, 1500);
+  }
+});
+
+function populateRoles() {
+  const sel = $('roleSelect');
+  ROLES.forEach(r => {
+    const opt = document.createElement('option');
+    opt.value = r.id;
+    opt.textContent = r.label;
+    sel.appendChild(opt);
+  });
+}
+
+async function refreshUploadStatus() {
+  try {
+    const res = await fetch('/api/enterprise-rag-search/upload-status');
+    const data = await res.json();
+    if (data.ok && data.file) {
+      $('uploadStatus').textContent = 'Document: ' + data.file.name + ' (' + (data.file.size_bytes || 0) + ' bytes)';
+    }
+  } catch (_) {}
+}
+
+$('uploadForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const file = $('fileInput').files[0];
+  if (!file) return;
+  const fd = new FormData();
+  fd.append('file', file);
+  $('uploadStatus').textContent = 'Uploading...';
+  const res = await fetch('/api/enterprise-rag-search/upload', { method: 'POST', body: fd });
+  const data = await res.json();
+  $('uploadStatus').textContent = data.ok ? 'Uploaded: ' + data.file.name : ('Error: ' + data.error);
+});
+
+$('askBtn').addEventListener('click', askQuestion);
+$('queryInput').addEventListener('keydown', e => { if (e.key === 'Enter') askQuestion(); });
+
+async function askQuestion() {
+  const query = $('queryInput').value.trim();
+  if (!query) return;
+  const role = $('roleSelect').value;
+  $('askBtn').disabled = true;
+  $('loadingIndicator').classList.add('active');
+  addMessage('user', query);
+  $('queryInput').value = '';
+
+  try {
+    const res = await fetch('/api/enterprise-rag-search/ask', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query, role, session_id: sessionId }),
+    });
+    const data = await res.json();
+    if (!data.ok) {
+      addMessage('assistant', 'Error: ' + (data.error || 'Unknown error'));
+      return;
+    }
+    addMessage('assistant', data.answer);
+    updateDashboard(data);
+  } catch (err) {
+    addMessage('assistant', 'Request failed: ' + err.message);
+  } finally {
+    $('askBtn').disabled = false;
+    $('loadingIndicator').classList.remove('active');
+  }
+}
+
+function updateDashboard(data) {
+  const conf = Math.round((data.confidence || 0) * 100);
+  const riskPct = data.hallucination_risk_pct ?? data.hallucination_check?.risk_pct ?? null;
+  const ring = $('confidenceRing');
+
+  ring.textContent = conf + '%';
+  ring.classList.remove('confidence-ring--low', 'confidence-ring--mid', 'confidence-ring--high');
+
+  if (riskPct !== null && riskPct <= 20) {
+    ring.classList.add('confidence-ring--low');
+  } else if (riskPct !== null && riskPct <= 40) {
+    ring.classList.add('confidence-ring--mid');
+  } else if (riskPct !== null) {
+    ring.classList.add('confidence-ring--high');
+  }
+
+  if (riskPct !== null) {
+    const riskClass = riskPct <= 20 ? 'guard-ok' : riskPct <= 40 ? 'guard-warn' : 'guard-fail';
+    $('confidenceLabel').innerHTML =
+      '<span class="' + riskClass + '">Hallucination risk: ' + riskPct + '%</span>' +
+      (riskPct <= 20 ? ' · Grounded' : '');
+  } else {
+    $('confidenceLabel').textContent = 'Verification complete';
+  }
+
+  $('retrievalTrace').innerHTML = [
+    '<div class="source-item"><strong>Strategy:</strong> ' + (data.retrieval_strategy || '—') + '</div>',
+    '<div class="source-item"><strong>Subqueries:</strong> ' + (data.subqueries || []).join(' · ') + '</div>',
+    '<div class="source-item"><strong>Intent:</strong> ' + (data.intent?.intent || data.intent?.question_type || '—') + '</div>',
+    '<div class="source-item"><strong>Trace ID:</strong> ' + (data.trace_id || '—') + '</div>',
+  ].join('');
+
+  $('sourcesPanel').innerHTML = (data.retrieved_chunks || []).map(c =>
+    '<div class="source-item"><strong>' + c.section + '</strong> · Page ' + c.page +
+    '<br><span style="color:var(--text-muted)">Score: ' + (c.score?.toFixed?.(3) || c.score) + '</span></div>'
+  ).join('') || '<p class="ep-status">No sources retrieved.</p>';
+
+  $('agentTrace').innerHTML = (data.agent_traces || []).map(t =>
+    '<div class="agent-trace__item"><span class="agent-trace__name">' + t.agent + '</span>' +
+    '<span class="agent-trace__ms">' + t.elapsed_ms + 'ms</span></div>'
+  ).join('') || '<p class="ep-status">No trace data.</p>';
+
+  $('toolUsage').innerHTML = (data.tool_usage || []).map(t =>
+    '<div class="source-item">' + t.tool + ' · ' + t.elapsed_ms + 'ms</div>'
+  ).join('') || '<p class="ep-status">No tools invoked.</p>';
+
+  const events = data.guardrail_events || [];
+  $('guardrailStatus').innerHTML = events.length ? events.map(e =>
+    '<div class="' + (e.passed ? 'guard-ok' : 'guard-warn') + '">' +
+    e.stage + ' / ' + e.check + ': ' + (e.passed ? 'PASS' : 'WARN') + '</div>'
+  ).join('') : '<p class="ep-status">All guardrails nominal.</p>';
+
+  $('tokenTotal').textContent = data.token_usage?.total_tokens || 0;
+  $('latencyTotal').textContent = (data.workflow_elapsed_ms || 0) + 'ms';
+  $('chunkCount').textContent = (data.retrieved_chunks || []).length;
+  $('agentCount').textContent = (data.agent_traces || []).length;
+}
+
+populateRoles();
+refreshUploadStatus();
+</script>
+{% endblock %}

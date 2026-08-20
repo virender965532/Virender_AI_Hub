@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% block title %}Job Apply Pro — Virender AI Hub{% endblock %}
+
+{% block extra_head %}
+<style>
+  .job-apply-wrap {
+    max-width: 720px;
+    margin: 0 auto 3rem;
+  }
+  .job-apply-form {
+    padding: 1.5rem 1.75rem;
+  }
+  .job-apply-form label {
+    display: block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+    margin-top: 1.25rem;
+  }
+  .job-apply-form label:first-of-type {
+    margin-top: 0;
+  }
+  .job-apply-form .job-filter-input,
+  .job-apply-form textarea {
+    width: 100%;
+    margin-top: 0.5rem;
+    max-width: none;
+  }
+  .job-apply-form textarea {
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    padding: 0.65rem 0.85rem;
+    border-radius: 10px;
+    border: 1px solid rgba(120, 160, 255, 0.35);
+    background: rgba(8, 10, 22, 0.85);
+    color: var(--text);
+    min-height: 220px;
+    resize: vertical;
+    line-height: 1.5;
+  }
+  .job-apply-form textarea:focus {
+    outline: none;
+    border-color: var(--neon-purple);
+    box-shadow: 0 0 0 2px rgba(185, 103, 255, 0.2);
+  }
+  .job-apply-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    margin-top: 1.5rem;
+  }
+  .job-apply-result {
+    padding: 1.5rem 1.75rem;
+    margin-top: 1.25rem;
+  }
+  .job-apply-result__subject {
+    font-family: var(--font-display);
+    color: var(--neon-cyan);
+    margin: 0 0 1rem;
+    font-size: 1rem;
+  }
+  .job-apply-result__body {
+    white-space: pre-wrap;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin: 0;
+  }
+  .job-apply-back {
+    margin-bottom: 1rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<p class="job-apply-back">
+  <a href="{{ url_for('main.job_search') }}" class="nav__link nav__link--cta">← Back to job search</a>
+</p>
+
+<section class="page-head">
+  <p class="hero__eyebrow neon-text">Job Apply Pro</p>
+  <h1 class="hero__title">Agentic <span class="hero__accent">application</span></h1>
+  <p class="hero__subtitle">
+    Paste the job description and hiring manager email. The pipeline analyzes the JD against your resume in
+    <code class="inline-code">Profile/</code>, drafts a tailored email, and opens Gmail compose.
+  </p>
+</section>
+
+<div id="job-apply-app" class="job-apply-wrap">
+  <form id="job-apply-form" class="job-apply-form glass" novalidate>
+    <label for="job-description">Job description <span aria-hidden="true">*</span></label>
+    <textarea
+      id="job-description"
+      name="job_description"
+      required
+      placeholder="Paste the full job description here…"
+      aria-required="true"
+    ></textarea>
+
+    <label for="hiring-email">Hiring manager email <span aria-hidden="true">*</span></label>
+    <input
+      type="email"
+      id="hiring-email"
+      name="hiring_manager_email"
+      class="job-filter-input"
+      required
+      placeholder="hiring.manager@company.com"
+      autocomplete="email"
+      aria-required="true"
+    />
+
+    <div class="job-apply-actions">
+      <button type="submit" id="btn-submit" class="btn btn--ghost">Generate &amp; open email</button>
+      <span class="job-toolbar-note">Resume: <code class="inline-code">{{ resume_file }}</code></span>
+    </div>
+  </form>
+
+  <div id="loading-state" class="loading-panel glass hidden" role="status" aria-live="polite">
+    <div class="loading-panel__row">
+      <div class="spinner" aria-hidden="true"></div>
+      <div>
+        <p class="loading-panel__text">Drafting your application…</p>
+        <p class="loading-panel__hint">Analyzing JD, matching resume profile, generating subject &amp; email. This may take a minute.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="error-state" class="alert alert--error glass hidden" role="alert"></div>
+
+  <div id="result-state" class="job-apply-result glass hidden">
+    <p class="job-apply-result__subject" id="result-subject"></p>
+    <pre class="job-apply-result__body" id="result-body"></pre>
+    <p id="result-status" class="job-toolbar-note" style="margin-top: 1rem;"></p>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/job_apply.js') }}"></script>
+{% endblock %}

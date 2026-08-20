@@ -40,16 +40,29 @@ NAUKRI_HOME = "https://www.naukri.com"
 NAUKRI_SORT_BY = os.getenv("NAUKRI_SORT_BY", "r")
 NAUKRI_JOB_AGE = os.getenv("NAUKRI_JOB_AGE", "3")
 
-# Base URL for JavaScript jobs with CTC filters
-NAUKRI_BASE_URL = "https://www.naukri.com/javascript-jobs"
+def _keyword_to_naukri_slug(keyword: str) -> str:
+    """Map keyword to Naukri path slug (node.js -> node-dot-js, node js -> node-js)."""
+    raw = (keyword or "").strip().lower() or "javascript"
+    slug = raw.replace(".", "-dot-")
+    slug = re.sub(r"\s+", "-", slug)
+    slug = re.sub(r"-{2,}", "-", slug).strip("-")
+    return slug or "javascript"
 
-# Final URL
-NAUKRI_JOBS_INDIA = (
-    f"{NAUKRI_BASE_URL}"
-    f"?sort={NAUKRI_SORT_BY}"
-    f"&jobAge={NAUKRI_JOB_AGE}" 
-    f"&ctcFilter=25to50&ctcFilter=50to75&ctcFilter=75to100"
-)
+
+def build_naukri_jobs_url(keyword: str = "javascript") -> str:
+    """Build Naukri jobs listing URL for a search keyword."""
+    base = f"https://www.naukri.com/{_keyword_to_naukri_slug(keyword)}-jobs"
+    return (
+        f"{base}"
+        f"?sort={NAUKRI_SORT_BY}"
+        f"&jobAge={NAUKRI_JOB_AGE}"
+        f"&ctcFilter=25to50&ctcFilter=50to75&ctcFilter=75to100"
+    )
+
+
+# Default listing URL (javascript); prefer build_naukri_jobs_url(keyword) for dynamic searches.
+NAUKRI_BASE_URL = "https://www.naukri.com/javascript-jobs"
+NAUKRI_JOBS_INDIA = build_naukri_jobs_url("javascript")
 
 
 # Debug artifacts (project root / scraper_debug)
@@ -113,7 +126,7 @@ def _analyze_skill_text_blob(norm: str) -> bool:
     Run target / excluded rules on one normalized blob (e.g. full JD).
     Counts every target that appears anywhere in the text (not only the first map_to_base_skill hit).
     """
-    target_skills = {"react", "next", "node", "javascript", "typescript"}
+    target_skills = {"react", "next", "node", "javascript", "typescript", "mern", "fullstack", "full stack"}
     found_excluded: set[str] = set()
     if re.search(r"\bjava\b", norm):
         found_excluded.add("java")
@@ -447,23 +460,26 @@ def _extract_posted_text(raw: str) -> int | None:
         return None
 
     raw = raw.strip().lower()
-    now = datetime.now(timezone.utc)  # ✅ always UTC
+    now = datetime.now(timezone.utc)
 
-    # Match patterns like 5d ago, 2h ago, 1w ago, 3mo ago
-    m = re.match(r"^(\d+)\s*(h|d|w|mo)\s*ago\b", raw)
+    # Match patterns like 5d ago, 5 days ago, posted 2 weeks ago
+    m = re.search(
+        r"(\d+)\s*(hours?|hrs?|h|days?|d|weeks?|w|months?|mos?|mo)\s*ago",
+        raw,
+    )
 
     if m:
         value = int(m.group(1))
         unit = m.group(2)
 
-        if unit == "h":
+        if unit.startswith("h"):
             dt = now - timedelta(hours=value)
-        elif unit == "d":
+        elif unit.startswith("d"):
             dt = now - timedelta(days=value)
-        elif unit == "w":
+        elif unit.startswith("w"):
             dt = now - timedelta(weeks=value)
-        elif unit == "mo":
-            dt = now - timedelta(days=value * 30)  # approx
+        else:
+            dt = now - timedelta(days=value * 30)
 
         return int(dt.timestamp())
 
@@ -473,6 +489,12 @@ def _extract_posted_text(raw: str) -> int | None:
 
     if "yesterday" in raw:
         return int((now - timedelta(days=1)).timestamp())
+
+    if re.search(r"few\s+hours?\s*ago", raw):
+        return int((now - timedelta(hours=2)).timestamp())
+
+    if re.search(r"few\s+days?\s*ago", raw):
+        return int((now - timedelta(days=2)).timestamp())
 
     return None
 

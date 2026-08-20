@@ -1,0 +1,479 @@
+{% extends "base.html" %}
+{% block title %}Virender AI Hub — Simple RAG Search{% endblock %}
+
+{% block extra_head %}
+<style>
+  .simple-rag-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    gap: 1.25rem;
+    align-items: stretch;
+  }
+
+  .simple-rag-panel {
+    padding: 1rem;
+    min-height: 72vh;
+  }
+
+  .simple-rag-title {
+    margin: 0 0 0.75rem;
+    font-family: var(--font-display);
+    letter-spacing: 0.06em;
+    color: var(--neon-cyan);
+  }
+
+  .simple-rag-subtle {
+    color: var(--text-muted);
+    margin: 0 0 1rem;
+  }
+
+  .pdf-frame-wrap {
+    border: 1px solid rgba(120, 160, 255, 0.25);
+    border-radius: 12px;
+    overflow: hidden;
+    height: calc(72vh - 5.5rem);
+    background: rgba(9, 10, 20, 0.75);
+  }
+
+  .pdf-frame {
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  .qa-form {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .qa-label {
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .qa-textarea {
+    width: 100%;
+    min-height: 140px;
+    resize: vertical;
+    border-radius: 10px;
+    padding: 0.85rem 1rem;
+    border: 1px solid rgba(120, 160, 255, 0.3);
+    background: rgba(7, 9, 20, 0.9);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    line-height: 1.45;
+  }
+
+  .qa-textarea:focus {
+    outline: none;
+    border-color: var(--neon-blue);
+    box-shadow: 0 0 0 2px rgba(56, 182, 255, 0.2);
+  }
+
+  .qa-button {
+    justify-self: start;
+    border: 1px solid rgba(92, 240, 232, 0.4);
+    border-radius: 999px;
+    padding: 0.5rem 1.15rem;
+    color: var(--neon-cyan);
+    background: rgba(56, 182, 255, 0.08);
+    cursor: pointer;
+    font-weight: 600;
+    transition: all var(--transition);
+  }
+
+  .qa-button:hover {
+    box-shadow: 0 0 20px rgba(56, 182, 255, 0.28);
+  }
+
+  .qa-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .qa-answer-wrap {
+    margin-top: 1rem;
+    padding: 0.9rem;
+    border-radius: 10px;
+    border: 1px solid rgba(120, 160, 255, 0.22);
+    background: rgba(9, 12, 25, 0.82);
+  }
+
+  .qa-answer {
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.55;
+  }
+
+  .qa-answer h4 {
+    margin: 0 0 0.5rem;
+    color: var(--neon-cyan);
+    font-family: var(--font-display);
+    letter-spacing: 0.06em;
+  }
+
+  .qa-md-heading {
+    margin: 1.25rem 0 0.55rem;
+    color: var(--neon-cyan);
+    font-family: var(--font-display);
+    letter-spacing: 0.05em;
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+
+  .qa-md-heading:first-child {
+    margin-top: 0;
+  }
+
+  .qa-md-heading--2 {
+    font-size: 0.98rem;
+  }
+
+  .qa-md-heading--3 {
+    font-size: 0.92rem;
+    color: var(--neon-blue);
+  }
+
+  .qa-md-list {
+    margin: 0.35rem 0 0.75rem;
+    padding-left: 1.25rem;
+  }
+
+  .qa-md-list li {
+    margin: 0.25rem 0;
+  }
+
+  .qa-citation-link {
+    color: var(--neon-blue);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  .qa-code-viewer {
+    margin: 0.85rem 0;
+    border-radius: 10px;
+    border: 1px solid rgba(120, 160, 255, 0.28);
+    background: rgba(4, 7, 18, 0.98);
+    overflow: hidden;
+  }
+
+  .qa-code-viewer__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.45rem 0.75rem;
+    border-bottom: 1px solid rgba(120, 160, 255, 0.18);
+    background: rgba(12, 18, 36, 0.95);
+  }
+
+  .qa-code-viewer__lang {
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--neon-cyan);
+  }
+
+  .qa-code-viewer__copy {
+    border: 1px solid rgba(92, 240, 232, 0.35);
+    border-radius: 999px;
+    padding: 0.2rem 0.65rem;
+    color: var(--neon-cyan);
+    background: rgba(56, 182, 255, 0.08);
+    cursor: pointer;
+    font-size: 0.75rem;
+    font-weight: 600;
+    transition: all var(--transition);
+  }
+
+  .qa-code-viewer__copy:hover {
+    box-shadow: 0 0 14px rgba(56, 182, 255, 0.24);
+  }
+
+  .qa-code-viewer__pre {
+    margin: 0;
+    padding: 0.9rem 1rem;
+    overflow: auto;
+    max-height: 420px;
+    font-family: "Consolas", "Courier New", monospace;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: #d9ecff;
+    tab-size: 4;
+    white-space: pre;
+  }
+
+  .qa-code-viewer__code {
+    display: block;
+    font-family: inherit;
+  }
+
+  .qa-inline-code {
+    padding: 0.1rem 0.35rem;
+    border-radius: 4px;
+    background: rgba(56, 182, 255, 0.12);
+    border: 1px solid rgba(120, 160, 255, 0.22);
+    font-family: "Consolas", "Courier New", monospace;
+    font-size: 0.92em;
+    color: #bfe9ff;
+  }
+
+  .qa-error {
+    color: #ffc9d0;
+    border: 1px solid rgba(255, 120, 140, 0.45);
+    background: rgba(45, 12, 20, 0.55);
+    border-radius: 10px;
+    padding: 0.7rem 0.85rem;
+    margin-top: 0.85rem;
+  }
+
+  .qa-log-wrap {
+    margin-top: 0.85rem;
+  }
+
+  .qa-log-title {
+    margin: 0 0 0.35rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .qa-log {
+    margin: 0;
+    max-height: 220px;
+    overflow: auto;
+    border-radius: 10px;
+    padding: 0.75rem;
+    border: 1px solid rgba(120, 160, 255, 0.2);
+    background: rgba(4, 7, 18, 0.95);
+    color: #bfe9ff;
+    font-size: 0.84rem;
+    line-height: 1.35;
+  }
+
+  @media (max-width: 980px) {
+    .simple-rag-layout {
+      grid-template-columns: 1fr;
+    }
+    .simple-rag-panel {
+      min-height: auto;
+    }
+    .pdf-frame-wrap {
+      height: 60vh;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <p class="hero__eyebrow neon-text">Simple RAG Search</p>
+  <h1 class="hero__title">Ask questions from <span class="hero__accent">VIRU Simple RAG Search</span></h1>
+  <p class="hero__subtitle">Left: source PDF. Right: question box, generated answer, and OpenAI call logs.</p>
+</section>
+
+<section class="simple-rag-layout" aria-label="Simple RAG workspace">
+  <article class="glass simple-rag-panel">
+    <h2 class="simple-rag-title">Document Viewer</h2>
+    <p class="simple-rag-subtle">Source: {{ pdf_name }}</p>
+    <div class="pdf-frame-wrap">
+      <iframe
+        id="pdfFrame"
+        class="pdf-frame"
+        title="AI Agents guidebook PDF"
+        src="{{ url_for('main.simple_rag_pdf') }}#page=1"
+      ></iframe>
+    </div>
+  </article>
+
+  <article class="glass simple-rag-panel">
+    <h2 class="simple-rag-title">Ask From This PDF</h2>
+    <form id="qaForm" class="qa-form" autocomplete="off">
+      <label for="queryInput" class="qa-label">Your Question</label>
+      <textarea
+        id="queryInput"
+        class="qa-textarea"
+        placeholder="Example: What is guardrails and how to use them?"
+        required
+      ></textarea>
+      <button id="generateBtn" type="submit" class="qa-button">Generate Answer</button>
+    </form>
+
+    <div id="qaError" class="qa-error" hidden></div>
+
+    <div class="qa-answer-wrap" id="answerWrap" hidden>
+      <div class="qa-answer" id="answerBox"></div>
+      <div class="qa-log-wrap">
+        <p class="qa-log-title">OpenAI API Logs (JSON)</p>
+        <pre class="qa-log" id="logBox"></pre>
+      </div>
+    </div>
+  </article>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  (function () {
+    const qaForm = document.getElementById("qaForm");
+    const queryInput = document.getElementById("queryInput");
+    const generateBtn = document.getElementById("generateBtn");
+    const answerWrap = document.getElementById("answerWrap");
+    const answerBox = document.getElementById("answerBox");
+    const logBox = document.getElementById("logBox");
+    const qaError = document.getElementById("qaError");
+    const pdfFrame = document.getElementById("pdfFrame");
+    const pdfBaseUrl = "{{ url_for('main.simple_rag_pdf') }}";
+
+    function escapeHtml(str) {
+      return str
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function markdownLiteToHtml(mdText) {
+      const codeBlocks = [];
+      let text = mdText || "";
+
+      text = text.replace(/```(\w*)\r?\n([\s\S]*?)```/g, (_, lang, code) => {
+        const index = codeBlocks.length;
+        codeBlocks.push({
+          lang: (lang || "python").trim() || "python",
+          code: code.replace(/\s+$/, ""),
+        });
+        return `@@CODE_BLOCK_${index}@@`;
+      });
+
+      let html = escapeHtml(text);
+      html = html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+      html = html.replace(/`([^`\n]+)`/g, "<code class=\"qa-inline-code\">$1</code>");
+
+      const citationRegex = /\(Section:\s*([^,]+),\s*Page:\s*(\d+)\)/g;
+      html = html.replace(citationRegex, (_, section, page) => {
+        const cleanSection = section.trim();
+        const cleanPage = String(page).trim();
+        return `(<a href="#" class="qa-citation-link" data-page="${cleanPage}" data-section="${escapeHtml(cleanSection)}">Section: ${escapeHtml(cleanSection)}</a>, <a href="#" class="qa-citation-link" data-page="${cleanPage}" data-section="${escapeHtml(cleanSection)}">Page: ${cleanPage}</a>)`;
+      });
+
+      html = html.replace(/^### (.+)$/gm, '<h4 class="qa-md-heading qa-md-heading--3">$1</h4>');
+      html = html.replace(/^## (.+)$/gm, '<h3 class="qa-md-heading qa-md-heading--2">$1</h3>');
+      html = html.replace(/^# (.+)$/gm, '<h2 class="qa-md-heading">$1</h2>');
+      html = html.replace(/^(?:-|\*|\u2022)\s+(.+)$/gm, '<li class="qa-md-li">$1</li>');
+      html = html.replace(/((?:<li class="qa-md-li">[\s\S]*?<\/li>\s*)+)/g, '<ul class="qa-md-list">$1</ul>');
+
+      html = html.replace(/\n/g, "<br>");
+
+      html = html.replace(/@@CODE_BLOCK_(\d+)@@/g, (_, idx) => {
+        const block = codeBlocks[Number(idx)];
+        if (!block) {
+          return "";
+        }
+        const langLabel = escapeHtml(block.lang);
+        const codeHtml = escapeHtml(block.code);
+        return (
+          `<div class="qa-code-viewer">` +
+          `<div class="qa-code-viewer__header">` +
+          `<span class="qa-code-viewer__lang">${langLabel}</span>` +
+          `<button type="button" class="qa-code-viewer__copy" data-code="${codeHtml}">Copy</button>` +
+          `</div>` +
+          `<pre class="qa-code-viewer__pre"><code class="qa-code-viewer__code">${codeHtml}</code></pre>` +
+          `</div>`
+        );
+      });
+
+      return `<h4>Answer</h4>${html}`;
+    }
+
+    function jumpPdfToPage(page) {
+      const pageNumber = Number.parseInt(page, 10);
+      if (!Number.isInteger(pageNumber) || pageNumber <= 0) {
+        return;
+      }
+      pdfFrame.src = `${pdfBaseUrl}#page=${pageNumber}`;
+      pdfFrame.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    answerBox.addEventListener("click", async (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) {
+        return;
+      }
+
+      if (target.classList.contains("qa-code-viewer__copy")) {
+        const code = target.dataset.code || "";
+        const decoded = code
+          .replaceAll("&amp;", "&")
+          .replaceAll("&lt;", "<")
+          .replaceAll("&gt;", ">")
+          .replaceAll("&quot;", '"')
+          .replaceAll("&#39;", "'");
+        try {
+          await navigator.clipboard.writeText(decoded);
+          target.textContent = "Copied!";
+          window.setTimeout(() => {
+            target.textContent = "Copy";
+          }, 1200);
+        } catch (_error) {
+          target.textContent = "Failed";
+          window.setTimeout(() => {
+            target.textContent = "Copy";
+          }, 1200);
+        }
+        return;
+      }
+
+      if (!target.classList.contains("qa-citation-link")) {
+        return;
+      }
+      event.preventDefault();
+      jumpPdfToPage(target.dataset.page || "1");
+    });
+
+    qaForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const query = queryInput.value.trim();
+      if (!query) {
+        return;
+      }
+
+      generateBtn.disabled = true;
+      generateBtn.textContent = "Generating...";
+      qaError.hidden = true;
+      qaError.textContent = "";
+
+      try {
+        const response = await fetch("{{ url_for('main.simple_rag_ask') }}", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query }),
+        });
+        const payload = await response.json();
+
+        if (!response.ok || !payload.ok) {
+          throw new Error(payload.error || "Failed to generate answer.");
+        }
+
+        answerWrap.hidden = false;
+        answerBox.innerHTML = markdownLiteToHtml(payload.answer || "");
+        logBox.textContent = JSON.stringify(payload.api_logs || [], null, 2);
+      } catch (error) {
+        qaError.hidden = false;
+        qaError.textContent = error instanceof Error ? error.message : "Request failed.";
+      } finally {
+        generateBtn.disabled = false;
+        generateBtn.textContent = "Generate Answer";
+      }
+    });
+  })();
+</script>
+{% endblock %}

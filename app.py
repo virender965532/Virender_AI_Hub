@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from flask import Flask
 
 from routes.main_routes import main_bp
+from interviewSimulator.graph import show_graph
 
 load_dotenv()
 
@@ -45,10 +46,12 @@ app = create_app()
 
 if __name__ == "__main__":
     use_reloader = os.environ.get("DEV_WATCH") != "1"
+    show_graph()
 
     app.run(
         host="127.0.0.1",
         port=5000,
         debug=True,
         use_reloader=use_reloader,
+        threaded=True,
     )

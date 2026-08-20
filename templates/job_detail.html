@@ -5,7 +5,7 @@
 <section class="page-head">
   <p class="hero__eyebrow neon-text">AutoJob Nexus</p>
   <h1 class="hero__title">Scraped <span class="hero__accent">job detail</span></h1>
-  <p class="hero__subtitle">Data loaded from Naukri via Selenium (<code class="inline-code">#jobs-desc</code>).</p>
+  <p class="hero__subtitle">Metadata loaded from Naukri via Selenium.</p>
 </section>
 
 <div class="job-app glass job-detail-page">
@@ -17,7 +17,7 @@
     <dt>Skills</dt><dd>{{ detail.skills | join(", ") if detail.skills else "—" }}</dd>
     <dt>Experience</dt><dd>{{ detail.experience or "—" }}</dd>
     <dt>Posted</dt><dd>{{ detail.posted or "—" }}</dd>
-    <dt>Job URL</dt><dd>{% if detail.job_url %}<a href="{{ detail.job_url }}" target="_blank" rel="noopener noreferrer">{{ detail.job_url }}</a>{% else %}—{% endif %}</dd>
+    <dt>Job URL</dt><dd>{% if detail.job_url %}<a href="{{ detail.job_url }}">{{ detail.job_url }}</a>{% else %}—{% endif %}</dd>
   </dl>
   {% if detail.compensation %}
   <h2 class="job-detail-section-title">Compensation</h2>
@@ -27,8 +27,6 @@
     {% endfor %}
   </ul>
   {% endif %}
-  <h2 class="job-detail-section-title">Job description</h2>
-  <pre class="job-detail-body">{{ detail.description or "—" }}</pre>
   <p class="job-detail-back"><a href="{{ url_for('main.job_search') }}" class="nav__link nav__link--cta">← Back to job search</a></p>
 </div>
 {% endblock %}
