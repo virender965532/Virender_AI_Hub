@@ -12,6 +12,7 @@ from jobSearch.nodes.fetch_jobs_node import (
 )
 from jobSearch.state import initial_workflow_state
 from jobSearch.utils.job_payload import job_record_to_dict
+from jobSearch.utils.scrape_progress import create_progress, finish_progress, get_progress
 from services.naukri_service import run_job_detail, run_login_and_fetch_jobs
 
 # 👉 NEW IMPORTS
@@ -255,7 +256,12 @@ def job_detail_page():
     
 
 @main_bp.route("/api/jobs/naukri", methods=["POST"])
-async def api_naukri_jobs():
+def api_naukri_jobs():
+    """Start scrape in a background thread; client polls /progress/<id> for updates + results."""
+    import asyncio
+    import threading
+
+    progress_id = None
     try:
         payload = request.get_json(silent=True) or {}
         defaults = get_naukri_search_defaults()
@@ -265,7 +271,6 @@ async def api_naukri_jobs():
         job_age = str(payload.get("job_age") or defaults["job_age"]).strip() or defaults[
             "job_age"
         ]
-        # Explicit list from UI (may be empty = no CTC filter). Fall back only when omitted.
         if "ctc_filters" in payload:
             ctc_filters = parse_ctc_filters(payload.get("ctc_filters"))
         else:
@@ -297,6 +302,13 @@ async def api_naukri_jobs():
         except (TypeError, ValueError):
             relevance_min_pct = float(defaults["relevance_min_pct"])
 
+        client_progress_id = (payload.get("progress_id") or "").strip() or None
+        progress_id = create_progress(
+            target=no_of_jobs,
+            keyword=keyword,
+            run_id=client_progress_id,
+        )
+
         initial = initial_workflow_state()
         initial["job_keyword"] = keyword
         initial["job_age"] = job_age
@@ -304,29 +316,72 @@ async def api_naukri_jobs():
         initial["no_of_jobs"] = no_of_jobs
         initial["max_pages"] = max_pages
         initial["relevance_min_pct"] = relevance_min_pct
+        initial["progress_id"] = progress_id
         if enrich is not None:
             initial["enrich_jd"] = bool(enrich)
 
-        result = await run_job_search_workflow(initial_state=initial)
-        jobs = result.get("jobs") or []
-        workflow_errors = list(result.get("errors") or [])
-        display_ok = bool(result.get("display_complete"))
-        used_relevance = result.get("relevance_min_pct")
-        if used_relevance is None:
-            used_relevance = relevance_min_pct
+        def _run_scrape() -> None:
+            try:
+                result = asyncio.run(run_job_search_workflow(initial_state=initial))
+                jobs = result.get("jobs") or []
+                workflow_errors = list(result.get("errors") or [])
+                display_ok = bool(result.get("display_complete"))
+                used_relevance = result.get("relevance_min_pct")
+                if used_relevance is None:
+                    used_relevance = relevance_min_pct
+
+                failed = (
+                    not result.get("login_complete")
+                    or not result.get("fetch_complete")
+                    or bool(workflow_errors and not jobs)
+                )
+                err_msg = None
+                if failed and workflow_errors:
+                    err_msg = workflow_errors[-1]
+                elif failed and not jobs:
+                    err_msg = "Job scrape did not complete successfully."
+
+                finish_progress(
+                    progress_id,
+                    found=len(jobs),
+                    jobs=[job_record_to_dict(j) for j in jobs],
+                    errors=workflow_errors,
+                    relevance_min_pct=used_relevance,
+                    display_complete=display_ok,
+                    error=err_msg if not jobs and err_msg else None,
+                )
+            except Exception as exc:  # noqa: BLE001
+                logger.exception("Background Naukri scrape failed")
+                finish_progress(progress_id, error=str(exc))
+
+        threading.Thread(
+            target=_run_scrape,
+            name=f"naukri-scrape-{progress_id[:8]}",
+            daemon=True,
+        ).start()
+
         return jsonify(
             {
                 "ok": True,
-                "message": "Naukri jobs",
-                "jobs": [job_record_to_dict(j) for j in jobs],
-                "relevance_min_pct": used_relevance,
-                "display_complete": display_ok,
-                "errors": workflow_errors,
+                "started": True,
+                "message": "Naukri scrape started",
+                "progress_id": progress_id,
+                "target": no_of_jobs,
             }
-        ), 200
+        ), 202
     except Exception as e:
-        logger.exception("Naukri job search workflow failed")
+        logger.exception("Failed to start Naukri job search")
+        if progress_id:
+            finish_progress(progress_id, error=str(e))
         return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@main_bp.route("/api/jobs/naukri/progress/<progress_id>", methods=["GET"])
+def api_naukri_jobs_progress(progress_id: str):
+    row = get_progress((progress_id or "").strip())
+    if not row:
+        return jsonify({"ok": False, "error": "Progress not found."}), 404
+    return jsonify({"ok": True, **row}), 200
 
 
 # ===================Simple RAG Search ==================

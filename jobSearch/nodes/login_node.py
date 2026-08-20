@@ -10,6 +10,7 @@ from playwright.async_api import Page, TimeoutError as PlaywrightTimeoutError
 
 from ..state import WorkflowState
 from ..utils.playwright_manager import PlaywrightSession, launch_session
+from ..utils.scrape_progress import update_progress
 
 logger = logging.getLogger(__name__)
 
@@ -194,12 +195,25 @@ async def login_node(state: WorkflowState) -> dict[str, Any]:
     """
     errs = list(state.get("errors") or [])
     session: PlaywrightSession | None = state.get("session")
+    progress_id = str(state.get("progress_id") or "").strip() or None
 
     try:
+        update_progress(
+            progress_id,
+            status="running",
+            phase="login",
+            message="Logging in to Naukri…",
+        )
         if session is None:
             session = await launch_session(headless=False)
         page = session.page
         await _perform_login(page)
+        update_progress(
+            progress_id,
+            status="running",
+            phase="fetch",
+            message="Login complete. Fetching job listings…",
+        )
         return {
             "session": session,
             "login_complete": True,
@@ -208,6 +222,13 @@ async def login_node(state: WorkflowState) -> dict[str, Any]:
     except Exception as e:  # noqa: BLE001
         logger.exception("login_node failed")
         errs.append(str(e))
+        update_progress(
+            progress_id,
+            status="error",
+            phase="login",
+            message=f"Login failed: {e}",
+            error=str(e),
+        )
         return {
             "session": session,
             "login_complete": False,

@@ -37,6 +37,7 @@ class WorkflowState(TypedDict, total=False):
     no_of_jobs: int
     max_pages: int
     relevance_min_pct: float
+    progress_id: str
 
 
 def initial_workflow_state() -> WorkflowState:
@@ -53,4 +54,5 @@ def initial_workflow_state() -> WorkflowState:
         "no_of_jobs": 25,
         "max_pages": 100,
         "relevance_min_pct": 80.0,
+        "progress_id": "",
     }

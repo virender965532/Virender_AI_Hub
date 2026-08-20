@@ -443,6 +443,145 @@
     if (refreshBtn) refreshBtn.disabled = busy;
   }
 
+  var progressPollTimer = null;
+  var loadingTextEl = document.getElementById("loading-text");
+  var loadingHintEl = document.getElementById("loading-hint");
+  var progressCountEl = document.getElementById("scrape-progress-count");
+  var progressPctEl = document.getElementById("scrape-progress-pct");
+  var progressBarEl = document.getElementById("scrape-progress-bar");
+  var progressDetailEl = document.getElementById("scrape-progress-detail");
+
+  function makeProgressId() {
+    if (window.crypto && typeof window.crypto.randomUUID === "function") {
+      return window.crypto.randomUUID().replace(/-/g, "");
+    }
+    return (
+      "p" +
+      Date.now().toString(36) +
+      Math.random().toString(36).slice(2, 10)
+    );
+  }
+
+  function stopProgressPolling() {
+    if (progressPollTimer) {
+      clearInterval(progressPollTimer);
+      progressPollTimer = null;
+    }
+  }
+
+  function renderProgress(data, fallbackTarget) {
+    var found = Number(data && data.found);
+    var target = Number(data && data.target);
+    if (isNaN(found)) found = 0;
+    if (isNaN(target) || target < 1) target = fallbackTarget || 1;
+    var pct = Number(data && data.percent);
+    if (isNaN(pct)) pct = Math.min(100, (found / target) * 100);
+    pct = Math.max(0, Math.min(100, pct));
+
+    if (progressCountEl) {
+      progressCountEl.textContent = found + " / " + target + " matching jobs";
+    }
+    if (progressPctEl) {
+      progressPctEl.textContent = Math.round(pct) + "%";
+    }
+    if (progressBarEl) {
+      progressBarEl.style.width = pct + "%";
+    }
+    if (loadingTextEl && data && data.message) {
+      loadingTextEl.textContent = data.message;
+    }
+    if (progressDetailEl) {
+      var bits = [];
+      if (data && data.page) bits.push("page " + data.page);
+      if (data && data.scanned != null) bits.push(data.scanned + " scanned");
+      if (data && data.phase) bits.push(data.phase);
+      progressDetailEl.textContent = bits.length
+        ? bits.join(" · ")
+        : "Collecting jobs that meet your relevance threshold.";
+    }
+  }
+
+  function startProgressPolling(progressId, target) {
+    stopProgressPolling();
+    renderProgress(
+      {
+        found: 0,
+        target: target,
+        percent: 0,
+        message: "Starting job search…",
+        phase: "starting",
+        scanned: 0,
+        page: 0,
+      },
+      target
+    );
+    if (loadingHintEl) {
+      loadingHintEl.textContent =
+        "Progress updates live while Chrome logs in and scrapes listings.";
+    }
+
+    function applyFinishedProgress(data) {
+      stopProgressPolling();
+      setVisible(loadingEl, false);
+      setFetchBusy(false);
+
+      if (data.error || data.status === "error") {
+        errorEl.textContent =
+          data.error || data.message || "Scrape failed. Check server logs.";
+        setVisible(errorEl, true);
+        return;
+      }
+
+      allJobs = Array.isArray(data.jobs) ? data.jobs : [];
+      if (data.relevance_min_pct != null) {
+        var threshold = Number(data.relevance_min_pct);
+        if (!isNaN(threshold)) {
+          MIN_RELEVANCE_PCT = threshold;
+          updateThresholdNote();
+        }
+      }
+      if (data.errors && data.errors.length) {
+        console.warn("Job search workflow notes:", data.errors);
+      }
+      if (data.display_complete === false) {
+        console.warn("Playwright job panel injection did not complete.");
+      }
+      if (sortSelect) {
+        sortSelect.value = "";
+      }
+      currentSort = "";
+      if (keywordInput) {
+        keywordInput.value = "";
+      }
+      renderJobs(getFilteredJobs());
+      setVisible(resultsEl, true);
+    }
+
+    function tick() {
+      fetch("/api/jobs/naukri/progress/" + encodeURIComponent(progressId), {
+        cache: "no-store",
+      })
+        .then(function (res) {
+          return res.json().then(function (data) {
+            return { ok: res.ok, data: data };
+          });
+        })
+        .then(function (payload) {
+          if (!payload.ok || !payload.data.ok) return;
+          renderProgress(payload.data, target);
+          if (payload.data.done) {
+            applyFinishedProgress(payload.data);
+          }
+        })
+        .catch(function () {
+          /* ignore transient poll errors while scrape runs */
+        });
+    }
+
+    tick();
+    progressPollTimer = setInterval(tick, 800);
+  }
+
   function fetchJobs() {
     setVisible(loadingEl, true);
     setVisible(errorEl, false);
@@ -462,9 +601,13 @@
     updateThresholdNote();
     updateUrlPreview();
 
+    var progressId = makeProgressId();
+    startProgressPolling(progressId, config.no_of_jobs);
+
     fetch("/api/jobs/naukri", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      cache: "no-store",
       body: JSON.stringify({
         headless: false,
         enrich_jd: enrich,
@@ -474,6 +617,7 @@
         no_of_jobs: config.no_of_jobs,
         max_pages: config.max_pages,
         relevance_min_pct: config.relevance_min_pct,
+        progress_id: progressId,
       }),
     })
       .then(function (res) {
@@ -483,9 +627,10 @@
         });
       })
       .then(function (payload) {
-        setVisible(loadingEl, false);
-        setFetchBusy(false);
         if (!payload.ok || !payload.data.ok) {
+          stopProgressPolling();
+          setVisible(loadingEl, false);
+          setFetchBusy(false);
           var msg =
             (payload.data && payload.data.error) ||
             "Request failed. Check server logs and Naukri selectors.";
@@ -493,31 +638,13 @@
           setVisible(errorEl, true);
           return;
         }
-        allJobs = payload.data.jobs || [];
-        if (payload.data.relevance_min_pct != null) {
-          var threshold = Number(payload.data.relevance_min_pct);
-          if (!isNaN(threshold)) {
-            MIN_RELEVANCE_PCT = threshold;
-            updateThresholdNote();
-          }
+        // Scrape continues in background; polling applies results when done.
+        if (payload.data.progress_id) {
+          // keep polling the same id (server may echo it)
         }
-        if (payload.data.errors && payload.data.errors.length) {
-          console.warn("Job search workflow notes:", payload.data.errors);
-        }
-        if (payload.data.display_complete === false) {
-          console.warn("Playwright job panel injection did not complete.");
-        }
-        if (sortSelect) {
-          sortSelect.value = "";
-        }
-        currentSort = "";
-        if (keywordInput) {
-          keywordInput.value = "";
-        }
-        renderJobs(getFilteredJobs());
-        setVisible(resultsEl, true);
       })
       .catch(function () {
+        stopProgressPolling();
         setVisible(loadingEl, false);
         setFetchBusy(false);
         errorEl.textContent = "Network error — is the Flask server running?";

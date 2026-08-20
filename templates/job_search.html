@@ -85,6 +85,42 @@
     gap: 0.75rem 1rem;
     margin-top: 0.15rem;
   }
+  .loading-panel__body {
+    flex: 1;
+    min-width: 0;
+  }
+  .scrape-progress {
+    margin-top: 0.85rem;
+  }
+  .scrape-progress__meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    font-size: 0.9rem;
+    margin-bottom: 0.4rem;
+  }
+  .scrape-progress__pct {
+    font-variant-numeric: tabular-nums;
+    color: var(--neon-cyan, #38b6ff);
+  }
+  .scrape-progress__track {
+    height: 0.55rem;
+    border-radius: 999px;
+    background: rgba(120, 160, 255, 0.18);
+    overflow: hidden;
+  }
+  .scrape-progress__bar {
+    height: 100%;
+    width: 0%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #38b6ff, #7c5cff);
+    transition: width 0.25s ease;
+  }
+  .scrape-progress__detail {
+    margin: 0.45rem 0 0;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+  }
 </style>
 {% endblock %}
 
@@ -148,9 +184,19 @@
   <div id="loading-state" class="loading-panel glass hidden" role="status" aria-live="polite">
     <div class="loading-panel__row">
       <div class="spinner" aria-hidden="true"></div>
-      <div>
-        <p class="loading-panel__text">Scraping in progress…</p>
-        <p class="loading-panel__hint">Visible Chrome: login → listings → scroll. Posted date is read from each listing card. Optional “open job pages” fetches the full JD (slower).</p>
+      <div class="loading-panel__body">
+        <p class="loading-panel__text" id="loading-text">Scraping in progress…</p>
+        <p class="loading-panel__hint" id="loading-hint">Visible Chrome: login → listings → scroll.</p>
+        <div class="scrape-progress" aria-label="Scrape progress">
+          <div class="scrape-progress__meta">
+            <span id="scrape-progress-count">0 / 0 matching jobs</span>
+            <span id="scrape-progress-pct" class="scrape-progress__pct">0%</span>
+          </div>
+          <div class="scrape-progress__track" aria-hidden="true">
+            <div id="scrape-progress-bar" class="scrape-progress__bar" style="width: 0%"></div>
+          </div>
+          <p class="scrape-progress__detail" id="scrape-progress-detail"></p>
+        </div>
       </div>
     </div>
   </div>
@@ -203,5 +249,5 @@
 
 {% block scripts %}
 <script id="naukri-defaults" type="application/json">{{ naukri_defaults | tojson }}</script>
-<script src="{{ url_for('static', filename='js/job_search.js') }}"></script>
+<script src="{{ url_for('static', filename='js/job_search.js') }}?v=progress2"></script>
 {% endblock %}

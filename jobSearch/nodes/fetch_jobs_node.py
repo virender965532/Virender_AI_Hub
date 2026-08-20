@@ -22,6 +22,7 @@ from services.naukri_service import (
 
 from ..state import JobRecord, WorkflowState
 from ..utils.job_match_scoring import calculate_job_match
+from ..utils.scrape_progress import update_progress
 
 logger = logging.getLogger(__name__)
 
@@ -424,6 +425,7 @@ async def _fetch_with_page(
     no_of_jobs: int,
     max_pages: int,
     relevance_min_pct: float,
+    progress_id: str | None = None,
 ) -> list[JobRecord]:
     cap = max(1, int(no_of_jobs))
     pages_limit = max(1, int(max_pages))
@@ -436,6 +438,18 @@ async def _fetch_with_page(
     age = (job_age or "").strip() or NAUKRI_JOB_AGE_DEFAULT
     bands = list(ctc_filters or [])
 
+    update_progress(
+        progress_id,
+        status="running",
+        phase="fetch",
+        message="Scanning Naukri listings…",
+        found=0,
+        target=cap,
+        scanned=0,
+        page=0,
+        keyword=search_keyword,
+    )
+
     for page_num in range(1, pages_limit + 1):
         if len(relevant_jobs) >= cap:
             break
@@ -447,6 +461,17 @@ async def _fetch_with_page(
             ctc_filters=bands,
         )
         logger.info("Fetching SRP page %s: %s", page_num, listing_url)
+        update_progress(
+            progress_id,
+            status="running",
+            phase="fetch",
+            page=page_num,
+            found=len(relevant_jobs),
+            scanned=total_scanned,
+            message=(
+                f"Page {page_num}: found {len(relevant_jobs)} of {cap} matching jobs…"
+            ),
+        )
         await _load_srp_page(page, listing_url)
         await _scroll_for_more_cards(page)
         page_jobs = await _extract_jobs(page)
@@ -490,6 +515,18 @@ async def _fetch_with_page(
                     job.get("title"),
                     job.get("company"),
                 )
+                update_progress(
+                    progress_id,
+                    status="running",
+                    phase="fetch",
+                    page=page_num,
+                    found=len(relevant_jobs),
+                    scanned=total_scanned,
+                    message=(
+                        f"Found {len(relevant_jobs)} of {cap} matching jobs "
+                        f"(page {page_num})…"
+                    ),
+                )
                 if len(relevant_jobs) >= cap:
                     break
 
@@ -499,6 +536,15 @@ async def _fetch_with_page(
             len(relevant_jobs),
             cap,
             len(new_jobs),
+        )
+        update_progress(
+            progress_id,
+            found=len(relevant_jobs),
+            scanned=total_scanned,
+            page=page_num,
+            message=(
+                f"Page {page_num} done: {len(relevant_jobs)} of {cap} matching jobs"
+            ),
         )
 
     logger.info(
@@ -573,8 +619,16 @@ def _resolve_fetch_config(state: WorkflowState) -> dict[str, Any]:
 async def fetch_jobs_node(state: WorkflowState) -> dict[str, Any]:
     errs = list(state.get("errors") or [])
     session = state.get("session")
+    progress_id = str(state.get("progress_id") or "").strip() or None
     if session is None or not state.get("login_complete"):
         errs.append("fetch_jobs_node: missing session or login not complete.")
+        update_progress(
+            progress_id,
+            status="error",
+            phase="fetch",
+            message=errs[-1],
+            error=errs[-1],
+        )
         return {"jobs": [], "fetch_complete": False, "errors": errs}
 
     enrich_jd = bool(state.get("enrich_jd", False))
@@ -600,6 +654,14 @@ async def fetch_jobs_node(state: WorkflowState) -> dict[str, Any]:
             no_of_jobs=cfg["no_of_jobs"],
             max_pages=cfg["max_pages"],
             relevance_min_pct=cfg["relevance_min_pct"],
+            progress_id=progress_id,
+        )
+        update_progress(
+            progress_id,
+            status="running",
+            phase="display",
+            found=len(jobs),
+            message=f"Found {len(jobs)} matching jobs. Finishing up…",
         )
         return {
             "jobs": jobs,
@@ -610,4 +672,11 @@ async def fetch_jobs_node(state: WorkflowState) -> dict[str, Any]:
     except Exception as e:  # noqa: BLE001
         logger.exception("fetch_jobs_node failed")
         errs.append(str(e))
+        update_progress(
+            progress_id,
+            status="error",
+            phase="fetch",
+            message=str(e),
+            error=str(e),
+        )
         return {"jobs": [], "fetch_complete": False, "errors": errs}
