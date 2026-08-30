@@ -9,7 +9,11 @@ from typing import Any
 from playwright.async_api import Page, TimeoutError as PlaywrightTimeoutError
 
 from ..state import WorkflowState
-from ..utils.playwright_manager import PlaywrightSession, launch_session
+from ..utils.playwright_manager import (
+    PlaywrightSession,
+    launch_session,
+    playwright_headless_from_env,
+)
 from ..utils.scrape_progress import update_progress
 
 logger = logging.getLogger(__name__)
@@ -205,7 +209,7 @@ async def login_node(state: WorkflowState) -> dict[str, Any]:
             message="Logging in to Naukri…",
         )
         if session is None:
-            session = await launch_session(headless=False)
+            session = await launch_session(headless=playwright_headless_from_env())
         page = session.page
         await _perform_login(page)
         update_progress(
