@@ -46,12 +46,19 @@ app = create_app()
 
 if __name__ == "__main__":
     use_reloader = os.environ.get("DEV_WATCH") != "1"
-    show_graph()
+    try:
+        show_graph()
+    except Exception:
+        logging.getLogger(__name__).exception("Skipping interview graph export")
+
+    host = os.environ.get("FLASK_HOST", "127.0.0.1")
+    port = int(os.environ.get("FLASK_PORT", "5000"))
+    debug = os.environ.get("FLASK_DEBUG", "1").strip().lower() not in ("0", "false", "no")
 
     app.run(
-        host="127.0.0.1",
-        port=5000,
-        debug=True,
-        use_reloader=use_reloader,
+        host=host,
+        port=port,
+        debug=debug,
+        use_reloader=use_reloader and debug,
         threaded=True,
     )

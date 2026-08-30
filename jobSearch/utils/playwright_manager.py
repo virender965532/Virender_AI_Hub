@@ -31,6 +31,16 @@ class PlaywrightSession:
     page: Page
 
 
+def playwright_headless_from_env(*, default: bool = False) -> bool:
+    """Headless in Docker/CI via NAUKRI_HEADLESS=1; visible browser is the local default."""
+    raw = (os.getenv("NAUKRI_HEADLESS") or "").strip().lower()
+    if raw in ("1", "true", "yes"):
+        return True
+    if raw in ("0", "false", "no"):
+        return False
+    return default
+
+
 def _require_credentials() -> tuple[str, str]:
     email = (os.getenv("NAUKRI_EMAIL") or "").strip()
     password = (os.getenv("NAUKRI_PASSWORD") or "").strip()

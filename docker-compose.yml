@@ -1,0 +1,20 @@
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    environment:
+      FLASK_HOST: "0.0.0.0"
+      FLASK_PORT: "5000"
+      FLASK_DEBUG: "0"
+      NAUKRI_HEADLESS: "1"
+    shm_size: "2gb"
+    volumes:
+      - ./Profile:/app/Profile
+      - ./output:/app/output
+      - ./scraper_debug:/app/scraper_debug
+      - ./dynamicRAG/uploads:/app/dynamicRAG/uploads
+      - ./enterpriseRAG/uploads:/app/enterpriseRAG/uploads
+      - ./enterpriseRAG/data:/app/enterpriseRAG/data
