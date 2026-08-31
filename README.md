@@ -45,7 +45,7 @@ Futuristic Flask web app with an **AutoJob Nexus** module that logs into [Naukri
 python app.py
 ```
 
-Open a browser to **http://127.0.0.1:5000/**
+Open a browser to **http://127.0.0.1:8000/**
 
 - Home: module cards; **AutoJob Nexus** goes to `/job-search`.
 - Job search: a loading indicator runs while `POST /api/jobs/naukri` drives Selenium (login → **`/jobs-in-india`** SRP → parse cards).
@@ -78,7 +78,7 @@ docker compose up --build
 
 First build can take several minutes (PyTorch, sentence-transformers, browsers). Leave the terminal open.
 
-Open **http://127.0.0.1:5000/**
+Open **http://127.0.0.1:8000/**
 
 Stop with `Ctrl+C`, then:
 
@@ -98,7 +98,7 @@ Logs: `docker compose logs -f web`
 
 ```powershell
 docker build -t viru-ai-hub .
-docker run --rm -p 5000:5000 --shm-size=2g --env-file .env viru-ai-hub
+docker run --rm -p 8000:8000 --shm-size=2g --env-file .env viru-ai-hub
 ```
 
 `--shm-size=2g` is required so Chrome does not crash inside the container. Compose already sets `shm_size: 2gb`.
@@ -129,7 +129,7 @@ docker run --rm -p 5000:5000 --shm-size=2g --env-file .env viru-ai-hub
 | `NAUKRI_STEP_PAUSE` | `1.2` | Extra delay (seconds) between major steps when the browser is **visible**. |
 | `NAUKRI_STEP_PAUSE_HEADLESS` | `0.25` | Same when `headless: true`. |
 | `NAUKRI_HEADLESS` | (Compose: `1`) | Playwright job search: `1` = headless (required in Docker). |
-| `FLASK_HOST` / `FLASK_PORT` | `127.0.0.1` / `5000` | Dev server bind. Docker sets `0.0.0.0:5000`. |
+| `FLASK_HOST` / `FLASK_PORT` | `127.0.0.1` / `8000` | Dev server bind. Docker sets `0.0.0.0:8000`. |
 
 ## Notes
 
