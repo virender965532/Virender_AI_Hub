@@ -21,6 +21,6 @@ playwright>=1.40.0
 IPython>=9.13.0
 huggingface_hub>=0.28.0
 rank-bm25>=0.2.2
+# CrossEncoder rerank in enterpriseRAG; installs torch as a dependency (no explicit torch pin).
 sentence-transformers>=3.0.0
-torch>=2.0.0
 pageindex
