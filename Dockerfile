@@ -6,7 +6,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     FLASK_HOST=0.0.0.0 \
-    FLASK_PORT=5000 \
+    FLASK_PORT=8000 \
     FLASK_DEBUG=0 \
     NAUKRI_HEADLESS=1 \
     PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
@@ -45,6 +45,6 @@ RUN pip install --upgrade pip \
 
 COPY . .
 
-EXPOSE 5000
+EXPOSE 8000
 
 CMD ["python", "app.py"]
