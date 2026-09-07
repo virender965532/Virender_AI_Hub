@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+{% block title %}AI Job Discovery Engine — Virender AI Hub{% endblock %}
+
+{% block extra_head %}
+<style>
+  .jd-config {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    padding: 1rem 1.15rem;
+    margin-bottom: 1.25rem;
+  }
+  .jd-config__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.75rem 1rem;
+  }
+  .jd-config__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-width: 12rem;
+  }
+  .jd-config__field--grow {
+    flex: 1;
+    min-width: 16rem;
+  }
+  .jd-config__num {
+    width: 8rem;
+    max-width: 8rem;
+    flex: 0 0 auto;
+  }
+  .jd-sources {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+  }
+  .jd-sources .job-toolbar-check {
+    margin: 0;
+  }
+  .jd-sources .job-toolbar-check--disabled {
+    opacity: 0.45;
+  }
+  .jd-config__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1rem;
+    margin-top: 0.15rem;
+  }
+  .jd-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 1.25rem;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+  .jd-summary strong {
+    color: var(--text-primary, #e8ecff);
+  }
+  .jd-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1rem;
+  }
+  .jd-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 1.1rem 1.2rem;
+  }
+  .jd-card__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .jd-card__title {
+    font-size: 1.05rem;
+    font-weight: 650;
+    margin: 0;
+  }
+  .jd-card__company {
+    margin: 0.15rem 0 0;
+    color: var(--text-muted);
+    font-size: 0.88rem;
+  }
+  .jd-score {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 3.4rem;
+    height: 3.4rem;
+    border-radius: 999px;
+    background: rgba(56, 182, 255, 0.12);
+    border: 1px solid rgba(56, 182, 255, 0.4);
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #5cf0e8;
+  }
+  .jd-score--strong { border-color: #5cf0e8; color: #5cf0e8; background: rgba(92, 240, 232, 0.14); }
+  .jd-score--good { border-color: #38b6ff; color: #38b6ff; background: rgba(56, 182, 255, 0.12); }
+  .jd-score--possible { border-color: #b967ff; color: #b967ff; background: rgba(185, 103, 255, 0.12); }
+  .jd-score--poor, .jd-score--reject { border-color: #ff6b6b; color: #ff6b6b; background: rgba(255, 107, 107, 0.12); }
+  .jd-score small { font-size: 0.6rem; font-weight: 500; opacity: 0.8; }
+  .jd-tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+  .jd-tag {
+    font-size: 0.72rem;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    background: rgba(92, 240, 232, 0.12);
+    color: #5cf0e8;
+    border: 1px solid rgba(92, 240, 232, 0.35);
+  }
+  .jd-tag--missing {
+    background: rgba(255, 107, 107, 0.1);
+    color: #ff9d9d;
+    border-color: rgba(255, 107, 107, 0.3);
+  }
+  .jd-card__explanation {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.45;
+  }
+  .jd-card__meta {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.9rem;
+  }
+  .jd-card__footer {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .jd-empty {
+    padding: 1.5rem;
+    text-align: center;
+    color: var(--text-muted);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <p class="hero__eyebrow neon-text">AI Job Discovery Engine</p>
+  <h1 class="hero__title">Multi-source job discovery, <span class="hero__accent">explainably matched</span></h1>
+  <p class="hero__subtitle">
+    Scans configured job sources in parallel via a LangGraph-orchestrated pipeline, then scores every
+    listing against your resume with rule-based, embedding, and LLM matching — showing exactly why each
+    job is (or isn't) a good fit.
+  </p>
+</section>
+
+<div id="jd-app" class="job-app">
+  <div class="jd-config glass">
+    <div class="jd-config__row">
+      <div class="jd-config__field jd-config__field--grow">
+        <label class="job-control-label" for="jd-keywords">Keywords</label>
+        <input
+          type="search"
+          id="jd-keywords"
+          class="job-filter-input"
+          placeholder="e.g. AI Engineer, Full Stack AI Engineer, GenAI Engineer (comma separated)"
+          autocomplete="off"
+        />
+      </div>
+      <div class="jd-config__field">
+        <label class="job-control-label" for="jd-location">Location</label>
+        <input type="text" id="jd-location" class="job-filter-input" placeholder="e.g. Dubai" autocomplete="off" />
+      </div>
+      <div class="jd-config__field">
+        <label class="job-control-label" for="jd-min-score">Min match score</label>
+        <input type="number" id="jd-min-score" class="job-filter-input jd-config__num" min="0" max="100" step="1" value="70" />
+      </div>
+      <div class="jd-config__field">
+        <label class="job-control-label" for="jd-max-results">Max results</label>
+        <input type="number" id="jd-max-results" class="job-filter-input jd-config__num" min="1" max="200" step="1" value="50" />
+      </div>
+    </div>
+
+    <div>
+      <p class="job-control-label" style="margin-bottom: 0.45rem;">Sources</p>
+      <div id="jd-sources" class="jd-sources" role="group" aria-label="Job sources"></div>
+    </div>
+
+    <div class="jd-config__actions">
+      <label class="job-toolbar-check" title="Only include remote-friendly roles alongside the location filter above.">
+        <input type="checkbox" id="jd-remote" />
+        <span>Include remote roles</span>
+      </label>
+      <button type="button" id="jd-btn-search" class="btn">Start search</button>
+    </div>
+  </div>
+
+  <div id="jd-loading" class="loading-panel glass hidden" role="status" aria-live="polite">
+    <div class="loading-panel__row">
+      <div class="spinner" aria-hidden="true"></div>
+      <div class="loading-panel__body">
+        <p class="loading-panel__text" id="jd-loading-text">Running discovery workflow…</p>
+        <p class="loading-panel__hint">Sources are scraped in parallel, then matched against your resume. This can take a while.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="jd-error" class="alert alert--error glass hidden" role="alert"></div>
+
+  <div id="jd-results" class="hidden">
+    <div class="jd-summary glass" id="jd-summary"></div>
+    <div id="jd-cards" class="jd-cards"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script id="jd-sources-data" type="application/json">{{ sources | tojson }}</script>
+<script src="{{ url_for('static', filename='js/job_discovery.js') }}"></script>
+{% endblock %}

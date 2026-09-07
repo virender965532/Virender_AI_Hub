@@ -14,6 +14,7 @@ from jobSearch.state import initial_workflow_state
 from jobSearch.utils.job_payload import job_record_to_dict
 from jobSearch.utils.scrape_progress import create_progress, finish_progress, get_progress
 from services.naukri_service import run_job_detail, run_login_and_fetch_jobs
+from jobEngine.config.sources import load_job_sources
 
 # 👉 NEW IMPORTS
 from interviewSimulator.graph import run_interview_graph
@@ -382,6 +383,22 @@ def api_naukri_jobs_progress(progress_id: str):
     if not row:
         return jsonify({"ok": False, "error": "Progress not found."}), 404
     return jsonify({"ok": True, **row}), 200
+
+
+# =============== AI JOB DISCOVERY & MATCHING ENGINE ===============
+
+@main_bp.route("/job-discovery")
+def job_discovery_ui():
+    """AI Job Discovery & Matching Engine UI. JSON API lives on job_engine_bp (/api/jobs/*)."""
+    try:
+        sources = [
+            {"id": s.id, "name": s.name, "enabled": s.enabled, "requires_auth": s.requires_auth}
+            for s in load_job_sources()
+        ]
+    except Exception:
+        logger.exception("Failed to load job_sources.yaml for job-discovery UI")
+        sources = []
+    return render_template("job_discovery.html", sources=sources)
 
 
 # ===================Simple RAG Search ==================

@@ -9,6 +9,7 @@ from flask import Flask
 
 from routes.main_routes import main_bp
 from interviewSimulator.graph import show_graph
+from jobEngine.api.routes import job_engine_bp
 
 load_dotenv()
 
@@ -36,6 +37,7 @@ def create_app() -> Flask:
     app.config["JSON_SORT_KEYS"] = False
 
     app.register_blueprint(main_bp)
+    app.register_blueprint(job_engine_bp)
 
     return app
 

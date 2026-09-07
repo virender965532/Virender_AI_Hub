@@ -1,0 +1,65 @@
+[
+  {
+    "run_id": "job-search-20260906-085153-22e18b20",
+    "status": "partial",
+    "saved_at": "2026-09-06T08:52:07.505590+00:00",
+    "jobs_recommended": 0,
+    "sources_processed": 2
+  },
+  {
+    "run_id": "job-search-20260906-085709-d4a32978",
+    "status": "partial",
+    "saved_at": "2026-09-06T08:57:20.529490+00:00",
+    "jobs_recommended": 0,
+    "sources_processed": 2
+  },
+  {
+    "run_id": "job-search-20260906-144605-08cdfd76",
+    "status": "partial",
+    "saved_at": "2026-09-06T14:46:06.021537+00:00",
+    "jobs_recommended": 0,
+    "sources_processed": 1
+  },
+  {
+    "run_id": "job-search-20260906-144638-cfab8a5d",
+    "status": "completed",
+    "saved_at": "2026-09-06T14:46:51.632802+00:00",
+    "jobs_recommended": 0,
+    "sources_processed": 1
+  },
+  {
+    "run_id": "job-search-20260906-144957-020f33b8",
+    "status": "completed",
+    "saved_at": "2026-09-06T14:50:07.173104+00:00",
+    "jobs_recommended": 0,
+    "sources_processed": 1
+  },
+  {
+    "run_id": "job-search-20260906-145042-f5ae8b19",
+    "status": "completed",
+    "saved_at": "2026-09-06T14:50:51.290104+00:00",
+    "jobs_recommended": 0,
+    "sources_processed": 1
+  },
+  {
+    "run_id": "job-search-20260906-150205-e46e388a",
+    "status": "completed",
+    "saved_at": "2026-09-06T15:06:06.867210+00:00",
+    "jobs_recommended": 0,
+    "sources_processed": 1
+  },
+  {
+    "run_id": "job-search-20260906-151052-ee703cd5",
+    "status": "completed",
+    "saved_at": "2026-09-06T15:14:53.693286+00:00",
+    "jobs_recommended": 5,
+    "sources_processed": 1
+  },
+  {
+    "run_id": "job-search-20260906-195914-3c342b6a",
+    "status": "completed",
+    "saved_at": "2026-09-06T20:01:05.813007+00:00",
+    "jobs_recommended": 5,
+    "sources_processed": 1
+  }
+]
