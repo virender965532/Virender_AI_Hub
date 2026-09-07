@@ -10,6 +10,7 @@ from flask import Flask
 from routes.main_routes import main_bp
 from interviewSimulator.graph import show_graph
 from jobEngine.api.routes import job_engine_bp
+from resumeIntel.api.routes import resume_intel_bp
 
 load_dotenv()
 
@@ -38,6 +39,7 @@ def create_app() -> Flask:
 
     app.register_blueprint(main_bp)
     app.register_blueprint(job_engine_bp)
+    app.register_blueprint(resume_intel_bp)
 
     return app
 

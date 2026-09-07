@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+{% block title %}Resume Intelligence — Virender AI Hub{% endblock %}
+
+{% block extra_head %}
+<style>
+  .resume-intel-wrap {
+    max-width: 860px;
+    margin: 0 auto 3rem;
+  }
+  .resume-intel-form {
+    padding: 1.5rem 1.75rem;
+  }
+  .resume-intel-form label {
+    display: block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+    margin-top: 1.25rem;
+  }
+  .resume-intel-form label:first-of-type {
+    margin-top: 0;
+  }
+  .resume-intel-form textarea {
+    width: 100%;
+    margin-top: 0.5rem;
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    padding: 0.65rem 0.85rem;
+    border-radius: 10px;
+    border: 1px solid rgba(120, 160, 255, 0.35);
+    background: rgba(8, 10, 22, 0.85);
+    color: var(--text);
+    min-height: 200px;
+    resize: vertical;
+    line-height: 1.5;
+  }
+  .resume-intel-form textarea:focus {
+    outline: none;
+    border-color: var(--neon-purple);
+    box-shadow: 0 0 0 2px rgba(185, 103, 255, 0.2);
+  }
+  .resume-intel-form input[type="file"] {
+    display: block;
+    margin-top: 0.5rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+  .resume-intel-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    margin-top: 1.5rem;
+  }
+  .resume-intel-result {
+    padding: 1.5rem 1.75rem;
+    margin-top: 1.25rem;
+  }
+  .resume-intel-result h3 {
+    font-family: var(--font-display);
+    color: var(--neon-cyan);
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 1.5rem 0 0.6rem;
+  }
+  .resume-intel-result h3:first-child {
+    margin-top: 0;
+  }
+  .resume-intel-result p {
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin: 0;
+  }
+  .resume-intel-taglist {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .resume-intel-taglist li {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    border: 1px solid rgba(120, 160, 255, 0.35);
+    color: var(--text-muted);
+    background: rgba(8, 10, 22, 0.6);
+  }
+  .resume-intel-taglist--matched li {
+    border-color: rgba(92, 240, 232, 0.5);
+    color: var(--neon-cyan);
+  }
+  .resume-intel-taglist--missing li {
+    border-color: rgba(255, 107, 129, 0.5);
+    color: #ff8fa3;
+  }
+  .resume-intel-list {
+    margin: 0;
+    padding-left: 1.1rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+  .resume-intel-disclaimer {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.75rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <p class="hero__eyebrow neon-text">Resume Intelligence</p>
+  <h1 class="hero__title">Resume <span class="hero__accent">gap analysis</span></h1>
+  <p class="hero__subtitle">
+    Upload a resume (or use the default profile resume) and paste a job description. The analysis only
+    reports skills, evidence, and suggestions grounded in your actual resume text — it never invents
+    experience you don't have.
+  </p>
+</section>
+
+<div id="resume-intel-app" class="resume-intel-wrap">
+  <form id="resume-intel-form" class="resume-intel-form glass" novalidate enctype="multipart/form-data">
+    <label for="resume-file">Resume (PDF, DOCX or TXT — optional)</label>
+    <input type="file" id="resume-file" name="resume_file" accept=".pdf,.docx,.txt" />
+    <span class="job-toolbar-note">Leave empty to use the default resume: <code class="inline-code">{{ default_resume_filename }}</code></span>
+
+    <label for="jd-text">Job description <span aria-hidden="true">*</span></label>
+    <textarea
+      id="jd-text"
+      name="jd_text"
+      required
+      placeholder="Paste the full job description here…"
+      aria-required="true"
+    ></textarea>
+
+    <div class="resume-intel-actions">
+      <button type="submit" id="btn-analyze" class="btn btn--ghost">Analyze fit</button>
+    </div>
+  </form>
+
+  <div id="loading-state" class="loading-panel glass hidden" role="status" aria-live="polite">
+    <div class="loading-panel__row">
+      <div class="spinner" aria-hidden="true"></div>
+      <div>
+        <p class="loading-panel__text">Analyzing resume against job description…</p>
+        <p class="loading-panel__hint">Extracting resume text and running grounded gap analysis. This may take a moment.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="error-state" class="alert alert--error glass hidden" role="alert"></div>
+
+  <div id="result-state" class="resume-intel-result glass hidden">
+    <p class="job-toolbar-note" id="result-source" style="margin-bottom: 1rem;"></p>
+
+    <h3>Overall fit</h3>
+    <p id="result-summary"></p>
+
+    <h3>Matched skills</h3>
+    <ul id="result-matched" class="resume-intel-taglist resume-intel-taglist--matched"></ul>
+
+    <h3>Missing skills</h3>
+    <ul id="result-missing" class="resume-intel-taglist resume-intel-taglist--missing"></ul>
+
+    <h3>Strong evidence</h3>
+    <ul id="result-strong" class="resume-intel-list"></ul>
+
+    <h3>Weak evidence</h3>
+    <ul id="result-weak" class="resume-intel-list"></ul>
+
+    <h3>Most relevant resume experience</h3>
+    <ul id="result-projects" class="resume-intel-list"></ul>
+
+    <h3>Resume suggestions</h3>
+    <ul id="result-suggestions" class="resume-intel-list"></ul>
+
+    <h3>Honest concerns</h3>
+    <ul id="result-concerns" class="resume-intel-list"></ul>
+
+    <p class="resume-intel-disclaimer">
+      Generated only from the text found in your resume — nothing here is invented. Review before using in an application.
+    </p>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/resume_intelligence.js') }}"></script>
+{% endblock %}
