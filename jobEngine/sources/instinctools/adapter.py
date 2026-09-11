@@ -4,19 +4,17 @@ Two-tier extraction, mirroring the resilience pattern already used by this
 repo's Naukri scraper (``jobSearch/nodes/fetch_jobs_node.py``: try a primary
 selector set, fall back to a link-scan if it finds nothing):
 
-1. **Structured tier** — common "job card" CSS patterns
-   (``.vacancy-card``/``.vacancies-item``/``[class*="vacan"]`` style
-   containers) with a title/location/department extracted from within each.
+1. **Structured tier** — ``.career-item`` job cards (confirmed against the
+   live vacancies page), each with a title/location/description and a
+   ``.career-item__expertises`` tag list (e.g. "#Office", "#Remote", "#AI",
+   "#Python", ...). "#Office"/"#Remote" describe work arrangement rather than
+   a skill and are split out into ``remote_type`` (remote wins when both are
+   present); every other tag becomes a skill. The generic
+   ``.vacancy-card``/``.vacancies-item``/``[class*="vacan"]`` patterns remain
+   as fallback selectors in case Instinctools changes their markup.
 2. **Link-scan fallback** — every anchor whose href matches ``/vacancies/<slug>``
-   is treated as one vacancy (title = link text). This tier does not depend
-   on any specific CSS class and degrades gracefully if Instinctools changes
-   their markup.
-
-Known limitation (see docs/job_engine/SOURCE_ADAPTER_GUIDE.md): the exact
-structured-tier selectors are best-effort — this environment could not fetch
-the live page to confirm markup, so the link-scan fallback is the primary
-safety net and should be treated as the more trustworthy tier until the
-structured selectors are verified against the real site.
+   is treated as one vacancy (title = link text). Used only when the
+   structured tier finds nothing (no location/description/tags in that case).
 """
 
 from __future__ import annotations
@@ -30,15 +28,26 @@ from ...guardrails.url_guardrails import SSRFViolation, validate_navigation_url
 from ...models.errors import SourceError, SourceErrorStatus
 from ...models.job import RawJob
 from ..base import JobSourceAdapter, SourceDiscoveryResult, SourceExecutionContext, TimedDiscovery
-from ..dom_utils import extract_link_cards, href_or_none, text_or_none
+from ..dom_utils import extract_link_cards, href_or_none, text_or_none, texts_for_all
 from ..registry import register_adapter
 
 logger = logging.getLogger(__name__)
 
-_CARD_SELECTORS = [".vacancy-card", ".vacancies-item", "[class*='vacancy']", "[class*='vacan']"]
-_TITLE_SELECTORS = ["h3", "h2", ".title", "[class*='title']"]
-_LOCATION_SELECTORS = ["[class*='location']", "[class*='city']"]
+# ".career-item" etc. is the confirmed real markup (verified against the live
+# vacancies page); the generic "[class*='vacan']" patterns are kept after it
+# as a fallback in case Instinctools changes their markup.
+_CARD_SELECTORS = [".career-item", ".vacancy-card", ".vacancies-item", "[class*='vacancy']", "[class*='vacan']"]
+_TITLE_SELECTORS = [".career-item__title", "h3", "h2", ".title", "[class*='title']"]
+_LOCATION_SELECTORS = [".career-item__locations", "[class*='location']", "[class*='city']"]
 _DEPARTMENT_SELECTORS = ["[class*='department']", "[class*='category']", "[class*='team']"]
+_DESCRIPTION_SELECTORS = [".career-item__text", "[class*='description']"]
+_TAGS_CONTAINER_SELECTORS = [".career-item__expertises", "[class*='expertise']", "[class*='tag']"]
+
+# Card tag values that describe work arrangement rather than a skill (see
+# ".career-item__expertises" on the live page: "#Office", "#Remote", ...).
+_REMOTE_TAG = "remote"
+_OFFICE_TAG = "office"
+_WORK_MODE_TAGS = {_REMOTE_TAG, _OFFICE_TAG}
 
 
 @register_adapter("instinctools")
@@ -140,6 +149,19 @@ class InstinctoolsAdapter(JobSourceAdapter):
                     if department:
                         break
 
+                description = None
+                for sel in _DESCRIPTION_SELECTORS:
+                    description = await text_or_none(card, sel)
+                    if description:
+                        break
+
+                tags: list[str] = []
+                for sel in _TAGS_CONTAINER_SELECTORS:
+                    tags = await texts_for_all(card, f"{sel} span")
+                    if tags:
+                        break
+                remote_type, skills = self._split_tags(tags)
+
                 job_url = await href_or_none(card, "a", base_url=cfg.base_url)
                 jobs.append(
                     RawJob(
@@ -148,7 +170,9 @@ class InstinctoolsAdapter(JobSourceAdapter):
                         company="Instinctools",
                         location=location,
                         employment_type=department,
-                        description=enforce_description_size(department or ""),
+                        description=enforce_description_size(description or department or ""),
+                        skills=skills,
+                        remote_type=remote_type,
                         application_url=job_url or cfg.base_url,
                         source_url=cfg.base_url,
                     )
@@ -159,6 +183,30 @@ class InstinctoolsAdapter(JobSourceAdapter):
             if jobs:
                 return jobs
         return []
+
+    @staticmethod
+    def _split_tags(tags: list[str]) -> tuple[str | None, list[str]]:
+        """Split a card's "#Office #Remote #AI #AWS ..." tags into a
+        (remote_type, skills) pair.
+
+        "#Office"/"#Remote" describe work arrangement rather than a skill;
+        when both are present on the same listing, remote wins (the role is
+        at least partly remote-friendly, which is what a remote-seeking
+        candidate cares about).
+        """
+        cleaned = [t.lstrip("#").strip() for t in tags]
+        cleaned = [t for t in cleaned if t]
+
+        work_modes = {t.lower() for t in cleaned if t.lower() in _WORK_MODE_TAGS}
+        if _REMOTE_TAG in work_modes:
+            remote_type = "remote"
+        elif _OFFICE_TAG in work_modes:
+            remote_type = "onsite"
+        else:
+            remote_type = None
+
+        skills = [t for t in cleaned if t.lower() not in _WORK_MODE_TAGS]
+        return remote_type, skills
 
     async def _extract_via_link_scan(self, page, *, cfg, listing_url: str) -> list[RawJob]:
         candidates = await extract_link_cards(

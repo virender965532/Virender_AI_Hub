@@ -103,8 +103,8 @@ internal address is still blocked.
 
 ## LLM abuse / cost control
 
-- Multi-stage funnel (rules -> embeddings -> LLM) means the expensive stage
-  only ever sees `JOB_LLM_TOP_K` (default 50) jobs per run, never every
+- Multi-stage funnel (rules -> LLM) means the expensive stage only ever sees
+  `JOB_LLM_TOP_K` (default 50) jobs per run, ranked by rule score, never every
   scraped job — see `ARCHITECTURE.md` "Matching pipeline".
 - `JOB_LLM_MAX_RETRIES` bounds retries on malformed output; there is no
   unbounded retry loop anywhere in `matching/llm_matcher.py`.

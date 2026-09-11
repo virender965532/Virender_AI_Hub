@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 import json
 import logging
 import os
@@ -9,7 +8,6 @@ import webbrowser
 from typing import Any
 
 from dotenv import load_dotenv
-from pypdf import PdfReader
 
 from agents import Agent, Runner, trace
 
@@ -17,9 +15,9 @@ from .config import (
     EMAIL_DRAFT_PATH,
     JD_ANALYSIS_PATH,
     OPENAI_AGENT_MODEL,
-    PROFILE_ANALYSIS_PATH,
     PROFILE_DIR,
     RESUME_FILENAME,
+    SUMMARY_FILENAME,
 )
 from .history import save_application_history
 
@@ -32,17 +30,12 @@ PROMPTS = {
         "Return a detailed breakdown of: key responsibilities, required skills (hard and soft),"
         " seniority level, mandatory vs nice-to-have qualifications, and suggested interview topics."
     ),
-    "CandidateProfileAnalyzer": (
-        "Given the candidate resume text provided in the input, analyze and summarize the candidate's "
-        "skills, experience, achievements, and gaps. Output a structured profile with skill tags, "
-        "years of experience per area, notable projects, and suggested strengths to highlight."
-    ),
     "HiringManagerEmailDraftsman": (
-        "Using the finalized job description, and extracted resume profile, draft a highly professional, "
+        "Using the finalized job description, and the candidate's summary, draft a highly professional, "
         "concise, and persuasive email to the hiring manager expressing interest in the role. The email "
         "must open courteously, highlight the strongest skills, achievements, and experience that "
         "directly match the job description, and clearly show why the candidate is an excellent fit for "
-        "the position. Incorporate important keywords from both the resume profile and job description to "
+        "the position. Incorporate important keywords from both the candidate summary and job description to "
         "improve relevance and impact. Ensure the tone is polite, confident, and value-driven. Close with "
         "a polite call to action, include contact details, and mention attached documents such as the "
         "resume and fitment report. Output only the email body."
@@ -51,7 +44,7 @@ PROMPTS = {
         "Generate a professional, concise, and attention-grabbing subject line for a job application "
         "email, using the candidate's top strengths and the job title as context. The subject line should "
         "be clear, specific, and appealing to a hiring manager, reflecting the role, years of experience "
-        "if applicable, and top relevant skills or technologies extracted from the resume profile and job "
+        "if applicable, and top relevant skills or technologies extracted from the candidate summary and job "
         'description. Format it in a clean, industry-standard way similar to: "Experienced Frontend '
         'Engineer — 6 yrs, React & TypeScript".'
     ),
@@ -85,18 +78,13 @@ def extract_domain(email: str) -> str:
         return ""
 
 
-def extract_resume_data() -> str:
+def ensure_resume_exists() -> None:
     resume_path = PROFILE_DIR / RESUME_FILENAME
     if not resume_path.exists():
         raise FileNotFoundError(
             f"Resume not found at {resume_path}. "
             f"Place {RESUME_FILENAME} in {PROFILE_DIR}."
         )
-    reader = PdfReader(str(resume_path))
-    text = ""
-    for page in reader.pages:
-        text += page.extract_text() or ""
-    return text
 
 
 def save_data(data: str, path: str) -> bool:
@@ -133,8 +121,6 @@ def extract_profile_data(path: str) -> str:
 async def run_recruitment_pipeline(
     job_requirement_text: str,
     hiring_manager_email: str,
-    *,
-    reparse: bool = False,
 ) -> dict[str, Any] | None:
     logger.info("run_recruitment_pipeline started")
     if not os.environ.get("OPENAI_API_KEY"):
@@ -142,41 +128,32 @@ async def run_recruitment_pipeline(
 
     domain = extract_domain(hiring_manager_email)
     try:
-        resume_data = extract_resume_data()
+        ensure_resume_exists()
+        summary_path = PROFILE_DIR / SUMMARY_FILENAME
+        if not summary_path.exists():
+            raise FileNotFoundError(
+                f"Candidate summary not found at {summary_path}. "
+                f"Place {SUMMARY_FILENAME} in {PROFILE_DIR}."
+            )
+        profile_data = extract_profile_data(str(summary_path))
+
         job_analyser = Agent(
             name="Job Requirement Analyzer",
             instructions=PROMPTS["JobRequirementAnalyzer"],
             model=OPENAI_AGENT_MODEL,
         )
-        candidate_profile_agent = Agent(
-            name="Candidate Profile Analyzer",
-            instructions=PROMPTS["CandidateProfileAnalyzer"],
-            model=OPENAI_AGENT_MODEL,
-        )
 
-        with trace(f"{domain} Profile & JD Tracking for Agentic Apply Pro AI"):
-            if reparse or not PROFILE_ANALYSIS_PATH.exists():
-                results = await asyncio.gather(
-                    Runner.run(job_analyser, job_requirement_text),
-                    Runner.run(candidate_profile_agent, resume_data),
-                )
-                jd_data = results[0].final_output
-                profile_data = results[1].final_output
-            else:
-                results = await asyncio.gather(
-                    Runner.run(job_analyser, job_requirement_text),
-                )
-                jd_data = results[0].final_output
-                profile_data = extract_profile_data(str(PROFILE_ANALYSIS_PATH))
+        with trace(f"{domain} JD Tracking for Autonomous Application Agent"):
+            jd_result = await Runner.run(job_analyser, job_requirement_text)
+            jd_data = jd_result.final_output
 
         save_data(jd_data, str(JD_ANALYSIS_PATH))
-        save_data(profile_data, str(PROFILE_ANALYSIS_PATH))
 
         subject_creator = Agent(
             name="Email Subject Line Creator",
             instructions=(
                 f"{PROMPTS['EmailSubjectLineCreator']} Job Requirement Analysis:\n{jd_data}\n\n"
-                f"Candidate Profile Analysis:\n{profile_data}"
+                f"Candidate Summary:\n{profile_data}"
             ),
             model=OPENAI_AGENT_MODEL,
         )
@@ -184,7 +161,7 @@ async def run_recruitment_pipeline(
             name="Hiring Manager Email Draftsman",
             instructions=(
                 f"{PROMPTS['HiringManagerEmailDraftsman']} Job Requirement Analysis:\n{jd_data}\n\n"
-                f"Candidate Profile Analysis:\n{profile_data}"
+                f"Candidate Summary:\n{profile_data}"
             ),
             model=OPENAI_AGENT_MODEL,
         )
@@ -200,18 +177,18 @@ async def run_recruitment_pipeline(
             name="Email Reviewer Evaluator",
             instructions=(
                 f"{PROMPTS['EmailReviewerEvaluator']} Job Requirement Analysis:\n{jd_data}\n\n"
-                f"Candidate Profile Analysis:\n{profile_data}"
+                f"Candidate Summary:\n{profile_data}"
             ),
             model=OPENAI_AGENT_MODEL,
             tools=[draftsman_tool, subject_tool],
         )
 
-        with trace(f"{domain} Email Drafting & Reviewing for Agentic Apply Pro AI"):
+        with trace(f"{domain} Email Drafting & Reviewing for Autonomous Application Agent"):
             response = await Runner.run(
                 reviewer,
                 (
                     f"{PROMPTS['EmailReviewerEvaluator']} Job Requirement Analysis:\n{jd_data}\n\n"
-                    f"Candidate Profile Analysis:\n{profile_data}"
+                    f"Candidate Summary:\n{profile_data}"
                 ),
             )
 

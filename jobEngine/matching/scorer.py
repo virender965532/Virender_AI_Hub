@@ -1,5 +1,5 @@
-"""Combines rule evaluation + embedding similarity + LLM analysis into one
-explainable, configurable-weight final score (section 17) and the resulting
+"""Combines rule evaluation + LLM analysis into one explainable,
+configurable-weight final score (section 17) and the resulting
 ``MatchedJob`` record. The final recommendation is always derived from the
 computed weighted score, never taken verbatim from the LLM (section 71 —
 "no blind LLM decisions"); the LLM's own analysis is kept for explainability.
@@ -45,7 +45,6 @@ def compute_dimension_scores(
     job: Job,
     profile: CandidateProfile,
     rule_eval: RuleEvaluation,
-    embedding_similarity: float | None,
     llm_analysis: JobMatchAnalysis | None,
 ) -> dict[str, float]:
     job_tokens = _job_tokens(job)
@@ -61,9 +60,6 @@ def compute_dimension_scores(
         technical = rule_eval.rule_score
         ai = overlap_score(job_tokens & _AI_KEYWORDS, candidate_tokens) if (job_tokens & _AI_KEYWORDS) else 0.0
         experience = 100.0 if rule_eval.seniority_ok else 30.0
-
-    if embedding_similarity is not None:
-        technical = round(0.7 * technical + 0.3 * (embedding_similarity * 100.0), 1)
 
     # A job posting that simply doesn't discuss architecture/cloud concerns is
     # not evidence the role is architecturally irrelevant to the candidate —
@@ -90,6 +86,31 @@ def compute_final_score(dimension_scores: dict[str, float], weights: dict[str, f
     return round(min(100.0, max(0.0, total)), 1)
 
 
+def _reconcile_skill_lists(
+    profile: CandidateProfile, matched_skills: list[str], missing: list[str]
+) -> tuple[list[str], list[str]]:
+    """The LLM scans one flat comma-separated list of ~40 candidate skills and
+    can miss one that's genuinely present (observed: it called "Python"
+    missing even though it's verbatim in the candidate's skills list) — this
+    catches that class of oversight deterministically rather than trusting
+    the LLM's list verbatim.
+    """
+    candidate_tokens = skill_token_set(profile.all_skills())
+    reconciled_matched = list(matched_skills)
+    reconciled_missing: list[str] = []
+    seen_matched = {s.strip().lower() for s in reconciled_matched}
+    for skill in missing:
+        tokens = skill_token_set([skill])
+        if tokens and tokens <= candidate_tokens:
+            key = skill.strip().lower()
+            if key not in seen_matched:
+                reconciled_matched.append(skill)
+                seen_matched.add(key)
+        else:
+            reconciled_missing.append(skill)
+    return reconciled_matched, reconciled_missing
+
+
 def recommendation_for_score(score: float) -> Recommendation:
     if score >= 85:
         return "strong_match"
@@ -107,7 +128,6 @@ def build_matched_job(
     job: Job,
     profile: CandidateProfile,
     rule_eval: RuleEvaluation,
-    embedding_similarity: float | None,
     llm_analysis: JobMatchAnalysis | None,
     settings: EngineSettings,
     minimum_match_score: float | None = None,
@@ -123,7 +143,6 @@ def build_matched_job(
             match_score=0.0,
             recommendation="reject",
             rule_evaluation=rule_eval,
-            embedding_similarity=embedding_similarity,
             llm_analysis=llm_analysis,
             rejected=True,
             rejection_reason="; ".join(rule_eval.rejection_reasons) or "failed hard-rejection rules",
@@ -133,15 +152,15 @@ def build_matched_job(
         job=job,
         profile=profile,
         rule_eval=rule_eval,
-        embedding_similarity=embedding_similarity,
         llm_analysis=llm_analysis,
     )
     score = compute_final_score(dims, settings.weights.as_dict())
     recommendation = recommendation_for_score(score)
 
     if llm_analysis is not None:
-        matched_skills = llm_analysis.matched_skills
-        missing = llm_analysis.missing_required_skills
+        matched_skills, missing = _reconcile_skill_lists(
+            profile, llm_analysis.matched_skills, llm_analysis.missing_required_skills
+        )
         strengths = llm_analysis.strengths
         concerns = llm_analysis.concerns
         explanation = llm_analysis.explanation
@@ -149,7 +168,7 @@ def build_matched_job(
         matched_skills = rule_eval.mandatory_skills_matched
         missing = rule_eval.mandatory_skills_missing
         strengths = []
-        concerns = ["LLM analysis unavailable for this job; score reflects rule/embedding signals only."]
+        concerns = ["LLM analysis unavailable for this job; score reflects rule-based signals only."]
         explanation = (
             f"Rule-based match only (LLM unavailable): {rule_eval.rule_score}% keyword/stack overlap "
             f"with the candidate profile."
@@ -165,7 +184,6 @@ def build_matched_job(
         match_score=score,
         recommendation=recommendation,
         rule_evaluation=rule_eval,
-        embedding_similarity=embedding_similarity,
         llm_analysis=llm_analysis,
         matched_skills=matched_skills,
         missing_required_skills=missing,

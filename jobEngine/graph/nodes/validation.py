@@ -88,26 +88,26 @@ async def validation_node(state: dict[str, Any]) -> dict[str, Any]:
     errors: list[dict[str, Any]] = []
 
     for job in normalized:
-        # if not _has_minimal_content(job):
-        #     errors.append(
-        #         WorkflowError(
-        #             error_code="job_content_too_thin",
-        #             error_type=ErrorType.VALIDATION,
-        #             message=f"job {job.get('title')!r} at {job.get('company')!r} has no usable content",
-        #             source=job.get("source"),
-        #             node="validation",
-        #             severity=ErrorSeverity.LOW,
-        #             run_id=run_id,
-        #         ).model_dump(mode="json")
-        #     )
-        #     continue
+        if not _has_minimal_content(job):
+            errors.append(
+                WorkflowError(
+                    error_code="job_content_too_thin",
+                    error_type=ErrorType.VALIDATION,
+                    message=f"job {job.get('title')!r} at {job.get('company')!r} has no usable content",
+                    source=job.get("source"),
+                    node="validation",
+                    severity=ErrorSeverity.LOW,
+                    run_id=run_id,
+                ).model_dump(mode="json")
+            )
+            continue
 
-        # if not _matches_keywords(job, keywords):
-        #     continue
-        # if not _matches_location(job, location=location, country=country, city=city, remote=remote):
-        #     continue
-        # if not _matches_employment_type(job, employment_type):
-        #     continue
+        if not _matches_keywords(job, keywords):
+            continue
+        if not _matches_location(job, location=location, country=country, city=city, remote=remote):
+            continue
+        if not _matches_employment_type(job, employment_type):
+            continue
 
         validated.append(job)
 

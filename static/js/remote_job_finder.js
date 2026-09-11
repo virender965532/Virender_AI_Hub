@@ -1,0 +1,317 @@
+/**
+ * Global Remote Job Finder UI: submit a search against the existing job-engine
+ * API (/api/jobs/search, unchanged) and render full job detail cards (salary,
+ * employment type, skills, strengths/concerns, source/apply links) instead of
+ * the compact cards used by the Job Discovery Engine page.
+ */
+(function () {
+  var loadingEl = document.getElementById("rjf-loading");
+  var errorEl = document.getElementById("rjf-error");
+  var resultsEl = document.getElementById("rjf-results");
+  var summaryEl = document.getElementById("rjf-summary");
+  var cardsEl = document.getElementById("rjf-cards");
+  var sourcesEl = document.getElementById("rjf-sources");
+  var searchBtn = document.getElementById("rjf-btn-search");
+  var loadingTextEl = document.getElementById("rjf-loading-text");
+
+  var keywordsInput = document.getElementById("rjf-keywords");
+  var remoteOnlyInput = document.getElementById("rjf-remote-only");
+  var minScoreInput = document.getElementById("rjf-min-score");
+  var maxResultsInput = document.getElementById("rjf-max-results");
+
+  var pollTimer = null;
+
+  function loadJsonScript(id) {
+    var el = document.getElementById(id);
+    if (!el) return [];
+    try {
+      var data = JSON.parse(el.textContent || "[]");
+      return Array.isArray(data) ? data : [];
+    } catch (e) {
+      console.warn("Could not parse " + id, e);
+      return [];
+    }
+  }
+
+  function renderSourceCheckboxes() {
+    var sources = loadJsonScript("rjf-sources-data");
+    sourcesEl.innerHTML = "";
+    if (!sources.length) {
+      sourcesEl.innerHTML = '<span class="job-toolbar-note">No sources configured.</span>';
+      return;
+    }
+    sources.forEach(function (s) {
+      var label = document.createElement("label");
+      label.className = "job-toolbar-check" + (s.enabled ? "" : " job-toolbar-check--disabled");
+      var input = document.createElement("input");
+      input.type = "checkbox";
+      input.value = s.id;
+      input.checked = !!s.enabled;
+      input.disabled = !s.enabled;
+      input.className = "rjf-source-checkbox";
+      var span = document.createElement("span");
+      span.textContent = s.name + (s.requires_auth ? " (auth required)" : "") + (s.enabled ? "" : " — disabled");
+      label.appendChild(input);
+      label.appendChild(span);
+      sourcesEl.appendChild(label);
+    });
+  }
+
+  function setVisible(el, show) {
+    el.classList.toggle("hidden", !show);
+  }
+
+  function selectedSources() {
+    var checked = Array.prototype.slice
+      .call(sourcesEl.querySelectorAll(".rjf-source-checkbox"))
+      .filter(function (el) { return el.checked; })
+      .map(function (el) { return el.value; });
+    return checked.length ? checked : null;
+  }
+
+  function parseKeywords(raw) {
+    return String(raw || "")
+      .split(",")
+      .map(function (s) { return s.trim(); })
+      .filter(Boolean);
+  }
+
+  function buildRequestPayload() {
+    var payload = { max_results: Number(maxResultsInput.value) || 50 };
+    var keywords = parseKeywords(keywordsInput.value);
+    if (keywords.length) payload.keywords = keywords;
+    var minScore = Number(minScoreInput.value);
+    if (!isNaN(minScore)) payload.minimum_match_score = minScore;
+    var sources = selectedSources();
+    if (sources) payload.sources = sources;
+    return payload;
+  }
+
+  function scoreClass(recommendation) {
+    if (recommendation === "strong_match") return "rjf-score--strong";
+    if (recommendation === "good_match") return "rjf-score--good";
+    if (recommendation === "possible_match") return "rjf-score--possible";
+    return "rjf-score--poor";
+  }
+
+  function recommendationLabel(recommendation) {
+    return String(recommendation || "").replace(/_/g, " ");
+  }
+
+  function isRemoteFriendly(job) {
+    return job.remote_type === "remote" || job.remote_type === "hybrid";
+  }
+
+  function detailRow(label, value) {
+    if (!value) return "";
+    return "<dt>" + label + "</dt><dd>" + value + "</dd>";
+  }
+
+  function renderCard(matched) {
+    var job = matched.job || {};
+    var card = document.createElement("article");
+    card.className = "rjf-card glass";
+
+    var head = document.createElement("div");
+    head.className = "rjf-card__head";
+
+    var titleWrap = document.createElement("div");
+    var title = document.createElement("h3");
+    title.className = "rjf-card__title";
+    title.textContent = job.title || "Untitled role";
+    var company = document.createElement("p");
+    company.className = "rjf-card__company";
+    company.textContent = [job.company, job.location].filter(Boolean).join(" · ");
+    titleWrap.appendChild(title);
+    titleWrap.appendChild(company);
+
+    var score = document.createElement("div");
+    score.className = "rjf-score " + scoreClass(matched.recommendation);
+    score.innerHTML = Math.round(matched.match_score || 0) + "<small>MATCH</small>";
+
+    head.appendChild(titleWrap);
+    head.appendChild(score);
+    card.appendChild(head);
+
+    var recBadge = document.createElement("span");
+    recBadge.className = "rjf-tag";
+    recBadge.textContent = recommendationLabel(matched.recommendation);
+    card.appendChild(recBadge);
+
+    if (matched.explanation) {
+      var explanation = document.createElement("p");
+      explanation.className = "rjf-card__explanation";
+      explanation.textContent = matched.explanation;
+      card.appendChild(explanation);
+    }
+
+    var details = document.createElement("dl");
+    details.className = "rjf-card__details";
+    details.innerHTML =
+      detailRow("Employment type", job.employment_type) +
+      detailRow("Experience", job.experience_required) +
+      detailRow("Salary", job.salary) +
+      detailRow("Remote type", job.remote_type) +
+      detailRow("Source", job.source) +
+      detailRow("Posted", job.posted_date ? new Date(job.posted_date).toLocaleDateString() : "");
+    if (details.innerHTML) card.appendChild(details);
+
+    if ((matched.matched_skills || []).length || (matched.missing_required_skills || []).length) {
+      var tagRow = document.createElement("div");
+      tagRow.className = "rjf-tag-row";
+      (matched.matched_skills || []).forEach(function (skill) {
+        var tag = document.createElement("span");
+        tag.className = "rjf-tag";
+        tag.textContent = skill;
+        tagRow.appendChild(tag);
+      });
+      (matched.missing_required_skills || []).forEach(function (skill) {
+        var tag = document.createElement("span");
+        tag.className = "rjf-tag rjf-tag--missing";
+        tag.textContent = "missing: " + skill;
+        tagRow.appendChild(tag);
+      });
+      card.appendChild(tagRow);
+    }
+
+    if ((matched.strengths || []).length) {
+      var strengths = document.createElement("p");
+      strengths.className = "rjf-card__section";
+      strengths.innerHTML = "<strong>Strengths:</strong> " + matched.strengths.join("; ");
+      card.appendChild(strengths);
+    }
+    if ((matched.concerns || []).length) {
+      var concerns = document.createElement("p");
+      concerns.className = "rjf-card__section";
+      concerns.innerHTML = "<strong>Concerns:</strong> " + matched.concerns.join("; ");
+      card.appendChild(concerns);
+    }
+    if (job.description) {
+      var desc = document.createElement("p");
+      desc.className = "rjf-card__section";
+      var text = job.description.length > 320 ? job.description.slice(0, 320) + "…" : job.description;
+      desc.innerHTML = "<strong>Description:</strong> " + text;
+      card.appendChild(desc);
+    }
+
+    var footer = document.createElement("div");
+    footer.className = "rjf-card__footer";
+    if (job.application_url) {
+      var applyLink = document.createElement("a");
+      applyLink.href = job.application_url;
+      applyLink.target = "_blank";
+      applyLink.rel = "noopener noreferrer";
+      applyLink.className = "btn btn--ghost";
+      applyLink.textContent = "View / Apply";
+      footer.appendChild(applyLink);
+    }
+    if (job.source_url && job.source_url !== job.application_url) {
+      var sourceLink = document.createElement("a");
+      sourceLink.href = job.source_url;
+      sourceLink.target = "_blank";
+      sourceLink.rel = "noopener noreferrer";
+      sourceLink.className = "btn btn--ghost";
+      sourceLink.textContent = "Source listing";
+      footer.appendChild(sourceLink);
+    }
+    card.appendChild(footer);
+
+    return card;
+  }
+
+  function renderResult(result) {
+    var summary = result.summary || {};
+    var parts = [
+      "<span><strong>" + (summary.sources_processed || 0) + "</strong> sources processed</span>",
+      "<span><strong>" + (summary.jobs_discovered || 0) + "</strong> discovered</span>",
+      "<span><strong>" + (summary.jobs_recommended || 0) + "</strong> recommended</span>",
+    ];
+    if (summary.degraded) {
+      parts.push('<span style="color:#ffb86b;">⚠ ' + (summary.degraded_reason || "degraded mode") + "</span>");
+    }
+    if ((result.source_errors || []).length) {
+      parts.push("<span style=\"color:#ff9d9d;\">" + result.source_errors.length + " source error(s)</span>");
+    }
+    summaryEl.innerHTML = parts.join("");
+
+    cardsEl.innerHTML = "";
+    var jobs = result.jobs || [];
+    if (remoteOnlyInput.checked) {
+      jobs = jobs.filter(function (matched) { return isRemoteFriendly(matched.job || {}); });
+    }
+
+    if (!jobs.length) {
+      var empty = document.createElement("div");
+      empty.className = "rjf-empty glass";
+      empty.textContent = "No jobs matched the selected filters for this search.";
+      cardsEl.appendChild(empty);
+    } else {
+      jobs.forEach(function (matched) { cardsEl.appendChild(renderCard(matched)); });
+    }
+
+    setVisible(resultsEl, true);
+  }
+
+  function showError(message) {
+    errorEl.textContent = message;
+    setVisible(errorEl, true);
+    setVisible(loadingEl, false);
+    searchBtn.disabled = false;
+  }
+
+  function poll(runId) {
+    fetch("/api/jobs/search/" + encodeURIComponent(runId))
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        if (!data.ok) {
+          showError(data.error || "Search run not found.");
+          return;
+        }
+        if (data.status === "running") {
+          pollTimer = window.setTimeout(function () { poll(runId); }, 2000);
+          return;
+        }
+        setVisible(loadingEl, false);
+        searchBtn.disabled = false;
+        if (data.status === "failed" && !(data.jobs || []).length) {
+          showError("The search run failed. Check server logs for details.");
+          return;
+        }
+        renderResult(data);
+      })
+      .catch(function (err) {
+        showError("Could not reach the server: " + err);
+      });
+  }
+
+  function startSearch() {
+    if (pollTimer) window.clearTimeout(pollTimer);
+    setVisible(errorEl, false);
+    setVisible(resultsEl, false);
+    setVisible(loadingEl, true);
+    loadingTextEl.textContent = "Starting discovery workflow…";
+    searchBtn.disabled = true;
+
+    fetch("/api/jobs/search", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(buildRequestPayload()),
+    })
+      .then(function (res) { return res.json().then(function (data) { return { status: res.status, data: data }; }); })
+      .then(function (result) {
+        if (result.status >= 400 || !result.data.ok) {
+          var detail = (result.data.details || []).map(function (d) { return d.msg; }).join("; ");
+          showError(result.data.error + (detail ? ": " + detail : ""));
+          return;
+        }
+        loadingTextEl.textContent = "Discovery running (run " + result.data.run_id + ")…";
+        poll(result.data.run_id);
+      })
+      .catch(function (err) {
+        showError("Could not reach the server: " + err);
+      });
+  }
+
+  renderSourceCheckboxes();
+  searchBtn.addEventListener("click", startSearch);
+})();

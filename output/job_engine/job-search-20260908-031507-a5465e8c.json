@@ -1,0 +1,488 @@
+{
+  "run_id": "job-search-20260908-031507-a5465e8c",
+  "status": "completed",
+  "summary": {
+    "sources_processed": 1,
+    "jobs_discovered": 36,
+    "jobs_validated": 36,
+    "duplicates_removed": 0,
+    "jobs_matched": 7,
+    "jobs_recommended": 5,
+    "degraded": false,
+    "degraded_reason": null
+  },
+  "jobs": [
+    {
+      "job": {
+        "job_id": "798a397585b9d5f9e582c26493d300942b25c8c25ce9410e65e04ad7befd1530",
+        "source": "instinctools",
+        "source_job_id": null,
+        "title": "Senior Fullstack Engineer (Python+React)",
+        "company": "Instinctools",
+        "location": "Poland",
+        "employment_type": null,
+        "experience_required": null,
+        "description": "We are looking for a Senior FullStack (Python/Node.js + React) Developer Developer for one of our clients.",
+        "requirements": [],
+        "responsibilities": [],
+        "skills": [
+          "AI",
+          "AWS",
+          "Cloud",
+          "Full Stack",
+          "LLM",
+          "Python",
+          "React"
+        ],
+        "salary": null,
+        "posted_date": null,
+        "application_url": "https://www.instinctools.eu/vacancies/senior-fullstack-engineer-python-react/",
+        "source_url": "https://www.instinctools.eu/",
+        "remote_type": "remote",
+        "raw_text_hash": "798a397585b9d5f9e582c26493d300942b25c8c25ce9410e65e04ad7befd1530",
+        "discovered_at": "2026-09-08T03:15:18.740459Z"
+      },
+      "match_score": 70.0,
+      "recommendation": "good_match",
+      "rule_evaluation": {
+        "passed": true,
+        "rejection_reasons": [],
+        "mandatory_skills_matched": [],
+        "mandatory_skills_missing": [],
+        "rule_score": 25.0,
+        "seniority_ok": true,
+        "role_related": true
+      },
+      "embedding_similarity": 0.4626312270725684,
+      "llm_analysis": {
+        "score": 80.0,
+        "role_match": 90.0,
+        "technical_match": 80.0,
+        "ai_match": 90.0,
+        "experience_match": 70.0,
+        "matched_skills": [
+          "React",
+          "Node.js",
+          "AWS",
+          "AI",
+          "Python"
+        ],
+        "missing_required_skills": [
+          "Python"
+        ],
+        "matched_requirements": [
+          "AI",
+          "AWS",
+          "Cloud",
+          "Full Stack",
+          "React"
+        ],
+        "strengths": [
+          "7 years of experience as a Full Stack Developer",
+          "Strong expertise in React and Node.js",
+          "Experience with AWS and cloud-native applications",
+          "Proven track record in AI-driven development practices"
+        ],
+        "concerns": [
+          "Python experience is not demonstrated in the provided profile"
+        ],
+        "recommendation": "good_match",
+        "explanation": "The candidate has strong experience in Full Stack development with React and Node.js, along with relevant skills in AI and AWS. However, Python experience is not demonstrated in the profile, which is a requirement for the role."
+      },
+      "matched_skills": [
+        "React",
+        "Node.js",
+        "AWS",
+        "AI",
+        "Python"
+      ],
+      "missing_required_skills": [
+        "Python"
+      ],
+      "strengths": [
+        "7 years of experience as a Full Stack Developer",
+        "Strong expertise in React and Node.js",
+        "Experience with AWS and cloud-native applications",
+        "Proven track record in AI-driven development practices"
+      ],
+      "concerns": [
+        "Python experience is not demonstrated in the provided profile"
+      ],
+      "explanation": "The candidate has strong experience in Full Stack development with React and Node.js, along with relevant skills in AI and AWS. However, Python experience is not demonstrated in the profile, which is a requirement for the role.",
+      "rejected": false,
+      "rejection_reason": null
+    },
+    {
+      "job": {
+        "job_id": "8a24fcb6da46758bc15b6a31e1ac0b88dcb4af3d160d84ca3cbd31e5151df3b0",
+        "source": "instinctools",
+        "source_job_id": null,
+        "title": "Senior FullStack (Python/Node.js + React) Developer",
+        "company": "Instinctools",
+        "location": "Poland, India",
+        "employment_type": null,
+        "experience_required": null,
+        "description": "We are looking for a Senior FullStack (Python/Node.js + React) Developer Developer for one of our clients.",
+        "requirements": [],
+        "responsibilities": [],
+        "skills": [
+          "Full Stack",
+          "Node.js",
+          "Python",
+          "React"
+        ],
+        "salary": null,
+        "posted_date": null,
+        "application_url": "https://www.instinctools.eu/vacancies/senior-fullstack-python-node-js-react-developer/",
+        "source_url": "https://www.instinctools.eu/",
+        "remote_type": "remote",
+        "raw_text_hash": "8a24fcb6da46758bc15b6a31e1ac0b88dcb4af3d160d84ca3cbd31e5151df3b0",
+        "discovered_at": "2026-09-08T03:15:20.115236Z"
+      },
+      "match_score": 65.0,
+      "recommendation": "possible_match",
+      "rule_evaluation": {
+        "passed": true,
+        "rejection_reasons": [],
+        "mandatory_skills_matched": [],
+        "mandatory_skills_missing": [],
+        "rule_score": 25.0,
+        "seniority_ok": true,
+        "role_related": true
+      },
+      "embedding_similarity": 0.47745952446380274,
+      "llm_analysis": {
+        "score": 70.0,
+        "role_match": 80.0,
+        "technical_match": 70.0,
+        "ai_match": 60.0,
+        "experience_match": 70.0,
+        "matched_skills": [
+          "Node.js",
+          "React"
+        ],
+        "missing_required_skills": [
+          "Python"
+        ],
+        "matched_requirements": [
+          "Full Stack",
+          "Node.js",
+          "React"
+        ],
+        "strengths": [
+          "7 years of experience as a Full Stack Developer",
+          "Strong focus on performance optimization and clean code",
+          "Experience with cloud-native applications"
+        ],
+        "concerns": [
+          "Python experience is not demonstrated in the provided profile"
+        ],
+        "recommendation": "possible_match",
+        "explanation": "The candidate has strong experience in Full Stack development with Node.js and React, which aligns well with the job requirements. However, Python experience is not demonstrated in the profile, which is a key requirement for the role."
+      },
+      "matched_skills": [
+        "Node.js",
+        "React"
+      ],
+      "missing_required_skills": [
+        "Python"
+      ],
+      "strengths": [
+        "7 years of experience as a Full Stack Developer",
+        "Strong focus on performance optimization and clean code",
+        "Experience with cloud-native applications"
+      ],
+      "concerns": [
+        "Python experience is not demonstrated in the provided profile"
+      ],
+      "explanation": "The candidate has strong experience in Full Stack development with Node.js and React, which aligns well with the job requirements. However, Python experience is not demonstrated in the profile, which is a key requirement for the role.",
+      "rejected": false,
+      "rejection_reason": null
+    },
+    {
+      "job": {
+        "job_id": "2443c64430e4d2894aeefc6172f64af03dc950df0ec2fa70fa3f2b8b5429bcc1",
+        "source": "instinctools",
+        "source_job_id": null,
+        "title": "Senior Fullstack (Python+React/TypeScript) Developer",
+        "company": "Instinctools",
+        "location": "Poland",
+        "employment_type": null,
+        "experience_required": null,
+        "description": "We are looking for a Senior Fullstack (Python+React/TypeScript) Developer for one of our clients.",
+        "requirements": [],
+        "responsibilities": [],
+        "skills": [
+          "Full Stack",
+          "Python",
+          "React"
+        ],
+        "salary": null,
+        "posted_date": null,
+        "application_url": "https://www.instinctools.eu/vacancies/senior-fullstack/",
+        "source_url": "https://www.instinctools.eu/",
+        "remote_type": "remote",
+        "raw_text_hash": "2443c64430e4d2894aeefc6172f64af03dc950df0ec2fa70fa3f2b8b5429bcc1",
+        "discovered_at": "2026-09-08T03:15:21.919130Z"
+      },
+      "match_score": 58.7,
+      "recommendation": "possible_match",
+      "rule_evaluation": {
+        "passed": true,
+        "rejection_reasons": [],
+        "mandatory_skills_matched": [],
+        "mandatory_skills_missing": [],
+        "rule_score": 22.2,
+        "seniority_ok": true,
+        "role_related": true
+      },
+      "embedding_similarity": 0.4567572195369456,
+      "llm_analysis": {
+        "score": 60.0,
+        "role_match": 70.0,
+        "technical_match": 60.0,
+        "ai_match": 50.0,
+        "experience_match": 70.0,
+        "matched_skills": [
+          "React",
+          "TypeScript"
+        ],
+        "missing_required_skills": [
+          "Python"
+        ],
+        "matched_requirements": [
+          "Full Stack",
+          "React",
+          "TypeScript"
+        ],
+        "strengths": [
+          "7 years of experience as a Full Stack Developer",
+          "Strong experience with React and TypeScript",
+          "Proven track record of optimizing performance and deployment cycles"
+        ],
+        "concerns": [
+          "Lack of demonstrated Python experience"
+        ],
+        "recommendation": "possible_match",
+        "explanation": "The candidate has strong experience in Full Stack development with React and TypeScript, which aligns well with the job requirements. However, the job requires Python skills, which are not demonstrated in the candidate's profile, leading to a lower overall score."
+      },
+      "matched_skills": [
+        "React",
+        "TypeScript"
+      ],
+      "missing_required_skills": [
+        "Python"
+      ],
+      "strengths": [
+        "7 years of experience as a Full Stack Developer",
+        "Strong experience with React and TypeScript",
+        "Proven track record of optimizing performance and deployment cycles"
+      ],
+      "concerns": [
+        "Lack of demonstrated Python experience"
+      ],
+      "explanation": "The candidate has strong experience in Full Stack development with React and TypeScript, which aligns well with the job requirements. However, the job requires Python skills, which are not demonstrated in the candidate's profile, leading to a lower overall score.",
+      "rejected": false,
+      "rejection_reason": null
+    },
+    {
+      "job": {
+        "job_id": "cec7f0902ad50e72996fbb3509341f644f32abad248f1450fab308ba80f186fe",
+        "source": "instinctools",
+        "source_job_id": null,
+        "title": "Senior Data Engineer (AWS)",
+        "company": "Instinctools",
+        "location": "Poland, India",
+        "employment_type": null,
+        "experience_required": null,
+        "description": "Our team is looking for a Senior Data Engineer for one of our clients.",
+        "requirements": [],
+        "responsibilities": [],
+        "skills": [
+          "AWS",
+          "Data Engineering"
+        ],
+        "salary": null,
+        "posted_date": null,
+        "application_url": "https://www.instinctools.eu/vacancies/senior-data-engineer-aws/",
+        "source_url": "https://www.instinctools.eu/",
+        "remote_type": "remote",
+        "raw_text_hash": "cec7f0902ad50e72996fbb3509341f644f32abad248f1450fab308ba80f186fe",
+        "discovered_at": "2026-09-08T03:15:20.264126Z"
+      },
+      "match_score": 35.2,
+      "recommendation": "poor_match",
+      "rule_evaluation": {
+        "passed": true,
+        "rejection_reasons": [],
+        "mandatory_skills_matched": [],
+        "mandatory_skills_missing": [],
+        "rule_score": 20.0,
+        "seniority_ok": true,
+        "role_related": true
+      },
+      "embedding_similarity": 0.412520748185774,
+      "llm_analysis": {
+        "score": 40.0,
+        "role_match": 30.0,
+        "technical_match": 50.0,
+        "ai_match": 0.0,
+        "experience_match": 50.0,
+        "matched_skills": [
+          "AWS"
+        ],
+        "missing_required_skills": [
+          "Data Engineering"
+        ],
+        "matched_requirements": [],
+        "strengths": [
+          "7 years of experience as a Full Stack Developer",
+          "Strong AWS skills",
+          "Experience in cloud-native applications"
+        ],
+        "concerns": [
+          "Lack of specific data engineering experience",
+          "No mention of data engineering tools or methodologies"
+        ],
+        "recommendation": "possible_match",
+        "explanation": "The candidate has strong AWS skills and relevant experience in cloud-native applications, but lacks demonstrated data engineering experience and specific skills related to data engineering, which are crucial for the role."
+      },
+      "matched_skills": [
+        "AWS"
+      ],
+      "missing_required_skills": [
+        "Data Engineering"
+      ],
+      "strengths": [
+        "7 years of experience as a Full Stack Developer",
+        "Strong AWS skills",
+        "Experience in cloud-native applications"
+      ],
+      "concerns": [
+        "Lack of specific data engineering experience",
+        "No mention of data engineering tools or methodologies"
+      ],
+      "explanation": "The candidate has strong AWS skills and relevant experience in cloud-native applications, but lacks demonstrated data engineering experience and specific skills related to data engineering, which are crucial for the role.",
+      "rejected": false,
+      "rejection_reason": null
+    },
+    {
+      "job": {
+        "job_id": "87aee5567b700b1af9851dd6dc093e73f5cd520802bcef10fe80ec6db7fbff41",
+        "source": "instinctools",
+        "source_job_id": null,
+        "title": "Senior DevOps Engineer",
+        "company": "Instinctools",
+        "location": "Poland",
+        "employment_type": null,
+        "experience_required": null,
+        "description": "Our team is looking for a Senior DevOps Engineer for one of our clients.",
+        "requirements": [],
+        "responsibilities": [],
+        "skills": [
+          "AWS",
+          "Devops",
+          "Java",
+          "Python",
+          "Scala"
+        ],
+        "salary": null,
+        "posted_date": null,
+        "application_url": "https://www.instinctools.eu/vacancies/sen-devops-eng/",
+        "source_url": "https://www.instinctools.eu/",
+        "remote_type": "remote",
+        "raw_text_hash": "87aee5567b700b1af9851dd6dc093e73f5cd520802bcef10fe80ec6db7fbff41",
+        "discovered_at": "2026-09-08T03:15:22.888263Z"
+      },
+      "match_score": 32.9,
+      "recommendation": "poor_match",
+      "rule_evaluation": {
+        "passed": true,
+        "rejection_reasons": [],
+        "mandatory_skills_matched": [],
+        "mandatory_skills_missing": [],
+        "rule_score": 28.6,
+        "seniority_ok": true,
+        "role_related": true
+      },
+      "embedding_similarity": 0.3924344512663109,
+      "llm_analysis": {
+        "score": 40.0,
+        "role_match": 30.0,
+        "technical_match": 40.0,
+        "ai_match": 0.0,
+        "experience_match": 50.0,
+        "matched_skills": [
+          "AWS",
+          "Python"
+        ],
+        "missing_required_skills": [
+          "DevOps",
+          "Java",
+          "Scala"
+        ],
+        "matched_requirements": [],
+        "strengths": [
+          "7 years of experience as a Full Stack Developer",
+          "Strong AWS skills",
+          "Experience with Python"
+        ],
+        "concerns": [
+          "Lack of explicit DevOps experience",
+          "No experience with Java or Scala",
+          "Role is focused on DevOps, while candidate is a Full Stack Developer"
+        ],
+        "recommendation": "poor_match",
+        "explanation": "The candidate has relevant experience with AWS and Python, but lacks demonstrated DevOps skills and experience with Java and Scala, which are critical for the Senior DevOps Engineer role."
+      },
+      "matched_skills": [
+        "AWS",
+        "Python"
+      ],
+      "missing_required_skills": [
+        "DevOps",
+        "Java",
+        "Scala"
+      ],
+      "strengths": [
+        "7 years of experience as a Full Stack Developer",
+        "Strong AWS skills",
+        "Experience with Python"
+      ],
+      "concerns": [
+        "Lack of explicit DevOps experience",
+        "No experience with Java or Scala",
+        "Role is focused on DevOps, while candidate is a Full Stack Developer"
+      ],
+      "explanation": "The candidate has relevant experience with AWS and Python, but lacks demonstrated DevOps skills and experience with Java and Scala, which are critical for the Senior DevOps Engineer role.",
+      "rejected": false,
+      "rejection_reason": null
+    }
+  ],
+  "source_errors": [],
+  "metrics": {
+    "jobs_rejected_by_rules": 29,
+    "jobs_sent_to_embedding": 7,
+    "jobs_sent_to_llm": 7,
+    "llm_calls": 7,
+    "llm_retries": 0,
+    "llm_prompt_tokens": 11534,
+    "llm_completion_tokens": 1091,
+    "llm_total_tokens": 12625,
+    "llm_estimated_cost_usd": 0.0024,
+    "jobs_recommended": 5,
+    "match_distribution": {
+      "possible_match": 2,
+      "good_match": 1,
+      "reject": 1,
+      "poor_match": 3
+    },
+    "run_id": "job-search-20260908-031507-a5465e8c",
+    "jobs_discovered": 36,
+    "jobs_validated": 36,
+    "jobs_deduplicated": 0,
+    "source_failures": 0,
+    "browser_failures": 0,
+    "workflow_duration_ms": 110499.1
+  }
+}

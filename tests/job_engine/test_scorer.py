@@ -46,7 +46,7 @@ def test_hard_rejected_job_never_scores_above_zero(candidate_profile, settings):
     rule_eval = evaluate_rules(job, candidate_profile, settings=settings)
     matched = build_matched_job(
         job=job, profile=candidate_profile, rule_eval=rule_eval,
-        embedding_similarity=None, llm_analysis=None, settings=settings,
+        llm_analysis=None, settings=settings,
     )
     assert matched.rejected
     assert matched.match_score == 0.0
@@ -64,7 +64,7 @@ def test_llm_analysis_drives_score_when_available(candidate_profile, settings):
     )
     matched = build_matched_job(
         job=job, profile=candidate_profile, rule_eval=rule_eval,
-        embedding_similarity=0.9, llm_analysis=llm_analysis, settings=settings,
+        llm_analysis=llm_analysis, settings=settings,
     )
     assert not matched.rejected
     assert matched.match_score >= 85
@@ -81,14 +81,14 @@ def test_request_level_minimum_score_overrides_settings_default(candidate_profil
     # With the engine default (70), this scores just under it and would be rejected...
     default_result = build_matched_job(
         job=job, profile=candidate_profile, rule_eval=rule_eval,
-        embedding_similarity=None, llm_analysis=llm_analysis, settings=settings,
+        llm_analysis=llm_analysis, settings=settings,
     )
     assert default_result.rejected
 
     # ...but a caller-supplied lower threshold must actually be honored.
     override_result = build_matched_job(
         job=job, profile=candidate_profile, rule_eval=rule_eval,
-        embedding_similarity=None, llm_analysis=llm_analysis, settings=settings,
+        llm_analysis=llm_analysis, settings=settings,
         minimum_match_score=10.0,
     )
     assert not override_result.rejected

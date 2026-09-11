@@ -16,13 +16,13 @@ output_guardrails.py` additionally scans final output for PII/secret-shaped
 strings as a second line of defense.
 
 Every important stage logs at least once via the node's own `logger.info`
-calls (`normalization_node`, `deduplication_node`, `prefilter_node`,
-`matching_node`, `guardrail_check_node`, `ranking_node`, `final_output_node`)
+calls (`normalization_node`, `validation_node`, `matching_node`,
+`guardrail_check_node`, `ranking_node`, `final_output_node`)
 — correlated by `run_id` since it's threaded through the whole graph state.
 
 ## Tracing
 
-`ChatOpenAI`/`OpenAIEmbeddings` (via `langchain-openai`) automatically emit
+`ChatOpenAI` (via `langchain-openai`) automatically emits
 LangSmith traces when the standard `LANGCHAIN_TRACING_V2`/`LANGCHAIN_API_KEY`/
 `LANGCHAIN_PROJECT` env vars are set — this is opt-in and costs nothing to
 leave unset (matches this repo's existing pattern of not having LangSmith
@@ -41,8 +41,8 @@ never used for a billing decision). These land in
 
 ```json
 {
-  "jobs_discovered": 184, "jobs_validated": 171, "jobs_deduplicated": 29,
-  "jobs_rejected_by_rules": 41, "jobs_sent_to_embedding": 130,
+  "jobs_discovered": 184, "jobs_validated": 171,
+  "jobs_rejected_by_rules": 41,
   "jobs_sent_to_llm": 50, "jobs_recommended": 37,
   "llm_calls": 50, "llm_retries": 3,
   "llm_prompt_tokens": 42000, "llm_completion_tokens": 9000,
@@ -57,7 +57,7 @@ never used for a billing decision). These land in
 
 `GET /api/jobs/health` (`jobEngine/api/health.py`) checks: config file loads
 and parses, the output directory is writable (the "database" — flat files),
-LLM/embedding provider configured+enabled (no live network call, to keep the
+LLM provider configured+enabled (no live network call, to keep the
 check fast and free), and Playwright is importable. Returns `200` when every
 check passes, `503` otherwise — never returns secrets, only booleans/model
 names.

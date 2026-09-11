@@ -4,11 +4,10 @@ import os
 
 import pytest
 
-# LLM/embeddings are disabled for the whole test suite by default — tests
-# must never depend on a live OpenAI call or a real API key. Tests for the
-# LLM/embedding code paths mock the relevant client methods instead.
+# LLM is disabled for the whole test suite by default — tests must never
+# depend on a live OpenAI call or a real API key. Tests for the LLM code
+# path mock the relevant client methods instead.
 os.environ.setdefault("JOB_ENGINE_LLM_ENABLED", "false")
-os.environ.setdefault("JOB_ENGINE_EMBEDDINGS_ENABLED", "false")
 os.environ.setdefault("JOB_ENGINE_PERSIST_RESULTS", "false")
 os.environ.setdefault("OPENAI_API_KEY", "")
 

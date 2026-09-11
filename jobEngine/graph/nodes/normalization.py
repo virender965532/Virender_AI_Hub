@@ -23,7 +23,20 @@ _REMOTE_RE = re.compile(r"\b(remote|work from home|wfh|anywhere)\b", re.IGNORECA
 _HYBRID_RE = re.compile(r"\bhybrid\b", re.IGNORECASE)
 
 
-def _infer_remote_type(location: str | None, description: str) -> RemoteType:
+def _infer_remote_type(location: str | None, description: str, *, adapter_hint: str | None = None) -> RemoteType:
+    """Resolve a job's remote type.
+
+    An adapter can supply an authoritative hint (e.g. Instinctools' explicit
+    "#Office"/"#Remote" card tags, see ``jobEngine/sources/instinctools/adapter.py``)
+    which is trusted over regex inference from free-text location/description —
+    text-based guessing is a fallback for sources with no such explicit signal.
+    """
+    if adapter_hint:
+        try:
+            return RemoteType(adapter_hint)
+        except ValueError:
+            pass
+
     blob = f"{location or ''} {description}"
     if _HYBRID_RE.search(blob):
         return RemoteType.HYBRID
@@ -95,7 +108,9 @@ async def normalization_node(state: dict[str, Any]) -> dict[str, Any]:
                 posted_date=None,
                 application_url=app_url,
                 source_url=src_url,
-                remote_type=_infer_remote_type(raw.get("location"), description),
+                remote_type=_infer_remote_type(
+                    raw.get("location"), description, adapter_hint=raw.get("remote_type")
+                ),
                 raw_text_hash=job_id,
                 discovered_at=raw.get("discovered_at"),
             )

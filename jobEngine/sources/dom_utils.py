@@ -23,6 +23,29 @@ async def text_or_none(card: ElementHandle, selector: str) -> str | None:
         return None
 
 
+async def texts_for_all(card: ElementHandle, selector: str) -> list[str]:
+    """Trimmed inner text of every element under ``card`` matching ``selector``.
+
+    Used for tag/pill lists (e.g. a job card's skill/remote-type hashtags)
+    where a single ``text_or_none`` lookup isn't enough.
+    """
+    if not selector:
+        return []
+    try:
+        elements = await card.query_selector_all(selector)
+    except Exception:  # noqa: BLE001
+        return []
+    out: list[str] = []
+    for el in elements:
+        try:
+            text = (await el.inner_text() or "").strip()
+        except Exception:  # noqa: BLE001
+            continue
+        if text:
+            out.append(text)
+    return out
+
+
 async def href_or_none(card: ElementHandle, selector: str, *, base_url: str) -> str | None:
     if not selector:
         return None

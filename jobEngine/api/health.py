@@ -30,17 +30,6 @@ def check_llm_provider() -> dict[str, Any]:
     }
 
 
-def check_embedding_provider() -> dict[str, Any]:
-    settings = get_settings()
-    configured = bool(settings.openai_api_key)
-    return {
-        "ok": configured and settings.embeddings_enabled,
-        "configured": configured,
-        "enabled": settings.embeddings_enabled,
-        "model": settings.embedding_model,
-    }
-
-
 def check_browser_available() -> dict[str, Any]:
     available = importlib.util.find_spec("playwright") is not None
     return {"ok": available}
@@ -65,7 +54,6 @@ def build_health_report() -> dict[str, Any]:
         "configuration": config,
         "database": check_database(),
         "llm_provider": check_llm_provider(),
-        "embedding_provider": check_embedding_provider(),
         "browser": check_browser_available(),
     }
     enabled = []

@@ -1,6 +1,6 @@
-"""End-to-end graph tests: fan-out/fan-in, source failure isolation, dedup,
+"""End-to-end graph tests: fan-out/fan-in, source failure isolation,
 rule rejection, and final result shape — all without any network access
-(fake in-memory adapters) or LLM/embedding calls (disabled via conftest).
+(fake in-memory adapters) or LLM calls (disabled via conftest).
 """
 
 from __future__ import annotations

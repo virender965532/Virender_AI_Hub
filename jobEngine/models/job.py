@@ -162,8 +162,24 @@ class JobMatchAnalysis(BaseModel):
     ai_match: float = Field(ge=0, le=100)
     experience_match: float = Field(ge=0, le=100)
 
-    matched_skills: list[str] = Field(default_factory=list)
-    missing_required_skills: list[str] = Field(default_factory=list)
+    matched_skills: list[str] = Field(
+        default_factory=list,
+        description=(
+            "Skills the job wants that the candidate profile explicitly demonstrates "
+            "(named in the skills list AND backed by a role/project/achievement bullet, "
+            "not just present in a bare skills inventory line). A given skill name must "
+            "never appear in both matched_skills and missing_required_skills — decide once."
+        ),
+    )
+    missing_required_skills: list[str] = Field(
+        default_factory=list,
+        description=(
+            "Skills the job requires that are NOT demonstrated in the candidate profile — "
+            "either absent entirely, or only present as a bare skills-list entry with no "
+            "supporting role/project/achievement evidence. Mutually exclusive with "
+            "matched_skills: never list the same skill in both."
+        ),
+    )
     matched_requirements: list[str] = Field(default_factory=list)
 
     strengths: list[str] = Field(default_factory=list)
@@ -196,7 +212,6 @@ class MatchedJob(BaseModel):
     match_score: float = Field(ge=0, le=100)
     recommendation: Recommendation
     rule_evaluation: RuleEvaluation
-    embedding_similarity: float | None = Field(default=None, ge=0, le=1)
     llm_analysis: JobMatchAnalysis | None = None
     matched_skills: list[str] = Field(default_factory=list)
     missing_required_skills: list[str] = Field(default_factory=list)
@@ -238,9 +253,7 @@ class ExecutionMetrics(BaseModel):
     source_duration_ms: dict[str, float] = Field(default_factory=dict)
     jobs_discovered: int = 0
     jobs_validated: int = 0
-    jobs_deduplicated: int = 0
     jobs_rejected_by_rules: int = 0
-    jobs_sent_to_embedding: int = 0
     jobs_sent_to_llm: int = 0
     jobs_recommended: int = 0
     llm_prompt_tokens: int = 0

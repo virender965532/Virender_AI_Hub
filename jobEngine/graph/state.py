@@ -39,8 +39,6 @@ class JobDiscoveryState(TypedDict, total=False):
     # --- sequential, single-writer from here on ---
     normalized_jobs: list[dict[str, Any]]
     validated_jobs: list[dict[str, Any]]
-    duplicate_jobs: list[dict[str, Any]]
-    prefiltered_jobs: list[dict[str, Any]]
     matched_jobs: list[dict[str, Any]]
     ranked_jobs: list[dict[str, Any]]
 
@@ -63,8 +61,6 @@ def initial_state(*, run_id: str, request: dict[str, Any]) -> JobDiscoveryState:
         "source_errors": [],
         "normalized_jobs": [],
         "validated_jobs": [],
-        "duplicate_jobs": [],
-        "prefiltered_jobs": [],
         "matched_jobs": [],
         "ranked_jobs": [],
         "guardrail_results": [],

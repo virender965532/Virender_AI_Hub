@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from flask import Flask
 
 from routes.main_routes import main_bp
+from routes.remote_job_finder_routes import remote_job_finder_bp
 from interviewSimulator.graph import show_graph
 from jobEngine.api.routes import job_engine_bp
 from resumeIntel.api.routes import resume_intel_bp
@@ -38,6 +39,7 @@ def create_app() -> Flask:
     app.config["JSON_SORT_KEYS"] = False
 
     app.register_blueprint(main_bp)
+    app.register_blueprint(remote_job_finder_bp)
     app.register_blueprint(job_engine_bp)
     app.register_blueprint(resume_intel_bp)
 

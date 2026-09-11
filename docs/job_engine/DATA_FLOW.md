@@ -6,8 +6,7 @@
 flowchart LR
     HTML[Raw page DOM] -->|adapter extraction| RawJob
     RawJob -->|normalization node\nJob schema validation| Job
-    Job -->|deduplication| Job2["Job (deduped)"]
-    Job2 -->|matching pipeline| MatchedJob
+    Job -->|matching pipeline| MatchedJob
     MatchedJob -->|guardrail_check| MatchedJob2["MatchedJob (guardrail-passed)"]
     MatchedJob2 -->|ranking + max_results| JobSearchResult
 ```
@@ -39,24 +38,19 @@ even the very first hop out of the DOM is typed).
    domain allowlist, computes a content hash, infers `remote_type`, and
    builds/validates the `Job` model — anything that fails is dropped with a
    recorded `WorkflowError`, never silently coerced.
-6. `validation` drops content-free jobs and applies the request's
-   `keywords`/`location`/`remote`/`employment_type` filters.
-7. `deduplication` collapses jobs that share an id, canonical URL, content
-   hash, or normalized company+title+location.
-8. `prefilter` runs `matching/rules.py:evaluate_rules` on every remaining
-   job — hard-rejected/low-score jobs are dropped and only counted (cost
-   optimization stage 1); survivors are ranked by rule score and capped at
-   `JOB_EMBEDDING_TOP_K`.
-9. `matching` embeds the candidate profile once and each surviving job
-   description (cost optimization stage 2), re-ranks by similarity, sends
-   only the top `JOB_LLM_TOP_K` to a grounded LLM call (cost optimization
-   stage 3), and calls `matching/scorer.py:build_matched_job` for every job
-   regardless of whether it reached the LLM stage.
-10. `guardrail_check` drops any `MatchedJob` that fails a hard output
-    guardrail (missing fields, PII leak, unsupported skill claim, secret
-    -looking text).
-11. `ranking` sorts the survivors and applies `max_results`.
-12. `final_output` assembles `JobSearchResult`; the service layer times the
+6. `validation` drops content-free jobs (the request-level
+   `keywords`/`location`/`remote`/`employment_type` filters are defined in
+   the schema but currently disabled in this node — see `graph/nodes/validation.py`).
+7. `matching` runs `matching/rules.py:evaluate_rules` on every validated
+   job (hard-rejection + rule-score, never dropped — only marked rejected),
+   ranks by rule score, sends only the top `JOB_LLM_TOP_K` to a grounded LLM
+   call (cost optimization), and calls `matching/scorer.py:build_matched_job`
+   for every job regardless of whether it reached the LLM stage.
+8. `guardrail_check` drops any `MatchedJob` that fails a hard output
+   guardrail (missing fields, PII leak, unsupported skill claim, secret
+   -looking text).
+9. `ranking` sorts the survivors and applies `max_results`.
+10. `final_output` assembles `JobSearchResult`; the service layer times the
     whole run, persists it (`persistence/repository.py`, unless
     `JOB_ENGINE_DRY_RUN=true`), and the background thread updates the
     in-memory run-status registry so `GET /api/jobs/search/<run_id>` can

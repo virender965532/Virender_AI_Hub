@@ -110,10 +110,11 @@ def evaluate_rules(
     job: Job, profile: CandidateProfile, *, settings: EngineSettings
 ) -> RuleEvaluation:
     reasons: list[str] = []
+    print(f" evaluate_rules skill: {profile.all_skills()}", _is_role_related(job))
     candidate_tokens = skill_token_set(profile.all_skills())
 
     role_related, role_reason = _is_role_related(job)
-    print(f"evaluate_rules: role_related={role_related}, role_reason={role_reason}, candidate_tokens={candidate_tokens}, job={job}")
+    print(f"evaluate_rules evaluate_rules: role_related={role_related}, role_reason={role_reason}, candidate_tokens={candidate_tokens}, job={job}")
     if not role_related and settings.reject_unrelated_roles:
         reasons.append(role_reason or "role does not look related to candidate's field")
 

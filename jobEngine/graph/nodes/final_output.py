@@ -30,7 +30,6 @@ async def final_output_node(state: dict[str, Any]) -> dict[str, Any]:
     source_results = state.get("source_results") or {}
     discovered = state.get("discovered_jobs") or []
     validated = state.get("validated_jobs") or []
-    duplicates = state.get("duplicate_jobs") or []
     matched = state.get("matched_jobs") or []
     ranked = state.get("ranked_jobs") or []
 
@@ -40,7 +39,6 @@ async def final_output_node(state: dict[str, Any]) -> dict[str, Any]:
             "run_id": run_id,
             "jobs_discovered": len(discovered),
             "jobs_validated": len(validated),
-            "jobs_deduplicated": len(duplicates),
             "source_failures": sum(1 for r in source_results.values() if r.get("status") == "failed"),
             "browser_failures": sum(
                 1 for e in (state.get("source_errors") or []) if e.get("status") in ("timeout", "navigation_error")
@@ -53,7 +51,8 @@ async def final_output_node(state: dict[str, Any]) -> dict[str, Any]:
         "sources_processed": len(source_results),
         "jobs_discovered": len(discovered),
         "jobs_validated": len(validated),
-        "duplicates_removed": len(duplicates),
+        # no deduplication stage runs in this pipeline; kept for RunSummary/API shape stability.
+        "duplicates_removed": 0,
         "jobs_matched": len(matched),
         "jobs_recommended": len(ranked),
         "degraded": bool(state.get("degraded")),

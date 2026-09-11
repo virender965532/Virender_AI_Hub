@@ -108,7 +108,7 @@ class MatchingWeights:
 
 @dataclass(frozen=True)
 class EngineSettings:
-    # --- LLM / embeddings ---
+    # --- LLM ---
     openai_api_key: str = field(default_factory=lambda: os.getenv("OPENAI_API_KEY", ""))
     openai_model: str = field(
         default_factory=lambda: _env_str("JOB_ENGINE_OPENAI_MODEL", "gpt-4o-mini")
@@ -119,16 +119,8 @@ class EngineSettings:
     openai_max_retries: int = field(
         default_factory=lambda: _env_int("JOB_LLM_MAX_RETRIES", 2, minimum=0)
     )
-    embedding_model: str = field(
-        default_factory=lambda: _env_str(
-            "JOB_ENGINE_EMBEDDING_MODEL", "text-embedding-3-small"
-        )
-    )
     llm_enabled: bool = field(
         default_factory=lambda: _env_bool("JOB_ENGINE_LLM_ENABLED", True)
-    )
-    embeddings_enabled: bool = field(
-        default_factory=lambda: _env_bool("JOB_ENGINE_EMBEDDINGS_ENABLED", True)
     )
     prompt_version: str = field(
         default_factory=lambda: _env_str("JOB_MATCH_PROMPT_VERSION", "v1")
@@ -205,9 +197,6 @@ class EngineSettings:
     weights: MatchingWeights = field(default_factory=MatchingWeights)
     minimum_match_score: float = field(
         default_factory=lambda: _env_float("JOB_MIN_MATCH_SCORE", 70.0, minimum=0.0)
-    )
-    embedding_prefilter_top_k: int = field(
-        default_factory=lambda: _env_int("JOB_EMBEDDING_TOP_K", 100, minimum=1)
     )
     llm_matching_top_k: int = field(
         default_factory=lambda: _env_int("JOB_LLM_TOP_K", 50, minimum=1)

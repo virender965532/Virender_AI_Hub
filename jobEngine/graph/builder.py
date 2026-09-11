@@ -12,7 +12,7 @@ than cached as a singleton. See docs/job_engine/ARCHITECTURE.md.
     START -> input_validation -> profile_loader -> source_configuration
            -> {source_node_1, source_node_2, ...}   (fan-out, parallel)
            -> normalization                          (fan-in)
-           -> validation -> deduplication -> prefilter -> matching
+           -> validation -> matching
            -> guardrail_check -> ranking -> final_output -> END
 """
 
@@ -23,13 +23,11 @@ from typing import Any
 from langgraph.graph import END, START, StateGraph
 
 from ..config.sources import JobSourceConfig
-from .nodes.deduplication import deduplication_node
 from .nodes.final_output import final_output_node
 from .nodes.guardrail_check import guardrail_check_node
 from .nodes.input_validation import input_validation_node
 from .nodes.matching import matching_node
 from .nodes.normalization import normalization_node
-from .nodes.prefilter import prefilter_node
 from .nodes.profile_loader import profile_loader_node
 from .nodes.ranking import ranking_node
 from .nodes.source_configuration import source_configuration_node
@@ -46,8 +44,6 @@ def build_graph(source_configs: list[JobSourceConfig]) -> Any:
     graph.add_node("source_configuration", source_configuration_node)
     graph.add_node("normalization", normalization_node)
     graph.add_node("validation", validation_node)
-    graph.add_node("deduplication", deduplication_node)
-    graph.add_node("prefilter", prefilter_node)
     graph.add_node("matching", matching_node)
     graph.add_node("guardrail_check", guardrail_check_node)
     graph.add_node("ranking", ranking_node)
@@ -67,9 +63,7 @@ def build_graph(source_configs: list[JobSourceConfig]) -> Any:
         graph.add_edge("source_configuration", "normalization")
 
     graph.add_edge("normalization", "validation")
-    graph.add_edge("validation", "prefilter")
-    # graph.add_edge("deduplication", "prefilter")
-    graph.add_edge("prefilter", "matching")
+    graph.add_edge("validation", "matching")
     graph.add_edge("matching", "guardrail_check")
     graph.add_edge("guardrail_check", "ranking")
     graph.add_edge("ranking", "final_output")

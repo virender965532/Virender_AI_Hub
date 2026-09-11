@@ -4,7 +4,7 @@ import logging
 from flask import Blueprint, jsonify, render_template, request, Response, send_file
 
 from jobApplyPro import run_recruitment_pipeline
-from jobApplyPro.config import RESUME_FILENAME
+from jobApplyPro.config import RESUME_FILENAME, SUMMARY_FILENAME
 from jobSearch.graph import run_job_search_workflow
 from jobSearch.nodes.fetch_jobs_node import (
     get_naukri_search_defaults,
@@ -217,13 +217,17 @@ def job_search():
     )
 
 
-@main_bp.route("/job-apply")
-def job_apply():
-    return render_template("job_apply.html", resume_file=RESUME_FILENAME)
+@main_bp.route("/autonomous-application-agent")
+def autonomous_application_agent():
+    return render_template(
+        "autonomous_application_agent.html",
+        resume_file=RESUME_FILENAME,
+        summary_file=SUMMARY_FILENAME,
+    )
 
 
-@main_bp.route("/api/job-apply/submit", methods=["POST"])
-async def api_job_apply_submit():
+@main_bp.route("/api/autonomous-application-agent/submit", methods=["POST"])
+async def api_autonomous_application_agent_submit():
     payload = request.get_json(silent=True) or {}
     job_description = (payload.get("job_description") or "").strip()
     hiring_email = (payload.get("hiring_manager_email") or "").strip()

@@ -21,7 +21,6 @@ flowchart TB
     end
     subgraph Matching
         RULES[matching/rules.py]
-        EMB[matching/embeddings.py]
         LLM[matching/llm_matcher.py]
         SCORER[matching/scorer.py]
     end
@@ -30,7 +29,7 @@ flowchart TB
     API --> SVC --> G
     G --> REG
     REG --> LI & IT & GEN
-    G --> RULES --> EMB --> LLM --> SCORER
+    G --> RULES --> LLM --> SCORER
     SVC --> PERSIST
 ```
 
@@ -75,10 +74,8 @@ flowchart TB
 | `source_configuration` | Loads/filters `config/job_sources.yaml` against the request's `sources` filter and `JOB_MAX_SOURCES` |
 | `<source>_job_node` (dynamic) | One per enabled source — see "Source-node architecture" below |
 | `normalization` | `RawJob` -> `Job`: content hash, remote-type inference, per-source domain re-check |
-| `validation` | Content-quality filter + request-level keyword/location/remote/employment_type filters |
-| `deduplication` | Multi-key dedup (id, URL, hash, company+title+location) |
-| `prefilter` | Hard-rejection rules + rule-score ranking, caps to `JOB_EMBEDDING_TOP_K` |
-| `matching` | Embedding similarity ranks the prefiltered set; top `JOB_LLM_TOP_K` get a grounded LLM analysis; scorer combines everything into `MatchedJob` |
+| `validation` | Content-quality filter (request-level keyword/location/remote/employment_type filters are defined but currently disabled — see `graph/nodes/validation.py`) |
+| `matching` | Every validated job gets a rule evaluation and is ranked by rule score; top `JOB_LLM_TOP_K` get a grounded LLM analysis; scorer combines everything into `MatchedJob` |
 | `guardrail_check` | Output guardrails — drops jobs that fail a hard check |
 | `ranking` | Deterministic sort + `max_results` cap |
 | `final_output` | Assembles the `JobSearchResult` returned by the API |
@@ -106,10 +103,9 @@ need to worry about those concerns themselves. See
 
 ```mermaid
 flowchart LR
-    A[validated + deduped jobs] --> B[Rule-based hard rejection\n+ mandatory-skill check]
-    B -->|passed, ranked, capped at JOB_EMBEDDING_TOP_K| C[Embedding similarity\nprofile vs job]
-    C -->|ranked, top JOB_LLM_TOP_K| D[Grounded LLM analysis\nJobMatchAnalysis]
-    C -->|remainder| E[Rule+embedding score only]
+    A[validated jobs] --> B[Rule-based hard rejection\n+ mandatory-skill check\n+ rule-score ranking]
+    B -->|ranked, top JOB_LLM_TOP_K| D[Grounded LLM analysis\nJobMatchAnalysis]
+    B -->|remainder| E[Rule score only]
     D --> F[scorer.build_matched_job\nweighted 6-dimension score]
     E --> F
     F --> G[Output guardrails]
@@ -144,10 +140,10 @@ score (never taken verbatim from the LLM) — see `scorer.recommendation_for_sco
   linear backoff, but only when every reported error was marked `retryable`
   (network/timeout) — a `SELECTOR_MISSING` or `AUTH_REQUIRED` error is never
   blindly retried.
-- **Graceful LLM/embedding degradation**: if `OPENAI_API_KEY` is unset (or
+- **Graceful LLM degradation**: if `OPENAI_API_KEY` is unset (or
   `JOB_ENGINE_LLM_ENABLED=false`), `matching.py` sets `degraded: true` on the
-  final result and every job is scored from rules + embeddings only —
-  scraped jobs are never discarded because the LLM is unavailable.
+  final result and every job is scored from rules only — scraped jobs are
+  never discarded because the LLM is unavailable.
 
 ## Deliberate deviations from the example structure in the spec
 

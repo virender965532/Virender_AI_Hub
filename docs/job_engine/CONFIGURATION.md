@@ -11,18 +11,16 @@ fast at load time, not mid-run).
 ## Environment variables (`jobEngine/config/settings.py`)
 
 All have defaults; nothing is required except `OPENAI_API_KEY` for LLM
-matching/embeddings (the engine still runs and returns rule-based-only
-scores without it — see `degrade_on_llm_failure`).
+matching (the engine still runs and returns rule-based-only scores without
+it — see `degrade_on_llm_failure`).
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `OPENAI_API_KEY` | — | Shared with the rest of the app; required for LLM + embeddings |
+| `OPENAI_API_KEY` | — | Shared with the rest of the app; required for LLM matching |
 | `JOB_ENGINE_OPENAI_MODEL` | `gpt-4o-mini` | Chat model for matching analysis |
-| `JOB_ENGINE_EMBEDDING_MODEL` | `text-embedding-3-small` | Embedding model |
-| `OPENAI_TIMEOUT` | `60` | Seconds, applies to both chat and embedding calls |
+| `OPENAI_TIMEOUT` | `60` | Seconds, applies to chat calls |
 | `JOB_LLM_MAX_RETRIES` | `2` | Extra attempts after a malformed/invalid LLM response |
-| `JOB_ENGINE_LLM_ENABLED` | `true` | Set `false` to force rule+embedding-only scoring |
-| `JOB_ENGINE_EMBEDDINGS_ENABLED` | `true` | Set `false` to skip the embedding stage entirely |
+| `JOB_ENGINE_LLM_ENABLED` | `true` | Set `false` to force rule-only scoring |
 | `JOB_MATCH_PROMPT_VERSION` | `v1` | Included in the system prompt; bump when you edit the prompt files |
 | `LANGCHAIN_TRACING_V2` / `LANGCHAIN_API_KEY` / `LANGCHAIN_PROJECT` | unset | Standard LangSmith tracing, opt-in |
 | `JOB_BROWSER_HEADLESS` | `true` | Chromium headless mode |
@@ -40,9 +38,8 @@ scores without it — see `degrade_on_llm_failure`).
 | `JOB_MAX_HTML_BYTES` | `5000000` | Raw HTML size guard (defense in depth) |
 | `JOB_MATCH_WEIGHT_*` (6 vars) | 0.30/0.20/0.15/0.20/0.10/0.05 | Must sum to ~1.0 (validated at startup) |
 | `JOB_MIN_MATCH_SCORE` | `70` | Engine-wide default; overridable per-request |
-| `JOB_EMBEDDING_TOP_K` | `100` | Jobs sent to the embedding stage after rule prefilter |
-| `JOB_LLM_TOP_K` | `50` | Jobs sent to the (expensive) LLM stage after embedding ranking |
-| `JOB_RULE_PREFILTER_MIN_SCORE` | `15` | Soft floor in the cheap rule stage |
+| `JOB_LLM_TOP_K` | `50` | Jobs sent to the (expensive) LLM stage, ranked by rule score |
+| `JOB_RULE_PREFILTER_MIN_SCORE` | `15` | Defined but currently unused (no prefilter stage runs) — left as a settings no-op rather than a breaking removal |
 | `JOB_REJECT_UNRELATED_ROLES` / `JOB_REJECT_JUNIOR_ROLES` | `true` | Hard-rejection toggles |
 | `JOB_CANDIDATE_EXPERIENCE_YEARS` | `7` | Fallback if the profile's summary text doesn't state years explicitly |
 | `JOB_MAX_EXPERIENCE_GAP_YEARS` | `3` | How far a job's stated required-years can exceed the candidate's before hard rejection |
