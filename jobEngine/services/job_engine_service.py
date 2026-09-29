@@ -19,6 +19,7 @@ from ..graph.builder import build_graph
 from ..graph.state import initial_state
 from ..observability.logging import log_event, new_run_id
 from ..persistence.repository import save_run
+from ..persistence.saved_jobs import save_jobs_from_run
 
 logger = logging.getLogger(__name__)
 
@@ -87,6 +88,10 @@ async def run_job_search(request: dict[str, Any], *, run_id: str | None = None) 
             save_run(result)
         except Exception:  # noqa: BLE001
             logger.exception("Failed to persist run %s (continuing; result still returned)", run_id)
+        try:
+            save_jobs_from_run(result)
+        except Exception:  # noqa: BLE001
+            logger.exception("Failed to update saved jobs store for run %s", run_id)
 
     return result
 

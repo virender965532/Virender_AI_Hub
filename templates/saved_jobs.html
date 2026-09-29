@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+{% block title %}Saved Jobs — Virender AI Hub{% endblock %}
+
+{% block extra_head %}
+<style>
+  .sj-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.75rem 1rem;
+    padding: 1rem 1.15rem;
+    margin-bottom: 1rem;
+  }
+  .sj-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-width: 9rem;
+  }
+  .sj-field--grow { flex: 1; min-width: 14rem; }
+  .sj-field .job-filter-input { width: 100%; height: 2.4rem; box-sizing: border-box; }
+  .page-head a { color: var(--neon-cyan); }
+  .sj-num { max-width: 7rem; }
+  .sj-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+    margin-bottom: 1rem;
+    padding: 0.7rem 1.15rem;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+  .sj-stats strong { color: var(--text); font-variant-numeric: tabular-nums; }
+  .sj-stats { align-items: center; }
+  .sj-clear { margin-left: auto; font-size: 0.82rem; padding: 0.3rem 0.9rem; }
+  .sj-clear:hover { color: #ff9d9d; border-color: rgba(255, 107, 107, 0.45); }
+  .sj-job__title-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2rem 0.75rem; }
+  .sj-job__time {
+    font-size: 0.78rem;
+    color: var(--neon-cyan, #5cf0e8);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .sj-list { display: flex; flex-direction: column; gap: 0.75rem; }
+  .sj-job { padding: 0; overflow: hidden; }
+  .sj-job__head {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0.9rem 1.1rem;
+    cursor: pointer;
+  }
+  .sj-job__head:focus-visible { outline: 2px solid var(--neon-cyan); outline-offset: -2px; }
+  .sj-job__title { margin: 0; font-size: 1.02rem; font-weight: 650; overflow-wrap: anywhere; }
+  .sj-job__meta {
+    margin: 0.2rem 0 0;
+    font-size: 0.84rem;
+    color: var(--text-muted);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.15rem 0.75rem;
+  }
+  .sj-job__side { display: flex; align-items: center; gap: 0.6rem; }
+  .sj-job__chev { color: var(--text-muted); transition: transform var(--transition, 0.2s); }
+  .sj-job[data-open="true"] .sj-job__chev { transform: rotate(90deg); }
+  .sj-score {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 3.3rem;
+    height: 3.3rem;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    font-variant-numeric: tabular-nums;
+    border: 1px solid;
+  }
+  .sj-score small { font-size: 0.58rem; font-weight: 500; opacity: 0.8; }
+  .sj-score--strong_match { border-color: #5cf0e8; color: #5cf0e8; background: rgba(92, 240, 232, 0.14); }
+  .sj-score--good_match { border-color: #38b6ff; color: #38b6ff; background: rgba(56, 182, 255, 0.12); }
+  .sj-score--possible_match { border-color: #b967ff; color: #b967ff; background: rgba(185, 103, 255, 0.12); }
+  .sj-score--poor_match, .sj-score--reject { border-color: #ff6b6b; color: #ff6b6b; background: rgba(255, 107, 107, 0.12); }
+  .sj-pill {
+    font-size: 0.72rem;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    border: 1px solid var(--glass-border);
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+  .sj-status { font-size: 0.8rem; padding: 0.3rem 0.4rem; }
+  .sj-job__body {
+    display: none;
+    border-top: 1px solid var(--glass-border);
+    padding: 1rem 1.1rem 1.15rem;
+    gap: 1.1rem;
+    flex-direction: column;
+  }
+  .sj-job[data-open="true"] .sj-job__body { display: flex; }
+  .sj-section h3 {
+    margin: 0 0 0.5rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+  .sj-explanation { margin: 0; line-height: 1.5; font-size: 0.92rem; }
+  .sj-bars {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 0.6rem 1.25rem;
+  }
+  .sj-bar__label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 0.25rem;
+  }
+  .sj-bar__label strong { color: var(--text); font-variant-numeric: tabular-nums; }
+  .sj-bar__track { height: 6px; border-radius: 999px; background: rgba(255, 255, 255, 0.08); overflow: hidden; }
+  .sj-bar__fill { height: 100%; border-radius: 999px; background: var(--neon-blue, #38b6ff); }
+  .sj-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.1rem; }
+  .sj-points { margin: 0; padding-left: 1.1rem; font-size: 0.88rem; line-height: 1.5; }
+  .sj-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+  .sj-tag {
+    font-size: 0.74rem;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    background: rgba(92, 240, 232, 0.12);
+    color: #5cf0e8;
+    border: 1px solid rgba(92, 240, 232, 0.35);
+  }
+  .sj-tag--missing { background: rgba(255, 107, 107, 0.1); color: #ff9d9d; border-color: rgba(255, 107, 107, 0.3); }
+  .sj-tag--neutral { background: transparent; color: var(--text-muted); border-color: var(--glass-border); }
+  .sj-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.5rem 1.25rem;
+    margin: 0;
+    font-size: 0.85rem;
+  }
+  .sj-details dt { color: var(--text-muted); font-size: 0.75rem; }
+  .sj-details dd { margin: 0.1rem 0 0; overflow-wrap: anywhere; }
+  .sj-description {
+    margin: 0;
+    white-space: pre-wrap;
+    font-family: inherit;
+    font-size: 0.88rem;
+    line-height: 1.55;
+    max-height: 26rem;
+    overflow: auto;
+    padding: 0.8rem 0.9rem;
+    border-radius: var(--radius, 10px);
+    background: rgba(0, 0, 0, 0.18);
+    border: 1px solid var(--glass-border);
+  }
+  .sj-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; }
+  .sj-apply {
+    text-decoration: none;
+    color: #0b0f1a;
+    background: linear-gradient(90deg, var(--neon-cyan, #5cf0e8), var(--neon-blue, #38b6ff));
+  }
+  .sj-apply:hover { box-shadow: 0 0 24px rgba(56, 182, 255, 0.35); }
+  .sj-empty { padding: 2rem 1.25rem; text-align: center; color: var(--text-muted); }
+  @media (max-width: 640px) {
+    .sj-job__head { grid-template-columns: auto minmax(0, 1fr); }
+    .sj-job__side { grid-column: 1 / -1; justify-content: flex-end; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <p class="hero__eyebrow neon-text">Saved Jobs</p>
+  <h1 class="hero__title">Every matched job, <span class="hero__accent">in one place</span></h1>
+  <p class="hero__subtitle">
+    Each search on the <a href="{{ url_for('remote_job_finder.remote_job_finder_ui') }}">Global Remote Job Finder</a>
+    saves its matched jobs here, with the LLM score breakdown, strengths, concerns, skills and the full description.
+    A job found again in a later search is updated, not duplicated. Jobs posted more than 24 hours ago are removed automatically.
+  </p>
+</section>
+
+<div id="sj-app" class="job-app">
+  <div class="sj-toolbar glass">
+    <div class="sj-field sj-field--grow">
+      <label class="job-control-label" for="sj-search">Search</label>
+      <input type="search" id="sj-search" class="job-filter-input" placeholder="Title, company, skill, description…" autocomplete="off" />
+    </div>
+    <div class="sj-field">
+      <label class="job-control-label" for="sj-recommendation">Match</label>
+      <select id="sj-recommendation" class="job-filter-input">
+        <option value="">All matches</option>
+        <option value="strong_match">Strong match</option>
+        <option value="good_match">Good match</option>
+        <option value="possible_match">Possible match</option>
+        <option value="poor_match">Poor match</option>
+      </select>
+    </div>
+    <div class="sj-field">
+      <label class="job-control-label" for="sj-status-filter">Status</label>
+      <select id="sj-status-filter" class="job-filter-input">
+        <option value="">All statuses</option>
+      </select>
+    </div>
+    <div class="sj-field">
+      <label class="job-control-label" for="sj-source">Source</label>
+      <select id="sj-source" class="job-filter-input">
+        <option value="">All sources</option>
+      </select>
+    </div>
+    <div class="sj-field">
+      <label class="job-control-label" for="sj-min-score">Min score</label>
+      <input type="number" id="sj-min-score" class="job-filter-input sj-num" min="0" max="100" step="1" value="0" />
+    </div>
+    <div class="sj-field">
+      <label class="job-control-label" for="sj-sort">Sort by</label>
+      <select id="sj-sort" class="job-filter-input">
+        <option value="score">Match score</option>
+        <option value="last_seen">Last seen</option>
+        <option value="posted">Posted date</option>
+        <option value="first_seen">First saved</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="sj-error" class="alert alert--error glass hidden" role="alert"></div>
+  <div id="sj-stats" class="sj-stats glass hidden" aria-live="polite"></div>
+  <div id="sj-list" class="sj-list"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script id="sj-statuses" type="application/json">{{ statuses | tojson }}</script>
+<script src="{{ url_for('static', filename='js/saved_jobs.js') }}"></script>
+{% endblock %}

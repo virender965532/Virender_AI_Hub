@@ -1,0 +1,1279 @@
+{
+  "linkedin:4471295383": {
+    "job": {
+      "job_id": "bd5a3340ba01fee9df4a70cf189f5dae01350b78e6b5f5b964f8a8ffaf5eef51",
+      "source": "linkedin",
+      "source_job_id": "4471295383",
+      "title": "Back End Developer",
+      "company": "Meetswap",
+      "location": "India (Remote)",
+      "employment_type": null,
+      "experience_required": null,
+      "description": "About the job\n\nJob Title: Backend Developer – Node.js\n\nLocation: India - REMOTE\nEmployment Type: Full-Time – Remote Work (Possible On-Site Relocation in Future)\n\n__________________________________________________________________________________________\n\nCompany Overview\n\nMeetswap is a technology company building a modern social mobile platform with real-time communication, user interaction, media, discovery, subscriptions, notifications, and cloud-based services.\n\n__________________________________________________________________________________________\n\nRole Summary\n\nWe are seeking an experienced Backend Developer with strong knowledge of Node.js, Express.js, relational databases, Redis, APIs, and cloud services.\n\nYou will be responsible for developing backend features, improving system performance, maintaining production services, supporting real-time functionality, and working closely with the mobile development team.\n\nThe ideal candidate should be comfortable working with an existing production codebase, troubleshooting complex issues, and building scalable and maintainable backend solutions.\nExperience with Flutter or mobile application development is a strong advantage, but not required.\n\n__________________________________________________________________________________________\n\nKey Responsibilities\n\n• Develop and maintain backend services using Node.js and Express.js.\n• Design and build secure, scalable, and maintainable REST APIs.\n• Develop and maintain real-time functionality using Socket.IO / WebSockets.\n• Work with relational databases and ORM technologies such as Sequelize.\n• Optimize database queries, indexes, relationships, and overall performance.\n• Work with Redis for caching, real-time communication, and distributed processing.\n• Build and maintain background jobs and queue-based processing.\n• Integrate and maintain third-party services and external APIs.\n• Work with AWS services including cloud storage, monitoring, and infrastructure-related integrations.\n• Maintain Firebase-related backend services and push notification integrations.\n• Implement authentication, authorization, validation, and security best practices.\n• Develop and maintain media upload and processing workflows.\n• Monitor application performance and investigate production issues.\n• Identify and resolve backend bottlenecks, scalability issues, and reliability problems.\n• Improve API performance, response times, and system stability.\n• Write clean, reusable, and maintainable code.\n• Maintain API documentation using tools such as Swagger/OpenAPI.\n• Review code and contribute to technical architecture decisions.\n• Support production deployments and troubleshoot issues when required.\n\n__________________________________________________________________________________________\n\nRequired Qualifications\n\nTechnical Skills\n\nStrong knowledge & practical experience Good Understanding Of the below\n\n• JavaScript / Node.js \n• Client-server architecture\n• Express.js \n• Object-oriented and modular programming\n• REST API development \n• Database relationships\n• Socket.IO / WebSockets \n• Transactions\n• SQL databases \n• Indexing\n• Sequelize or similar ORM \n• Pagination\n• Redis \n• Caching\n• Git and version control \n• Background processing\n• Authentication and authorization \n• Error handling & Logging.\n• API security validation and performance optimization\n• Asynchronous programming \n• Database design and optimization \n• Scalable backend architecture\n\n__________________________________________________________________________________________\n\nExperience\n\n• Around 3–5+ years of backend development experience is preferred.\n• Experience working on production applications.\n• Experience building and maintaining scalable APIs.\n• Experience with real-time systems is preferred.\n• Experience working with cloud-based infrastructure is an advantage.\n• Experience troubleshooting production and performance issues is important.\n• Expertise in coding a large chat based system which handles 10,000's of active users\n\n__________________________________________________________________________________________\n\nPreferred Qualifications\n\nExperience with some of the following is highly valued:\n\n• AWS & Amazon S3\n• CloudWatch\n• Docker\n• MySQL\n• PostgreSQL\n• Sequelize\n• Redis / ioredis\n• BullMQ or similar queue systems\n• Firebase Admin SDK\n• Firebase Cloud Messaging\n• Swagger / OpenAPI\n• RevenueCat\n• CI/CD\n• Image or video processing\n• Performance monitoring & High-traffic or scalable applications\n\n__________________________________________________________________________________________\n\nNice to Have – Flutter / Mobile Experience\n\nExperience with Flutter / Dart is a strong advantage.\n\nCandidates with mobile-development experience may be better able to understand the full interaction between frontend and backend systems.\n\nNice-to-have mobile experience includes:\n\n• Flutter / Dart\n• Riverpod or other state-management solutions\n• REST API integration\n• Socket.IO integration\n• SQLite / local databases\n• Firebase\n• Push notifications\n• Mobile authentication\n• Offline/online synchronization\n• App lifecycle handling\n\nThis is not a Flutter-focused role, but being able to understand and troubleshoot issues across both backend and mobile layers is highly valuable.\n\n__________________________________________________________________________________________\n\nSoft Skills\n\n• Strong problem-solving and debugging skills.\n• Good analytical thinking.\n• Strong written and spoken English.\n• Ability to work with an existing codebase.\n• Ability to work independently and as part of a team.\n• Good communication with technical and non-technical team members.\n• Attention to code quality and production stability.\n• Ability to understand business requirements and translate them into technical solutions.\n\n__________________________________________________________________________________________\n\nCompensation & Schedule\n\n• Competitive salary based on experience and skill level (Range – 50,000 RS To 100,000 RS). (Flexible & Negotiable depending on Experience) \n• Opportunity to work on a production mobile platform.\n• Exposure to backend, cloud, real-time systems, mobile integration, and scalable architecture.\n• Long-term position with opportunities for technical growth and ownership.\n• 48 hours/week — 8 hours/day, 6 days/week\n• Work tracked via Jibble (time-tracking is mandatory during shifts)",
+      "requirements": [],
+      "responsibilities": [],
+      "skills": [],
+      "salary": null,
+      "posted_date": null,
+      "application_url": "https://www.linkedin.com/jobs/view/4471295383/",
+      "source_url": "https://www.linkedin.com/jobs/search/?currentJobId=4471295383&f_AL=true&f_TPR=r3600&f_WT=2&origin=JOB_SEARCH_PAGE_JOB_FILTER",
+      "remote_type": "remote",
+      "raw_text_hash": "bd5a3340ba01fee9df4a70cf189f5dae01350b78e6b5f5b964f8a8ffaf5eef51",
+      "discovered_at": "2026-09-29T18:33:04.547117Z"
+    },
+    "match_score": 68.0,
+    "recommendation": "possible_match",
+    "rule_evaluation": {
+      "passed": true,
+      "rejection_reasons": [],
+      "mandatory_skills_matched": [],
+      "mandatory_skills_missing": [],
+      "rule_score": 0.0,
+      "seniority_ok": true,
+      "role_related": true
+    },
+    "llm_analysis": {
+      "score": 75.0,
+      "role_match": 80.0,
+      "technical_match": 70.0,
+      "ai_match": 60.0,
+      "experience_match": 80.0,
+      "matched_skills": [
+        "Node.js",
+        "Express",
+        "REST APIs",
+        "PostgreSQL",
+        "MySQL",
+        "AWS",
+        "Git"
+      ],
+      "missing_required_skills": [
+        "Redis",
+        "Socket.IO",
+        "Sequelize",
+        "Background processing",
+        "Firebase"
+      ],
+      "matched_requirements": [
+        "Strong knowledge of Node.js",
+        "Experience with REST API development",
+        "Experience with SQL databases",
+        "Experience working on production applications",
+        "Experience building and maintaining scalable APIs"
+      ],
+      "strengths": [
+        "7 years of experience as a Full Stack Developer",
+        "Proven track record of optimizing backend performance",
+        "Experience with cloud services, particularly AWS"
+      ],
+      "concerns": [
+        "Lack of experience with Redis and Socket.IO",
+        "No mention of experience with Sequelize or background processing"
+      ],
+      "recommendation": "possible_match",
+      "explanation": "The candidate has strong experience in Node.js, Express, and REST API development, which aligns well with the role. However, they lack demonstrated experience with Redis, Socket.IO, and Sequelize, which are important for this position. Overall, the candidate is a possible match due to their relevant skills and experience."
+    },
+    "matched_skills": [
+      "Node.js",
+      "Express",
+      "REST APIs",
+      "PostgreSQL",
+      "MySQL",
+      "AWS",
+      "Git"
+    ],
+    "missing_required_skills": [
+      "Redis",
+      "Socket.IO",
+      "Sequelize",
+      "Background processing",
+      "Firebase"
+    ],
+    "strengths": [
+      "7 years of experience as a Full Stack Developer",
+      "Proven track record of optimizing backend performance",
+      "Experience with cloud services, particularly AWS"
+    ],
+    "concerns": [
+      "Lack of experience with Redis and Socket.IO",
+      "No mention of experience with Sequelize or background processing"
+    ],
+    "explanation": "The candidate has strong experience in Node.js, Express, and REST API development, which aligns well with the role. However, they lack demonstrated experience with Redis, Socket.IO, and Sequelize, which are important for this position. Overall, the candidate is a possible match due to their relevant skills and experience.",
+    "rejected": false,
+    "rejection_reason": null,
+    "saved_key": "linkedin:4471295383",
+    "status": "new",
+    "first_seen_at": "2026-09-29T18:30:20.158115+00:00",
+    "last_seen_at": "2026-09-29T18:37:08.977195+00:00",
+    "run_ids": [
+      "job-search-20260929-182500-92148dd7",
+      "job-search-20260929-183226-94c94205"
+    ]
+  },
+  "linkedin:4462983147": {
+    "job": {
+      "job_id": "9ee8379b7782db377b98eeda654e155f9d5d43b3be22dbe4b9f8f4a9111668bb",
+      "source": "linkedin",
+      "source_job_id": "4462983147",
+      "title": "Senior Network Engineer (R&S)",
+      "company": "World Wide Technology",
+      "location": "India (Remote)",
+      "employment_type": null,
+      "experience_required": null,
+      "description": "About the job\n\nResponsibilities:\n\n\nResponsible for the delivery of network planning, design, implementation & optimization services as a post sales consultant to WWT's Commercial Enterprise clients.\nCreate Low Level and High Level design of data center networks utilizing industry best practices and Cisco hardware to include: Cisco enterprise level L3 switching and Nexus 7K/5K/2K platforms\nLead the delivery of network solutions including routers, switches, firewalls, load balancers and other network hardware appliances.\nOversee/perform new and existing equipment, hardware, and software upgrades.\nPerform installation, configuration, maintenance, and troubleshooting of customer managed hardware, software, and peripheral devices.\nMonitor network performance and troubleshoot problem areas as needed.\nConduct research on network products, services, protocols, and standards to remain abreast of developments in the networking industry.\n\n\n,\n\nRequirements:\n\n\nMust have at least 7 years of experience designing, deploying, and implementing core route/switch and/or data center networks in accordance with industry best practices\nExtensive Nexus 7K/5K/2K experience required.\nExperience logical design models (L2/L3, VPC, VDC, Datacenter Zones, Spanning tree, VFR, VTP, VLANs, physical cabling).\nWorking technical knowledge of network control protocols (QOS, PfR, PoE, NTP, DHCP), network management protocols (CDP, FTP, TFTP, SNMP) and security protocols (SSH, HTTPS, AAA, IPSec, TustSec).\nStrong knowledge IP communication and routing is required (OSPF, EIGRP, BGP). Experience with inter-company routing is preferred.\nUnderstand WAN/LAN and transport technologies (Ethernet, Frame Relay, DMVPN, WAAS and MPLS).\nExperience with network automation using Ansible or other orchestration tools.\nConfiguration management of networking devices using automation tools (APIC-EM, Cisco Prime) and API scripting with Python\nSDWAN Implementation experience required.\nCertifications in CCNP (active certification is must), CCIE R&S and/or Data Center preferred.\nKnowledge or experience with Nexus 9K and ACI is a plus.\nKnowledge or experience with SDA is a plus.\nKnowledge or experience with Meraki is a plus.\nKnowledge or experience F5 load balancing, Palo Alto technologies, Cisco UCS, or Cisco MDS is a plus.\nStrong interpersonal, written, and oral communication skills with the ability to work well in a collaborative environment.\nAble to conduct research into networking issues and products as required.\nHighly self-motivated and directed, with keen attention to detail.\nAble to effectively prioritize tasks in a high-pressure environment.\nStrong customer service orientation with proven analytical and problem-solving abilities.\nRelated degree in computer science or electrical engineering and/or seven to ten years equivalent network engineering experience.",
+      "requirements": [],
+      "responsibilities": [],
+      "skills": [],
+      "salary": null,
+      "posted_date": null,
+      "application_url": "https://www.linkedin.com/jobs/view/4462983147/",
+      "source_url": "https://www.linkedin.com/jobs/search/?f_AL=true&f_TPR=r3600&f_WT=2&origin=JOB_SEARCH_PAGE_JOB_FILTER&start=50",
+      "remote_type": "remote",
+      "raw_text_hash": "9ee8379b7782db377b98eeda654e155f9d5d43b3be22dbe4b9f8f4a9111668bb",
+      "discovered_at": "2026-09-29T18:34:36.358208Z"
+    },
+    "match_score": 47.5,
+    "recommendation": "poor_match",
+    "rule_evaluation": {
+      "passed": true,
+      "rejection_reasons": [],
+      "mandatory_skills_matched": [],
+      "mandatory_skills_missing": [],
+      "rule_score": 0.0,
+      "seniority_ok": true,
+      "role_related": true
+    },
+    "llm_analysis": null,
+    "matched_skills": [],
+    "missing_required_skills": [],
+    "strengths": [],
+    "concerns": [
+      "LLM analysis unavailable for this job; score reflects rule-based signals only."
+    ],
+    "explanation": "Rule-based match only (LLM unavailable): 0.0% keyword/stack overlap with the candidate profile.",
+    "rejected": false,
+    "rejection_reason": null,
+    "saved_key": "linkedin:4462983147",
+    "status": "new",
+    "first_seen_at": "2026-09-29T18:30:20.158115+00:00",
+    "last_seen_at": "2026-09-29T18:37:08.977195+00:00",
+    "run_ids": [
+      "job-search-20260929-182500-92148dd7",
+      "job-search-20260929-183226-94c94205"
+    ]
+  },
+  "linkedin:4473293807": {
+    "job": {
+      "job_id": "7207e4b2dd51b34fa85da6986eceb05f4f6abba879800fe19eee8aad93c68974",
+      "source": "linkedin",
+      "source_job_id": "4473293807",
+      "title": "Senior Production Support Engineer",
+      "company": "Collaborative Mind, LLC (\"CMIND\"​)",
+      "location": "India (Remote)",
+      "employment_type": null,
+      "experience_required": null,
+      "description": "About the job\n\nSenior Production Support Engineer\n\nExperience: 7+ Years\n\nLocation: [Location / Remote]\n\nEmployment Type: Full-Time\n\nJob Summary\n\nWe are looking for a Senior Production Support Engineer with strong experience in application production support, SQL/SQL Server, troubleshooting, log analysis, and customer-facing support. The ideal candidate will be responsible for diagnosing production issues, analyzing application and SQL Server logs, coordinating with development teams, and ensuring timely resolution of critical customer issues.\n\nKey Responsibilities\n\nProvide L2/L3 production support for business-critical applications and services.\nMonitor applications and proactively identify production issues, failures, and performance problems.\nTroubleshoot application issues by analyzing SQL queries, database behavior, application logs, and SQL Server logs.\nWrite and execute complex SQL queries for troubleshooting, data validation, root-cause analysis, and issue resolution.\nAnalyze SQL Server logs, application logs, error messages, stack traces, and system alerts to identify the root cause of incidents.\nUnderstand how applications are developed and work closely with developers, QA, DevOps, and database teams to resolve technical issues.\nInvestigate production incidents from identification through resolution and provide clear RCA (Root Cause Analysis).\nHandle customer-reported technical issues and provide timely, professional communication and status updates.\nParticipate in customer calls to understand issues, explain technical findings, and communicate resolution timelines.\nCoordinate with development teams for application defects, enhancements, and permanent fixes.\nPerform impact analysis and recommend appropriate workarounds or permanent solutions.\nMaintain incident, problem, and knowledge-management documentation.\nParticipate in production deployments, release validation, and post-deployment monitoring.\nSupport critical/high-priority incidents and participate in on-call/after-hours support when required.\nIdentify recurring issues and recommend improvements to application stability, monitoring, and support processes.\n\nRequired Skills\n\n10+ years of experience in Production/Application Support.\nStrong hands-on experience with SQL and Microsoft SQL Server.\nStrong understanding of SQL queries, joins, stored procedures, indexing, transactions, and database troubleshooting.\nExperience analyzing SQL Server logs and application/server logs.\nStrong troubleshooting and analytical skills with the ability to identify root causes from limited information.\nGood understanding of application development concepts, SDLC, APIs, and application architecture.\nAbility to understand how applications are developed and work effectively with software development teams.\nExperience working with production incidents, problem management, RCA, and escalation processes.\nStrong customer-facing and communication skills.\nAbility to explain technical issues clearly to both technical and non-technical stakeholders.\nExperience working with ticketing/ITSM tools such as ServiceNow, Jira, or similar platforms.\n\nPreferred Skills\n\nExperience supporting web-based or enterprise applications.\nKnowledge of REST APIs and integration troubleshooting.\nExperience with application monitoring tools such as Splunk, Dynatrace, AppDynamics, Datadog, or similar.\nBasic understanding of Linux/Unix commands and server troubleshooting.\nExposure to cloud environments such as Azure or AWS.\nKnowledge of incident management frameworks such as ITIL.\n\nIdeal Candidate Profile\n\nThe ideal candidate is a strong production support professional who can independently troubleshoot complex application issues, work extensively with SQL/SQL Server and logs, understand application behavior, and communicate confidently with customers and internal technical teams.\n\nKey Skills:\n\nProduction Support | L2/L3 Support | SQL | SQL Server | Log Analysis | Application Troubleshooting | RCA | Incident Management | Customer Facing | Application Development Understanding | API Troubleshooting | ITIL",
+      "requirements": [],
+      "responsibilities": [],
+      "skills": [],
+      "salary": null,
+      "posted_date": null,
+      "application_url": "https://www.linkedin.com/jobs/view/4473293807/",
+      "source_url": "https://www.linkedin.com/jobs/search/?f_AL=true&f_TPR=r3600&f_WT=2&origin=JOB_SEARCH_PAGE_JOB_FILTER&start=25",
+      "remote_type": "remote",
+      "raw_text_hash": "7207e4b2dd51b34fa85da6986eceb05f4f6abba879800fe19eee8aad93c68974",
+      "discovered_at": "2026-09-29T18:33:55.399847Z"
+    },
+    "match_score": 45.5,
+    "recommendation": "poor_match",
+    "rule_evaluation": {
+      "passed": true,
+      "rejection_reasons": [],
+      "mandatory_skills_matched": [],
+      "mandatory_skills_missing": [],
+      "rule_score": 0.0,
+      "seniority_ok": true,
+      "role_related": true
+    },
+    "llm_analysis": {
+      "score": 45.0,
+      "role_match": 40.0,
+      "technical_match": 50.0,
+      "ai_match": 30.0,
+      "experience_match": 60.0,
+      "matched_skills": [
+        "SQL",
+        "Application Troubleshooting",
+        "Incident Management"
+      ],
+      "missing_required_skills": [
+        "Production Support",
+        "SQL Server",
+        "Log Analysis",
+        "RCA",
+        "Customer Facing",
+        "L2/L3 Support",
+        "Application Development Understanding",
+        "API Troubleshooting",
+        "ITIL"
+      ],
+      "matched_requirements": [],
+      "strengths": [
+        "7 years of experience as a Full Stack Developer",
+        "Strong troubleshooting and analytical skills",
+        "Experience with cloud environments (AWS)"
+      ],
+      "concerns": [
+        "Lacks direct experience in production support roles",
+        "No demonstrated experience with SQL Server",
+        "Limited customer-facing support experience"
+      ],
+      "recommendation": "poor_match",
+      "explanation": "The candidate has relevant technical skills and experience in application development but lacks direct experience in production support, SQL Server, and customer-facing roles, which are critical for this position."
+    },
+    "matched_skills": [
+      "SQL",
+      "Application Troubleshooting",
+      "Incident Management"
+    ],
+    "missing_required_skills": [
+      "Production Support",
+      "SQL Server",
+      "Log Analysis",
+      "RCA",
+      "Customer Facing",
+      "L2/L3 Support",
+      "Application Development Understanding",
+      "API Troubleshooting",
+      "ITIL"
+    ],
+    "strengths": [
+      "7 years of experience as a Full Stack Developer",
+      "Strong troubleshooting and analytical skills",
+      "Experience with cloud environments (AWS)"
+    ],
+    "concerns": [
+      "Lacks direct experience in production support roles",
+      "No demonstrated experience with SQL Server",
+      "Limited customer-facing support experience"
+    ],
+    "explanation": "The candidate has relevant technical skills and experience in application development but lacks direct experience in production support, SQL Server, and customer-facing roles, which are critical for this position.",
+    "rejected": false,
+    "rejection_reason": null,
+    "saved_key": "linkedin:4473293807",
+    "status": "new",
+    "first_seen_at": "2026-09-29T18:30:20.158115+00:00",
+    "last_seen_at": "2026-09-29T18:37:08.977195+00:00",
+    "run_ids": [
+      "job-search-20260929-182500-92148dd7",
+      "job-search-20260929-183226-94c94205"
+    ]
+  },
+  "linkedin:4468611761": {
+    "job": {
+      "job_id": "8df178de54ffb6b7c4d00b97e2cee3b36b921984b452756f7b749c68767f3996",
+      "source": "linkedin",
+      "source_job_id": "4468611761",
+      "title": "Principal AI Software Engineer, Agent Harness",
+      "company": "EnCharge AI",
+      "location": "India (Remote)",
+      "employment_type": null,
+      "experience_required": null,
+      "description": "About the job\n\nPrincipal AI Software Engineer, Agent Harness\n\nwww.enchargeai.com\n\n\n\n\nJob Description:\n\nLocation: Remote (India)/Bangalore ( Hybrid- 2 days office/3 days home)\n\nPrincipal Research Engineer, Applied AI\n\n\n\n\nPrincipl AI Software Engineer, Agent Harness\n\nLocation: Bengaluru, Karnataka (or throughout India remote-friendly with travel)\n\nAbout EnCharge AI\n\nEnCharge AI is building the next generation AI platform. Our novel in-memory-computing architecture delivers a 10x step-function improvement in compute energy efficiency and performance for AI inference workloads. As the demands of artificial intelligence move beyond today's models, we believe fundamental underlying infrastructure must evolve. We are an experienced team of AI researchers, silicon & systems engineers, and architects backed by leading investors, poised to become the essential platform for the next wave of AI innovation.\n\nThe Opportunity\n\nWe serve open-weight models and our own bespoke checkpoints on EnCharge hardware. The models change often, and the harness around them needs to keep up. You own this layer that runs agents against files, tools, documents with permissions, memory, unattended execution, and real outputs. It will be assembled from a combination of open-source and bespoke code.\n\nKey Responsibilities\n\nOwn the harness architecture end to end — agent loop, safe execution, context management, knowledge base, memory, permissions, orchestration, outputs, interfaces, observability — one component per layer, with clear interfaces so layers can be swapped.\nBuild the pieces with no open-source equivalent e.g. session semantics, enforced permissions, memory in a human-editable file, orchestrator, and outputs.\nKeep pace with the models: adapters, prompt formats, tool-call schemas, stop conditions, benchmarking and evaluation.\nMake tool use reliable across models of uneven tool-calling quality — validation, repair, retries, fallbacks.\nDevelop agents, tools, and MCP servers for internal and customer use cases, and review them for security before they ship.\nBuild the evaluation harness: task suites, regression runs on every model or harness change, cost and latency per task alongside quality.\nDefine the interfaces: session API, CLI, GUI, and an endpoint existing tools can point at.\n\nQualifications\n\n10+ years of software engineering experience in backend systems or ML infrastructure\nStrong Python and at least one systems language (e.g., Go, Rust, C++)\nHave shipped and operated an agent loop in production — tool use, multi-step workflows, unattended runs\nHands-on with RAG, context management, and memory for LLM applications\nExperience with sandboxing, isolation, and permission models for automated systems\nHave run open-weight models yourself and understand how quantization and serving choices change model behaviour\nComfort in fast-moving, ambiguous environments where you define the roadmap; strong product instincts\n\nNice to Have\n\nContributions to open-source agent harnesses or coding agents\nExperience with agent benchmarks (e.g., SWE-bench, Terminal-Bench) and building internal task suites\nMoE serving familiarity e.g. expert placement, tensor parallelism, quantization etc.\nObservability for LLM systems\nDocument parsing and indexing pipelines\nDesktop or GUI application experience\n\n\n\n\nContact:\n\nUday\n\nMulya Technologies\n\nmuday_bhaskar@yahoo.com\n\n\"Mining The Knowledge Community\"",
+      "requirements": [],
+      "responsibilities": [],
+      "skills": [],
+      "salary": null,
+      "posted_date": null,
+      "application_url": "https://www.linkedin.com/jobs/view/4468611761/",
+      "source_url": "https://www.linkedin.com/jobs/search/?f_AL=true&f_TPR=r3600&f_WT=2&origin=JOB_SEARCH_PAGE_JOB_FILTER&start=50",
+      "remote_type": "remote",
+      "raw_text_hash": "8df178de54ffb6b7c4d00b97e2cee3b36b921984b452756f7b749c68767f3996",
+      "discovered_at": "2026-09-29T18:34:23.135324Z"
+    },
+    "match_score": 40.8,
+    "recommendation": "poor_match",
+    "rule_evaluation": {
+      "passed": true,
+      "rejection_reasons": [],
+      "mandatory_skills_matched": [],
+      "mandatory_skills_missing": [],
+      "rule_score": 0.0,
+      "seniority_ok": true,
+      "role_related": true
+    },
+    "llm_analysis": null,
+    "matched_skills": [],
+    "missing_required_skills": [],
+    "strengths": [],
+    "concerns": [
+      "LLM analysis unavailable for this job; score reflects rule-based signals only."
+    ],
+    "explanation": "Rule-based match only (LLM unavailable): 0.0% keyword/stack overlap with the candidate profile.",
+    "rejected": false,
+    "rejection_reason": null,
+    "saved_key": "linkedin:4468611761",
+    "status": "new",
+    "first_seen_at": "2026-09-29T18:30:20.158115+00:00",
+    "last_seen_at": "2026-09-29T18:37:08.977195+00:00",
+    "run_ids": [
+      "job-search-20260929-182500-92148dd7",
+      "job-search-20260929-183226-94c94205"
+    ]
+  },
+  "linkedin:4466781090": {
+    "job": {
+      "job_id": "66f2843f7db3d2a704761b851d6f5555299c875ca366ba11f38315556bf593aa",
+      "source": "linkedin",
+      "source_job_id": "4466781090",
+      "title": "AI Compiler Engineer",
+      "company": "EnCharge AI",
+      "location": "India (Remote)",
+      "employment_type": null,
+      "experience_required": null,
+      "description": "About the job\n\nwww.enchargeai.com\n\nAI Compiler Engineer-Engineer\n\nLocations: Bangalore (Hybrid) /Remote\n\nThe 10 Hottest Semiconductor Startups Of 2025 (So Far)\n\n\n\n\nhttps://www.crn.com/news/components-peripherals/2025/the-10-hottest-semiconductor-startups-of-2025-so-far?page=11\n\n\n\n\nhttps://www.enchargeai.com/blog/the-efficiency-imperative-energy-will-define-ais-next-chapter\n\n\n\n\nAbout EnCharge AI:\n\n\n\n\nAI Compiler Engineer\n\nEnCharge AI is a leader in advanced AI hardware and software systems for edge-to-cloud computing. EnCharge’s robust and scalable next-generation in-memory computing technology provides orders-of-magnitude higher compute efficiency and density compared to today’s best-in-class solutions. The high-performance architecture is coupled with seamless software integration and will enable the immense potential of AI to be accessible in power, energy, and space constrained applications. EnCharge AI launched in 2022 and is led by veteran technologists with backgrounds in semiconductor design and AI systems.\n\nAbout the Role\n\nEnCharge AI is seeking a highly skilled and experienced AI Compiler Engineer to spearhead the efforts in developing and optimizing graph compilers tailored to cutting-edge AI and ML workloads. You will collaborate with hardware architects, and AI researchers to enhance performance, optimize computation graphs, and enable efficient model deployment on EnCharge’s Inference Accelerators.\n\nResponsibilities\n\nArchitect, design, and implement optimizations for AI model execution on graph compilers to improve performance, reduce latency, and maximize hardware utilization.\nWork closely with ML researchers, hardware engineers, and software developers to design and deploy AI models, understanding and addressing hardware-specific challenges.\nWork on performance optimizations for neural network models, such as layer fusion, operator fusion, and graph-level transformations.\nDevelop compiler optimizations and passes that convert high-level AI models (e.g., from TensorFlow, PyTorch) into intermediate representations (IR).\nImplement parsing, semantic analysis, and IR generation for deep learning frameworks.\nResearch and integrate the latest advancements in compiler design, ML model optimizations, and hardware acceleration into graph compilers.\nProvide leadership, mentorship, and technical guidance to a team of engineers focused on graph compiler optimizations.\n\nQualifications\n\nMaster’s degree in Computer Science, Electrical Engineering, or related field (Ph.D. preferred).\n2-4 years in compiler development, with a strong focus on AI or ML graph compilers.\nProficiency in AI graph compiler frameworks (e.g., MLIR, Torch-FX)\nSolid background in hardware architectures (e.g., GPUs, TPUs, ASICs) and optimization techniques such as fusion, quantization, and tiling.\nFamiliarity with neural networks operators and code generation.\nStrong understanding of intermediate representations, code parsing, and semantic analysis in compiler design.\nProficiency in C++, Python, or other programming languages commonly used in compiler development.\nOpen-source contributions to AI software frameworks and libraries is a plus\nDemonstrated experience leading and mentoring engineering teams with successful project delivery\n\n\n\n\nskills\nMLIR\nPytorch\ncompilers\n\"graph compilers\"\nTorch-Fx\n\"hardware Architecture\"\nGPU\nTPU\nNPU\n\"Neural networks\"\ntensorflow\nAI\nML\nDL\n\n\n\n\nContact:\n\nUday\n\nMulya Technologies\n\nmuday_bhaskar@yahoo.com\n\n\"Mining The Knowledge Community\"",
+      "requirements": [],
+      "responsibilities": [],
+      "skills": [],
+      "salary": null,
+      "posted_date": null,
+      "application_url": "https://www.linkedin.com/jobs/view/4466781090/",
+      "source_url": "https://www.linkedin.com/jobs/search/?f_AL=true&f_TPR=r3600&f_WT=2&origin=JOB_SEARCH_PAGE_JOB_FILTER&start=75",
+      "remote_type": "remote",
+      "raw_text_hash": "66f2843f7db3d2a704761b851d6f5555299c875ca366ba11f38315556bf593aa",
+      "discovered_at": "2026-09-29T18:35:09.239229Z"
+    },
+    "match_score": 37.5,
+    "recommendation": "poor_match",
+    "rule_evaluation": {
+      "passed": true,
+      "rejection_reasons": [],
+      "mandatory_skills_matched": [],
+      "mandatory_skills_missing": [],
+      "rule_score": 0.0,
+      "seniority_ok": true,
+      "role_related": true
+    },
+    "llm_analysis": null,
+    "matched_skills": [],
+    "missing_required_skills": [],
+    "strengths": [],
+    "concerns": [
+      "LLM analysis unavailable for this job; score reflects rule-based signals only."
+    ],
+    "explanation": "Rule-based match only (LLM unavailable): 0.0% keyword/stack overlap with the candidate profile.",
+    "rejected": false,
+    "rejection_reason": null,
+    "saved_key": "linkedin:4466781090",
+    "status": "new",
+    "first_seen_at": "2026-09-29T18:30:20.158115+00:00",
+    "last_seen_at": "2026-09-29T18:37:08.977195+00:00",
+    "run_ids": [
+      "job-search-20260929-182500-92148dd7",
+      "job-search-20260929-183226-94c94205"
+    ]
+  },
+  "linkedin:4467093672": {
+    "job": {
+      "job_id": "f2ee905ebebf3feb22d19676bb7ef6f51ee07291c62bcc4acfe0a23c65dc7d3b",
+      "source": "linkedin",
+      "source_job_id": "4467093672",
+      "title": "Senior Staff CAD & Methodology Engineer (Digital Implementation & Signoff)",
+      "company": "EnCharge AI",
+      "location": "India (Remote)",
+      "employment_type": null,
+      "experience_required": null,
+      "description": "About the job\n\nwww.EnchargeAi.com\n\nLocation : Bangalore (Hybrid-2 days office/ 3 days home ) or Remote from Anywhere in India\n\n\n\n\nBangalore\n\nThe 10 Hottest Semiconductor Startups Of 2025 (So Far)\n\n\n\n\nhttps://www.crn.com/news/components-peripherals/2025/the-10-hottest-semiconductor-startups-of-2025-so-far?page=11\n\n\n\n\nhttps://www.enchargeai.com/blog/the-efficiency-imperative-energy-will-define-ais-next-chapter\n\n\n\n\nLocation : Bangalore ( Hybrid- 2days office, 3 days-home)\n\n\n\n\nEnCharge AI is a leader in advanced AI hardware and software systems for edge-to-cloud computing. EnCharge’s robust and scalable next-generation in-memory computing technology provides orders-of-magnitude higher compute efficiency and density compared to today’s best-in-class solutions. The high-performance architecture is coupled with seamless software integration and will enable the immense potential of AI to be accessible in power, energy, and space constrained applications. EnCharge AI launched in 2022 and is led by veteran technologists with backgrounds in semiconductor design and AI systems.\n\n\n\n\nJob Title: Staff / Senior Staff CAD & Methodology Engineer (Digital Implementation & Signoff)\n\nLocation: [ Bangalore Hybrid / INDIA Remote]\n\nRole Overview\n\nWe are an ambitious AI hardware startup building next-generation accelerators with massive compute density. To achieve aggressive Power, Performance, and Area (PPA) targets on accelerated tapeout schedules, we require a robust, highly automated, and heavily optimized physical implementation and signoff flow.\n\nAs a Staff / Senior Staff CAD & Methodology Engineer, You will be the resident expert in Innovus and Tempus, responsible for developing, debugging, and continually accelerating our RTL-to-GDSII and timing signoff flows. You will work closely with Physical Design and STA leads to eliminate bottlenecks, automate manual tasks, and push the limits of EDA capabilities at advanced process nodes.\n\nKey Responsibilities\n\nFlow Architecture & Automation: Architect, develop, and maintain a highly automated, robust, and scalable physical design and signoff flow from synthesis through GDSII, optimized for AI accelerator architectures.\nInnovus Methodology: Drive advanced physical design methodologies in Cadence Innovus. Optimize recipes for floorplanning, placement, Clock Tree Synthesis (CTS), routing, and power grid implementation to squeeze out maximum PPA.\nTempus Signoff Integration: Own the STA and timing signoff methodology using Cadence Tempus. Implement and optimize Distributed Multi-Scenario Analysis (DMSA), advanced OCV methodologies, and automated Tempus ECO flows to ensure rapid timing closure.\nTurnaround Time (TAT) Reduction: Identify inefficiencies in the daily execution of block and top-level implementation. Develop Python and Tcl-based automation, database parsers, and custom utilities to drastically reduce tool runtime and engineering debug time.\nTool & Vendor Interface: Act as the primary technical liaison with Cadence. Drive tool evaluations, beta testing of new features, and resolution of critical tool bugs or limitations to ensure continuous flow stability.\nMentorship & Support: Serve as the final escalation point for the PD and Timing teams regarding flow-related issues. Document methodologies clearly and mentor junior engineers on tool usage and flow mechanics.\n\nRequired Qualifications\n\nExperience: 9 to 14 years of industry experience in ASIC/SOC physical design, with a primary focus on CAD, TFM (Tools, Flows, and Methodology), or flow automation.\nCadence Mastery:\nDeep, production-proven expertise with Cadence Innovus (Implementation) and Cadence Tempus (Signoff STA).\nStrong understanding of internal tool mechanics, database access commands (dbGet), and advanced tool configuration.\nScripting & Software Skills: Expert-level proficiency in Tcl and Python. Strong background in Makefile generation, shell scripting, and version control (Git/Perforce).\nDomain Knowledge: Thorough understanding of deep sub-micron physical design concepts (advanced node DRCs, cross-talk, electromigration, IR drop) and the theoretical foundations of Static Timing Analysis.\nStartup Mindset: Ability to thrive in a fast-paced, dynamic environment where flow requirements evolve rapidly as the architecture matures.\nEducation: Bachelor’s or Master’s degree in Electrical Engineering, Computer Science, Computer Engineering, or a related discipline.\n\n\n\n\nSkills\n\nCAD\n\nEDA\n\nSoC\n\nTFM\n\nInnovus\n\nTempus\n\nTCL\n\nPython\n\nMakefile\n\n\n\n\nContact:\n\nUday\n\nmuday_bhaskar@yahoo.com\n\nwww.mulyatech.com",
+      "requirements": [],
+      "responsibilities": [],
+      "skills": [],
+      "salary": null,
+      "posted_date": null,
+      "application_url": "https://www.linkedin.com/jobs/view/4467093672/",
+      "source_url": "https://www.linkedin.com/jobs/search/?f_AL=true&f_TPR=r3600&f_WT=2&origin=JOB_SEARCH_PAGE_JOB_FILTER&start=75",
+      "remote_type": "remote",
+      "raw_text_hash": "f2ee905ebebf3feb22d19676bb7ef6f51ee07291c62bcc4acfe0a23c65dc7d3b",
+      "discovered_at": "2026-09-29T18:35:16.464174Z"
+    },
+    "match_score": 37.5,
+    "recommendation": "poor_match",
+    "rule_evaluation": {
+      "passed": true,
+      "rejection_reasons": [],
+      "mandatory_skills_matched": [],
+      "mandatory_skills_missing": [],
+      "rule_score": 0.0,
+      "seniority_ok": true,
+      "role_related": true
+    },
+    "llm_analysis": null,
+    "matched_skills": [],
+    "missing_required_skills": [],
+    "strengths": [],
+    "concerns": [
+      "LLM analysis unavailable for this job; score reflects rule-based signals only."
+    ],
+    "explanation": "Rule-based match only (LLM unavailable): 0.0% keyword/stack overlap with the candidate profile.",
+    "rejected": false,
+    "rejection_reason": null,
+    "saved_key": "linkedin:4467093672",
+    "status": "new",
+    "first_seen_at": "2026-09-29T18:30:20.158115+00:00",
+    "last_seen_at": "2026-09-29T18:37:08.977195+00:00",
+    "run_ids": [
+      "job-search-20260929-182500-92148dd7",
+      "job-search-20260929-183226-94c94205"
+    ]
+  },
+  "linkedin:4470680688": {
+    "job": {
+      "job_id": "a3e59704bea28cdb14e3b57d3f42aeb5caeba84026fc6f3cb997075bc1f09755",
+      "source": "linkedin",
+      "source_job_id": "4470680688",
+      "title": "Principal DFT Engineer",
+      "company": "EnCharge AI",
+      "location": "India (Remote)",
+      "employment_type": null,
+      "experience_required": null,
+      "description": "About the job\n\n(www.enchargeai.com)\n\n\n\n\nLocation: Greater Bengaluru Area (Hybrid)/Remote\n\nThe 10 Hottest Semiconductor Startups Of 2025 (So Far)\n\nhttps://www.crn.com/news/components-peripherals/2025/the-10-hottest-semiconductor-startups-of-2025-so-far?page=11\n\nhttps://www.enchargeai.com/blog/the-efficiency-imperative-energy-will-define-ais-next-chapter\n\nLocation : Bangalore ( Hybrid- 2days office, 3 days-home)\n\nAbout Company:\n\nEnCharge AI is a leader in advanced AI hardware and software systems for edge-to-cloud computing. EnCharge’s robust and scalable next-generation in-memory computing technology provides orders-of-magnitude higher compute efficiency and density compared to today’s best-in-class solutions. The high-performance architecture is coupled with seamless software integration and will enable the immense potential of AI to be accessible in power, energy, and space constrained applications. EnCharge AI launched in 2022 and is led by veteran technologists with backgrounds in semiconductor design and AI systems.\n\n DFT architect -14-20years\n\nDeveloping silicon for Edge Computing isn't just about speed; it’s about balancing high-performance data processing with extreme power efficiency and reliability in remote environments.\n\nAs the Design for Test (DFT) Architect, you will be the architect of our testing strategy, ensuring our data center chips are flawlessly manufacturable and resilient enough for edge deployment.\n\nKey Responsibilities\n\nArchitectural Leadership: Define and implement the end-to-end DFT architecture for complex SoCs, including Hierarchical DFT, Scan compression, and MBIST.\n\nEdge-Specific Reliability: Develop strategies for In-System Test (IST) and power-on self-test (POST) to ensure chip health in remote edge data centers.\n\nImplementation & Flow: Oversee scan insertion, ATPG (Stuck-at, Transition, Path Delay), and \n\n\n\n\nLogic BIST.\n\nCross-Functional Synergy: Collaborate with Design, Physical Design, and Yield teams to ensure high test coverage while minimizing area overhead and power impact.\n\nPost-Silicon Validation: Lead the bring-up and debug phase on ATE (Automated Test Equipment) to root-cause silicon failures and optimize test time.\n\nTechnical Requirements\n\nExperience: 14-20 years in DFT, with at least 2 years in a leadership or principal role.\n\nTools: Mastery of industry-standard tools (e.g., Synopsys TestMAX, Siemens/Mentor Tessent, or \n\n\n\n\nCadence Modus).\n\nMemory & Logic Test: Deep expertise in MBIST (Memory Built-In Self-Test) with repair capabilities and boundary scan \n\n\n\n\n(IEEE 1149.1/6).\n\nAdvanced Nodes: Proven track record with FinFET nodes (7nm, 5nm, or below).\n\nLow Power: Experience managing DFT in multi-voltage/power-gated designs—crucial for edge efficiency.\n\n\n\n\nContact\n\nUday\n\nmuday_bhaskar@yahoo.com\n\nMulya Technologies\n\n\"Mining the Knowledge Community\"",
+      "requirements": [],
+      "responsibilities": [],
+      "skills": [],
+      "salary": null,
+      "posted_date": null,
+      "application_url": "https://www.linkedin.com/jobs/view/4470680688/",
+      "source_url": "https://www.linkedin.com/jobs/search/?f_AL=true&f_TPR=r3600&f_WT=2&origin=JOB_SEARCH_PAGE_JOB_FILTER&start=50",
+      "remote_type": "remote",
+      "raw_text_hash": "a3e59704bea28cdb14e3b57d3f42aeb5caeba84026fc6f3cb997075bc1f09755",
+      "discovered_at": "2026-09-29T18:34:29.454462Z"
+    },
+    "match_score": 37.5,
+    "recommendation": "poor_match",
+    "rule_evaluation": {
+      "passed": true,
+      "rejection_reasons": [],
+      "mandatory_skills_matched": [],
+      "mandatory_skills_missing": [],
+      "rule_score": 0.0,
+      "seniority_ok": true,
+      "role_related": true
+    },
+    "llm_analysis": null,
+    "matched_skills": [],
+    "missing_required_skills": [],
+    "strengths": [],
+    "concerns": [
+      "LLM analysis unavailable for this job; score reflects rule-based signals only."
+    ],
+    "explanation": "Rule-based match only (LLM unavailable): 0.0% keyword/stack overlap with the candidate profile.",
+    "rejected": false,
+    "rejection_reason": null,
+    "saved_key": "linkedin:4470680688",
+    "status": "new",
+    "first_seen_at": "2026-09-29T18:30:20.158115+00:00",
+    "last_seen_at": "2026-09-29T18:37:08.977195+00:00",
+    "run_ids": [
+      "job-search-20260929-182500-92148dd7",
+      "job-search-20260929-183226-94c94205"
+    ]
+  },
+  "linkedin:4470695571": {
+    "job": {
+      "job_id": "66d15f9b023076c08e20d2b7d90911a4fd869dc9fd020451159dabb2467447b7",
+      "source": "linkedin",
+      "source_job_id": "4470695571",
+      "title": "DFT Architect",
+      "company": "EnCharge AI",
+      "location": "India (Remote)",
+      "employment_type": null,
+      "experience_required": null,
+      "description": "About the job\n\n(www.enchargeai.com)\n\n\n\n\nLocation: Greater Bengaluru Area (Hybrid)/Remote\n\nThe 10 Hottest Semiconductor Startups Of 2025 (So Far)\n\nhttps://www.crn.com/news/components-peripherals/2025/the-10-hottest-semiconductor-startups-of-2025-so-far?page=11\n\nhttps://www.enchargeai.com/blog/the-efficiency-imperative-energy-will-define-ais-next-chapter\n\nLocation : Bangalore ( Hybrid- 2days office, 3 days-home)\n\nAbout Company:\n\nEnCharge AI is a leader in advanced AI hardware and software systems for edge-to-cloud computing. EnCharge’s robust and scalable next-generation in-memory computing technology provides orders-of-magnitude higher compute efficiency and density compared to today’s best-in-class solutions. The high-performance architecture is coupled with seamless software integration and will enable the immense potential of AI to be accessible in power, energy, and space constrained applications. EnCharge AI launched in 2022 and is led by veteran technologists with backgrounds in semiconductor design and AI systems.\n\n DFT architect -14-20years\n\nDeveloping silicon for Edge Computing isn't just about speed; it’s about balancing high-performance data processing with extreme power efficiency and reliability in remote environments.\n\nAs the Design for Test (DFT) Architect, you will be the architect of our testing strategy, ensuring our data center chips are flawlessly manufacturable and resilient enough for edge deployment.\n\nKey Responsibilities\n\nArchitectural Leadership: Define and implement the end-to-end DFT architecture for complex SoCs, including Hierarchical DFT, Scan compression, and MBIST.\n\nEdge-Specific Reliability: Develop strategies for In-System Test (IST) and power-on self-test (POST) to ensure chip health in remote edge data centers.\n\nImplementation & Flow: Oversee scan insertion, ATPG (Stuck-at, Transition, Path Delay), and \n\n\n\n\nLogic BIST.\n\nCross-Functional Synergy: Collaborate with Design, Physical Design, and Yield teams to ensure high test coverage while minimizing area overhead and power impact.\n\nPost-Silicon Validation: Lead the bring-up and debug phase on ATE (Automated Test Equipment) to root-cause silicon failures and optimize test time.\n\nTechnical Requirements\n\nExperience: 14-20 years in DFT, with at least 2 years in a leadership or principal role.\n\nTools: Mastery of industry-standard tools (e.g., Synopsys TestMAX, Siemens/Mentor Tessent, or \n\n\n\n\nCadence Modus).\n\nMemory & Logic Test: Deep expertise in MBIST (Memory Built-In Self-Test) with repair capabilities and boundary scan \n\n\n\n\n(IEEE 1149.1/6).\n\nAdvanced Nodes: Proven track record with FinFET nodes (7nm, 5nm, or below).\n\nLow Power: Experience managing DFT in multi-voltage/power-gated designs—crucial for edge efficiency.\n\n\n\n\nContact\n\nUday\n\nmuday_bhaskar@yahoo.com\n\nMulya Technologies\n\n\"Mining the Knowledge Community\"",
+      "requirements": [],
+      "responsibilities": [],
+      "skills": [],
+      "salary": null,
+      "posted_date": null,
+      "application_url": "https://www.linkedin.com/jobs/view/4470695571/",
+      "source_url": "https://www.linkedin.com/jobs/search/?f_AL=true&f_TPR=r3600&f_WT=2&origin=JOB_SEARCH_PAGE_JOB_FILTER&start=50",
+      "remote_type": "remote",
+      "raw_text_hash": "66d15f9b023076c08e20d2b7d90911a4fd869dc9fd020451159dabb2467447b7",
+      "discovered_at": "2026-09-29T18:34:27.697760Z"
+    },
+    "match_score": 37.5,
+    "recommendation": "poor_match",
+    "rule_evaluation": {
+      "passed": true,
+      "rejection_reasons": [],
+      "mandatory_skills_matched": [],
+      "mandatory_skills_missing": [],
+      "rule_score": 0.0,
+      "seniority_ok": true,
+      "role_related": true
+    },
+    "llm_analysis": null,
+    "matched_skills": [],
+    "missing_required_skills": [],
+    "strengths": [],
+    "concerns": [
+      "LLM analysis unavailable for this job; score reflects rule-based signals only."
+    ],
+    "explanation": "Rule-based match only (LLM unavailable): 0.0% keyword/stack overlap with the candidate profile.",
+    "rejected": false,
+    "rejection_reason": null,
+    "saved_key": "linkedin:4470695571",
+    "status": "new",
+    "first_seen_at": "2026-09-29T18:30:20.158115+00:00",
+    "last_seen_at": "2026-09-29T18:37:08.977195+00:00",
+    "run_ids": [
+      "job-search-20260929-182500-92148dd7",
+      "job-search-20260929-183226-94c94205"
+    ]
+  },
+  "linkedin:4469813366": {
+    "job": {
+      "job_id": "37d226592683b8542b77de48dd0733ad434ebba0a49a33b11d3e79c51c93db1e",
+      "source": "linkedin",
+      "source_job_id": "4469813366",
+      "title": "Principal Research Engineer, Applied AI",
+      "company": "Mulya Technologies",
+      "location": "India (Remote)",
+      "employment_type": null,
+      "experience_required": null,
+      "description": "About the job\n\nPrincipal Research Engineer, Applied AI\n\nwww.enchargeai.com\n\n\n\n\nJob Description:\n\nLocation: Remote (India)\n\nPrincipal Research Engineer, Applied AI\n\nwww.enchargeai.com\n\nAbout EnCharge AI:\n\nEnCharge AI is building the next generation AI platform. Our novel in-memory-computing architecture delivers a 10x step-function improvement in compute energy efficiency and performance for AI inference workloads. As the demands of artificial intelligence move beyond today's models, we believe fundamental underlying infrastructure must evolve. We are an experienced team of AI researchers, silicon & systems engineers, and architects backed by leading investors, poised to become the essential platform for the next wave of AI innovation.\n\nThe Opportunity:\n\nModern AI workloads—from large language models to diffusion-based generators to multimodal systems—represent some of the most compute-intensive frontiers in AI, and some of the most promising applications for our hardware’s energy efficiency advantages. We’re building a vertically integrated AI stack that will showcase the transformative potential of our silicon while delivering real value to customers today.\n\nWe are seeking a Research Engineer to push the boundaries of AI model capability, quality, and efficiency. You’ll build fine-tuning and post training pipelines, develop rigorous benchmarking frameworks, and work at the intersection of ML research and hardware-aware optimization—ensuring our models run beautifully on our silicon.\n\nThis is a role for someone who thrives at the boundary between research and engineering. You’ll read papers, implement techniques, and ship production-quality code—all in service of making AI inference faster, cheaper, and better.\n\n\n\n\nKey Responsibilities:\n\nAlgorithmic Acceleration: Research and implement state-of-the-art techniques to accelerate AI inference—quantization, sparsity, distillation, speculative decoding, caching strategies, and architectural modifications. Systematically characterize tradeoffs between model quality, latency, throughput, and power consumption to find optimal operating points across different use cases.\nHardware Co-Design: Partner closely with hardware, compiler, and quantization teams to ensure algorithmic improvements translate to real gains on our silicon. Identify optimizations aligned with our architecture's strengths—maximizing throughput while minimizing power. Shape the feedback loop between model development and hardware.\nEvaluation: Build profiling tools and comprehensive benchmarking frameworks to understand compute bottlenecks, measure model quality across standard and domain-specific evals, and track efficiency metrics.\nApplied Research: Build robust fine-tuning workflows for modern AI models, enabling rapid experimentation with LoRA, adapters, and full fine-tuning. Stay current with the rapidly evolving landscape—evaluate new architectures, implement promising techniques, and contribute insights that inform technical and go-to-market strategy.\n\nQualifications:\n\n10-15 years of experience in ML research, applied ML, or ML systems\nStrong fundamentals in Python and PyTorch\nHands-on experience with transformers, diffusion models, state space models etc.\nExperience fine-tuning large models and building training/evaluation pipelines\nDeep understanding of transformers, attention mechanisms, & optimization techniques\nComfort reading and implementing techniques from research papers\nhire , mentor and retain Top Notch AI professionals\n\nNice to Have:\n\nExperience with efficient inference techniques (KV cache optimization, attention variants, MoE routing, flow matching)\nBackground in hardware-aware ML optimization or quantization\nFamiliarity with profiling tools (PyTorch Profiler, Nsight, custom instrumentation)\nPublications in generative modeling, efficient inference, or ML systems\nContributions to open-source ML projects\n\nSkills / education\n\n\n\n\nPytorch\n\ntransformers\n\nAI\n\nML\n\nDL\n\nAlgorithms\n\nWorkloads\n\nIIT\n\nNIT\n\nIIIT\n\nIISc\n\nmodels / modeling\n\nPython\n\n\n\n\nContact:\n\nUday\n\nMulya Technologies\n\nmuday_bhaskar@yahoo.com\n\n\"Mining The Knowledge Community\"",
+      "requirements": [],
+      "responsibilities": [],
+      "skills": [],
+      "salary": null,
+      "posted_date": null,
+      "application_url": "https://www.linkedin.com/jobs/view/4469813366/",
+      "source_url": "https://www.linkedin.com/jobs/search/?f_AL=true&f_TPR=r3600&f_WT=2&origin=JOB_SEARCH_PAGE_JOB_FILTER&start=50",
+      "remote_type": "remote",
+      "raw_text_hash": "37d226592683b8542b77de48dd0733ad434ebba0a49a33b11d3e79c51c93db1e",
+      "discovered_at": "2026-09-29T18:34:34.904442Z"
+    },
+    "match_score": 37.5,
+    "recommendation": "poor_match",
+    "rule_evaluation": {
+      "passed": true,
+      "rejection_reasons": [],
+      "mandatory_skills_matched": [],
+      "mandatory_skills_missing": [],
+      "rule_score": 0.0,
+      "seniority_ok": true,
+      "role_related": true
+    },
+    "llm_analysis": null,
+    "matched_skills": [],
+    "missing_required_skills": [],
+    "strengths": [],
+    "concerns": [
+      "LLM analysis unavailable for this job; score reflects rule-based signals only."
+    ],
+    "explanation": "Rule-based match only (LLM unavailable): 0.0% keyword/stack overlap with the candidate profile.",
+    "rejected": false,
+    "rejection_reason": null,
+    "saved_key": "linkedin:4469813366",
+    "status": "new",
+    "first_seen_at": "2026-09-29T18:30:20.158115+00:00",
+    "last_seen_at": "2026-09-29T18:37:08.977195+00:00",
+    "run_ids": [
+      "job-search-20260929-182500-92148dd7",
+      "job-search-20260929-183226-94c94205"
+    ]
+  },
+  "linkedin:4468882747": {
+    "job": {
+      "job_id": "f2ee905ebebf3feb22d19676bb7ef6f51ee07291c62bcc4acfe0a23c65dc7d3b",
+      "source": "linkedin",
+      "source_job_id": "4468882747",
+      "title": "Senior Staff CAD & Methodology Engineer (Digital Implementation & Signoff)",
+      "company": "EnCharge AI",
+      "location": "India (Remote)",
+      "employment_type": null,
+      "experience_required": null,
+      "description": "About the job\n\nwww.EnchargeAi.com\n\nLocation : Bangalore (Hybrid-2 days office/ 3 days home ) or Remote from Anywhere in India\n\n\n\n\nBangalore\n\nThe 10 Hottest Semiconductor Startups Of 2025 (So Far)\n\n\n\n\nhttps://www.crn.com/news/components-peripherals/2025/the-10-hottest-semiconductor-startups-of-2025-so-far?page=11\n\n\n\n\nhttps://www.enchargeai.com/blog/the-efficiency-imperative-energy-will-define-ais-next-chapter\n\n\n\n\nLocation : Bangalore ( Hybrid- 2days office, 3 days-home)\n\n\n\n\nEnCharge AI is a leader in advanced AI hardware and software systems for edge-to-cloud computing. EnCharge’s robust and scalable next-generation in-memory computing technology provides orders-of-magnitude higher compute efficiency and density compared to today’s best-in-class solutions. The high-performance architecture is coupled with seamless software integration and will enable the immense potential of AI to be accessible in power, energy, and space constrained applications. EnCharge AI launched in 2022 and is led by veteran technologists with backgrounds in semiconductor design and AI systems.\n\n\n\n\nJob Title: Staff / Senior Staff CAD & Methodology Engineer (Digital Implementation & Signoff)\n\nLocation: [ Bangalore Hybrid / INDIA Remote]\n\nRole Overview\n\nWe are an ambitious AI hardware startup building next-generation accelerators with massive compute density. To achieve aggressive Power, Performance, and Area (PPA) targets on accelerated tapeout schedules, we require a robust, highly automated, and heavily optimized physical implementation and signoff flow.\n\nAs a Staff / Senior Staff CAD & Methodology Engineer, You will be the resident expert in Innovus and Tempus, responsible for developing, debugging, and continually accelerating our RTL-to-GDSII and timing signoff flows. You will work closely with Physical Design and STA leads to eliminate bottlenecks, automate manual tasks, and push the limits of EDA capabilities at advanced process nodes.\n\nKey Responsibilities\n\nFlow Architecture & Automation: Architect, develop, and maintain a highly automated, robust, and scalable physical design and signoff flow from synthesis through GDSII, optimized for AI accelerator architectures.\nInnovus Methodology: Drive advanced physical design methodologies in Cadence Innovus. Optimize recipes for floorplanning, placement, Clock Tree Synthesis (CTS), routing, and power grid implementation to squeeze out maximum PPA.\nTempus Signoff Integration: Own the STA and timing signoff methodology using Cadence Tempus. Implement and optimize Distributed Multi-Scenario Analysis (DMSA), advanced OCV methodologies, and automated Tempus ECO flows to ensure rapid timing closure.\nTurnaround Time (TAT) Reduction: Identify inefficiencies in the daily execution of block and top-level implementation. Develop Python and Tcl-based automation, database parsers, and custom utilities to drastically reduce tool runtime and engineering debug time.\nTool & Vendor Interface: Act as the primary technical liaison with Cadence. Drive tool evaluations, beta testing of new features, and resolution of critical tool bugs or limitations to ensure continuous flow stability.\nMentorship & Support: Serve as the final escalation point for the PD and Timing teams regarding flow-related issues. Document methodologies clearly and mentor junior engineers on tool usage and flow mechanics.\n\nRequired Qualifications\n\nExperience: 9 to 14 years of industry experience in ASIC/SOC physical design, with a primary focus on CAD, TFM (Tools, Flows, and Methodology), or flow automation.\nCadence Mastery:\nDeep, production-proven expertise with Cadence Innovus (Implementation) and Cadence Tempus (Signoff STA).\nStrong understanding of internal tool mechanics, database access commands (dbGet), and advanced tool configuration.\nScripting & Software Skills: Expert-level proficiency in Tcl and Python. Strong background in Makefile generation, shell scripting, and version control (Git/Perforce).\nDomain Knowledge: Thorough understanding of deep sub-micron physical design concepts (advanced node DRCs, cross-talk, electromigration, IR drop) and the theoretical foundations of Static Timing Analysis.\nStartup Mindset: Ability to thrive in a fast-paced, dynamic environment where flow requirements evolve rapidly as the architecture matures.\nEducation: Bachelor’s or Master’s degree in Electrical Engineering, Computer Science, Computer Engineering, or a related discipline.\n\n\n\n\nSkills\n\nCAD\n\nEDA\n\nSoC\n\nTFM\n\nInnovus\n\nTempus\n\nTCL\n\nPython\n\nMakefile\n\n\n\n\nContact:\n\nUday\n\nmuday_bhaskar@yahoo.com\n\nwww.mulyatech.com",
+      "requirements": [],
+      "responsibilities": [],
+      "skills": [],
+      "salary": null,
+      "posted_date": null,
+      "application_url": "https://www.linkedin.com/jobs/view/4468882747/",
+      "source_url": "https://www.linkedin.com/jobs/search/?f_AL=true&f_TPR=r3600&f_WT=2&origin=JOB_SEARCH_PAGE_JOB_FILTER&start=75",
+      "remote_type": "remote",
+      "raw_text_hash": "f2ee905ebebf3feb22d19676bb7ef6f51ee07291c62bcc4acfe0a23c65dc7d3b",
+      "discovered_at": "2026-09-29T18:35:10.365004Z"
+    },
+    "match_score": 37.5,
+    "recommendation": "poor_match",
+    "rule_evaluation": {
+      "passed": true,
+      "rejection_reasons": [],
+      "mandatory_skills_matched": [],
+      "mandatory_skills_missing": [],
+      "rule_score": 0.0,
+      "seniority_ok": true,
+      "role_related": true
+    },
+    "llm_analysis": null,
+    "matched_skills": [],
+    "missing_required_skills": [],
+    "strengths": [],
+    "concerns": [
+      "LLM analysis unavailable for this job; score reflects rule-based signals only."
+    ],
+    "explanation": "Rule-based match only (LLM unavailable): 0.0% keyword/stack overlap with the candidate profile.",
+    "rejected": false,
+    "rejection_reason": null,
+    "saved_key": "linkedin:4468882747",
+    "status": "new",
+    "first_seen_at": "2026-09-29T18:30:20.158115+00:00",
+    "last_seen_at": "2026-09-29T18:37:08.977195+00:00",
+    "run_ids": [
+      "job-search-20260929-182500-92148dd7",
+      "job-search-20260929-183226-94c94205"
+    ]
+  },
+  "linkedin:4471772047": {
+    "job": {
+      "job_id": "7beeec8dccb76a03c430e3b77a36756695dc2e0f7ed39f64612ae7677e71733e",
+      "source": "linkedin",
+      "source_job_id": "4471772047",
+      "title": "Full Stack Engineer/Full Stack Developer",
+      "company": "Gender and Health Summer Institute | Johns Hopkins Bloomberg School of Public Health",
+      "location": "United States (Remote)",
+      "employment_type": null,
+      "experience_required": null,
+      "description": "About the job\n\n🗂 We’re Hiring: Full Stack Engineer / Full Stack Developer\n\n🕒 Employment Type: Full-Time\n\n💼 Level: Entry-Level to Senior Level\n\nWe are seeking a talented and versatile Full Stack Engineer / Full Stack Developer to design, develop, and maintain web applications across both front-end and back-end systems. This role is responsible for building scalable, secure, and high-performing applications while collaborating with cross-functional teams to deliver exceptional user experiences and business solutions.\n\n\n\n\n🎯 Key Responsibilities\n\n• Design, develop, test, deploy, and maintain web applications and software solutions.\n\n• Build responsive and user-friendly front-end interfaces using modern web technologies.\n\n• Develop and maintain back-end services, APIs, databases, and server-side applications.\n\n• Collaborate with product managers, designers, business analysts, and other developers to deliver project requirements.\n\n• Write clean, maintainable, scalable, and well-documented code following best practices.\n\n• Troubleshoot, debug, and resolve software defects and performance issues.\n\n• Participate in code reviews and contribute to technical design discussions.\n\n• Optimize application performance, security, scalability, and reliability.\n\n• Integrate third-party APIs, cloud services, and external systems when required.\n\n• Support CI/CD pipelines, deployment processes, and development operations activities.\n\n• Maintain technical documentation and development standards.\n\n• Stay updated on emerging technologies, frameworks, and software development trends.\n\n\n\n\n✅ Requirements\n\n• Experience in full stack development, software engineering, or web application development.\n\n• Proficiency in front-end technologies such as HTML, CSS, JavaScript, TypeScript, React, Angular, Vue.js, or similar frameworks.\n\n• Experience with back-end technologies such as Node.js, Python, Java, C#, PHP, Go, Ruby, or similar platforms.\n\n• Strong understanding of RESTful APIs, microservices, and system integration concepts.\n\n• Experience working with relational and/or NoSQL databases such as MySQL, PostgreSQL, SQL Server, MongoDB, or Redis.\n\n• Familiarity with Git, version control systems, and collaborative development workflows.\n\n• Understanding of cloud platforms such as AWS, Azure, or Google Cloud is advantageous.\n\n• Knowledge of software architecture, security best practices, and application performance optimization.\n\n• Strong analytical, problem-solving, and debugging skills.\n\n• Bachelor’s degree in Computer Science, Software Engineering, Information Technology, or a related field is preferred.\n\n\n\n\n🌟 What We Offer\n\n• Opportunity to work on modern, scalable, and impactful software products.\n\n• Exposure to full software development lifecycle, cloud technologies, and DevOps practices.\n\n• Career progression into Senior Full Stack Engineer, Technical Lead, Software Architect, Engineering Manager, or CTO roles.\n\n• A collaborative, innovative, and technology-driven work environment.\n\n• Training, mentorship, certification support, and professional development opportunities.\n\n• Competitive compensation, performance incentives, and comprehensive benefits package.",
+      "requirements": [],
+      "responsibilities": [],
+      "skills": [],
+      "salary": null,
+      "posted_date": null,
+      "application_url": "https://www.linkedin.com/jobs/view/4471772047/",
+      "source_url": "https://www.linkedin.com/jobs/search/?currentJobId=4471295383&f_AL=true&f_TPR=r3600&f_WT=2&origin=JOB_SEARCH_PAGE_JOB_FILTER",
+      "remote_type": "remote",
+      "raw_text_hash": "7beeec8dccb76a03c430e3b77a36756695dc2e0f7ed39f64612ae7677e71733e",
+      "discovered_at": "2026-09-29T18:32:39.997668Z"
+    },
+    "match_score": 78.2,
+    "recommendation": "good_match",
+    "rule_evaluation": {
+      "passed": true,
+      "rejection_reasons": [],
+      "mandatory_skills_matched": [],
+      "mandatory_skills_missing": [],
+      "rule_score": 0.0,
+      "seniority_ok": true,
+      "role_related": true
+    },
+    "llm_analysis": {
+      "score": 85.0,
+      "role_match": 90.0,
+      "technical_match": 80.0,
+      "ai_match": 80.0,
+      "experience_match": 85.0,
+      "matched_skills": [
+        "HTML",
+        "CSS",
+        "JavaScript",
+        "TypeScript",
+        "React",
+        "Node.js",
+        "MySQL",
+        "PostgreSQL",
+        "Git",
+        "AWS"
+      ],
+      "missing_required_skills": [
+        "Angular",
+        "Python",
+        "Java",
+        "C#",
+        "PHP",
+        "Go",
+        "Ruby",
+        "Redis"
+      ],
+      "matched_requirements": [
+        "Experience in full stack development, software engineering, or web application development.",
+        "Proficiency in front-end technologies such as HTML, CSS, JavaScript, TypeScript, React.",
+        "Experience with back-end technologies such as Node.js.",
+        "Strong understanding of RESTful APIs, microservices, and system integration concepts.",
+        "Experience working with relational and/or NoSQL databases such as MySQL, PostgreSQL."
+      ],
+      "strengths": [
+        "7 years of experience in full stack development.",
+        "Proven track record of optimizing application performance and deployment processes.",
+        "Strong focus on modern architecture and clean code practices."
+      ],
+      "concerns": [
+        "Lack of experience with some back-end technologies listed in the job description (e.g., Python, Java, C#).",
+        "No mention of experience with Angular or other front-end frameworks like Vue.js."
+      ],
+      "recommendation": "good_match",
+      "explanation": "The candidate has strong full stack development experience and matches many of the key responsibilities and requirements of the job, particularly in front-end and back-end technologies. However, there are some missing skills, particularly in other back-end languages and frameworks, which slightly lowers the overall match."
+    },
+    "matched_skills": [
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "TypeScript",
+      "React",
+      "Node.js",
+      "MySQL",
+      "PostgreSQL",
+      "Git",
+      "AWS"
+    ],
+    "missing_required_skills": [
+      "Angular",
+      "Python",
+      "Java",
+      "C#",
+      "PHP",
+      "Go",
+      "Ruby",
+      "Redis"
+    ],
+    "strengths": [
+      "7 years of experience in full stack development.",
+      "Proven track record of optimizing application performance and deployment processes.",
+      "Strong focus on modern architecture and clean code practices."
+    ],
+    "concerns": [
+      "Lack of experience with some back-end technologies listed in the job description (e.g., Python, Java, C#).",
+      "No mention of experience with Angular or other front-end frameworks like Vue.js."
+    ],
+    "explanation": "The candidate has strong full stack development experience and matches many of the key responsibilities and requirements of the job, particularly in front-end and back-end technologies. However, there are some missing skills, particularly in other back-end languages and frameworks, which slightly lowers the overall match.",
+    "rejected": false,
+    "rejection_reason": null,
+    "saved_key": "linkedin:4471772047",
+    "status": "new",
+    "first_seen_at": "2026-09-29T18:37:08.977195+00:00",
+    "last_seen_at": "2026-09-29T18:37:08.977195+00:00",
+    "run_ids": [
+      "job-search-20260929-183226-94c94205"
+    ]
+  },
+  "linkedin:4466776915": {
+    "job": {
+      "job_id": "5f34e642b42bfee66a95c7b0c2eb5001fe4595f16888bd6e1a04602e6f771d0a",
+      "source": "linkedin",
+      "source_job_id": "4466776915",
+      "title": "Principal AI Compiler Engineer",
+      "company": "EnCharge AI",
+      "location": "India (Remote)",
+      "employment_type": null,
+      "experience_required": null,
+      "description": "About the job\n\nwww.enchargeai.com\n\nAI Compiler Engineer-Staff/Principal\n\nLocations: Bangalore (Hybrid) /Remote\n\nThe 10 Hottest Semiconductor Startups Of 2025 (So Far)\n\n\n\n\nhttps://www.crn.com/news/components-peripherals/2025/the-10-hottest-semiconductor-startups-of-2025-so-far?page=11\n\n\n\n\nhttps://www.enchargeai.com/blog/the-efficiency-imperative-energy-will-define-ais-next-chapter\n\n\n\n\nAbout EnCharge AI:\n\n\n\n\nAI Compiler Engineer\n\nEnCharge AI is a leader in advanced AI hardware and software systems for edge-to-cloud computing. EnCharge’s robust and scalable next-generation in-memory computing technology provides orders-of-magnitude higher compute efficiency and density compared to today’s best-in-class solutions. The high-performance architecture is coupled with seamless software integration and will enable the immense potential of AI to be accessible in power, energy, and space constrained applications. EnCharge AI launched in 2022 and is led by veteran technologists with backgrounds in semiconductor design and AI systems.\n\nAbout the Role\n\nEnCharge AI is seeking a highly skilled and experienced AI Compiler Engineer to spearhead the efforts in developing and optimizing graph compilers tailored to cutting-edge AI and ML workloads. You will collaborate with hardware architects, and AI researchers to enhance performance, optimize computation graphs, and enable efficient model deployment on EnCharge’s Inference Accelerators.\n\nResponsibilities\n\nArchitect, design, and implement optimizations for AI model execution on graph compilers to improve performance, reduce latency, and maximize hardware utilization.\nWork closely with ML researchers, hardware engineers, and software developers to design and deploy AI models, understanding and addressing hardware-specific challenges.\nWork on performance optimizations for neural network models, such as layer fusion, operator fusion, and graph-level transformations.\nDevelop compiler optimizations and passes that convert high-level AI models (e.g., from TensorFlow, PyTorch) into intermediate representations (IR).\nImplement parsing, semantic analysis, and IR generation for deep learning frameworks.\nResearch and integrate the latest advancements in compiler design, ML model optimizations, and hardware acceleration into graph compilers.\nProvide leadership, mentorship, and technical guidance to a team of engineers focused on graph compiler optimizations.\n\nQualifications\n\nBachelor’s or Master’s degree in Computer Science, Electrical Engineering, or related field (Ph.D. preferred).\n10-15 years in compiler development, with a strong focus on AI or ML graph compilers.\nProficiency in AI graph compiler frameworks (e.g., MLIR, Torch-FX)\nSolid background in hardware architectures (e.g., GPUs, TPUs, ASICs) and optimization techniques such as fusion, quantization, and tiling.\nFamiliarity with neural networks operators and code generation.\nStrong understanding of intermediate representations, code parsing, and semantic analysis in compiler design.\nProficiency in C++, Python, or other programming languages commonly used in compiler development.\nOpen-source contributions to AI software frameworks and libraries is a plus\nDemonstrated experience leading and mentoring engineering teams with successful project delivery\n\n\n\n\nContact:\n\nUday\n\nMulya Technologies\n\nmuday_bhaskar@yahoo.com\n\n\"Mining The Knowledge Community\"",
+      "requirements": [],
+      "responsibilities": [],
+      "skills": [],
+      "salary": null,
+      "posted_date": null,
+      "application_url": "https://www.linkedin.com/jobs/view/4466776915/",
+      "source_url": "https://www.linkedin.com/jobs/search/?f_AL=true&f_TPR=r3600&f_WT=2&origin=JOB_SEARCH_PAGE_JOB_FILTER&start=75",
+      "remote_type": "remote",
+      "raw_text_hash": "5f34e642b42bfee66a95c7b0c2eb5001fe4595f16888bd6e1a04602e6f771d0a",
+      "discovered_at": "2026-09-29T18:35:11.732892Z"
+    },
+    "match_score": 37.5,
+    "recommendation": "poor_match",
+    "rule_evaluation": {
+      "passed": true,
+      "rejection_reasons": [],
+      "mandatory_skills_matched": [],
+      "mandatory_skills_missing": [],
+      "rule_score": 0.0,
+      "seniority_ok": true,
+      "role_related": true
+    },
+    "llm_analysis": null,
+    "matched_skills": [],
+    "missing_required_skills": [],
+    "strengths": [],
+    "concerns": [
+      "LLM analysis unavailable for this job; score reflects rule-based signals only."
+    ],
+    "explanation": "Rule-based match only (LLM unavailable): 0.0% keyword/stack overlap with the candidate profile.",
+    "rejected": false,
+    "rejection_reason": null,
+    "saved_key": "linkedin:4466776915",
+    "status": "new",
+    "first_seen_at": "2026-09-29T18:37:08.977195+00:00",
+    "last_seen_at": "2026-09-29T18:37:08.977195+00:00",
+    "run_ids": [
+      "job-search-20260929-183226-94c94205"
+    ]
+  },
+  "linkedin:4468890661": {
+    "job": {
+      "job_id": "5f34e642b42bfee66a95c7b0c2eb5001fe4595f16888bd6e1a04602e6f771d0a",
+      "source": "linkedin",
+      "source_job_id": "4468890661",
+      "title": "Principal AI Compiler Engineer",
+      "company": "EnCharge AI",
+      "location": "India (Remote)",
+      "employment_type": null,
+      "experience_required": null,
+      "description": "About the job\n\nwww.enchargeai.com\n\nAI Compiler Engineer-Staff/Principal\n\nLocations: Bangalore (Hybrid) /Remote\n\nThe 10 Hottest Semiconductor Startups Of 2025 (So Far)\n\n\n\n\nhttps://www.crn.com/news/components-peripherals/2025/the-10-hottest-semiconductor-startups-of-2025-so-far?page=11\n\n\n\n\nhttps://www.enchargeai.com/blog/the-efficiency-imperative-energy-will-define-ais-next-chapter\n\n\n\n\nAbout EnCharge AI:\n\n\n\n\nAI Compiler Engineer\n\nEnCharge AI is a leader in advanced AI hardware and software systems for edge-to-cloud computing. EnCharge’s robust and scalable next-generation in-memory computing technology provides orders-of-magnitude higher compute efficiency and density compared to today’s best-in-class solutions. The high-performance architecture is coupled with seamless software integration and will enable the immense potential of AI to be accessible in power, energy, and space constrained applications. EnCharge AI launched in 2022 and is led by veteran technologists with backgrounds in semiconductor design and AI systems.\n\nAbout the Role\n\nEnCharge AI is seeking a highly skilled and experienced AI Compiler Engineer to spearhead the efforts in developing and optimizing graph compilers tailored to cutting-edge AI and ML workloads. You will collaborate with hardware architects, and AI researchers to enhance performance, optimize computation graphs, and enable efficient model deployment on EnCharge’s Inference Accelerators.\n\nResponsibilities\n\nArchitect, design, and implement optimizations for AI model execution on graph compilers to improve performance, reduce latency, and maximize hardware utilization.\nWork closely with ML researchers, hardware engineers, and software developers to design and deploy AI models, understanding and addressing hardware-specific challenges.\nWork on performance optimizations for neural network models, such as layer fusion, operator fusion, and graph-level transformations.\nDevelop compiler optimizations and passes that convert high-level AI models (e.g., from TensorFlow, PyTorch) into intermediate representations (IR).\nImplement parsing, semantic analysis, and IR generation for deep learning frameworks.\nResearch and integrate the latest advancements in compiler design, ML model optimizations, and hardware acceleration into graph compilers.\nProvide leadership, mentorship, and technical guidance to a team of engineers focused on graph compiler optimizations.\n\nQualifications\n\nBachelor’s or Master’s degree in Computer Science, Electrical Engineering, or related field (Ph.D. preferred).\n10-15 years in compiler development, with a strong focus on AI or ML graph compilers.\nProficiency in AI graph compiler frameworks (e.g., MLIR, Torch-FX)\nSolid background in hardware architectures (e.g., GPUs, TPUs, ASICs) and optimization techniques such as fusion, quantization, and tiling.\nFamiliarity with neural networks operators and code generation.\nStrong understanding of intermediate representations, code parsing, and semantic analysis in compiler design.\nProficiency in C++, Python, or other programming languages commonly used in compiler development.\nOpen-source contributions to AI software frameworks and libraries is a plus\nDemonstrated experience leading and mentoring engineering teams with successful project delivery\n\n\n\n\nContact:\n\nUday\n\nMulya Technologies\n\nmuday_bhaskar@yahoo.com\n\n\"Mining The Knowledge Community\"",
+      "requirements": [],
+      "responsibilities": [],
+      "skills": [],
+      "salary": null,
+      "posted_date": null,
+      "application_url": "https://www.linkedin.com/jobs/view/4468890661/",
+      "source_url": "https://www.linkedin.com/jobs/search/?f_AL=true&f_TPR=r3600&f_WT=2&origin=JOB_SEARCH_PAGE_JOB_FILTER&start=75",
+      "remote_type": "remote",
+      "raw_text_hash": "5f34e642b42bfee66a95c7b0c2eb5001fe4595f16888bd6e1a04602e6f771d0a",
+      "discovered_at": "2026-09-29T18:35:13.039614Z"
+    },
+    "match_score": 37.5,
+    "recommendation": "poor_match",
+    "rule_evaluation": {
+      "passed": true,
+      "rejection_reasons": [],
+      "mandatory_skills_matched": [],
+      "mandatory_skills_missing": [],
+      "rule_score": 0.0,
+      "seniority_ok": true,
+      "role_related": true
+    },
+    "llm_analysis": null,
+    "matched_skills": [],
+    "missing_required_skills": [],
+    "strengths": [],
+    "concerns": [
+      "LLM analysis unavailable for this job; score reflects rule-based signals only."
+    ],
+    "explanation": "Rule-based match only (LLM unavailable): 0.0% keyword/stack overlap with the candidate profile.",
+    "rejected": false,
+    "rejection_reason": null,
+    "saved_key": "linkedin:4468890661",
+    "status": "new",
+    "first_seen_at": "2026-09-29T18:37:08.977195+00:00",
+    "last_seen_at": "2026-09-29T18:37:08.977195+00:00",
+    "run_ids": [
+      "job-search-20260929-183226-94c94205"
+    ]
+  },
+  "linkedin:4467041076": {
+    "job": {
+      "job_id": "68945350f7f39a9571174ac634283bff530ea9f23364eb9e46d1e4e06ea3543c",
+      "source": "linkedin",
+      "source_job_id": "4467041076",
+      "title": "Principal Research Engineer, Applied AI",
+      "company": "EnCharge AI",
+      "location": "India (Remote)",
+      "employment_type": null,
+      "experience_required": null,
+      "description": "About the job\n\nPrincipal Research Engineer, Applied AI\n\nwww.enchargeai.com\n\n\n\n\nJob Description:\n\nLocation: Remote (India)\n\nPrincipal Research Engineer, Applied AI\n\nwww.enchargeai.com\n\nAbout EnCharge AI:\n\nEnCharge AI is building the next generation AI platform. Our novel in-memory-computing architecture delivers a 10x step-function improvement in compute energy efficiency and performance for AI inference workloads. As the demands of artificial intelligence move beyond today's models, we believe fundamental underlying infrastructure must evolve. We are an experienced team of AI researchers, silicon & systems engineers, and architects backed by leading investors, poised to become the essential platform for the next wave of AI innovation.\n\nThe Opportunity:\n\nModern AI workloads—from large language models to diffusion-based generators to multimodal systems—represent some of the most compute-intensive frontiers in AI, and some of the most promising applications for our hardware’s energy efficiency advantages. We’re building a vertically integrated AI stack that will showcase the transformative potential of our silicon while delivering real value to customers today.\n\nWe are seeking a Research Engineer to push the boundaries of AI model capability, quality, and efficiency. You’ll build fine-tuning and post training pipelines, develop rigorous benchmarking frameworks, and work at the intersection of ML research and hardware-aware optimization—ensuring our models run beautifully on our silicon.\n\nThis is a role for someone who thrives at the boundary between research and engineering. You’ll read papers, implement techniques, and ship production-quality code—all in service of making AI inference faster, cheaper, and better.\n\n\n\n\nKey Responsibilities:\n\nAlgorithmic Acceleration: Research and implement state-of-the-art techniques to accelerate AI inference—quantization, sparsity, distillation, speculative decoding, caching strategies, and architectural modifications. Systematically characterize tradeoffs between model quality, latency, throughput, and power consumption to find optimal operating points across different use cases.\nHardware Co-Design: Partner closely with hardware, compiler, and quantization teams to ensure algorithmic improvements translate to real gains on our silicon. Identify optimizations aligned with our architecture's strengths—maximizing throughput while minimizing power. Shape the feedback loop between model development and hardware.\nEvaluation: Build profiling tools and comprehensive benchmarking frameworks to understand compute bottlenecks, measure model quality across standard and domain-specific evals, and track efficiency metrics.\nApplied Research: Build robust fine-tuning workflows for modern AI models, enabling rapid experimentation with LoRA, adapters, and full fine-tuning. Stay current with the rapidly evolving landscape—evaluate new architectures, implement promising techniques, and contribute insights that inform technical and go-to-market strategy.\n\nQualifications:\n\n10-15 years of experience in ML research, applied ML, or ML systems\nStrong fundamentals in Python and PyTorch\nHands-on experience with transformers, diffusion models, state space models etc.\nExperience fine-tuning large models and building training/evaluation pipelines\nDeep understanding of transformers, attention mechanisms, & optimization techniques\nComfort reading and implementing techniques from research papers\nhire , mentor and retain Top Notch AI professionals\n\nNice to Have:\n\nExperience with efficient inference techniques (KV cache optimization, attention variants, MoE routing, flow matching)\nBackground in hardware-aware ML optimization or quantization\nFamiliarity with profiling tools (PyTorch Profiler, Nsight, custom instrumentation)\nPublications in generative modeling, efficient inference, or ML systems\nContributions to open-source ML projects\n\nSkills / education\n\n\n\n\nPytorch\n\ntransformers\n\nAI\n\nML\n\nDL\n\nAlgorithms\n\nWorkloads\n\nIIT\n\nNIT\n\nIIIT\n\nIISc\n\nmodels / modeling\n\nPython\n\n\n\n\nContact:\n\nUday\n\nMulya Technologies\n\nmuday_bhaskar@yahoo.com\n\n\"Mining The Knowledge Community\"",
+      "requirements": [],
+      "responsibilities": [],
+      "skills": [],
+      "salary": null,
+      "posted_date": null,
+      "application_url": "https://www.linkedin.com/jobs/view/4467041076/",
+      "source_url": "https://www.linkedin.com/jobs/search/?f_AL=true&f_TPR=r3600&f_WT=2&origin=JOB_SEARCH_PAGE_JOB_FILTER&start=75",
+      "remote_type": "remote",
+      "raw_text_hash": "68945350f7f39a9571174ac634283bff530ea9f23364eb9e46d1e4e06ea3543c",
+      "discovered_at": "2026-09-29T18:35:14.138078Z"
+    },
+    "match_score": 37.5,
+    "recommendation": "poor_match",
+    "rule_evaluation": {
+      "passed": true,
+      "rejection_reasons": [],
+      "mandatory_skills_matched": [],
+      "mandatory_skills_missing": [],
+      "rule_score": 0.0,
+      "seniority_ok": true,
+      "role_related": true
+    },
+    "llm_analysis": null,
+    "matched_skills": [],
+    "missing_required_skills": [],
+    "strengths": [],
+    "concerns": [
+      "LLM analysis unavailable for this job; score reflects rule-based signals only."
+    ],
+    "explanation": "Rule-based match only (LLM unavailable): 0.0% keyword/stack overlap with the candidate profile.",
+    "rejected": false,
+    "rejection_reason": null,
+    "saved_key": "linkedin:4467041076",
+    "status": "new",
+    "first_seen_at": "2026-09-29T18:37:08.977195+00:00",
+    "last_seen_at": "2026-09-29T18:37:08.977195+00:00",
+    "run_ids": [
+      "job-search-20260929-183226-94c94205"
+    ]
+  },
+  "linkedin:4473296636": {
+    "job": {
+      "job_id": "ae688bf2e3d92b7078223a5fcf9a4877e2f98fe804ba97a312695555b3c29563",
+      "source": "linkedin",
+      "source_job_id": "4473296636",
+      "title": "Data Architect",
+      "company": "Trident Consulting",
+      "location": "India (Remote)",
+      "employment_type": null,
+      "experience_required": null,
+      "description": "About the job\n\nTrident Consulting is seeking a “Data Architect” for one of our clients in “Mumbai - WFH” — a global leader in Information Technology.\n\n\n\n\nJob Title: Senior Data Architect\n\nLocation: Mumbai - WFH\n\nType: Direct Hire/Fulltime\n\n\n\n\nRole Overview\n\nWe are seeking an exceptional Senior Data Architect / Lead Data Engineer who combines deep architectural thinking with strong hands-on engineering capabilities.\nThis is not a documentation-only architecture role. The ideal candidate can define the target architecture, make critical technology decisions, design reusable patterns, and work directly with engineering teams to build and deliver production-grade solutions.\nYou will help design and implement modern enterprise data platforms, integration frameworks, governed data products, semantic layers, knowledge graphs, GraphRAG solutions, and AI-ready data foundations.\nWork closely with clients, enterprise architects, AI engineers, product teams, and delivery leaders.\nHelp shape technical standards, delivery methodologies, reusable assets, and engineering culture.\n\n\n\n\nKey Responsibilities\n\nDesign end-to-end enterprise data architectures.\nDefine current, transition, and target-state architectures.\nDesign modern data platforms (warehouses, lakes, lakehouses, mesh, fabric).\nBuild scalable ingestion, integration, transformation, orchestration, and activation pipelines.\nDefine ETL/ELT/API/CDC/streaming integration patterns.\nDesign governed data products.\nDevelop conceptual, logical, physical, canonical, and semantic data models.\nBuild semantic layers, ontologies, knowledge graphs, GraphRAG, and vector stores.\nEstablish metadata, lineage, governance, observability, security, and compliance.\nSupport analytics, ML, GenAI, and intelligent agents.\nCreate reference architectures and engineering standards.\nPerform architecture reviews and optimization.\nPartner with clients.\nMentor engineers.\nContribute hands-on to delivery.\n\n\n\n\nRequired Experience and Skills\n\n5–15+ years in data architecture/engineering.\nStrong architecture plus hands-on engineering.\nEnterprise-scale solution delivery.\nDeep data lifecycle expertise.\nStrong data modeling.\nExperience with ETL, ELT, CDC, APIs, streaming.\nCloud platforms: Snowflake, Databricks, AWS, Azure, GCP.\nData warehouses, lakehouses, mesh, fabric.\nGovernance, metadata, lineage, quality.\nData products and contracts.\nAnalytics and AI-ready foundations.\nExcellent communication.\nExplain complex concepts clearly.\n\n\n\n\nAI, Semantic, and Context Engineering Experience\n\nLLMs, GenAI, intelligent agents.\nRAG, GraphRAG, knowledge graphs, vector databases.\nOntologies and semantic modeling.\nMetadata-driven automation.\nAI evaluation and responsible AI.\nEnterprise AI integrations.\nAI-enabled data quality and lineage.\n\n\n\n\nAI-Native Engineering Skills\n\nClaude Code, Cursor, GitHub Copilot, Windsurf, OpenAI, Gemini.\nAgentic frameworks.\nModel Context Protocol.\nAI-assisted engineering.\nPrompt engineering and workflow automation.\nAI with human validation and governance.\n\n\n\n\nLeadership and Startup Mindset\n\nStartup mindset.\nIndependent execution.\nHands-on across architecture and delivery.\nOwnership and accountability.\nCustomer-first.\nChallenge assumptions.\nContinuous learning.\nMentor others.\nHelp build the company.\n\n\n\n\nEducation\n\nBachelor's or Master's in a relevant field.\nRelevant cloud/data/AI certifications are a plus.\n\n\n\n\nAbout Trident Consulting\n\nTrident Consulting is an award-winning staffing and consulting firm headquartered in San Ramon, CA. Since 2005, we’ve partnered with Fortune 500 and high-growth companies to deliver high-quality talent across technology, engineering, business operations, and professional services.\n\n\n\n\nWe specialize in contract, contract-to-hire, and direct hire placements, supporting roles across IT, data & analytics, cloud, cybersecurity, finance & accounting, HR, operations, and more. With a strong focus on hard-to-fill and niche positions, our global recruiting engine enables us to deliver speed, quality, and scale.",
+      "requirements": [],
+      "responsibilities": [],
+      "skills": [],
+      "salary": null,
+      "posted_date": null,
+      "application_url": "https://www.linkedin.com/jobs/view/4473296636/",
+      "source_url": "https://www.linkedin.com/jobs/search/?f_AL=true&f_TPR=r3600&f_WT=2&origin=JOB_SEARCH_PAGE_JOB_FILTER&start=25",
+      "remote_type": "remote",
+      "raw_text_hash": "ae688bf2e3d92b7078223a5fcf9a4877e2f98fe804ba97a312695555b3c29563",
+      "discovered_at": "2026-09-29T18:33:47.816427Z"
+    },
+    "match_score": 34.3,
+    "recommendation": "poor_match",
+    "rule_evaluation": {
+      "passed": true,
+      "rejection_reasons": [],
+      "mandatory_skills_matched": [],
+      "mandatory_skills_missing": [],
+      "rule_score": 0.0,
+      "seniority_ok": true,
+      "role_related": true
+    },
+    "llm_analysis": {
+      "score": 30.0,
+      "role_match": 20.0,
+      "technical_match": 30.0,
+      "ai_match": 40.0,
+      "experience_match": 50.0,
+      "matched_skills": [
+        "AWS",
+        "Node.js",
+        "React.js",
+        "TypeScript",
+        "GitHub Copilot",
+        "Claude Code"
+      ],
+      "missing_required_skills": [
+        "data architecture",
+        "data modeling",
+        "ETL",
+        "ELT",
+        "CDC",
+        "streaming integration",
+        "data warehouses",
+        "lakehouses",
+        "mesh",
+        "fabric",
+        "governance",
+        "metadata",
+        "lineage",
+        "quality",
+        "analytics",
+        "AI-ready foundations",
+        "knowledge graphs",
+        "vector databases",
+        "ontologies",
+        "semantic modeling"
+      ],
+      "matched_requirements": [],
+      "strengths": [
+        "7 years of experience as a Full Stack Developer",
+        "Strong experience with cloud-native applications",
+        "Hands-on experience with AWS and modern development practices"
+      ],
+      "concerns": [
+        "Lacks specific experience in data architecture and engineering",
+        "No demonstrated experience with data modeling or ETL/ELT processes",
+        "Limited exposure to enterprise-scale data solutions"
+      ],
+      "recommendation": "reject",
+      "explanation": "The candidate has strong full stack development skills and experience with cloud technologies, but lacks the specific data architecture and engineering experience required for the role. Key skills such as data modeling, ETL/ELT, and experience with data warehouses and governance are not demonstrated in the profile."
+    },
+    "matched_skills": [
+      "AWS",
+      "Node.js",
+      "React.js",
+      "TypeScript",
+      "GitHub Copilot",
+      "Claude Code"
+    ],
+    "missing_required_skills": [
+      "data architecture",
+      "data modeling",
+      "ETL",
+      "ELT",
+      "CDC",
+      "streaming integration",
+      "data warehouses",
+      "lakehouses",
+      "mesh",
+      "fabric",
+      "governance",
+      "metadata",
+      "lineage",
+      "quality",
+      "analytics",
+      "AI-ready foundations",
+      "knowledge graphs",
+      "vector databases",
+      "ontologies",
+      "semantic modeling"
+    ],
+    "strengths": [
+      "7 years of experience as a Full Stack Developer",
+      "Strong experience with cloud-native applications",
+      "Hands-on experience with AWS and modern development practices"
+    ],
+    "concerns": [
+      "Lacks specific experience in data architecture and engineering",
+      "No demonstrated experience with data modeling or ETL/ELT processes",
+      "Limited exposure to enterprise-scale data solutions"
+    ],
+    "explanation": "The candidate has strong full stack development skills and experience with cloud technologies, but lacks the specific data architecture and engineering experience required for the role. Key skills such as data modeling, ETL/ELT, and experience with data warehouses and governance are not demonstrated in the profile.",
+    "rejected": false,
+    "rejection_reason": null,
+    "saved_key": "linkedin:4473296636",
+    "status": "new",
+    "first_seen_at": "2026-09-29T18:37:08.977195+00:00",
+    "last_seen_at": "2026-09-29T18:37:08.977195+00:00",
+    "run_ids": [
+      "job-search-20260929-183226-94c94205"
+    ]
+  },
+  "linkedin:4468604847": {
+    "job": {
+      "job_id": "a07aa0c23d2c88acf49bbe7a02fafc73d2ebfed5a97604bf8a280d8b1f0e9c74",
+      "source": "linkedin",
+      "source_job_id": "4468604847",
+      "title": "Principal AI Software Engineer, Agent Harness",
+      "company": "Mulya Technologies",
+      "location": "India (Remote)",
+      "employment_type": null,
+      "experience_required": null,
+      "description": "About the job\n\nPrincipal AI Software Engineer, Agent Harness\n\nwww.enchargeai.com\n\n\n\n\nJob Description:\n\nLocation: Remote (India)/Bangalore ( Hybrid- 2 days office/3 days home)\n\nPrincipal Research Engineer, Applied AI\n\n\n\n\nPrincipl AI Software Engineer, Agent Harness\n\nLocation: Bengaluru, Karnataka (or throughout India remote-friendly with travel)\n\nAbout EnCharge AI\n\nEnCharge AI is building the next generation AI platform. Our novel in-memory-computing architecture delivers a 10x step-function improvement in compute energy efficiency and performance for AI inference workloads. As the demands of artificial intelligence move beyond today's models, we believe fundamental underlying infrastructure must evolve. We are an experienced team of AI researchers, silicon & systems engineers, and architects backed by leading investors, poised to become the essential platform for the next wave of AI innovation.\n\nThe Opportunity\n\nWe serve open-weight models and our own bespoke checkpoints on EnCharge hardware. The models change often, and the harness around them needs to keep up. You own this layer that runs agents against files, tools, documents with permissions, memory, unattended execution, and real outputs. It will be assembled from a combination of open-source and bespoke code.\n\nKey Responsibilities\n\nOwn the harness architecture end to end — agent loop, safe execution, context management, knowledge base, memory, permissions, orchestration, outputs, interfaces, observability — one component per layer, with clear interfaces so layers can be swapped.\nBuild the pieces with no open-source equivalent e.g. session semantics, enforced permissions, memory in a human-editable file, orchestrator, and outputs.\nKeep pace with the models: adapters, prompt formats, tool-call schemas, stop conditions, benchmarking and evaluation.\nMake tool use reliable across models of uneven tool-calling quality — validation, repair, retries, fallbacks.\nDevelop agents, tools, and MCP servers for internal and customer use cases, and review them for security before they ship.\nBuild the evaluation harness: task suites, regression runs on every model or harness change, cost and latency per task alongside quality.\nDefine the interfaces: session API, CLI, GUI, and an endpoint existing tools can point at.\n\nQualifications\n\n10+ years of software engineering experience in backend systems or ML infrastructure\nStrong Python and at least one systems language (e.g., Go, Rust, C++)\nHave shipped and operated an agent loop in production — tool use, multi-step workflows, unattended runs\nHands-on with RAG, context management, and memory for LLM applications\nExperience with sandboxing, isolation, and permission models for automated systems\nHave run open-weight models yourself and understand how quantization and serving choices change model behaviour\nComfort in fast-moving, ambiguous environments where you define the roadmap; strong product instincts\n\nNice to Have\n\nContributions to open-source agent harnesses or coding agents\nExperience with agent benchmarks (e.g., SWE-bench, Terminal-Bench) and building internal task suites\nMoE serving familiarity e.g. expert placement, tensor parallelism, quantization etc.\nObservability for LLM systems\nDocument parsing and indexing pipelines\nDesktop or GUI application experience\n\n\n\n\nContact:\n\nUday\n\nMulya Technologies\n\nmuday_bhaskar@yahoo.com\n\n\"Mining The Knowledge Community\"",
+      "requirements": [],
+      "responsibilities": [],
+      "skills": [],
+      "salary": null,
+      "posted_date": null,
+      "application_url": "https://www.linkedin.com/jobs/view/4468604847/",
+      "source_url": "https://www.linkedin.com/jobs/search/?f_AL=true&f_TPR=r3600&f_WT=2&origin=JOB_SEARCH_PAGE_JOB_FILTER&start=25",
+      "remote_type": "remote",
+      "raw_text_hash": "a07aa0c23d2c88acf49bbe7a02fafc73d2ebfed5a97604bf8a280d8b1f0e9c74",
+      "discovered_at": "2026-09-29T18:33:51.491750Z"
+    },
+    "match_score": 34.3,
+    "recommendation": "poor_match",
+    "rule_evaluation": {
+      "passed": true,
+      "rejection_reasons": [],
+      "mandatory_skills_matched": [],
+      "mandatory_skills_missing": [],
+      "rule_score": 0.0,
+      "seniority_ok": true,
+      "role_related": true
+    },
+    "llm_analysis": {
+      "score": 35.0,
+      "role_match": 30.0,
+      "technical_match": 40.0,
+      "ai_match": 30.0,
+      "experience_match": 30.0,
+      "matched_skills": [
+        "AWS",
+        "Node.js",
+        "React.js",
+        "TypeScript"
+      ],
+      "missing_required_skills": [
+        "Python",
+        "Go",
+        "Rust",
+        "ML infrastructure experience",
+        "agent loop in production",
+        "RAG",
+        "context management",
+        "memory for LLM applications",
+        "sandboxing",
+        "isolation",
+        "permission models"
+      ],
+      "matched_requirements": [],
+      "strengths": [
+        "7 years of experience as a Full Stack Developer",
+        "Strong skills in AWS, Node.js, React.js, and TypeScript",
+        "Experience in building scalable applications"
+      ],
+      "concerns": [
+        "Lacks experience in Python and systems languages like Go or Rust",
+        "Does not have the required 10+ years of software engineering experience",
+        "No demonstrated experience with agent loops or ML infrastructure"
+      ],
+      "recommendation": "reject",
+      "explanation": "The candidate has strong full-stack development skills and relevant experience, but lacks critical qualifications such as Python proficiency, experience with agent loops, and the required 10+ years in software engineering, making them unsuitable for this Principal AI Software Engineer role."
+    },
+    "matched_skills": [
+      "AWS",
+      "Node.js",
+      "React.js",
+      "TypeScript"
+    ],
+    "missing_required_skills": [
+      "Python",
+      "Go",
+      "Rust",
+      "ML infrastructure experience",
+      "agent loop in production",
+      "RAG",
+      "context management",
+      "memory for LLM applications",
+      "sandboxing",
+      "isolation",
+      "permission models"
+    ],
+    "strengths": [
+      "7 years of experience as a Full Stack Developer",
+      "Strong skills in AWS, Node.js, React.js, and TypeScript",
+      "Experience in building scalable applications"
+    ],
+    "concerns": [
+      "Lacks experience in Python and systems languages like Go or Rust",
+      "Does not have the required 10+ years of software engineering experience",
+      "No demonstrated experience with agent loops or ML infrastructure"
+    ],
+    "explanation": "The candidate has strong full-stack development skills and relevant experience, but lacks critical qualifications such as Python proficiency, experience with agent loops, and the required 10+ years in software engineering, making them unsuitable for this Principal AI Software Engineer role.",
+    "rejected": false,
+    "rejection_reason": null,
+    "saved_key": "linkedin:4468604847",
+    "status": "new",
+    "first_seen_at": "2026-09-29T18:37:08.977195+00:00",
+    "last_seen_at": "2026-09-29T18:37:08.977195+00:00",
+    "run_ids": [
+      "job-search-20260929-183226-94c94205"
+    ]
+  },
+  "linkedin:4473503560": {
+    "job": {
+      "job_id": "9b1b92a34bc0cb8829ba5f2a4c4409a693f0fe4e26a5836954577866c2546560",
+      "source": "linkedin",
+      "source_job_id": "4473503560",
+      "title": "AI Engineer",
+      "company": "Mindtris",
+      "location": "India (Remote)",
+      "employment_type": null,
+      "experience_required": null,
+      "description": "About the job\n\nJob Title : AI Engineer\n\nLocation: India,Remote\n\nDuration: 6 months contracct with possible extension\n\nRole Description\n\n\nThe AI Engineer is responsible for the engineering execution and delivery of the machine learning systems behind Simplifisign's verification platform. This role owns the models and services that power identity and entity verification across KYC, KYB, and KYV workflows, and is accountable for their accuracy, latency, and auditability in production.\nThe AI Engineer partners closely with product and compliance stakeholders to translate verification requirements into technical solutions, and works alongside the platform engineering team to integrate model inference directly into live customer workflows. This role plays a key part in turning verification policy into executable pipelines and ensuring those pipelines hold up under regulatory scrutiny.\nEstablish the evaluation and monitoring layer for every deployed model, including offline evaluation harnesses, drift detection, shadow deployments, and production metric alignment\n\n\nQualifications\n\n\nUniversity degree/diploma in Computer Science, Engineering, or equivalent practical experience\n3+ years of software, data, or ML engineering experience, with at least 3 years shipping models that other production systems depend on\nStrong Python and PyTorch, plus the ability to write and own service code rather than handing off a model artifact\nHands on experience with transformer based document understanding, such as LayoutLM, Donut, or comparable architectures, and with classical OCR pipelines\nWorking knowledge of Go, gRPC service design, and Postgres schema and query performance\nDemonstrated experience with imbalanced classification, calibration, and threshold selection under real business cost constraints\nFamiliarity with model deployment, versioning, and monitoring in a containerized environment\n\n\nPreferred Qualifications\n\n\nGraph modelling and entity resolution experience, ideally with Neo4j or a comparable graph database\nBackground in fintech, RegTech, identity verification, or another regulated domain\nExposure to AML, sanctions screening, or adverse media matching\nExperience with retrieval augmented generation or LLM based extraction where deterministic parsing is insufficient\n\n\nMindtris, a minority women-owned enterprise, is at the forefront of digital transformation, technology excellence, and business growth solutions. Specializing in talent mobilization and innovation, we are dedicated to enhancing customer experiences across diverse sectors such as Information Technology, Telecommunications, Healthcare, Engineering, and the Public sector. With a focus on deploying top-tier talent and fostering innovation, we empower businesses to thrive and excel in a rapidly evolving digital landscape, helping them reach new heights of success.\n\nMindtris is committed to fostering workforce diversity and is proud to be an equal opportunity employer.\n\n\n\nDesired Skills and Experience\n\nPython, Database, Translate, Deployment, Postgres, AML, PyTorch, Machine Learning, Shipping, RPC, Neo4j, Parsing, OCR, Calibration, Harnesses",
+      "requirements": [],
+      "responsibilities": [],
+      "skills": [],
+      "salary": null,
+      "posted_date": null,
+      "application_url": "https://www.linkedin.com/jobs/view/4473503560/",
+      "source_url": "https://www.linkedin.com/jobs/search/?currentJobId=4471295383&f_AL=true&f_TPR=r3600&f_WT=2&origin=JOB_SEARCH_PAGE_JOB_FILTER",
+      "remote_type": "remote",
+      "raw_text_hash": "9b1b92a34bc0cb8829ba5f2a4c4409a693f0fe4e26a5836954577866c2546560",
+      "discovered_at": "2026-09-29T18:32:55.858277Z"
+    },
+    "match_score": 31.5,
+    "recommendation": "poor_match",
+    "rule_evaluation": {
+      "passed": true,
+      "rejection_reasons": [],
+      "mandatory_skills_matched": [],
+      "mandatory_skills_missing": [],
+      "rule_score": 0.0,
+      "seniority_ok": true,
+      "role_related": true
+    },
+    "llm_analysis": {
+      "score": 35.0,
+      "role_match": 30.0,
+      "technical_match": 30.0,
+      "ai_match": 40.0,
+      "experience_match": 40.0,
+      "matched_skills": [
+        "Python"
+      ],
+      "missing_required_skills": [
+        "PyTorch",
+        "transformer based document understanding",
+        "Go",
+        "gRPC service design",
+        "Postgres schema and query performance",
+        "imbalanced classification",
+        "calibration",
+        "threshold selection",
+        "model deployment",
+        "versioning",
+        "monitoring in a containerized environment",
+        "Graph modelling",
+        "entity resolution",
+        "Neo4j",
+        "AML",
+        "sanctions screening",
+        "adverse media matching",
+        "retrieval augmented generation",
+        "LLM based extraction"
+      ],
+      "matched_requirements": [],
+      "strengths": [
+        "7 years of experience as a Full Stack Developer",
+        "Strong focus on cloud-native applications and AI-driven development practices",
+        "Experience in optimizing CI/CD pipelines and application performance"
+      ],
+      "concerns": [
+        "Lack of specific experience in machine learning and AI model deployment",
+        "No demonstrated experience with PyTorch or transformer models",
+        "Limited exposure to regulated domains like fintech or identity verification"
+      ],
+      "recommendation": "reject",
+      "explanation": "The candidate has strong full-stack development experience but lacks critical skills and experience in machine learning, particularly with PyTorch and model deployment, which are essential for the AI Engineer role."
+    },
+    "matched_skills": [
+      "Python"
+    ],
+    "missing_required_skills": [
+      "PyTorch",
+      "transformer based document understanding",
+      "Go",
+      "gRPC service design",
+      "Postgres schema and query performance",
+      "imbalanced classification",
+      "calibration",
+      "threshold selection",
+      "model deployment",
+      "versioning",
+      "monitoring in a containerized environment",
+      "Graph modelling",
+      "entity resolution",
+      "Neo4j",
+      "AML",
+      "sanctions screening",
+      "adverse media matching",
+      "retrieval augmented generation",
+      "LLM based extraction"
+    ],
+    "strengths": [
+      "7 years of experience as a Full Stack Developer",
+      "Strong focus on cloud-native applications and AI-driven development practices",
+      "Experience in optimizing CI/CD pipelines and application performance"
+    ],
+    "concerns": [
+      "Lack of specific experience in machine learning and AI model deployment",
+      "No demonstrated experience with PyTorch or transformer models",
+      "Limited exposure to regulated domains like fintech or identity verification"
+    ],
+    "explanation": "The candidate has strong full-stack development experience but lacks critical skills and experience in machine learning, particularly with PyTorch and model deployment, which are essential for the AI Engineer role.",
+    "rejected": false,
+    "rejection_reason": null,
+    "saved_key": "linkedin:4473503560",
+    "status": "new",
+    "first_seen_at": "2026-09-29T18:37:08.977195+00:00",
+    "last_seen_at": "2026-09-29T18:37:08.977195+00:00",
+    "run_ids": [
+      "job-search-20260929-183226-94c94205"
+    ]
+  }
+}
