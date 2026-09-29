@@ -7,6 +7,12 @@ import sys
 from dotenv import load_dotenv
 from flask import Flask
 
+# Scraped job text is full of non-cp1252 characters (₹, ē, emoji); on a Windows
+# console a stray print() of it would otherwise raise UnicodeEncodeError mid-run.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+
 from routes.main_routes import main_bp
 from routes.remote_job_finder_routes import remote_job_finder_bp
 from interviewSimulator.graph import show_graph

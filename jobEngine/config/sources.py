@@ -34,6 +34,7 @@ class JobSourceConfig(BaseModel):
     adapter: str = Field(min_length=1, max_length=64)
     graph_node: str | None = None
     requires_auth: bool = False
+    signin_url: str | None = None
     browser_profile: str = "default"
     timeout_seconds: int = Field(default=60, ge=1, le=600)
     max_jobs: int = Field(default=100, ge=1, le=1000)
@@ -61,6 +62,11 @@ class JobSourceConfig(BaseModel):
     @classmethod
     def _validate_search_urls(cls, values: list[str]) -> list[str]:
         return [_validate_url(v, field_name="search_urls") for v in values]
+
+    @field_validator("signin_url")
+    @classmethod
+    def _validate_signin_url(cls, value: str | None) -> str | None:
+        return _validate_url(value, field_name="signin_url") if value else value
 
     @model_validator(mode="after")
     def _fill_defaults(self) -> "JobSourceConfig":

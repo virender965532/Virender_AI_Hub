@@ -21,21 +21,23 @@ job_sources:
     enabled: true
     base_url: "https://www.linkedin.com"
     search_urls:
-      - "https://www.linkedin.com/jobs/search/?keywords=AI%20Full%20Stack%20Engineer"
-      - "https://www.linkedin.com/jobs/search/?keywords=Generative%20AI%20Engineer"
+      - "https://www.linkedin.com/jobs/search/?currentJobId=4471295383&f_AL=true&f_TPR=r3600&f_WT=2&origin=JOB_SEARCH_PAGE_JOB_FILTER"
     adapter: linkedin
+    signin_url: "https://www.linkedin.com/login/?trk=guest_homepage-basic_nav-header-signin"
+    allowed_domains: ["linkedin.com", "licdn.com"]
     graph_node: linkedin_job_node
     requires_auth: true
     browser_profile: default
     timeout_seconds: 60
-    max_jobs: 50
-    max_pages: 5
+    max_jobs: 400
+    max_pages: 20
     rate_limit_delay_seconds: 2.0
     notes: >
-      Requires an authenticated Playwright storage_state (LINKEDIN_STORAGE_STATE_PATH env
-      var) generated out-of-band by the candidate logging in manually — no password
-      automation or anti-bot bypass is attempted. Without it, this source reports a
-      structured SourceError ("auth_required") and the run continues with other sources.
+      Reuses the saved Playwright session (LINKEDIN_STORAGE_STATE_PATH, default
+      history/job_engine/linkedin_storage_state.json). If it is missing or expired, signs
+      in at signin_url with LINKEDIN_EMAIL / LINKEDIN_PASSWORD and saves a fresh session.
+      No CAPTCHA/anti-bot bypass: a security checkpoint must be completed by hand
+      (JOB_BROWSER_HEADLESS=false), otherwise the source reports a SourceError.
 
   - id: instinctools
     name: Instinctools
@@ -56,27 +58,3 @@ job_sources:
       verification/updates if Instinctools changes their markup (see
       docs/job_engine/SOURCE_ADAPTER_GUIDE.md "Known limitations").
 
-  - id: generic_example
-    name: Generic Careers Page Example (disabled template)
-    enabled: false
-    base_url: "https://example.com"
-    search_urls:
-      - "https://example.com/careers"
-    adapter: generic
-    requires_auth: false
-    browser_profile: default
-    timeout_seconds: 60
-    max_jobs: 100
-    max_pages: 5
-    rate_limit_delay_seconds: 1.0
-    selectors:
-      job_card: ".job-card"
-      title: ".job-title"
-      company: ".company"
-      location: ".location"
-      url: "a"
-      description: ".description"
-    notes: >
-      Template for adding a new plain career page without writing a dedicated adapter:
-      copy this block, set enabled: true, point base_url/search_urls at the real site,
-      and fill in the CSS selectors for that site's markup.

@@ -15,7 +15,7 @@ def test_real_job_sources_yaml_loads_and_validates():
     assert "instinctools" in ids
     linkedin = next(s for s in sources if s.id == "linkedin")
     assert linkedin.requires_auth is True
-    assert linkedin.allowed_domains == ["www.linkedin.com"]
+    assert linkedin.allowed_domains == ["linkedin.com", "licdn.com"]
 
 
 def test_rejects_non_http_scheme():

@@ -16,6 +16,7 @@ from typing import Any
 
 from ...config.settings import get_settings
 from ...config.sources import JobSourceConfig
+from ...guardrails.content_limits import enforce_description_size
 from ...guardrails.url_guardrails import SSRFViolation, validate_navigation_url
 from ...models.errors import SourceError, SourceErrorStatus
 from ...sources import circuit_breaker
@@ -105,16 +106,19 @@ def create_source_node(source_config: JobSourceConfig) -> NodeFn:
             circuit_breaker.record_success(cfg.id)
 
 
+        # Only fetch detail pages for jobs the adapter returned without a description
+        # (e.g. link-scan fallback); adapters like LinkedIn already read it in-session.
+        missing = [job for job in result.jobs if not job.description]
         detail_texts = await asyncio.gather(
-            *[_fetch_job_detail(browser_manager, cfg, job.application_url) for job in result.jobs]
+            *[_fetch_job_detail(browser_manager, cfg, job.application_url) for job in missing]
         )
-        for i, (job, detail_text) in enumerate(zip(result.jobs, detail_texts), 1):
-            print(f"\nJob #{i}")
-            print(f"  Title: {job.title}")
-            print(f"  Company: {job.company}")
-            print(f"  URL: {job.application_url}")
+        for job, detail_text in zip(missing, detail_texts):
             if detail_text:
-                print(f"  Detail: {detail_text}")
+                job.description = enforce_description_size(detail_text)
+        for i, job in enumerate(result.jobs, 1):
+            logger.debug(
+                "source=%s job #%s: %s | %s | %s", cfg.id, i, job.title, job.company, job.application_url
+            )
         logger.info(
             "source=%s: status=%s jobs=%s pages=%s duration_ms=%s errors=%s",
             cfg.id, result.status, len(result.jobs), result.pages_processed, result.duration_ms, len(result.errors),

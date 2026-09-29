@@ -26,6 +26,11 @@
     flex: 1;
     min-width: 16rem;
   }
+  #rjf-keywords {
+    resize: vertical;
+    min-height: 2.6rem;
+    font: inherit;
+  }
   .rjf-config__num {
     width: 8rem;
     max-width: 8rem;
@@ -188,21 +193,22 @@
     <div class="rjf-config__row">
       <div class="rjf-config__field rjf-config__field--grow">
         <label class="job-control-label" for="rjf-keywords">Keywords</label>
-        <input
-          type="search"
+        <textarea
           id="rjf-keywords"
           class="job-filter-input"
-          placeholder="e.g. AI Engineer, Full Stack AI Engineer, GenAI Engineer (comma separated)"
+          rows="2"
+          placeholder='Comma separated (AI Engineer, GenAI Engineer) or boolean: ("Senior Full Stack Engineer" OR "Senior Full-Stack Developer") AND (React OR Next.js) AND AWS NOT Java'
           autocomplete="off"
-        />
+          spellcheck="false"
+        ></textarea>
       </div>
       <div class="rjf-config__field">
         <label class="job-control-label" for="rjf-min-score">Min match score</label>
-        <input type="number" id="rjf-min-score" class="job-filter-input rjf-config__num" min="0" max="100" step="1" value="10" />
+        <input type="number" id="rjf-min-score" class="job-filter-input rjf-config__num" min="0" max="100" step="1" value="30" />
       </div>
       <div class="rjf-config__field">
         <label class="job-control-label" for="rjf-max-results">Max results</label>
-        <input type="number" id="rjf-max-results" class="job-filter-input rjf-config__num" min="1" max="200" step="1" value="5" />
+        <input type="number" id="rjf-max-results" class="job-filter-input rjf-config__num" min="1" max="200" step="1" value="10" />
       </div>
     </div>
 
@@ -213,7 +219,7 @@
 
     <div class="rjf-config__actions">
       <label class="job-toolbar-check" title="Only include remote-friendly roles in the results below.">
-        <input type="checkbox" id="rjf-remote-only" />
+        <input type="checkbox" id="rjf-remote-only" checked />
         <span>Remote roles only</span>
       </label>
       <button type="button" id="rjf-btn-search" class="btn">Find remote jobs</button>

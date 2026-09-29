@@ -12,10 +12,10 @@ Full Stack Developer with 7 years of experience designing, building, and scaling
 TECHNICAL SKILLS
 
 Front-End Development:
-Next.js, React.js, JavaScript, TypeScript, HTML, CSS, Angular
+Next.js, React.js, JavaScript, TypeScript, HTML, CSS
 
 Back-End Development:
-Node.js, Strapi, GraphQL, Python, REST APIs, Microservices, Express
+Node.js, Strapi, GraphQL, REST APIs, Microservices, Express
 
 Cloud & Infrastructure:
 Vercel, AWS EC2 & ALB, AWS Lambda, AWS S3, AWS OpenSearch, AWS Cognito, AWS CloudWatch & CloudFront, AWS API Gateway, AWS IAM, AWS VPC, AWS Route53, CI/CD Pipelines, Docker, Git
@@ -23,8 +23,6 @@ Vercel, AWS EC2 & ALB, AWS Lambda, AWS S3, AWS OpenSearch, AWS Cognito, AWS Clou
 Databases:
 PostgreSQL, DynamoDB, MySQL, Pinecone, Chroma, FAISS
 
-AI:
-GEN AI, LLMs, RAG, Agentic AI, LangGraph
 
 AI Tools:
 GitHub Copilot, Cursor, Claude Code
