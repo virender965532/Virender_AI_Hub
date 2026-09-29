@@ -21,23 +21,23 @@ job_sources:
     enabled: true
     base_url: "https://www.linkedin.com"
     search_urls:
-      - "https://www.linkedin.com/jobs/search/?currentJobId=4471295383&f_AL=true&f_TPR=r3600&f_WT=2&origin=JOB_SEARCH_PAGE_JOB_FILTER"
+      - "https://www.linkedin.com/jobs/search-results/?keywords=%28JavaScript%20OR%20TypeScript%29%20AND%20%28React%20OR%20%22React.js%22%20OR%20Next.js%29%20AND%20%28Node.js%20OR%20Node%29%20AND%20AWS%20NOT%20Python%20NOT%20Java%20NOT%20%22.NET%22%20NOT%20%22C%23%22&origin=JOB_SEARCH_PAGE_JOB_FILTER&referralSearchId=JmVqo1tRdxIEMQQB2PxpeA%3D%3D&start=0&f_TPR=r86400&f_AL=true&f_SAL=f_SA_id_225001%3A272001"
     adapter: linkedin
     signin_url: "https://www.linkedin.com/login/?trk=guest_homepage-basic_nav-header-signin"
     allowed_domains: ["linkedin.com", "licdn.com"]
     graph_node: linkedin_job_node
     requires_auth: true
     browser_profile: default
-    timeout_seconds: 60
+    timeout_seconds: 300
     max_jobs: 400
     max_pages: 20
-    rate_limit_delay_seconds: 2.0
+    rate_limit_delay_seconds: 20.0
     notes: >
       Reuses the saved Playwright session (LINKEDIN_STORAGE_STATE_PATH, default
       history/job_engine/linkedin_storage_state.json). If it is missing or expired, signs
       in at signin_url with LINKEDIN_EMAIL / LINKEDIN_PASSWORD and saves a fresh session.
       No CAPTCHA/anti-bot bypass: a security checkpoint must be completed by hand
-      (JOB_BROWSER_HEADLESS=false), otherwise the source reports a SourceError.
+      (JOB_BROWSER_HEADLESS=true), otherwise the source reports a SourceError.
 
   - id: instinctools
     name: Instinctools

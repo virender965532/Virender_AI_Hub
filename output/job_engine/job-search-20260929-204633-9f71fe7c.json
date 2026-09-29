@@ -1,0 +1,980 @@
+{
+  "run_id": "job-search-20260929-204633-9f71fe7c",
+  "status": "completed",
+  "summary": {
+    "sources_processed": 1,
+    "jobs_discovered": 156,
+    "jobs_validated": 144,
+    "duplicates_removed": 0,
+    "already_saved_skipped": 19,
+    "jobs_matched": 144,
+    "jobs_recommended": 10,
+    "degraded": false,
+    "degraded_reason": null
+  },
+  "jobs": [
+    {
+      "job": {
+        "job_id": "76e827eb6ffce8268765a4e03ec3e508349338209802e5f80199d8fa3c921e8b",
+        "source": "linkedin",
+        "source_job_id": "4473076466",
+        "title": "Cloud Engineer",
+        "company": "HRM Counsel",
+        "location": "India (Remote)",
+        "employment_type": null,
+        "experience_required": null,
+        "description": "About the job\n\nWe are looking for an experienced cloud engineer to work with our engineering team to develop, implement, optimize, and maintain cloud-based solutions. You will be responsible for deploying and debugging cloud stacks, educating teams on new cloud initiatives, and ensuring the security of the cloud infrastructure. To be successful as a cloud engineer, you should be able to identify the most optimal cloud-based solutions for our clients and maintain cloud infrastructures in accordance with best practices and company security policies. A top-notch cloud engineer should have excellent troubleshooting skills, stay current with industry trends, and should be a team player.\n\n\n\n\nResponsibilities:\n\nCollaborating with engineering and development teams to evaluate and identify optimal cloud solutions.\nModifying and improving existing systems.\nEducating teams on the implementation of new cloud technologies and initiatives.\nDesigning, developing and deploying modular cloud-based systems.\nDeveloping and maintaining cloud solutions in accordance with best practices.\nEnsuring efficient functioning of data storage and processing functions in accordance with company security policies and best practices in cloud security.\nIdentifying, analyzing, and resolving infrastructure vulnerabilities and application deployment issues.\nRegularly reviewing existing systems and making recommendations for improvements.\nInteracting with clients, providing cloud support, and making recommendations based on client needs.\n\n\n\n\nRequirements:\n\nDegree in computer science or a similar field.\nExperience with CI/CD systems.\nExperience with SysOps.\nAzure, AWS, and GCP certifications preferred.\nTroubleshooting and analytical skills.\nGood communication and collaboration skills.\nClient management skills.",
+        "requirements": [],
+        "responsibilities": [],
+        "skills": [],
+        "salary": null,
+        "posted_date": "2026-09-29T16:47:27.299769Z",
+        "application_url": "https://www.linkedin.com/jobs/view/4473076466/",
+        "source_url": "https://www.linkedin.com/jobs/search/?f_AL=true&f_TPR=r14400&f_WT=2&origin=JOB_SEARCH_PAGE_JOB_FILTER&start=25",
+        "remote_type": "remote",
+        "raw_text_hash": "76e827eb6ffce8268765a4e03ec3e508349338209802e5f80199d8fa3c921e8b",
+        "discovered_at": "2026-09-29T20:47:27.299769Z"
+      },
+      "match_score": 70.2,
+      "recommendation": "good_match",
+      "rule_evaluation": {
+        "passed": true,
+        "rejection_reasons": [],
+        "mandatory_skills_matched": [],
+        "mandatory_skills_missing": [],
+        "rule_score": 0.0,
+        "seniority_ok": true,
+        "role_related": true
+      },
+      "llm_analysis": {
+        "score": 75.0,
+        "role_match": 80.0,
+        "technical_match": 70.0,
+        "ai_match": 60.0,
+        "experience_match": 80.0,
+        "matched_skills": [
+          "AWS",
+          "CI/CD Pipelines"
+        ],
+        "missing_required_skills": [
+          "SysOps",
+          "Azure",
+          "GCP certifications"
+        ],
+        "matched_requirements": [
+          "Degree in computer science or a similar field",
+          "Experience with CI/CD systems",
+          "Troubleshooting and analytical skills",
+          "Good communication and collaboration skills"
+        ],
+        "strengths": [
+          "7 years of experience in cloud-native applications",
+          "Strong focus on cloud technologies and optimization",
+          "Proven track record of improving performance and deployment cycles"
+        ],
+        "concerns": [
+          "No demonstrated experience with SysOps",
+          "No Azure or GCP certifications mentioned"
+        ],
+        "recommendation": "good_match",
+        "explanation": "The candidate has strong experience in cloud-native applications and relevant skills in AWS and CI/CD, aligning well with the role. However, the lack of SysOps experience and Azure/GCP certifications are notable gaps."
+      },
+      "matched_skills": [
+        "AWS",
+        "CI/CD Pipelines"
+      ],
+      "missing_required_skills": [
+        "SysOps",
+        "Azure",
+        "GCP certifications"
+      ],
+      "strengths": [
+        "7 years of experience in cloud-native applications",
+        "Strong focus on cloud technologies and optimization",
+        "Proven track record of improving performance and deployment cycles"
+      ],
+      "concerns": [
+        "No demonstrated experience with SysOps",
+        "No Azure or GCP certifications mentioned"
+      ],
+      "explanation": "The candidate has strong experience in cloud-native applications and relevant skills in AWS and CI/CD, aligning well with the role. However, the lack of SysOps experience and Azure/GCP certifications are notable gaps.",
+      "rejected": false,
+      "rejection_reason": null
+    },
+    {
+      "job": {
+        "job_id": "ba7cf38d9499e0d2734488ae0b13aea2eb39858decc5f176e174a474b76e3596",
+        "source": "linkedin",
+        "source_job_id": "4471909999",
+        "title": "Data Engineer (Night Shift)",
+        "company": "NXTPods",
+        "location": "India (Remote)",
+        "employment_type": null,
+        "experience_required": null,
+        "description": "About the job\n\nJob Description: Sr. Software Engineer / Data Engineer – Packaged Product Implementation \n\n\n\n\nCompany Overview: NXTPods is a dynamic and innovative technology company specializing in Digital Engineering Services for large global clients in the USA. We pride ourselves on fostering a collaborative and forward-thinking work environment where creativity and technical excellence thrive. \n\n\n\n\nPosition: Data Engineer \n\n\n\n\nLocation: Remote, India \n\n\n\n\nExperience level: 7+ years \n\n\n\n\nAbout the Role : We are looking for a hands-on Senior Backend Software Engineer or Data Engineer to support the implementation and customization of a packaged software product for enterprise customers. \n\nThis role is ideal for someone who can understand a packaged product, work with customer-specific data and integrations, troubleshoot issues, and develop practical solutions when the standard product capabilities need to be extended. \n\nThe role requires strong technical fundamentals, good communication skills, and the ability to work independently during U.S. hours.\n\n\n\n\nKey Responsibilities: \n\nImplement and configure a packaged software product for customer environments. \nDevelop backend scripts, APIs, data transformations, and integrations as required. \nWork with customer databases and data sources to support product implementation. \nAnalyze differences between source and target systems and design appropriate data-migration or transformation solutions. \nTroubleshoot integration, data, and application issues. \nUnderstand customer requirements and translate them into technical solutions. \nWork closely with U.S.-based product, engineering, and implementation teams. \nClearly document technical solutions, implementation steps, and issues. \nTake ownership of assigned tasks and follow through independently. \nParticipate in customer and internal discussions when technical clarification is required. \n\n\n\n\nMust Have Requirements: \n\n3+ years of experience as a Senior Software Engineer (Backend), Data Engineer, or similar role. \nStrong hands-on programming and problem-solving experience. \nExperience working with APIs, databases, data transformation, and backend systems. \nAbility to explain technical projects and solutions clearly to both technical and non-technical audiences. \nStrong analytical skills and ability to break down ambiguous requirements into practical technical solutions. \nDemonstrated ability to work independently and take ownership of deliverables. \nAvailable to work U.S. night-shift hours. \nAvailable to start immediately or within 2 weeks. \n\n\n\n\nGood to Have: \n\nExperience with Python. \nExperience implementing enterprise software or packaged products. \nExperience with ETL/data migration or system integrations. \nExperience working directly with customers or implementation teams. \n\nWhat We Are Looking For \n\nThis is a hands-on implementation role, not simply a coordination or support position. We want someone who can understand a requirement, think through the solution, and write the code when needed. \n\nBecause this position requires U.S. night-shift hours, reliability and commitment to the work schedule are particularly important. Candidates should be comfortable with the schedule and able to consistently work during the agreed hours. \n\nWorking Hours: Comfortable working in the 5:30 PM IST – 2:30 AM IST shift.",
+        "requirements": [],
+        "responsibilities": [],
+        "skills": [],
+        "salary": null,
+        "posted_date": "2026-09-29T16:46:55.110768Z",
+        "application_url": "https://www.linkedin.com/jobs/view/4471909999/",
+        "source_url": "https://www.linkedin.com/jobs/search/?f_AL=true&f_TPR=r14400&f_WT=2&origin=JOB_SEARCH_PAGE_JOB_FILTER",
+        "remote_type": "remote",
+        "raw_text_hash": "ba7cf38d9499e0d2734488ae0b13aea2eb39858decc5f176e174a474b76e3596",
+        "discovered_at": "2026-09-29T20:46:55.110768Z"
+      },
+      "match_score": 64.0,
+      "recommendation": "possible_match",
+      "rule_evaluation": {
+        "passed": true,
+        "rejection_reasons": [],
+        "mandatory_skills_matched": [],
+        "mandatory_skills_missing": [],
+        "rule_score": 0.0,
+        "seniority_ok": true,
+        "role_related": true
+      },
+      "llm_analysis": {
+        "score": 60.0,
+        "role_match": 50.0,
+        "technical_match": 70.0,
+        "ai_match": 50.0,
+        "experience_match": 70.0,
+        "matched_skills": [
+          "APIs",
+          "databases",
+          "data transformation"
+        ],
+        "missing_required_skills": [
+          "Python",
+          "ETL/data migration",
+          "implementing enterprise software or packaged products"
+        ],
+        "matched_requirements": [
+          "3+ years of experience as a Senior Software Engineer (Backend), Data Engineer, or similar role",
+          "Strong hands-on programming and problem-solving experience",
+          "Experience working with APIs, databases, data transformation, and backend systems",
+          "Ability to explain technical projects and solutions clearly to both technical and non-technical audiences",
+          "Strong analytical skills and ability to break down ambiguous requirements into practical technical solutions",
+          "Demonstrated ability to work independently and take ownership of deliverables"
+        ],
+        "strengths": [
+          "7 years of experience in software development",
+          "Strong experience with backend systems and APIs",
+          "Proven ability to optimize and improve application performance"
+        ],
+        "concerns": [
+          "No experience with Python is noted, which is a preferred skill for the role",
+          "Lack of specific experience with ETL/data migration or implementing packaged products"
+        ],
+        "recommendation": "possible_match",
+        "explanation": "The candidate has relevant experience and skills in backend development and APIs, but lacks experience with Python and ETL/data migration, which are important for the Data Engineer role. Overall, the candidate shows potential but may need to bridge some gaps in required skills."
+      },
+      "matched_skills": [
+        "APIs",
+        "databases",
+        "data transformation"
+      ],
+      "missing_required_skills": [
+        "Python",
+        "ETL/data migration",
+        "implementing enterprise software or packaged products"
+      ],
+      "strengths": [
+        "7 years of experience in software development",
+        "Strong experience with backend systems and APIs",
+        "Proven ability to optimize and improve application performance"
+      ],
+      "concerns": [
+        "No experience with Python is noted, which is a preferred skill for the role",
+        "Lack of specific experience with ETL/data migration or implementing packaged products"
+      ],
+      "explanation": "The candidate has relevant experience and skills in backend development and APIs, but lacks experience with Python and ETL/data migration, which are important for the Data Engineer role. Overall, the candidate shows potential but may need to bridge some gaps in required skills.",
+      "rejected": false,
+      "rejection_reason": null
+    },
+    {
+      "job": {
+        "job_id": "c225ff36a8931afc4b9e6375613d07edb3e187fb6eea5cd7d2eb8434762b3e4c",
+        "source": "linkedin",
+        "source_job_id": "4473072820",
+        "title": "DevOps Engineer",
+        "company": "HRM Counsel",
+        "location": "India (Remote)",
+        "employment_type": null,
+        "experience_required": null,
+        "description": "About the job\n\nWe are searching for a decisive and insightful DevOps engineer to join our reputable company. The DevOps engineer will be involved in various stages of each product's lifespan and should remain abreast of technological advancements to promote efficiency. You should also keep track of customer reviews to enhance marketability. To ensure success as a DevOps engineer, you should ensure that all outputs remain safe for public consumption. Ultimately, a top-notch DevOps engineer will demonstrate excellent leadership skills and the capacity to mentor junior staff.\n\n\n\n\nResponsibilities:\n\nCollaborating with coworkers to conceptualize, develop, and release software.\nConducting quality assurance to ensure that the software meets prescribed guidelines.\nRolling out fixes and upgrades to software, as needed.\nSecuring software to prevent security breaches and other vulnerabilities.\nCollecting and reviewing customers' feedback to enhance user experience.\nSuggesting alterations to workflow in order to improve efficiency and success.\nPitching ideas for projects based on gaps in the market and technological advancements.\n\n\n\n\nRequirements:\n\nDegree in computer science, software engineering, or an adjacent field.\nPrior experience at all phases of the software product life cycle, from conception to extinction.\nExperience using an array of automation tools.\nFamiliarity with software security methods.\nDemonstrated experience using a wide variety of coding languages.\nCurious, discerning envelope pusher.\nTop-notch decision-making and collaborative abilities.\nCustomer-oriented with the ability to receive and use constructive criticism.",
+        "requirements": [],
+        "responsibilities": [],
+        "skills": [],
+        "salary": null,
+        "posted_date": "2026-09-29T16:48:14.104070Z",
+        "application_url": "https://www.linkedin.com/jobs/view/4473072820/",
+        "source_url": "https://www.linkedin.com/jobs/search/?f_AL=true&f_TPR=r14400&f_WT=2&origin=JOB_SEARCH_PAGE_JOB_FILTER&start=50",
+        "remote_type": "remote",
+        "raw_text_hash": "c225ff36a8931afc4b9e6375613d07edb3e187fb6eea5cd7d2eb8434762b3e4c",
+        "discovered_at": "2026-09-29T20:48:14.104070Z"
+      },
+      "match_score": 59.0,
+      "recommendation": "possible_match",
+      "rule_evaluation": {
+        "passed": true,
+        "rejection_reasons": [],
+        "mandatory_skills_matched": [],
+        "mandatory_skills_missing": [],
+        "rule_score": 0.0,
+        "seniority_ok": true,
+        "role_related": true
+      },
+      "llm_analysis": {
+        "score": 60.0,
+        "role_match": 50.0,
+        "technical_match": 70.0,
+        "ai_match": 50.0,
+        "experience_match": 70.0,
+        "matched_skills": [
+          "AWS",
+          "CI/CD Pipelines",
+          "Docker",
+          "Git"
+        ],
+        "missing_required_skills": [
+          "DevOps",
+          "automation tools",
+          "software security methods",
+          "variety of coding languages"
+        ],
+        "matched_requirements": [
+          "Degree in computer science, software engineering, or an adjacent field",
+          "Prior experience at all phases of the software product life cycle, from conception to extinction"
+        ],
+        "strengths": [
+          "7 years of experience in software development",
+          "Strong focus on performance optimization and clean code",
+          "Experience with cloud-native applications"
+        ],
+        "concerns": [
+          "Lack of explicit DevOps experience",
+          "No mention of specific automation tools used",
+          "Limited evidence of software security methods"
+        ],
+        "recommendation": "possible_match",
+        "explanation": "The candidate has relevant experience in software development and cloud technologies, but lacks explicit DevOps experience and specific automation tools knowledge. While they have strong technical skills, the role requires a more focused DevOps background."
+      },
+      "matched_skills": [
+        "AWS",
+        "CI/CD Pipelines",
+        "Docker",
+        "Git"
+      ],
+      "missing_required_skills": [
+        "DevOps",
+        "automation tools",
+        "software security methods",
+        "variety of coding languages"
+      ],
+      "strengths": [
+        "7 years of experience in software development",
+        "Strong focus on performance optimization and clean code",
+        "Experience with cloud-native applications"
+      ],
+      "concerns": [
+        "Lack of explicit DevOps experience",
+        "No mention of specific automation tools used",
+        "Limited evidence of software security methods"
+      ],
+      "explanation": "The candidate has relevant experience in software development and cloud technologies, but lacks explicit DevOps experience and specific automation tools knowledge. While they have strong technical skills, the role requires a more focused DevOps background.",
+      "rejected": false,
+      "rejection_reason": null
+    },
+    {
+      "job": {
+        "job_id": "0f6c45bd429895452dfe1fd414d8e1ef0f41480539020057ce807e8de028e598",
+        "source": "linkedin",
+        "source_job_id": "4471932188",
+        "title": "Sr AI/Machine Learning Engineer / Senior Consultant- AI & Automation",
+        "company": "Astreya",
+        "location": "India (Remote)",
+        "employment_type": null,
+        "experience_required": null,
+        "description": "About the job\n\nJob Description\n\nThe Senior Software Engineer specializing in Artificial Intelligence and Machine Learning will be responsible for developing and implementing cutting-edge AI and ML solutions that enhance our IT managed services across Data Center and Network Management, Digital Workplace Services, and other solutions. The ideal candidate will have a strong background in software engineering, deep expertise in AI/ML technologies, and the ability to apply these skills to solve complex IT challenges.\n\n\n\n\nKey Responsibilities\n\nDesign, develop, and implement AI and ML solutions that improve the efficiency and effectiveness of Astreya's IT managed services\nCollaborate with cross-functional teams to identify opportunities for AI/ML integration in existing systems and processes\nDevelop and maintain scalable AI/ML models for various applications, such as predictive maintenance, anomaly detection, and automated incident response\nImplement natural language processing (NLP) solutions to enhance service desk operations and customer interactions\nCreate and optimize algorithms for data mining, machine learning, and statistical analysis\nWork on computer vision projects to enhance IT asset management and security surveillance systems\nDevelop AI-powered automation solutions for network management and cybersecurity threat detection\nConduct research on the latest AI/ML technologies and methodologies to drive innovation within the organization\nCollaborate with data engineers to ensure high-quality data pipelines for AI/ML models\nParticipate in the full software development lifecycle, including requirements gathering, design, implementation, testing, and deployment\nDocument technical specifications, architecture designs, and best practices for AI/ML solutions\nEnsure that AI/ML solutions comply with relevant industry standards and regulations\n\n\n\n\nRequirements\n\nBachelor's or Master's degree in Computer Science, Artificial Intelligence, Machine Learning, or a related field\n10+ years of software engineering experience, with at least 4 years focused on AI/ML development\nStrong proficiency in programming languages such as Python or Java\nExtensive experience with machine learning frameworks and libraries (e.g., TensorFlow, PyTorch, scikit-learn)\nSolid understanding of data structures, algorithms, and software design principles\nExperience with deep learning, neural networks, and LLMs\nFamiliarity with cloud platforms (e.g., AWS, Azure, GCP) and their AI/ML services\nStrong background in data analysis, statistical modeling, and mathematics\nExperience with version control systems (e.g., Git) and CI/CD pipelines\nExcellent problem-solving skills and ability to work in a fast-paced environment\nStrong communication skills and ability to explain complex AI/ML concepts to non-technical stakeholders\n\n\n\n\nPreferred Qualifications\n\n\n\n\nPh.D. in Computer Science, AI, or ML\nExperience applying AI/ML in IT operations, network management, or cybersecurity contexts\nKnowledge of MLOps practices and tools\nFamiliarity with big data technologies (e.g., Hadoop, Spark)\nExperience with containerization and orchestration technologies (e.g., Docker, Kubernetes)\nContributions to open-source AI/ML projects or research publications\nUnderstanding of ethical AI principles and practices",
+        "requirements": [],
+        "responsibilities": [],
+        "skills": [],
+        "salary": null,
+        "posted_date": "2026-09-29T16:47:32.063263Z",
+        "application_url": "https://www.linkedin.com/jobs/view/4471932188/",
+        "source_url": "https://www.linkedin.com/jobs/search/?f_AL=true&f_TPR=r14400&f_WT=2&origin=JOB_SEARCH_PAGE_JOB_FILTER&start=25",
+        "remote_type": "remote",
+        "raw_text_hash": "0f6c45bd429895452dfe1fd414d8e1ef0f41480539020057ce807e8de028e598",
+        "discovered_at": "2026-09-29T20:47:32.063263Z"
+      },
+      "match_score": 42.3,
+      "recommendation": "poor_match",
+      "rule_evaluation": {
+        "passed": true,
+        "rejection_reasons": [],
+        "mandatory_skills_matched": [],
+        "mandatory_skills_missing": [],
+        "rule_score": 0.0,
+        "seniority_ok": true,
+        "role_related": true
+      },
+      "llm_analysis": {
+        "score": 45.0,
+        "role_match": 40.0,
+        "technical_match": 50.0,
+        "ai_match": 40.0,
+        "experience_match": 30.0,
+        "matched_skills": [
+          "AWS",
+          "Git",
+          "CI/CD Pipelines",
+          "Docker"
+        ],
+        "missing_required_skills": [
+          "Python",
+          "Java",
+          "TensorFlow",
+          "PyTorch",
+          "scikit-learn",
+          "deep learning",
+          "neural networks",
+          "LLMs",
+          "data analysis",
+          "statistical modeling",
+          "mathematics",
+          "MLOps",
+          "Hadoop",
+          "Spark",
+          "Kubernetes"
+        ],
+        "matched_requirements": [],
+        "strengths": [
+          "7 years of experience in software development",
+          "Experience with cloud-native applications",
+          "Strong focus on performance optimization and clean code"
+        ],
+        "concerns": [
+          "Lacks specific AI/ML development experience and technologies",
+          "Does not meet the 10+ years of experience requirement",
+          "No demonstrated experience with machine learning frameworks"
+        ],
+        "recommendation": "reject",
+        "explanation": "The candidate has a solid background in full stack development and cloud technologies but lacks the specific AI/ML experience and skills required for this role, such as proficiency in Python, machine learning frameworks, and deep learning. Additionally, the candidate does not meet the 10+ years of software engineering experience requirement."
+      },
+      "matched_skills": [
+        "AWS",
+        "Git",
+        "CI/CD Pipelines",
+        "Docker"
+      ],
+      "missing_required_skills": [
+        "Python",
+        "Java",
+        "TensorFlow",
+        "PyTorch",
+        "scikit-learn",
+        "deep learning",
+        "neural networks",
+        "LLMs",
+        "data analysis",
+        "statistical modeling",
+        "mathematics",
+        "MLOps",
+        "Hadoop",
+        "Spark",
+        "Kubernetes"
+      ],
+      "strengths": [
+        "7 years of experience in software development",
+        "Experience with cloud-native applications",
+        "Strong focus on performance optimization and clean code"
+      ],
+      "concerns": [
+        "Lacks specific AI/ML development experience and technologies",
+        "Does not meet the 10+ years of experience requirement",
+        "No demonstrated experience with machine learning frameworks"
+      ],
+      "explanation": "The candidate has a solid background in full stack development and cloud technologies but lacks the specific AI/ML experience and skills required for this role, such as proficiency in Python, machine learning frameworks, and deep learning. Additionally, the candidate does not meet the 10+ years of software engineering experience requirement.",
+      "rejected": false,
+      "rejection_reason": null
+    },
+    {
+      "job": {
+        "job_id": "e5bbca18c0ab792b537faa35e4bf6ee44b234a36cecd0ff4866386eef088efdd",
+        "source": "linkedin",
+        "source_job_id": "4470389520",
+        "title": "Senior Product Security Engineer",
+        "company": "techolution",
+        "location": "India (Remote)",
+        "employment_type": null,
+        "experience_required": null,
+        "description": "About the job\n\nWe are looking for a Senior Product Security Engineer to secure enterprise applications and AI-powered products across multiple engineering teams and repositories. This role requires strong hands-on security expertise, the ability to operate at scale, and the ability to quickly identify, prioritize, and drive remediation of security risks across multiple products.\n\n\n\n\nTitle : Senior Product Security Engineer\n\nLocation :Remote Work\n\nEmployment Type: Full-time\n\nExp Range : 3+ Years\n\n\n\n\nKey Responsibilities:\n\nOwn security assessments across multiple enterprise applications, products, repositories, and engineering teams.\nPerform hands-on Web, API, cloud, and Kubernetes security testing, including vulnerability discovery, exploitation, validation, and reporting.\nIdentify vulnerabilities through manual testing, source-code review, threat modeling, and security tooling.\nAssess authentication, authorization, business logic, APIs, attack surfaces, cloud configurations, IAM, containers, and Kubernetes environments.\nIdentify and prioritize vulnerabilities based on exploitability, business impact, and risk.\nWork directly with engineering teams to drive remediation, retesting, and closure of security findings.\nIntegrate security into the SDLC and CI/CD pipelines through SAST, DAST, SCA, secrets detection, and security gates.\nEstablish repeatable and scalable security practices that can be applied across multiple products and teams.\nRapidly assess new applications and prioritize the highest-risk security gaps in fast-moving development environments.\nCommunicate technical vulnerabilities, business impact, and remediation requirements clearly to both engineering and business stakeholders.\n\n\n\n\nQualifications\n\nHands-on experience in Product Security, Application Security, or Security Engineering.\nProven experience securing multiple enterprise applications/products across multiple repositories and engineering teams.\nStrong hands-on expertise in Web and API Security, OWASP Top 10, and vulnerability assessment.\nDemonstrated ability to discover and validate real-world vulnerabilities, beyond relying only on automated scanners.\nStrong experience with Burp Suite/ZAP, source-code security review, and root-cause analysis.\nExperience securing cloud environments, Kubernetes/GKE, IAM, containers, and CI/CD pipelines.\nExperience implementing or operating SAST, DAST, and SCA within the SDLC.\nProven ability to prioritize and remediate security risks across multiple applications simultaneously.\nExperience working directly with engineering teams to drive vulnerabilities from discovery through remediation and retesting.\nDemonstrated ability to operate with speed, ownership, and strong execution in large-scale engineering environments.\nStrong communication skills with the ability to translate technical security issues into business risk and actionable remediation.\n\n\n\n\nNice to Have:\n\nGCP/GKE experience\nAI/GenAI application security\nOSCP, OSWE, GIAC, CREST, or equivalent\n\n\n\n\nAbout Techolution:\n\n\n\n\nTecholution is the world’s leading FEA – Full Enterprise Automation specialist. We are trusted by boards and executive leaders who need AI with real business outcomes. Despite Gen AI, LLMs, and billions in investment, most enterprise AI programs aren't delivering results.\n\n\n\n\nTecholution fixes that with BPA 4.0. We take the power of big Tech’s Generic AI and multiply it with our Expert AI stack — resulting in business process automations that follow the same nuances as domain experts do on the job at an unprecedented speed.\n\n\n\n\nOur platform has delivered over $900M in AI ROI for our clients in less than a year, all while increasing their AI Adoption by 10x.\n\n\n\n\nOur 3 power moves for ROI from AI:\n\n1. Value Finder - We Identify high-impact AI and automation opportunities in enterprises and build solutions that deliver measurable value in as little as 30 days.\n\n\n\n\n2. 100K Challenge:  Work on fast-paced AI initiatives where teams build solutions designed to generate 2× ROI within 100 days.\n\n\n\n\n3. GE LEAP:  Contribute to enterprise AI transformation through our partnership with Google, helping scale Gemini-driven solutions across organizations.\n\n\n\n\nVisit us @www.techolution.com : To know more about our revolutionary core practices and getting to know in detail about how we enrich the human experience with technology.",
+        "requirements": [],
+        "responsibilities": [],
+        "skills": [],
+        "salary": null,
+        "posted_date": "2026-09-29T18:49:27.258936Z",
+        "application_url": "https://www.linkedin.com/jobs/view/4470389520/",
+        "source_url": "https://www.linkedin.com/jobs/search/?f_AL=true&f_TPR=r14400&f_WT=2&origin=JOB_SEARCH_PAGE_JOB_FILTER&start=75",
+        "remote_type": "remote",
+        "raw_text_hash": "e5bbca18c0ab792b537faa35e4bf6ee44b234a36cecd0ff4866386eef088efdd",
+        "discovered_at": "2026-09-29T20:49:27.258936Z"
+      },
+      "match_score": 39.2,
+      "recommendation": "poor_match",
+      "rule_evaluation": {
+        "passed": true,
+        "rejection_reasons": [],
+        "mandatory_skills_matched": [],
+        "mandatory_skills_missing": [],
+        "rule_score": 0.0,
+        "seniority_ok": true,
+        "role_related": true
+      },
+      "llm_analysis": {
+        "score": 35.0,
+        "role_match": 30.0,
+        "technical_match": 20.0,
+        "ai_match": 50.0,
+        "experience_match": 60.0,
+        "matched_skills": [
+          "AWS",
+          "CI/CD Pipelines",
+          "Node.js",
+          "React.js",
+          "TypeScript"
+        ],
+        "missing_required_skills": [
+          "Kubernetes",
+          "Web Security",
+          "API Security",
+          "Vulnerability Assessment",
+          "Burp Suite/ZAP",
+          "SAST",
+          "DAST",
+          "Security Engineering",
+          "IAM",
+          "Cloud Security"
+        ],
+        "matched_requirements": [],
+        "strengths": [
+          "7 years of experience as a Full Stack Developer",
+          "Strong experience with AWS and CI/CD pipelines",
+          "Proven track record of optimizing deployment processes and application performance"
+        ],
+        "concerns": [
+          "Lack of direct experience in security engineering and product security",
+          "No demonstrated experience with Kubernetes or specific security tools like Burp Suite/ZAP",
+          "Limited exposure to vulnerability assessment and remediation processes"
+        ],
+        "recommendation": "reject",
+        "explanation": "The candidate has strong full-stack development skills and experience with AWS and CI/CD, but lacks the specific security expertise required for the Senior Product Security Engineer role, including hands-on experience with Kubernetes, web and API security, and vulnerability assessment tools."
+      },
+      "matched_skills": [
+        "AWS",
+        "CI/CD Pipelines",
+        "Node.js",
+        "React.js",
+        "TypeScript",
+        "IAM"
+      ],
+      "missing_required_skills": [
+        "Kubernetes",
+        "Web Security",
+        "API Security",
+        "Vulnerability Assessment",
+        "Burp Suite/ZAP",
+        "SAST",
+        "DAST",
+        "Security Engineering",
+        "Cloud Security"
+      ],
+      "strengths": [
+        "7 years of experience as a Full Stack Developer",
+        "Strong experience with AWS and CI/CD pipelines",
+        "Proven track record of optimizing deployment processes and application performance"
+      ],
+      "concerns": [
+        "Lack of direct experience in security engineering and product security",
+        "No demonstrated experience with Kubernetes or specific security tools like Burp Suite/ZAP",
+        "Limited exposure to vulnerability assessment and remediation processes"
+      ],
+      "explanation": "The candidate has strong full-stack development skills and experience with AWS and CI/CD, but lacks the specific security expertise required for the Senior Product Security Engineer role, including hands-on experience with Kubernetes, web and API security, and vulnerability assessment tools.",
+      "rejected": false,
+      "rejection_reason": null
+    },
+    {
+      "job": {
+        "job_id": "035ead108e20b57202eb88988a89265e78cdfb8d5483e12202bae604f7254e20",
+        "source": "linkedin",
+        "source_job_id": "4473292354",
+        "title": "Senior Cloud Engineer",
+        "company": "GC Technologies Pvt Ltd",
+        "location": "India (Remote)",
+        "employment_type": null,
+        "experience_required": null,
+        "description": "About the job\n\nClient: MNC\n\nPayroll: VARITE INDIA PVT LTD\n\nNote: Moved to direct payroll after 3-6 months, subject to BGV report Clearance.\n\n\n\n\nNote: You can share the updated cv and UAN History or one payslip of the latest two years of exp to process the profile without any delay( Mail : manpreet@gctechsoft.com).\n\n( Verification of the UAN History or one payslip is to avoid fake profiles)\n\n\n\n\nRequirement: Senior Cloud Engineer\n\nExp: 5+ Years\n\nLocation: Any location in INDIA (WFO)\n\nMax NP: Serving within 30days \n\n\n\n\nWe have the below requirements:\n\n\n\n\n Azure | Databricks | AKS | ARO | Terraform | MLflow | CI/CD\n\n\n\n\n\n\n\nExperienced Cloud/MLOps Engineer (5 to 8 years) with strong expertise in Azure, Databricks, AKS, ARO, Terraform, and MLflow, responsible for building automated CI/CD pipelines and deploying ML models and microservices at scale. Drive end-to-end MLOps platform operations, including infrastructure automation, Kubernetes-based deployments, monitoring, security, governance, and collaboration with ML and data engineering teams.",
+        "requirements": [],
+        "responsibilities": [],
+        "skills": [],
+        "salary": null,
+        "posted_date": "2026-09-29T16:48:30.558065Z",
+        "application_url": "https://www.linkedin.com/jobs/view/4473292354/",
+        "source_url": "https://www.linkedin.com/jobs/search/?f_AL=true&f_TPR=r14400&f_WT=2&origin=JOB_SEARCH_PAGE_JOB_FILTER&start=50",
+        "remote_type": "remote",
+        "raw_text_hash": "035ead108e20b57202eb88988a89265e78cdfb8d5483e12202bae604f7254e20",
+        "discovered_at": "2026-09-29T20:48:30.558065Z"
+      },
+      "match_score": 37.5,
+      "recommendation": "poor_match",
+      "rule_evaluation": {
+        "passed": true,
+        "rejection_reasons": [],
+        "mandatory_skills_matched": [],
+        "mandatory_skills_missing": [],
+        "rule_score": 0.0,
+        "seniority_ok": true,
+        "role_related": true
+      },
+      "llm_analysis": {
+        "score": 30.0,
+        "role_match": 40.0,
+        "technical_match": 20.0,
+        "ai_match": 30.0,
+        "experience_match": 60.0,
+        "matched_skills": [
+          "CI/CD Pipelines",
+          "AWS"
+        ],
+        "missing_required_skills": [
+          "Azure",
+          "Databricks",
+          "AKS",
+          "ARO",
+          "Terraform",
+          "MLflow"
+        ],
+        "matched_requirements": [],
+        "strengths": [
+          "7 years of experience as a Full Stack Developer",
+          "Strong expertise in CI/CD pipelines",
+          "Experience with cloud-native applications and AWS"
+        ],
+        "concerns": [
+          "Lack of experience with Azure and related technologies",
+          "No demonstrated experience with Databricks, AKS, ARO, Terraform, or MLflow"
+        ],
+        "recommendation": "poor_match",
+        "explanation": "The candidate has relevant experience in cloud-native applications and CI/CD pipelines, but lacks the required skills in Azure, Databricks, AKS, ARO, Terraform, and MLflow, which are critical for the Senior Cloud Engineer role."
+      },
+      "matched_skills": [
+        "CI/CD Pipelines",
+        "AWS"
+      ],
+      "missing_required_skills": [
+        "Azure",
+        "Databricks",
+        "AKS",
+        "ARO",
+        "Terraform",
+        "MLflow"
+      ],
+      "strengths": [
+        "7 years of experience as a Full Stack Developer",
+        "Strong expertise in CI/CD pipelines",
+        "Experience with cloud-native applications and AWS"
+      ],
+      "concerns": [
+        "Lack of experience with Azure and related technologies",
+        "No demonstrated experience with Databricks, AKS, ARO, Terraform, or MLflow"
+      ],
+      "explanation": "The candidate has relevant experience in cloud-native applications and CI/CD pipelines, but lacks the required skills in Azure, Databricks, AKS, ARO, Terraform, and MLflow, which are critical for the Senior Cloud Engineer role.",
+      "rejected": false,
+      "rejection_reason": null
+    },
+    {
+      "job": {
+        "job_id": "0cef6eacc338daec7cd01bbacea3f675509f28c1b7cd376d99ecc135a137130c",
+        "source": "linkedin",
+        "source_job_id": "4473274796",
+        "title": "DevOps Engineer",
+        "company": "GC Technologies Pvt Ltd",
+        "location": "India (Remote)",
+        "employment_type": null,
+        "experience_required": null,
+        "description": "About the job\n\nClient: MNC\n\nPayroll: VARITE INDIA PVT LTD\n\nNote: Moved to direct payroll after 3-6 months, subject to BGV report Clearance.\n\n\n\n\nNote: You can share the updated cv and UAN History or one payslip of the latest two years of exp to process the profile without any delay( Mail : manpreet@gctechsoft.com).\n\n( Verification of the UAN History or one payslip is to avoid fake profiles)\n\n\n\n\nRequirement: DevOps Engineer\n\nExp: 5+ Years\n\nLocation: Hyderabad, Bangalore(WFO)\n\nMax NP: Serving within 30days \n\n\n\n\nSenior Devops Engineer: 5–8 years : Bangalore\n\nKubernetes/OpenShift platforms.-5–8 years, Tech Stack: Azure | Databricks | AKS | ARO | Terraform | MLflow | CI/CD\n\n\n\n\nSenior DevOps Engineer : 8 to 15 yrs : Hyderabad, Bangalore\n\nMust have skills : 1) Kubernetes, Docker, GitHub, CI/CD pipelines, 2) Python programming",
+        "requirements": [],
+        "responsibilities": [],
+        "skills": [],
+        "salary": null,
+        "posted_date": "2026-09-29T16:47:56.987234Z",
+        "application_url": "https://www.linkedin.com/jobs/view/4473274796/",
+        "source_url": "https://www.linkedin.com/jobs/search/?f_AL=true&f_TPR=r14400&f_WT=2&origin=JOB_SEARCH_PAGE_JOB_FILTER&start=25",
+        "remote_type": "remote",
+        "raw_text_hash": "0cef6eacc338daec7cd01bbacea3f675509f28c1b7cd376d99ecc135a137130c",
+        "discovered_at": "2026-09-29T20:47:56.987234Z"
+      },
+      "match_score": 37.0,
+      "recommendation": "poor_match",
+      "rule_evaluation": {
+        "passed": true,
+        "rejection_reasons": [],
+        "mandatory_skills_matched": [],
+        "mandatory_skills_missing": [],
+        "rule_score": 0.0,
+        "seniority_ok": true,
+        "role_related": true
+      },
+      "llm_analysis": {
+        "score": 30.0,
+        "role_match": 20.0,
+        "technical_match": 20.0,
+        "ai_match": 40.0,
+        "experience_match": 60.0,
+        "matched_skills": [
+          "Docker",
+          "Git",
+          "CI/CD Pipelines"
+        ],
+        "missing_required_skills": [
+          "Kubernetes",
+          "Python programming"
+        ],
+        "matched_requirements": [],
+        "strengths": [
+          "7 years of experience as a Full Stack Developer",
+          "Strong focus on CI/CD and Docker"
+        ],
+        "concerns": [
+          "Lack of Kubernetes experience",
+          "No demonstrated Python programming skills"
+        ],
+        "recommendation": "poor_match",
+        "explanation": "The candidate has relevant experience in CI/CD and Docker, but lacks the required Kubernetes and Python programming skills essential for the DevOps Engineer role. Overall, the match is weak due to these missing critical skills."
+      },
+      "matched_skills": [
+        "Docker",
+        "Git",
+        "CI/CD Pipelines"
+      ],
+      "missing_required_skills": [
+        "Kubernetes",
+        "Python programming"
+      ],
+      "strengths": [
+        "7 years of experience as a Full Stack Developer",
+        "Strong focus on CI/CD and Docker"
+      ],
+      "concerns": [
+        "Lack of Kubernetes experience",
+        "No demonstrated Python programming skills"
+      ],
+      "explanation": "The candidate has relevant experience in CI/CD and Docker, but lacks the required Kubernetes and Python programming skills essential for the DevOps Engineer role. Overall, the match is weak due to these missing critical skills.",
+      "rejected": false,
+      "rejection_reason": null
+    },
+    {
+      "job": {
+        "job_id": "b45792aeda21b13d3693d520e5947f7c45277fc877bd77045a9c5092671bd7fb",
+        "source": "linkedin",
+        "source_job_id": "4473070913",
+        "title": "SQL Developer",
+        "company": "HRM Counsel",
+        "location": "India (Remote)",
+        "employment_type": null,
+        "experience_required": null,
+        "description": "About the job\n\nA SQL Developer is a strategic professional responsible for evaluating project purpose, understanding business trajectory, technical challenges and translating that into robust, reusable SQL queries that can be used to collect and analyse data to take best business decisions.\n\n\n\n\nResponsibilities of SQL Developer:\n\nWrite reusable SQL queries, procedures, and scripts to make business decisions.\nUnderstand business lifecycle and business needs to understand what type of code is best suitable for the business.\nImplement data storage solutions.\nAnalyse complex data sets to provide actionable insights.\nDebug and troubleshoot applications to ensure fast and high-quality operations.\nCollaborate with front end developers to make sure that the entire module is seamless.\nCollaborate with front end developers, analysts, and stakeholders to implement strategic business initiatives.\nMaintain data dashboards to present to key stakeholders during monthly review meetings.\n\n\n\n\nTechnical Skills\n\nStrong proficiency in SQL code.\nStrong proficiency in understanding data descriptions, data types.\nStrong proficiency in data visualization in terms what how the management wants the data to be presented.\nAbility to cobble different types of data structures that can speak to one another.\nExperience in handling live projects that have been in place for at least one year.\nExperience in handling database management software like MySQL, Oracle.\nStrong understanding of data structures and algorithms.\nUnderstanding of database security best practices and regulations.\nKnowledge of machine learning libraries like Pandas etc will be huge plus.\nKnowledge of big data will be desirable.\nExperience with data visualisation tools like Power BI and Tableau is desired.",
+        "requirements": [],
+        "responsibilities": [],
+        "skills": [],
+        "salary": null,
+        "posted_date": "2026-09-29T16:51:53.301102Z",
+        "application_url": "https://www.linkedin.com/jobs/view/4473070913/",
+        "source_url": "https://www.linkedin.com/jobs/search/?f_AL=true&f_TPR=r14400&f_WT=2&origin=JOB_SEARCH_PAGE_JOB_FILTER&start=125",
+        "remote_type": "remote",
+        "raw_text_hash": "b45792aeda21b13d3693d520e5947f7c45277fc877bd77045a9c5092671bd7fb",
+        "discovered_at": "2026-09-29T20:51:53.301102Z"
+      },
+      "match_score": 37.0,
+      "recommendation": "poor_match",
+      "rule_evaluation": {
+        "passed": true,
+        "rejection_reasons": [],
+        "mandatory_skills_matched": [],
+        "mandatory_skills_missing": [],
+        "rule_score": 0.0,
+        "seniority_ok": true,
+        "role_related": true
+      },
+      "llm_analysis": {
+        "score": 35.0,
+        "role_match": 30.0,
+        "technical_match": 40.0,
+        "ai_match": 20.0,
+        "experience_match": 50.0,
+        "matched_skills": [
+          "MySQL"
+        ],
+        "missing_required_skills": [
+          "SQL",
+          "Oracle",
+          "data visualization tools like Power BI and Tableau",
+          "data structures and algorithms",
+          "machine learning libraries like Pandas",
+          "big data"
+        ],
+        "matched_requirements": [],
+        "strengths": [
+          "7 years of experience as a Full Stack Developer",
+          "Experience with database management software like MySQL"
+        ],
+        "concerns": [
+          "Lack of direct SQL development experience",
+          "No demonstrated experience with Oracle or data visualization tools",
+          "Missing knowledge of machine learning libraries and big data"
+        ],
+        "recommendation": "reject",
+        "explanation": "The candidate has relevant experience as a Full Stack Developer and knowledge of MySQL, but lacks the required SQL proficiency, experience with Oracle, and familiarity with data visualization tools and machine learning libraries. Overall, the candidate does not meet the core requirements for the SQL Developer role."
+      },
+      "matched_skills": [
+        "MySQL"
+      ],
+      "missing_required_skills": [
+        "SQL",
+        "Oracle",
+        "data visualization tools like Power BI and Tableau",
+        "data structures and algorithms",
+        "machine learning libraries like Pandas",
+        "big data"
+      ],
+      "strengths": [
+        "7 years of experience as a Full Stack Developer",
+        "Experience with database management software like MySQL"
+      ],
+      "concerns": [
+        "Lack of direct SQL development experience",
+        "No demonstrated experience with Oracle or data visualization tools",
+        "Missing knowledge of machine learning libraries and big data"
+      ],
+      "explanation": "The candidate has relevant experience as a Full Stack Developer and knowledge of MySQL, but lacks the required SQL proficiency, experience with Oracle, and familiarity with data visualization tools and machine learning libraries. Overall, the candidate does not meet the core requirements for the SQL Developer role.",
+      "rejected": false,
+      "rejection_reason": null
+    },
+    {
+      "job": {
+        "job_id": "5f93d295502feb9ef761e86d1508af91d3bb96415fdb884b49342c53d5437560",
+        "source": "linkedin",
+        "source_job_id": "4471906783",
+        "title": "Senior Application Security Engineer",
+        "company": "techolution",
+        "location": "India (Remote)",
+        "employment_type": null,
+        "experience_required": null,
+        "description": "About the job\n\nAre you a cybersecurity trailblazer eager to fortify the future of AI? At Techolution, the world's leading Full Enterprise Automation specialist, we're seeking a dynamic Application Security Engineer to join our mission of delivering unparalleled AI ROI. You'll be instrumental in safeguarding our innovative solutions, conducting authorized penetration testing across web applications, APIs, cloud, and Kubernetes, and owning the entire vulnerability lifecycle from identification to remediation. This pivotal role involves embedding robust DevSecOps practices, ensuring critical vulnerabilities are blocked in pipelines, and collaborating directly with engineering teams to build secure-by-design systems that drive our clients' success.\n\n\n\n\nTitle : Application Security Engineer / White Hat Hacker\n\nLocation :Remote Work\n\nEmployment Type: Full-time\n\nExp Range : 3+ Years\n\n\n\n\nKey Responsibilities:\n\nPerform hands-on application security assessments and penetration testing across web applications and APIs.\nIdentify, exploit, validate, document, and communicate application vulnerabilities.\nAssess applications against the OWASP Top 10 and common API attack vectors.\nAnalyze web and API attack surfaces and identify security weaknesses.\nUse Burp Suite and/or OWASP ZAP to intercept, manipulate, analyze, and test application/API traffic.\nRead and understand application source code to identify security flaws and support root-cause analysis.\nAssess Kubernetes/GKE environments for application and cloud-native security risks.\nIdentify container vulnerabilities, cloud misconfigurations, excessive permissions, and potential attack paths.\nAssess IAM security, access controls, excessive privileges, and authorization weaknesses.\nAssess security risks in GitHub repositories and CI/CD pipelines, including exposed secrets, insecure practices, dependency risks, and repository weaknesses.\nWork with SAST, DAST, and SCA tools as part of the application security lifecycle.\nValidate the exploitability and business impact of identified vulnerabilities.\nPrioritize vulnerabilities based on business risk and potential impact, not only technical severity.\nCommunicate security findings, business impact, and remediation recommendations clearly to engineering and business stakeholders.\nWork with development teams to drive remediation and perform security retesting to validate fixes.\n\n\n\n\nQualifications\n\n2+ years of hands-on experience in Application Security, Ethical Hacking, or Penetration Testing.\nStrong understanding of OWASP Top 10, Web Application Security, and API Security.\nPractical experience using Burp Suite and/or OWASP ZAP for security testing.\nAbility to understand application code and investigate vulnerabilities at their root cause.\nWorking knowledge of Kubernetes/GKE, IAM, GitHub, and CI/CD security.\nFamiliarity with SAST, DAST, and SCA tools and their role in the software development lifecycle.\nDemonstrated evidence of finding and validating real-world vulnerabilities through penetration testing, bug bounty, security research, CVEs, labs, or production security projects.\nStrong ability to assess and communicate technical risk and business impact.\nStrong communication, ownership, curiosity, problem-solving, and execution skills.\nSecurity certifications such as OSCP, OSWE, CEH, GIAC, or CREST are a plus, but hands-on experience is more important.\n\n\n\n\nAbout Techolution:\n\n\n\n\nTecholution is the world’s leading FEA – Full Enterprise Automation specialist. We are trusted by boards and executive leaders who need AI with real business outcomes. Despite Gen AI, LLMs, and billions in investment, most enterprise AI programs aren't delivering results.\n\n\n\n\nTecholution fixes that with BPA 4.0. We take the power of big Tech’s Generic AI and multiply it with our Expert AI stack — resulting in business process automations that follow the same nuances as domain experts do on the job at an unprecedented speed.\n\n\n\n\nOur platform has delivered over $900M in AI ROI for our clients in less than a year, all while increasing their AI Adoption by 10x.\n\n\n\n\nOur 3 power moves for ROI from AI:\n\n1. Value Finder - We Identify high-impact AI and automation opportunities in enterprises and build solutions that deliver measurable value in as little as 30 days.\n\n\n\n\n2. 100K Challenge:  Work on fast-paced AI initiatives where teams build solutions designed to generate 2× ROI within 100 days.\n\n\n\n\n3. GE LEAP:  Contribute to enterprise AI transformation through our partnership with Google, helping scale Gemini-driven solutions across organizations.\n\n\n\n\nVisit us @www.techolution.com : To know more about our revolutionary core practices and getting to know in detail about how we enrich the human experience with technology.",
+        "requirements": [],
+        "responsibilities": [],
+        "skills": [],
+        "salary": null,
+        "posted_date": "2026-09-29T18:52:26.585789Z",
+        "application_url": "https://www.linkedin.com/jobs/view/4471906783/",
+        "source_url": "https://www.linkedin.com/jobs/search/?f_AL=true&f_TPR=r14400&f_WT=2&origin=JOB_SEARCH_PAGE_JOB_FILTER&start=125",
+        "remote_type": "remote",
+        "raw_text_hash": "5f93d295502feb9ef761e86d1508af91d3bb96415fdb884b49342c53d5437560",
+        "discovered_at": "2026-09-29T20:52:26.585789Z"
+      },
+      "match_score": 35.7,
+      "recommendation": "poor_match",
+      "rule_evaluation": {
+        "passed": true,
+        "rejection_reasons": [],
+        "mandatory_skills_matched": [],
+        "mandatory_skills_missing": [],
+        "rule_score": 0.0,
+        "seniority_ok": true,
+        "role_related": true
+      },
+      "llm_analysis": {
+        "score": 35.0,
+        "role_match": 30.0,
+        "technical_match": 20.0,
+        "ai_match": 40.0,
+        "experience_match": 50.0,
+        "matched_skills": [
+          "AWS",
+          "Node.js",
+          "React.js",
+          "TypeScript",
+          "Next.js"
+        ],
+        "missing_required_skills": [
+          "Application Security",
+          "Ethical Hacking",
+          "Penetration Testing",
+          "Burp Suite",
+          "OWASP ZAP",
+          "Kubernetes",
+          "SAST",
+          "DAST",
+          "SCA tools"
+        ],
+        "matched_requirements": [],
+        "strengths": [
+          "7 years of experience as a Full Stack Developer",
+          "Strong focus on cloud-native applications",
+          "Experience with AWS and CI/CD pipelines"
+        ],
+        "concerns": [
+          "Lack of direct experience in application security and penetration testing",
+          "No demonstrated experience with security tools like Burp Suite or OWASP ZAP",
+          "No experience with Kubernetes or IAM security"
+        ],
+        "recommendation": "reject",
+        "explanation": "The candidate has strong full-stack development skills and experience with cloud-native applications, but lacks the necessary application security expertise and specific tools required for the role. Key skills such as penetration testing, familiarity with security tools, and Kubernetes experience are not demonstrated in the profile."
+      },
+      "matched_skills": [
+        "AWS",
+        "Node.js",
+        "React.js",
+        "TypeScript",
+        "Next.js"
+      ],
+      "missing_required_skills": [
+        "Application Security",
+        "Ethical Hacking",
+        "Penetration Testing",
+        "Burp Suite",
+        "OWASP ZAP",
+        "Kubernetes",
+        "SAST",
+        "DAST",
+        "SCA tools"
+      ],
+      "strengths": [
+        "7 years of experience as a Full Stack Developer",
+        "Strong focus on cloud-native applications",
+        "Experience with AWS and CI/CD pipelines"
+      ],
+      "concerns": [
+        "Lack of direct experience in application security and penetration testing",
+        "No demonstrated experience with security tools like Burp Suite or OWASP ZAP",
+        "No experience with Kubernetes or IAM security"
+      ],
+      "explanation": "The candidate has strong full-stack development skills and experience with cloud-native applications, but lacks the necessary application security expertise and specific tools required for the role. Key skills such as penetration testing, familiarity with security tools, and Kubernetes experience are not demonstrated in the profile.",
+      "rejected": false,
+      "rejection_reason": null
+    },
+    {
+      "job": {
+        "job_id": "0854aa4280fb5fe7fac5aab26b86fb812ada8e1a5e77f4e8492ce961a8f798e0",
+        "source": "linkedin",
+        "source_job_id": "4471937342",
+        "title": "AI/LLM DELIVERY PROJECT MANAGER (Biogeography; Astrobiology)",
+        "company": "CAREERBLOC ~",
+        "location": "India (Remote)",
+        "employment_type": null,
+        "experience_required": null,
+        "description": "About the job\n\nAbout The Opportunity\n\nA fast-moving innovation hub at the intersection of artificial intelligence, planetary science, and biogeographic modeling, we build and deploy large language models (LLMs) to solve complex, mission-critical problems in astrobiology and Earth systems science. Our projects integrate AI-driven spatial analysis, ecological forecasting, and extraterrestrial life probability modeling — turning speculative science into actionable, scalable intelligence for government, research, and commercial space ventures. Role & Responsibilities\n\n\nLead end-to-end LLM delivery cycles for biogeography and astrobiology use cases — from requirement alignment to deployment, ensuring technical feasibility and scientific accuracy.\nBridge AI engineers, planetary scientists, and domain experts to translate complex research questions into structured LLM training workflows and evaluation metrics.\nManage agile sprints, stakeholder roadmaps, and cross-functional team coordination across remote global teams with zero latency in execution.\nOwn model validation frameworks — integrating domain-specific benchmarks (e.g., biosignature detection accuracy, biogeographic niche modeling precision) into CI/CD pipelines.\nDevelop and maintain project documentation, risk registers, and delivery dashboards tailored for both technical and non-technical stakeholders.\nAdvocate for ethical AI governance, bias mitigation, and responsible deployment in scientifically sensitive domains like astrobiology and planetary habitability modeling.\n\n\nSkills & Qualifications\n\nMust-Have\n\n\nJira\nConfluence\nAgile/Scrum\nLLM deployment pipelines\nProject management dashboards\nStakeholder alignment frameworks\nTechnical requirement documentation\nModel performance tracking\n\n\nPreferred\n\n\nExperience with NASA or ESA research frameworks\nFamiliarity with Python-based AI/ML tools (e.g., Hugging Face, LangChain)\nBackground in Earth sciences, ecology, or astrobiology\n\n\nBenefits & Culture Highlights\n\n\n100% remote with flexible hours — work from anywhere in India\nAccess to cutting-edge AI research collaborations with global space science institutions\nOpportunity to shape the future of AI in planetary science — not just manage projects, but pioneer new frontiers\n\n\nSkills: astrobiology,modeling,biogeography,project,documentation,research,dashboards,intelligence",
+        "requirements": [],
+        "responsibilities": [],
+        "skills": [],
+        "salary": null,
+        "posted_date": "2026-09-29T17:47:40.527384Z",
+        "application_url": "https://www.linkedin.com/jobs/view/4471937342/",
+        "source_url": "https://www.linkedin.com/jobs/search/?f_AL=true&f_TPR=r14400&f_WT=2&origin=JOB_SEARCH_PAGE_JOB_FILTER&start=25",
+        "remote_type": "remote",
+        "raw_text_hash": "0854aa4280fb5fe7fac5aab26b86fb812ada8e1a5e77f4e8492ce961a8f798e0",
+        "discovered_at": "2026-09-29T20:47:40.527384Z"
+      },
+      "match_score": 33.7,
+      "recommendation": "poor_match",
+      "rule_evaluation": {
+        "passed": true,
+        "rejection_reasons": [],
+        "mandatory_skills_matched": [],
+        "mandatory_skills_missing": [],
+        "rule_score": 0.0,
+        "seniority_ok": true,
+        "role_related": true
+      },
+      "llm_analysis": {
+        "score": 35.0,
+        "role_match": 30.0,
+        "technical_match": 20.0,
+        "ai_match": 40.0,
+        "experience_match": 30.0,
+        "matched_skills": [],
+        "missing_required_skills": [
+          "Jira",
+          "Confluence",
+          "LLM deployment pipelines",
+          "Project management dashboards",
+          "Stakeholder alignment frameworks",
+          "Technical requirement documentation",
+          "Model performance tracking"
+        ],
+        "matched_requirements": [],
+        "strengths": [
+          "7 years of experience as a Full Stack Developer",
+          "Experience in AI-driven development practices",
+          "Strong focus on modern architecture and performance optimization"
+        ],
+        "concerns": [
+          "Lack of direct project management experience in LLM delivery",
+          "No demonstrated experience with astrobiology or biogeography",
+          "Missing familiarity with Python-based AI/ML tools"
+        ],
+        "recommendation": "reject",
+        "explanation": "The candidate has strong technical skills as a Full Stack Developer but lacks the specific project management and domain expertise required for the AI/LLM Delivery Project Manager role, including essential tools like Jira and Confluence, as well as experience with LLM deployment pipelines."
+      },
+      "matched_skills": [],
+      "missing_required_skills": [
+        "Jira",
+        "Confluence",
+        "LLM deployment pipelines",
+        "Project management dashboards",
+        "Stakeholder alignment frameworks",
+        "Technical requirement documentation",
+        "Model performance tracking"
+      ],
+      "strengths": [
+        "7 years of experience as a Full Stack Developer",
+        "Experience in AI-driven development practices",
+        "Strong focus on modern architecture and performance optimization"
+      ],
+      "concerns": [
+        "Lack of direct project management experience in LLM delivery",
+        "No demonstrated experience with astrobiology or biogeography",
+        "Missing familiarity with Python-based AI/ML tools"
+      ],
+      "explanation": "The candidate has strong technical skills as a Full Stack Developer but lacks the specific project management and domain expertise required for the AI/LLM Delivery Project Manager role, including essential tools like Jira and Confluence, as well as experience with LLM deployment pipelines.",
+      "rejected": false,
+      "rejection_reason": null
+    }
+  ],
+  "source_errors": [],
+  "metrics": {
+    "jobs_rejected_by_rules": 121,
+    "jobs_sent_to_llm": 23,
+    "llm_calls": 23,
+    "llm_retries": 0,
+    "llm_prompt_tokens": 54393,
+    "llm_completion_tokens": 4431,
+    "llm_total_tokens": 58824,
+    "llm_estimated_cost_usd": 0.0108,
+    "jobs_recommended": 10,
+    "match_distribution": {
+      "reject": 133,
+      "possible_match": 2,
+      "good_match": 1,
+      "poor_match": 8
+    },
+    "run_id": "job-search-20260929-204633-9f71fe7c",
+    "jobs_discovered": 156,
+    "jobs_validated": 144,
+    "source_failures": 0,
+    "browser_failures": 0,
+    "workflow_duration_ms": 579275.8
+  }
+}

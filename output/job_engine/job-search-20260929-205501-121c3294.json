@@ -1,0 +1,139 @@
+{
+  "run_id": "job-search-20260929-205501-121c3294",
+  "status": "completed",
+  "summary": {
+    "sources_processed": 1,
+    "jobs_discovered": 34,
+    "jobs_validated": 34,
+    "duplicates_removed": 0,
+    "jobs_matched": 34,
+    "jobs_recommended": 1,
+    "degraded": false,
+    "degraded_reason": null
+  },
+  "jobs": [
+    {
+      "job": {
+        "job_id": "951208352c05f1980cfc33cd7c53677cacb73e02bfdab5792f83472ab6b986af",
+        "source": "linkedin",
+        "source_job_id": "4471948536",
+        "title": "Customer Experience Engineer",
+        "company": "MindGraph",
+        "location": "Hyderabad, Telangana, India (Remote)",
+        "employment_type": null,
+        "experience_required": null,
+        "description": "About the job\n\nWork mode: Remote (anywhere in India)\n\nContract length: 6 months\n\nKey Responsibilities:\nLead end-to-end implementation and configuration of a cloud-based Contact Centre / CX platform.\nConfigure tenant settings, agent groups, queues, skills, routing rules and unified agent experiences.\nDesign and configure Voice Bots and IVR workflows.\nConfigure conversational AI, intent mapping and voice interaction flows.\nImplement skill-based routing, queue management and routing workflows.\nConfigure Workforce Management (WFM) including forecasting, scheduling, shift templates and real-time adherence.\nConfigure Quality Management (QM) including evaluation forms, scoring rules, dashboards and reporting.\nConfigure outbound campaigns/dialer capabilities and post-interaction surveys.\nIntegrate telephony and third-party systems using SIP, APIs and related integration technologies.\nSupport omnichannel capabilities including digital channels such as email and messaging.\nWork closely with technical and functional teams during SIT, UAT and production deployment.\nTroubleshoot and resolve critical implementation and production issues.\nPrepare HLD/LLD, configuration documents, as-built documentation and operational runbooks.\nConduct knowledge transfer and client administrator training.\nSupport go-live, hypercare and production handover activities.\n\nRequired Skills:\n5+ years of hands-on experience with enterprise CCaaS / cloud contact-centre platforms.\nStrong experience in IVR, Voice Bot, Conversational AI and voice application implementation.\nHands-on experience with unified routing, queues, skills and routing strategies.\nStrong experience configuring WFM and Quality Management (QM).\nExperience with outbound dialer/campaign configuration.\nStrong understanding of SIP / telephony integrations and APIs.\nExperience working across Dev, UAT and Production environments.\nStrong experience in SIT/UAT, troubleshooting and production implementation.\nExperience preparing technical design and implementation documentation.\nRelevant platform certification is preferred.\nStrong client-facing communication and stakeholder management skills.\n\nGood to Have:\nBYOC / SIP integration experience.\nPredictive / progressive outbound dialer experience.\nConversational AI / NLU experience.\nExperience with AI-powered agent assistance or Copilot solutions.\nExperience with legacy contact-centre to cloud CCaaS migrations.\nExperience in enterprise contact-centre environments",
+        "requirements": [],
+        "responsibilities": [],
+        "skills": [],
+        "salary": null,
+        "posted_date": "2026-09-29T20:23:28.593242Z",
+        "application_url": "https://www.linkedin.com/jobs/view/4471948536/",
+        "source_url": "https://www.linkedin.com/jobs/search/?currentJobId=4471295383&f_AL=true&f_TPR=r3600&f_WT=2&origin=JOB_SEARCH_PAGE_JOB_FILTER",
+        "remote_type": "remote",
+        "raw_text_hash": "951208352c05f1980cfc33cd7c53677cacb73e02bfdab5792f83472ab6b986af",
+        "discovered_at": "2026-09-29T20:56:28.593242Z"
+      },
+      "match_score": 33.3,
+      "recommendation": "poor_match",
+      "rule_evaluation": {
+        "passed": true,
+        "rejection_reasons": [],
+        "mandatory_skills_matched": [],
+        "mandatory_skills_missing": [],
+        "rule_score": 0.0,
+        "seniority_ok": true,
+        "role_related": true
+      },
+      "llm_analysis": {
+        "score": 35.0,
+        "role_match": 30.0,
+        "technical_match": 20.0,
+        "ai_match": 40.0,
+        "experience_match": 50.0,
+        "matched_skills": [
+          "AWS",
+          "Node.js",
+          "React.js",
+          "TypeScript",
+          "CI/CD Pipelines"
+        ],
+        "missing_required_skills": [
+          "IVR",
+          "Voice Bot",
+          "Conversational AI",
+          "WFM",
+          "Quality Management",
+          "SIP integrations",
+          "outbound dialer/campaign configuration",
+          "enterprise CCaaS / cloud contact-centre platforms"
+        ],
+        "matched_requirements": [],
+        "strengths": [
+          "7 years of experience as a Full Stack Developer",
+          "Strong experience with cloud technologies (AWS)",
+          "Proven track record of optimizing deployment processes"
+        ],
+        "concerns": [
+          "Lacks specific experience with contact center platforms and IVR systems",
+          "No demonstrated experience with voice bots or conversational AI",
+          "Missing experience in configuring WFM and QM"
+        ],
+        "recommendation": "reject",
+        "explanation": "The candidate has strong full stack development skills and cloud experience, but lacks the specific expertise in contact center technologies, IVR, voice bots, and related configurations required for the Customer Experience Engineer role."
+      },
+      "matched_skills": [
+        "AWS",
+        "Node.js",
+        "React.js",
+        "TypeScript",
+        "CI/CD Pipelines"
+      ],
+      "missing_required_skills": [
+        "IVR",
+        "Voice Bot",
+        "Conversational AI",
+        "WFM",
+        "Quality Management",
+        "SIP integrations",
+        "outbound dialer/campaign configuration",
+        "enterprise CCaaS / cloud contact-centre platforms"
+      ],
+      "strengths": [
+        "7 years of experience as a Full Stack Developer",
+        "Strong experience with cloud technologies (AWS)",
+        "Proven track record of optimizing deployment processes"
+      ],
+      "concerns": [
+        "Lacks specific experience with contact center platforms and IVR systems",
+        "No demonstrated experience with voice bots or conversational AI",
+        "Missing experience in configuring WFM and QM"
+      ],
+      "explanation": "The candidate has strong full stack development skills and cloud experience, but lacks the specific expertise in contact center technologies, IVR, voice bots, and related configurations required for the Customer Experience Engineer role.",
+      "rejected": false,
+      "rejection_reason": null
+    }
+  ],
+  "source_errors": [],
+  "metrics": {
+    "jobs_rejected_by_rules": 32,
+    "jobs_sent_to_llm": 34,
+    "llm_calls": 34,
+    "llm_retries": 0,
+    "llm_prompt_tokens": 80471,
+    "llm_completion_tokens": 5894,
+    "llm_total_tokens": 86365,
+    "llm_estimated_cost_usd": 0.0156,
+    "jobs_recommended": 1,
+    "match_distribution": {
+      "reject": 33,
+      "poor_match": 1
+    },
+    "run_id": "job-search-20260929-205501-121c3294",
+    "jobs_discovered": 34,
+    "jobs_validated": 34,
+    "source_failures": 0,
+    "browser_failures": 0,
+    "workflow_duration_ms": 205192.0
+  }
+}

@@ -45,6 +45,28 @@ _DEFAULT_SIGNIN_URL = "https://www.linkedin.com/login/"
 _DEFAULT_STORAGE_STATE_PATH = JOB_ENGINE_HISTORY_DIR / "linkedin_storage_state.json"
 _PAGE_SIZE = 25
 
+# New (SDUI) search page, /jobs/search-results/: class names are obfuscated per
+# release, so only these ``componentkey`` hooks (which embed the job id) are stable.
+_NEW_CARD_ID_PREFIX = "job-card-component-ref-"
+_NEW_CARD_SELECTOR = f"div[role=button][componentkey^='{_NEW_CARD_ID_PREFIX}']"
+_NEW_ABOUT_SELECTOR = "[componentkey='JobDetails_AboutTheJob_{job_id}']"
+# Read every card in one pass: clicking a card re-renders the list, which detaches
+# any element handles taken beforehand. <p> order is title, company, location, ...
+_NEW_CARDS_JS = """els => els.map(card => {
+  const ps = [...card.querySelectorAll('p')]
+    .map(p => (p.innerText || '').split('\\n')[0].trim())
+    .filter(t => t && t !== '·');
+  const text = card.innerText || '';
+  const posted = (text.match(/Posted\\s+([^\\n]*?ago)/i) || [])[1] || null;
+  const salary = ps.find(t => /(\\/(yr|month|hr)|INR|\\$|€|£|LPA)/i.test(t)) || null;
+  return {
+    job_id: (card.getAttribute('componentkey') || '').replace('job-card-component-ref-', ''),
+    title: (ps[0] || '').replace(/\\s*\\(Verified job\\)$/, '') || null,
+    company: ps[1] || null, location: ps[2] || null, posted, salary,
+    easy_apply: /Easy Apply/.test(text),
+  };
+})"""
+
 # Logged-in search page (left results list) first, guest page second.
 _CARD_SELECTORS = [
     "li[data-occludable-job-id]",
@@ -117,13 +139,14 @@ def _is_checkpoint_url(url: str) -> bool:
 
 
 def _page_url(search_url: str, page_index: int) -> str:
-    """LinkedIn paginates with ``start=<offset>``; ``currentJobId`` only pins the
-    right-hand detail pane to one job, so it is dropped after the first page."""
+    """LinkedIn paginates with ``start=<offset>`` (0, 25, 50, ...) on both the classic
+    ``/jobs/search/`` and the new ``/jobs/search-results/`` page; ``currentJobId`` only
+    pins the right-hand detail pane to one job, so it is dropped after the first page."""
     parsed = urlparse(search_url)
     query = parse_qs(parsed.query, keep_blank_values=True)
+    query["start"] = [str(page_index * _PAGE_SIZE)]
     if page_index > 0:
         query.pop("currentJobId", None)
-        query["start"] = [str(page_index * _PAGE_SIZE)]
     return urlunparse(parsed._replace(query=urlencode(query, doseq=True)))
 
 
@@ -340,26 +363,51 @@ class LinkedInAdapter(JobSourceAdapter):
 
     async def _load_all_cards(self, page: Page) -> None:
         """The results list lazy-renders cards as it scrolls; scroll it to the bottom."""
+        card_selector = ", ".join(_CARD_SELECTORS)
         try:
-            await page.wait_for_selector(", ".join(_CARD_SELECTORS), timeout=15_000)
+            await page.wait_for_selector(f"{card_selector}, {_NEW_CARD_SELECTOR}", timeout=20_000)
         except PlaywrightTimeoutError:
             return
+        if await page.query_selector(_NEW_CARD_SELECTOR):
+            return  # the new page renders all 25 cards of a page up front
+        # Scroll the last rendered card into view until no new cards appear; fixed
+        # scrollBy steps on the list container stop short (only ~8 of 25 render).
+        previous, stable_rounds = -1, 0
+        for _ in range(30):
+            cards = await page.query_selector_all(card_selector)
+            if len(cards) >= _PAGE_SIZE:
+                break
+            if len(cards) == previous:
+                stable_rounds += 1
+                if stable_rounds >= 3:
+                    break
+            else:
+                previous, stable_rounds = len(cards), 0
+            try:
+                await cards[-1].scroll_into_view_if_needed(timeout=3_000)
+            except Exception:  # noqa: BLE001
+                pass
+            for selector in _RESULTS_LIST_SELECTORS:
+                container = await page.query_selector(selector)
+                if container is not None:
+                    await container.evaluate("el => el.scrollBy(0, 800)")
+            await page.wait_for_timeout(500)
+        # Card bodies are placeholders until scrolled past; return to the top so
+        # the per-card click/scroll in _read_details hydrates each in turn.
         for selector in _RESULTS_LIST_SELECTORS:
             container = await page.query_selector(selector)
-            if container is None:
-                continue
-            for _ in range(12):
-                await container.evaluate("el => el.scrollBy(0, 600)")
-                await page.wait_for_timeout(250)
-            return
-        for _ in range(8):
-            await page.mouse.wheel(0, 1200)
-            await page.wait_for_timeout(250)
+            if container is not None:
+                await container.evaluate("el => el.scrollTo(0, 0)")
 
     async def _extract_page(
         self, page: Page, *, cfg, source_url: str, seen_ids: set[str], limit: int
     ) -> list[RawJob]:
         await self._load_all_cards(page)
+
+        if await page.query_selector(_NEW_CARD_SELECTOR):
+            return await self._extract_new_layout(
+                page, cfg=cfg, source_url=source_url, seen_ids=seen_ids, limit=limit
+            )
 
         cards = []
         for selector in _CARD_SELECTORS:
@@ -380,6 +428,11 @@ class LinkedInAdapter(JobSourceAdapter):
             if job_id and job_id in seen_ids:
                 continue
 
+            try:
+                await card.scroll_into_view_if_needed(timeout=3_000)
+                await page.wait_for_timeout(150)
+            except Exception:  # noqa: BLE001
+                pass
             title = await self._first_text(card, _TITLE_SELECTORS)
             if not title:
                 continue
@@ -410,10 +463,17 @@ class LinkedInAdapter(JobSourceAdapter):
         if jobs:
             return jobs
 
-        # Fallback: plain link scan for /jobs/view/ anchors.
+        # Fallback: plain link scan for /jobs/view/ anchors. These jobs carry no
+        # company, so normalization drops them — surface it instead of silently
+        # reporting "success" with jobs that never make it through.
         links = await extract_link_cards(
             page, href_contains=("/jobs/view/",), base_url=cfg.base_url, max_items=limit
         )
+        if links:
+            logger.warning(
+                "LinkedIn: no job cards matched at %s (landed on %s); falling back to link scan — "
+                "results will lack company/description", source_url, page.url,
+            )
         fallback: list[RawJob] = []
         for c in links:
             if c["url"] in seen_ids:
@@ -423,6 +483,60 @@ class LinkedInAdapter(JobSourceAdapter):
                 RawJob(source=cfg.id, title=c["title"], application_url=c["url"], source_url=source_url)
             )
         return fallback
+
+    async def _extract_new_layout(
+        self, page: Page, *, cfg, source_url: str, seen_ids: set[str], limit: int
+    ) -> list[RawJob]:
+        """Cards on /jobs/search-results/: fields come from the card's <p> order
+        (title, company, location, ...); the description from the detail pane,
+        which is keyed by job id so a stale pane is never read for the wrong job."""
+        jobs: list[RawJob] = []
+        for fields in await page.eval_on_selector_all(_NEW_CARD_SELECTOR, _NEW_CARDS_JS):
+            if len(jobs) >= limit:
+                break
+            job_id = fields.get("job_id")
+            title = fields.get("title")
+            if not job_id or job_id in seen_ids or not title:
+                continue
+            seen_ids.add(job_id)
+            jobs.append(
+                RawJob(
+                    source=cfg.id,
+                    source_job_id=job_id,
+                    title=title,
+                    company=fields.get("company") or "",
+                    location=fields.get("location"),
+                    salary=fields.get("salary"),
+                    description=enforce_description_size(await self._read_new_details(page, job_id)),
+                    posted_date_raw=fields.get("posted"),
+                    remote_type="remote" if "f_WT=2" in source_url else None,
+                    application_url=f"{cfg.base_url.rstrip('/')}/jobs/view/{job_id}/",
+                    source_url=source_url,
+                    extra={"easy_apply": bool(fields.get("easy_apply"))},
+                )
+            )
+        return jobs
+
+    async def _read_new_details(self, page: Page, job_id: str) -> str:
+        """Click the card and wait until *its* "About the job" section has text.
+        The card is re-located by id on every attempt (the list re-renders on each
+        click), and the first click after a page load is sometimes swallowed."""
+        selector = _NEW_ABOUT_SELECTOR.format(job_id=job_id)
+        card = page.locator(f"div[role=button][componentkey='{_NEW_CARD_ID_PREFIX}{job_id}']").first
+        for _ in range(2):
+            try:
+                await card.scroll_into_view_if_needed(timeout=5_000)
+                await card.locator("p").first.click(timeout=5_000)
+                await page.wait_for_function(
+                    "s => { const e = document.querySelector(s); return !!e && e.innerText.trim().length > 50; }",
+                    arg=selector,
+                    timeout=10_000,
+                )
+                text = (await page.inner_text(selector)).strip()
+                return text.removeprefix("About the job").strip()
+            except Exception:  # noqa: BLE001
+                continue
+        return ""
 
     async def _first_text(self, card, selectors: list[str]) -> str | None:
         for sel in selectors:
