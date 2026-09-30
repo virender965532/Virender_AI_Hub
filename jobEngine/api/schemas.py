@@ -24,6 +24,33 @@ class JobSearchRequest(BaseModel):
     employment_type: str | None = Field(default=None, max_length=100)
     minimum_match_score: float | None = Field(default=None, ge=0, le=100)
     max_results: int = Field(default=50, ge=1, le=500)
+    # How many jobs to scrape from *each* ``search_urls`` entry of every
+    # selected source; all of them are combined, matched, shown and saved.
+    # -1 or omitted = all (still bounded by each source's ``max_jobs`` in
+    # config/job_sources.yaml).
+    max_jobs: int | None = Field(default=None, ge=-1, le=1000)
+    # Replaces the ``keywords=`` parameter of each source's search URL (e.g.
+    # LinkedIn's boolean search). Not used as a filter.
+    search_keywords: str | None = Field(default=None, max_length=2000)
+    # Strict remote filter: keep only remote/hybrid jobs. (``remote`` only
+    # widens a location filter to also accept remote jobs.)
+    remote_only: bool = False
+
+    @field_validator("max_jobs")
+    @classmethod
+    def _validate_max_jobs(cls, value: int | None) -> int | None:
+        if value is None or value == -1:
+            return None
+        if value == 0:
+            raise ValueError("max_jobs must be -1 (all) or a positive integer")
+        return value
+
+    @field_validator("search_keywords")
+    @classmethod
+    def _validate_search_keywords(cls, value: str | None) -> str | None:
+        if value is None or not value.strip():
+            return None
+        return value.strip()
 
     @field_validator("sources")
     @classmethod

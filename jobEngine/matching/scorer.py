@@ -174,7 +174,9 @@ def build_matched_job(
             f"with the candidate profile."
         )
 
-    rejected = score < effective_minimum or recommendation == "reject"
+    # The "reject" band (<30) only applies when the caller gave no explicit
+    # minimum; otherwise a request-level bar below 30 would be silently ignored.
+    rejected = score < effective_minimum or (minimum_match_score is None and recommendation == "reject")
     rejection_reason = None
     if rejected:
         rejection_reason = explanation if explanation else f"score {score} below minimum {effective_minimum}"

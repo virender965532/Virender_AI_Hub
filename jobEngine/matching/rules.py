@@ -14,19 +14,8 @@ from ..models.job import Job, RequirementTier, RuleEvaluation
 from ..models.profile import CandidateProfile
 from .text_utils import normalize_tokens, overlap_score, skill_token_set
 
-_JUNIOR_MARKERS = re.compile(
-    r"\b(junior|jr\.?|intern(ship)?|entry[\s-]?level|fresher|trainee|graduate program)\b",
-    re.IGNORECASE,
-)
-_SENIOR_MARKERS = re.compile(r"\b(senior|sr\.?|staff|principal|lead|architect)\b", re.IGNORECASE)
-_TECH_ROLE_MARKERS = re.compile(
-    r"\b(developer|engineer|architect|programmer|technologist|swe|sde)\b", re.IGNORECASE
-)
-_NON_TECH_ROLE_MARKERS = re.compile(
-    r"\b(sales|marketing|recruiter|nurse|driver|chef|accountant|hr\b|human resources|"
-    r"teacher|paralegal|receptionist|warehouse|forklift)\b",
-    re.IGNORECASE,
-)
+# No rule looks at the job title: jobs are never rejected or down-scored for
+# how their title is worded (e.g. "Senior FDE", "Technical Lead").
 _EXCLUDED_PRIMARY_LANGUAGES = {
     "java": re.compile(r"\bjava\b(?!\s*script)", re.IGNORECASE),
     "c#": re.compile(r"\bc#|c\s*sharp\b", re.IGNORECASE),
@@ -56,17 +45,8 @@ def _job_blob(job: Job) -> str:
     )
 
 
-def _is_role_related(job: Job) -> tuple[bool, str | None]:
-    title = job.title or ""
-    if _NON_TECH_ROLE_MARKERS.search(title):
-        return False, f"job title {title!r} matches a non-technical role pattern"
-    if not _TECH_ROLE_MARKERS.search(title) and not _TECH_ROLE_MARKERS.search(_job_blob(job)):
-        return False, f"job title {title!r} does not look like a software/AI engineering role"
-    return True, None
-
-
 def _primary_stack_mismatch(job: Job, candidate_tokens: set[str]) -> str | None:
-    blob = _job_blob(job)
+    blob = " ".join([job.experience_required or "", " ".join(job.requirements), " ".join(job.skills)])
     for name, pattern in _EXCLUDED_PRIMARY_LANGUAGES.items():
         if pattern.search(blob):
             job_tokens = normalize_tokens(blob)
@@ -89,10 +69,6 @@ def _extract_required_years(job: Job) -> int | None:
 def _seniority_check(
     job: Job, *, settings: EngineSettings
 ) -> tuple[bool, str | None]:
-    title = job.title or ""
-    if settings.reject_junior_roles and _JUNIOR_MARKERS.search(title) and not _SENIOR_MARKERS.search(title):
-        return False, f"job title {title!r} indicates a junior/entry-level role"
-
     required_years = _extract_required_years(job)
     if required_years is not None:
         candidate_years = settings.candidate_total_experience_years
@@ -110,13 +86,8 @@ def evaluate_rules(
     job: Job, profile: CandidateProfile, *, settings: EngineSettings
 ) -> RuleEvaluation:
     reasons: list[str] = []
-    print(f" evaluate_rules skill: {profile.all_skills()}", _is_role_related(job))
     candidate_tokens = skill_token_set(profile.all_skills())
-
-    role_related, role_reason = _is_role_related(job)
-    print(f"evaluate_rules evaluate_rules: role_related={role_related}, role_reason={role_reason}, candidate_tokens={candidate_tokens}, job={job}")
-    if not role_related and settings.reject_unrelated_roles:
-        reasons.append(role_reason or "role does not look related to candidate's field")
+    role_related = True
 
     mismatch = _primary_stack_mismatch(job, candidate_tokens)
     if mismatch:

@@ -206,12 +206,6 @@ class EngineSettings:
             "JOB_RULE_PREFILTER_MIN_SCORE", 15.0, minimum=0.0
         )
     )
-    reject_unrelated_roles: bool = field(
-        default_factory=lambda: _env_bool("JOB_REJECT_UNRELATED_ROLES", True)
-    )
-    reject_junior_roles: bool = field(
-        default_factory=lambda: _env_bool("JOB_REJECT_JUNIOR_ROLES", True)
-    )
     candidate_total_experience_years: float = field(
         default_factory=lambda: _env_float(
             "JOB_CANDIDATE_EXPERIENCE_YEARS", 7.0, minimum=0.0

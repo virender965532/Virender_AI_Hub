@@ -111,3 +111,117 @@ async def test_no_enabled_sources_still_completes_gracefully():
     result = final_state["final_result"]
     assert result["summary"]["sources_processed"] == 0
     assert result["jobs"] == []
+
+
+@register_adapter("_test_many_adapter")
+class _ManyJobsAdapter(JobSourceAdapter):
+    """Returns up to ``config.max_jobs`` distinct copies of the good job."""
+
+    async def discover_jobs(self, context: SourceExecutionContext) -> SourceDiscoveryResult:
+        jobs = [
+            _GOOD_JOB.model_copy(
+                update={
+                    "source": context.config.id,
+                    "title": f"Senior Full Stack AI Engineer {i}",
+                    "application_url": f"https://{context.config.id}.example.com/jobs/{i}",
+                    "source_url": f"https://{context.config.id}.example.com/careers",
+                }
+            )
+            for i in range(context.config.max_jobs)
+        ]
+        return SourceDiscoveryResult(
+            source_id=context.config.id, status="success", jobs=jobs, pages_processed=1, duration_ms=1
+        )
+
+
+async def test_max_jobs_is_per_search_url_and_combined():
+    configs = [_source_cfg("many_a", "_test_many_adapter"), _source_cfg("many_b", "_test_many_adapter")]
+    result = (await _run(configs, request={"max_jobs": 3, "max_results": 500, "minimum_match_score": 0}))["final_result"]
+
+    # _source_cfg has one search URL per source -> 3 + 3, all combined and processed.
+    assert result["summary"]["jobs_discovered"] == 6
+    assert result["metrics"]["jobs_processed"] == 6
+
+
+async def test_no_max_jobs_processes_everything():
+    configs = [_source_cfg("many_a", "_test_many_adapter")]
+    result = (await _run(configs, request={"max_results": 500, "minimum_match_score": 0}))["final_result"]
+
+    assert result["metrics"]["jobs_processed"] == 10  # source's own max_jobs
+
+
+@register_adapter("_test_url_recording_adapter")
+class _UrlRecordingAdapter(JobSourceAdapter):
+    seen_urls: list[str] = []
+
+    async def discover_jobs(self, context: SourceExecutionContext) -> SourceDiscoveryResult:
+        _UrlRecordingAdapter.seen_urls = list(context.config.search_urls)
+        return SourceDiscoveryResult(
+            source_id=context.config.id, status="success", jobs=[_GOOD_JOB], pages_processed=1, duration_ms=1
+        )
+
+
+async def test_search_keywords_only_rewrite_the_search_url():
+    cfg = JobSourceConfig(
+        id="good_source",
+        name="good_source",
+        base_url="https://good_source.example.com",
+        search_urls=["https://good_source.example.com/jobs?keywords=React&start=0"],
+        adapter="_test_url_recording_adapter",
+        max_jobs=10,
+        max_pages=1,
+    )
+    # Keywords that the job text doesn't contain: the job must still pass (no keyword filter).
+    result = (await _run([cfg], request={"search_keywords": "Rust AND Go", "minimum_match_score": 0}))["final_result"]
+
+    assert _UrlRecordingAdapter.seen_urls == ["https://good_source.example.com/jobs?keywords=Rust%20AND%20Go&start=0"]
+    assert result["summary"]["jobs_validated"] == 1
+
+
+async def test_remote_only_filters_server_side():
+    configs = [_source_cfg("good_source", "_test_good_adapter")]
+    result = (await _run(configs, request={"remote_only": True, "minimum_match_score": 0}))["final_result"]
+
+    assert result["summary"]["jobs_validated"] == 1  # _GOOD_JOB is "Remote"
+
+
+@register_adapter("_test_per_url_adapter")
+class _PerUrlAdapter(JobSourceAdapter):
+    """Each search URL offers 20 jobs; honours ``max_jobs_per_url`` like the real adapters."""
+
+    async def discover_jobs(self, context: SourceExecutionContext) -> SourceDiscoveryResult:
+        cfg = context.config
+        jobs = []
+        for u, _url in enumerate(cfg.search_urls):
+            per_url = min(20, cfg.max_jobs_per_url or 20)
+            jobs += [
+                _GOOD_JOB.model_copy(
+                    update={
+                        "source": cfg.id,
+                        "title": f"Senior Full Stack AI Engineer {u}-{i}",
+                        "application_url": f"https://{cfg.id}.example.com/jobs/{u}-{i}",
+                        "source_url": f"https://{cfg.id}.example.com/careers",
+                    }
+                )
+                for i in range(per_url)
+            ]
+        return SourceDiscoveryResult(
+            source_id=cfg.id, status="success", jobs=jobs[: cfg.max_jobs], pages_processed=1, duration_ms=1
+        )
+
+
+async def test_max_jobs_from_each_of_two_search_urls():
+    cfg = JobSourceConfig(
+        id="two_urls",
+        name="two_urls",
+        base_url="https://two_urls.example.com",
+        search_urls=["https://two_urls.example.com/jobs?keywords=a", "https://two_urls.example.com/jobs?keywords=b&geoId=1"],
+        adapter="_test_per_url_adapter",
+        max_jobs=400,
+        max_pages=1,
+    )
+    result = (await _run([cfg], request={"max_jobs": 5, "max_results": 500, "minimum_match_score": 0}))["final_result"]
+
+    assert result["summary"]["jobs_discovered"] == 10  # 5 + 5
+    assert result["metrics"]["jobs_processed"] == 10
+    assert len(result["jobs"]) == 10  # all shown and saved (every fake job scores well)

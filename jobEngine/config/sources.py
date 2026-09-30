@@ -38,6 +38,9 @@ class JobSourceConfig(BaseModel):
     browser_profile: str = "default"
     timeout_seconds: int = Field(default=60, ge=1, le=600)
     max_jobs: int = Field(default=100, ge=1, le=1000)
+    # Optional cap per ``search_urls`` entry (set per run from the request's
+    # ``max_jobs``); ``max_jobs`` stays the cap for the whole source.
+    max_jobs_per_url: int | None = Field(default=None, ge=1, le=1000)
     max_pages: int = Field(default=10, ge=1, le=200)
     rate_limit_delay_seconds: float = Field(default=1.0, ge=0.0, le=60.0)
     allowed_domains: list[str] = Field(default_factory=list)

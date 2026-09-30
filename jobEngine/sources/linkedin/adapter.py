@@ -193,8 +193,11 @@ class LinkedInAdapter(JobSourceAdapter):
                     await managed.context.storage_state(path=str(storage_state))
 
                 for search_url in cfg.search_urls:
+                    url_jobs = 0
                     for page_index in range(cfg.max_pages):
                         if len(timer.jobs) >= cfg.max_jobs:
+                            break
+                        if cfg.max_jobs_per_url and url_jobs >= cfg.max_jobs_per_url:
                             break
                         if pagination_depth_exceeded(page_index + 1, max_pages=cfg.max_pages):
                             break
@@ -216,9 +219,11 @@ class LinkedInAdapter(JobSourceAdapter):
                                 )
 
                         timer.pages_processed += 1
+                        limit = cfg.max_jobs - len(timer.jobs)
+                        if cfg.max_jobs_per_url:
+                            limit = min(limit, cfg.max_jobs_per_url - url_jobs)
                         found = await self._extract_page(
-                            page, cfg=cfg, source_url=url, seen_ids=seen_ids,
-                            limit=cfg.max_jobs - len(timer.jobs),
+                            page, cfg=cfg, source_url=url, seen_ids=seen_ids, limit=limit,
                         )
                         if not found:
                             if page_index == 0:
@@ -233,10 +238,13 @@ class LinkedInAdapter(JobSourceAdapter):
                             break  # past the last results page
 
                         timer.jobs.extend(found)
+                        url_jobs += len(found)
                         logger.info(
-                            "LinkedIn page %s: %s new jobs (total %s)",
-                            page_index + 1, len(found), len(timer.jobs),
+                            "LinkedIn page %s: %s new jobs (%s from this URL, total %s)",
+                            page_index + 1, len(found), url_jobs, len(timer.jobs),
                         )
+                        if cfg.max_jobs_per_url and url_jobs >= cfg.max_jobs_per_url:
+                            break
                         if len(found) < _PAGE_SIZE // 2:
                             break
                         await asyncio.sleep(cfg.rate_limit_delay_seconds)

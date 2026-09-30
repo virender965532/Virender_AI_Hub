@@ -103,6 +103,8 @@ class InstinctoolsAdapter(JobSourceAdapter):
                         )
                         continue
 
+                    if cfg.max_jobs_per_url:
+                        found = found[: cfg.max_jobs_per_url]
                     timer.jobs.extend(found)
 
         except SSRFViolation as exc:

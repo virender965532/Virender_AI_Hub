@@ -109,10 +109,13 @@ class GenericAdapter(JobSourceAdapter):
         self, page: Page, *, cfg, url: str, timer: TimedDiscovery
     ) -> None:
         selectors = cfg.selectors
+        start_count = len(timer.jobs)
         for page_num in range(1, cfg.max_pages + 1):
             if pagination_depth_exceeded(page_num, max_pages=cfg.max_pages):
                 break
             if len(timer.jobs) >= cfg.max_jobs:
+                return
+            if cfg.max_jobs_per_url and len(timer.jobs) - start_count >= cfg.max_jobs_per_url:
                 return
 
             page_url = validate_navigation_url(url, allowed_domains=cfg.allowed_domains)
@@ -142,6 +145,8 @@ class GenericAdapter(JobSourceAdapter):
 
             timer.pages_processed += 1
             remaining = cfg.max_jobs - len(timer.jobs)
+            if cfg.max_jobs_per_url:
+                remaining = min(remaining, cfg.max_jobs_per_url - (len(timer.jobs) - start_count))
             page_jobs = await extract_jobs_from_current_page(page, cfg, page_url=page_url, limit=remaining)
             if not page_jobs:
                 return

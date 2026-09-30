@@ -36,19 +36,11 @@ def test_good_job_passes_rules(candidate_profile, settings):
     assert result.rule_score > 0
 
 
-def test_junior_role_is_hard_rejected(candidate_profile, settings):
-    job = _job(title="Junior Python Developer")
-    result = evaluate_rules(job, candidate_profile, settings=settings)
-    assert not result.passed
-    assert not result.seniority_ok
-    assert any("junior" in r.lower() for r in result.rejection_reasons)
-
-
-def test_unrelated_role_is_hard_rejected(candidate_profile, settings):
-    job = _job(title="Regional Sales Manager", description="Manage a sales territory.", skills=[])
-    result = evaluate_rules(job, candidate_profile, settings=settings)
-    assert not result.passed
-    assert not result.role_related
+def test_title_never_rejects_a_job(candidate_profile, settings):
+    for title in ("Senior FDE, Full Stack App Development", "Technical Lead", "Junior Python Developer"):
+        result = evaluate_rules(_job(title=title), candidate_profile, settings=settings)
+        assert result.passed, title
+        assert result.role_related, title
 
 
 def test_primary_stack_mismatch_is_hard_rejected(candidate_profile, settings):

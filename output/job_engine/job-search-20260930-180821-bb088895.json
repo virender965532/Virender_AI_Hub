@@ -1,0 +1,35 @@
+{
+  "run_id": "job-search-20260930-180821-bb088895",
+  "status": "completed",
+  "summary": {
+    "sources_processed": 1,
+    "jobs_discovered": 5,
+    "jobs_validated": 0,
+    "duplicates_removed": 0,
+    "jobs_matched": 0,
+    "jobs_recommended": 0,
+    "degraded": false,
+    "degraded_reason": null
+  },
+  "jobs": [],
+  "source_errors": [],
+  "metrics": {
+    "jobs_processed": 5,
+    "jobs_rejected_by_rules": 0,
+    "jobs_sent_to_llm": 0,
+    "llm_calls": 0,
+    "llm_retries": 0,
+    "llm_prompt_tokens": 0,
+    "llm_completion_tokens": 0,
+    "llm_total_tokens": 0,
+    "llm_estimated_cost_usd": 0.0,
+    "jobs_recommended": 0,
+    "match_distribution": {},
+    "run_id": "job-search-20260930-180821-bb088895",
+    "jobs_discovered": 5,
+    "jobs_validated": 0,
+    "source_failures": 0,
+    "browser_failures": 0,
+    "workflow_duration_ms": 42231.6
+  }
+}

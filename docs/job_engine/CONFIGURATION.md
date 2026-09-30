@@ -40,7 +40,6 @@ it — see `degrade_on_llm_failure`).
 | `JOB_MIN_MATCH_SCORE` | `70` | Engine-wide default; overridable per-request |
 | `JOB_LLM_TOP_K` | `50` | Jobs sent to the (expensive) LLM stage, ranked by rule score |
 | `JOB_RULE_PREFILTER_MIN_SCORE` | `15` | Defined but currently unused (no prefilter stage runs) — left as a settings no-op rather than a breaking removal |
-| `JOB_REJECT_UNRELATED_ROLES` / `JOB_REJECT_JUNIOR_ROLES` | `true` | Hard-rejection toggles |
 | `JOB_CANDIDATE_EXPERIENCE_YEARS` | `7` | Fallback if the profile's summary text doesn't state years explicitly |
 | `JOB_MAX_EXPERIENCE_GAP_YEARS` | `3` | How far a job's stated required-years can exceed the candidate's before hard rejection |
 | `JOB_ENGINE_DRY_RUN` | `false` | Navigate/extract/score but skip persistence |

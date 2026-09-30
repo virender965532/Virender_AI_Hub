@@ -10,7 +10,9 @@ Two independent checks, both applied here:
    navigated via their configured ``search_urls`` (not re-templated per
    request; see docs/job_engine/CONFIGURATION.md "Known limitations"), so
    request-level filters are enforced here as a post-discovery filter rather
-   than steering the live search itself.
+   than steering the live search itself. (``search_keywords`` is different:
+   it only rewrites the sources' search URLs — see
+   ``sources/search_keywords.py`` — and is never used as a filter here.)
 """
 
 from __future__ import annotations
@@ -83,9 +85,11 @@ async def validation_node(state: dict[str, Any]) -> dict[str, Any]:
     city = request.get("city")
     remote = request.get("remote")
     employment_type = request.get("employment_type")
+    remote_only = bool(request.get("remote_only"))
 
     validated: list[dict[str, Any]] = []
     errors: list[dict[str, Any]] = []
+    filtered_out: dict[str, int] = {}
 
     for job in normalized:
         if not _has_minimal_content(job):
@@ -100,16 +104,31 @@ async def validation_node(state: dict[str, Any]) -> dict[str, Any]:
                     run_id=run_id,
                 ).model_dump(mode="json")
             )
+            filtered_out["content_too_thin"] = filtered_out.get("content_too_thin", 0) + 1
             continue
 
+        reason = None
         if not _matches_keywords(job, keywords):
-            continue
-        if not _matches_location(job, location=location, country=country, city=city, remote=remote):
-            continue
-        if not _matches_employment_type(job, employment_type):
+            reason = "keywords"
+        elif not _matches_location(job, location=location, country=country, city=city, remote=remote):
+            reason = "location"
+        elif not _matches_employment_type(job, employment_type):
+            reason = "employment_type"
+        elif remote_only and job.get("remote_type") not in ("remote", "hybrid"):
+            reason = f"remote_only (remote_type={job.get('remote_type')})"
+        if reason:
+            key = reason.split(" ")[0]
+            filtered_out[key] = filtered_out.get(key, 0) + 1
+            logger.info(
+                "validation_node: dropped %r at %r (%s): failed %s",
+                job.get("title"), job.get("company"), job.get("source"), reason,
+            )
             continue
 
         validated.append(job)
 
     logger.info("validation_node: %s/%s jobs passed content-quality + search-criteria filters", len(validated), len(normalized))
-    return {"validated_jobs": validated, "errors": errors}
+    metrics = dict(state.get("metrics") or {})
+    metrics["jobs_processed"] = len(normalized)
+    metrics["jobs_filtered_out"] = filtered_out
+    return {"validated_jobs": validated, "errors": errors, "metrics": metrics}

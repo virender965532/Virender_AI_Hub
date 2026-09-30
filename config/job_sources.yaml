@@ -21,7 +21,8 @@ job_sources:
     enabled: true
     base_url: "https://www.linkedin.com"
     search_urls:
-      - "https://www.linkedin.com/jobs/search-results/?keywords=%28JavaScript%20OR%20TypeScript%29%20AND%20%28React%20OR%20%22React.js%22%20OR%20Next.js%29%20AND%20%28Node.js%20OR%20Node%29%20AND%20AWS%20NOT%20Python%20NOT%20Java%20NOT%20%22.NET%22%20NOT%20%22C%23%22&origin=JOB_SEARCH_PAGE_JOB_FILTER&referralSearchId=JmVqo1tRdxIEMQQB2PxpeA%3D%3D&start=0&f_TPR=r86400&f_AL=true&f_SAL=f_SA_id_225001%3A272001"
+      - "https://www.linkedin.com/jobs/search-results/?keywords=%28JavaScript%20OR%20TypeScript%29%20AND%20%28React%20OR%20%22React.js%22%20OR%20Next.js%29%20AND%20%28Node.js%20OR%20Node%29%20AND%20AWS%20NOT%20Python%20NOT%20Java%20NOT%20%22.NET%22%20NOT%20%22C%23%22&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&referralSearchId=JmVqo1tRdxIEMQQB2PxpeA%3D%3D&geoId=102713980&f_TPR=r86400&f_AL=true&f_SAL=f_SA_id_225001%3A272001"
+      - "https://www.linkedin.com/jobs/search-results/?keywords=%28JavaScript%20OR%20TypeScript%29%20AND%20%28React%20OR%20%22React.js%22%20OR%20Next.js%29%20AND%20%28Node.js%20OR%20Node%29%20AND%20AWS%20NOT%20Python%20NOT%20Java%20NOT%20%22.NET%22%20NOT%20%22C%23%22&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&referralSearchId=JmVqo1tRdxIEMQQB2PxpeA%3D%3D&geoId=105072130&start=0&f_TPR=r86400&f_AL=true&f_SAL=f_SA_id_225001%3A272001"
     adapter: linkedin
     signin_url: "https://www.linkedin.com/login/?trk=guest_homepage-basic_nav-header-signin"
     allowed_domains: ["linkedin.com", "licdn.com"]

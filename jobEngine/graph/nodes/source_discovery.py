@@ -22,6 +22,7 @@ from ...models.errors import SourceError, SourceErrorStatus
 from ...sources import circuit_breaker
 from ...sources.base import SourceExecutionContext
 from ...sources.registry import get_adapter_class
+from ...sources.search_keywords import with_keywords
 from ..builder_types import NodeFn
 
 logger = logging.getLogger(__name__)
@@ -59,6 +60,18 @@ def create_source_node(source_config: JobSourceConfig) -> NodeFn:
         cfg = source_config
         run_id = state.get("run_id", "")
         settings = get_settings()
+        request = state.get("request") or {}
+        max_jobs = request.get("max_jobs")
+        if isinstance(max_jobs, int) and max_jobs > 0:
+            # ``max_jobs`` jobs from *each* search URL; the source total is the sum.
+            cfg = cfg.model_copy(
+                update={"max_jobs_per_url": max_jobs, "max_jobs": max_jobs * max(1, len(cfg.search_urls))}
+            )
+        search_keywords = request.get("search_keywords")
+        if search_keywords:
+            cfg = cfg.model_copy(
+                update={"search_urls": [with_keywords(u, search_keywords) for u in cfg.search_urls]}
+            )
 
         if circuit_breaker.is_open(cfg.id):
             logger.warning("source=%s: circuit breaker open; skipping this run", cfg.id)

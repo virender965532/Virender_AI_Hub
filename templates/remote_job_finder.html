@@ -197,18 +197,18 @@
           id="rjf-keywords"
           class="job-filter-input"
           rows="2"
-          placeholder='Comma separated (AI Engineer, GenAI Engineer) or boolean: ("Senior Full Stack Engineer" OR "Senior Full-Stack Developer") AND (React OR Next.js) AND AWS NOT Java'
+          placeholder="Search keywords sent to LinkedIn (supports AND / OR / NOT)"
           autocomplete="off"
           spellcheck="false"
-        ></textarea>
+        >{{ defaults.keywords }}</textarea>
       </div>
       <div class="rjf-config__field">
         <label class="job-control-label" for="rjf-min-score">Min match score</label>
-        <input type="number" id="rjf-min-score" class="job-filter-input rjf-config__num" min="0" max="100" step="1" value="30" />
+        <input type="number" id="rjf-min-score" class="job-filter-input rjf-config__num" min="0" max="100" step="1" value="{{ defaults.min_score }}" autocomplete="off" />
       </div>
       <div class="rjf-config__field">
-        <label class="job-control-label" for="rjf-max-results">Max results</label>
-        <input type="number" id="rjf-max-results" class="job-filter-input rjf-config__num" min="1" max="200" step="1" value="10" />
+        <label class="job-control-label" for="rjf-max-results">Max results <small>(per search URL, -1 = all)</small></label>
+        <input type="number" id="rjf-max-results" class="job-filter-input rjf-config__num" min="-1" max="1000" step="1" value="{{ defaults.max_results }}" title="How many jobs to fetch from each search URL in job_sources.yaml. -1 = all." autocomplete="off" />
       </div>
     </div>
 

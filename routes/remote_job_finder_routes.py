@@ -15,6 +15,7 @@ import logging
 from flask import Blueprint, jsonify, render_template, request
 
 from jobEngine.config.sources import load_job_sources
+from jobEngine.sources.search_keywords import url_keywords
 from jobEngine.persistence.saved_jobs import (
     SAVED_JOB_STATUSES,
     clear_saved_jobs,
@@ -27,19 +28,52 @@ logger = logging.getLogger(__name__)
 
 remote_job_finder_bp = Blueprint("remote_job_finder", __name__)
 
+# Pre-filled (editable) form values on the Remote Job Finder page. Whatever the
+# user leaves or types in the fields is exactly what gets sent to /api/jobs/search.
+# The Keywords default is read from the sources' search URLs (``keywords=``).
+DEFAULT_SEARCH_FORM = {
+    "min_score": 30,
+    "max_results": 10,
+}
+# Enabled sources that start unchecked (the user can still tick them).
+DEFAULT_UNCHECKED_SOURCES = {"instinctools"}
+
 
 @remote_job_finder_bp.route("/remote-job-finder")
 def remote_job_finder_ui():
     """Global Remote Job Finder UI. JSON API lives on job_engine_bp (/api/jobs/*)."""
     try:
         sources = [
-            {"id": s.id, "name": s.name, "enabled": s.enabled, "requires_auth": s.requires_auth}
+            {
+                "id": s.id,
+                "name": s.name,
+                "enabled": s.enabled,
+                "requires_auth": s.requires_auth,
+                "checked": s.enabled and s.id not in DEFAULT_UNCHECKED_SOURCES,
+            }
             for s in load_job_sources()
         ]
     except Exception:
         logger.exception("Failed to load job_sources.yaml for remote-job-finder UI")
         sources = []
-    return render_template("remote_job_finder.html", sources=sources)
+    return render_template(
+        "remote_job_finder.html", sources=sources, defaults={**DEFAULT_SEARCH_FORM, "keywords": _default_keywords()}
+    )
+
+
+def _default_keywords() -> str:
+    """The ``keywords=`` value of the first enabled source search URL that has one."""
+    try:
+        for source in load_job_sources():
+            if not source.enabled:
+                continue
+            for url in source.search_urls:
+                keywords = url_keywords(url)
+                if keywords:
+                    return keywords
+    except Exception:
+        logger.exception("Failed to read default keywords from job_sources.yaml")
+    return ""
 
 
 @remote_job_finder_bp.route("/saved-jobs")

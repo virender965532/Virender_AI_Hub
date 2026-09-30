@@ -46,7 +46,7 @@
       var input = document.createElement("input");
       input.type = "checkbox";
       input.value = s.id;
-      input.checked = !!s.enabled;
+      input.checked = s.checked === undefined ? !!s.enabled : !!s.checked;
       input.disabled = !s.enabled;
       input.className = "rjf-source-checkbox";
       var span = document.createElement("span");
@@ -69,189 +69,27 @@
     return checked.length ? checked : null;
   }
 
-  function parseKeywords(raw) {
-    return String(raw || "")
-      .split(",")
-      .map(function (s) { return s.trim(); })
-      .filter(Boolean);
-  }
-
-  // ---------------------------------------------------------------------------
-  // Boolean keyword queries, e.g.
-  //   ("Senior Full Stack Engineer" OR "Senior Full-Stack Developer") AND (React OR Next.js) NOT Java
-  // The job-engine API only supports an any-of keyword list, so the query's
-  // positive terms are sent as that (coarse) server-side filter and the full
-  // expression is evaluated here against each returned job.
-  // Precedence: NOT > AND > OR. Adjacent terms without an operator are ANDed.
-  // Operators must be uppercase; they may be glued to the previous word as in
-  // pasted text like "AWSNOT Python" or ")AND (".
-  // ---------------------------------------------------------------------------
-
   var SERVER_MAX_RESULTS = 500; // schema upper bound (jobEngine/api/schemas.py)
-  var SERVER_MAX_KEYWORDS = 20;
-
-  function isBooleanQuery(raw) {
-    return /[()"]|\b(AND|OR|NOT)\b|[^\s(]NOT(?=[\s("]|$)/.test(String(raw || ""));
-  }
-
-  function tokenizeQuery(raw) {
-    var tokens = [];
-    var re = /\s*(?:(\()|(\))|"([^"]*)"|([^\s()"]+))/g;
-    var m;
-    while ((m = re.exec(raw)) !== null) {
-      if (m[0].trim() === "") break;
-      if (m[1]) tokens.push({ type: "(" });
-      else if (m[2]) tokens.push({ type: ")" });
-      else if (m[3] !== undefined) {
-        if (m[3].trim()) tokens.push({ type: "term", value: m[3].trim() });
-      } else {
-        var word = m[4];
-        if (word === "AND" || word === "OR" || word === "NOT") {
-          tokens.push({ type: word });
-          continue;
-        }
-        // "AWSNOT" / "PythonNOT" from pasted text with the spaces lost.
-        var glued = /^(.+?)(AND|NOT)$/.exec(word);
-        if (glued) {
-          tokens.push({ type: "term", value: glued[1] });
-          tokens.push({ type: glued[2] });
-        } else {
-          tokens.push({ type: "term", value: word });
-        }
-      }
-    }
-    return tokens;
-  }
-
-  function parseQuery(raw) {
-    var tokens = tokenizeQuery(String(raw || ""));
-    var pos = 0;
-
-    function peek() { return tokens[pos]; }
-    function startsOperand(tok) {
-      return tok && (tok.type === "term" || tok.type === "(" || tok.type === "NOT");
-    }
-
-    function parseOr() {
-      var node = parseAnd();
-      while (peek() && peek().type === "OR") {
-        pos++;
-        node = { op: "or", left: node, right: parseAnd() };
-      }
-      return node;
-    }
-
-    function parseAnd() {
-      var node = parseUnary();
-      while (peek() && (peek().type === "AND" || startsOperand(peek()))) {
-        if (peek().type === "AND") pos++;
-        node = { op: "and", left: node, right: parseUnary() };
-      }
-      return node;
-    }
-
-    function parseUnary() {
-      var tok = peek();
-      if (!tok) throw new Error("Query ends unexpectedly.");
-      if (tok.type === "NOT") {
-        pos++;
-        return { op: "not", child: parseUnary() };
-      }
-      if (tok.type === "(") {
-        pos++;
-        var inner = parseOr();
-        if (!peek() || peek().type !== ")") throw new Error("Missing closing parenthesis.");
-        pos++;
-        return inner;
-      }
-      if (tok.type === "term") {
-        pos++;
-        return { op: "term", value: tok.value };
-      }
-      throw new Error("Unexpected \"" + tok.type + "\" in query.");
-    }
-
-    if (!tokens.length) return null;
-    var ast = parseOr();
-    if (pos < tokens.length) throw new Error("Unexpected \"" + tokens[pos].type + "\" in query.");
-    return ast;
-  }
-
-  function positiveTerms(node, negated, out) {
-    if (!node) return out;
-    if (node.op === "term") {
-      if (!negated && out.indexOf(node.value) === -1) out.push(node.value);
-    } else if (node.op === "not") {
-      positiveTerms(node.child, !negated, out);
-    } else {
-      positiveTerms(node.left, negated, out);
-      positiveTerms(node.right, negated, out);
-    }
-    return out;
-  }
-
-  function escapeRegExp(s) {
-    return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  }
-
-  // Whole-word match so "Java" does not hit "JavaScript"; the boundary is only
-  // enforced on alphanumeric edges so ".NET" still matches "ASP.NET".
-  var termRegexCache = {};
-  function termRegex(term) {
-    var key = term.toLowerCase();
-    if (!termRegexCache[key]) {
-      var start = /^[a-z0-9]/.test(key) ? "(?:^|[^a-z0-9])" : "";
-      var end = /[a-z0-9]$/.test(key) ? "(?=$|[^a-z0-9])" : "";
-      var body = escapeRegExp(key).replace(/[\s-]+/g, "[\\s-]+");
-      termRegexCache[key] = new RegExp(start + body + end);
-    }
-    return termRegexCache[key];
-  }
-
-  function evaluateQuery(node, text) {
-    if (!node) return true;
-    switch (node.op) {
-      case "term": return termRegex(node.value).test(text);
-      case "not": return !evaluateQuery(node.child, text);
-      case "and": return evaluateQuery(node.left, text) && evaluateQuery(node.right, text);
-      case "or": return evaluateQuery(node.left, text) || evaluateQuery(node.right, text);
-    }
-    return true;
-  }
-
-  function jobSearchText(job) {
-    return [
-      job.title || "",
-      job.description || "",
-      (job.skills || []).join(" "),
-      (job.requirements || []).join(" "),
-    ].join(" ").toLowerCase();
-  }
 
   // Filled by buildRequestPayload for the in-flight search; used by renderResult.
-  var activeSearch = { query: null, maxResults: 10 };
+  var activeSearch = { minScore: 0, maxJobs: 10 };
 
   function buildRequestPayload() {
-    var maxResults = Number(maxResultsInput.value) || 10;
-    var raw = keywordsInput.value;
-    var query = null;
-    var keywords;
-    if (isBooleanQuery(raw)) {
-      query = parseQuery(raw);
-      keywords = positiveTerms(query, false, []).slice(0, SERVER_MAX_KEYWORDS);
-    } else {
-      keywords = parseKeywords(raw);
-    }
-    activeSearch = { query: query, maxResults: maxResults };
+    // Max results = how many jobs to scrape from each search URL; -1 = all.
+    var maxJobs = parseInt(maxResultsInput.value, 10);
+    if (!(maxJobs === -1 || maxJobs > 0)) throw new Error("Max results must be -1 (all) or a positive number.");
+    // Keywords only replace the keywords= parameter of the sources' search URLs.
+    var searchKeywords = keywordsInput.value.trim();
 
-    // Client-side filtering (boolean query / remote only) runs after the
-    // server truncates to max_results, so fetch the full ranked list then.
-    var filtersLocally = !!query || remoteOnlyInput.checked;
-    var payload = { max_results: filtersLocally ? SERVER_MAX_RESULTS : maxResults };
-    if (keywords.length) payload.keywords = keywords;
-    if (remoteOnlyInput.checked) payload.remote = true;
-    var minScore = Number(minScoreInput.value);
-    if (!isNaN(minScore)) payload.minimum_match_score = minScore;
+    // Every filter runs server-side, so what is shown is exactly what is saved.
+    var payload = { max_jobs: maxJobs, max_results: SERVER_MAX_RESULTS };
+    if (searchKeywords) payload.search_keywords = searchKeywords;
+    if (remoteOnlyInput.checked) payload.remote_only = true;
+    // Always send the field's value so the engine default (JOB_MIN_MATCH_SCORE, 70) never applies.
+    var minScore = minScoreInput.value.trim() === "" ? NaN : Number(minScoreInput.value);
+    if (isNaN(minScore) || minScore < 0 || minScore > 100) throw new Error("Min match score must be between 0 and 100.");
+    payload.minimum_match_score = minScore;
+    activeSearch = { minScore: minScore, maxJobs: maxJobs };
     var sources = selectedSources();
     if (sources) payload.sources = sources;
     return payload;
@@ -266,10 +104,6 @@
 
   function recommendationLabel(recommendation) {
     return String(recommendation || "").replace(/_/g, " ");
-  }
-
-  function isRemoteFriendly(job) {
-    return job.remote_type === "remote" || job.remote_type === "hybrid";
   }
 
   function detailRow(label, value) {
@@ -391,11 +225,20 @@
 
   function renderResult(result) {
     var summary = result.summary || {};
+    var metrics = result.metrics || {};
+    var processed = metrics.jobs_processed != null ? metrics.jobs_processed : (summary.jobs_discovered || 0);
     var parts = [
       "<span><strong>" + (summary.sources_processed || 0) + "</strong> sources processed</span>",
       "<span><strong>" + (summary.jobs_discovered || 0) + "</strong> discovered</span>",
-      "<span><strong>" + (summary.jobs_recommended || 0) + "</strong> recommended</span>",
+      "<span><strong>" + processed + "</strong> processed (" + (activeSearch.maxJobs === -1 ? "all" : "max " + activeSearch.maxJobs + " per search URL") + ")</span>",
+      "<span><strong>" + (summary.jobs_validated || 0) + "</strong> matched filters</span>",
+      "<span><strong>" + (summary.jobs_recommended || 0) + "</strong> scored ≥ " + activeSearch.minScore + " (shown &amp; saved)</span>",
     ];
+    var filteredOut = metrics.jobs_filtered_out || {};
+    var reasons = Object.keys(filteredOut).map(function (k) { return filteredOut[k] + " " + k.replace(/_/g, " "); });
+    if (reasons.length) {
+      parts.push('<span style="color:#ffb86b;">Filtered out: ' + reasons.join(", ") + "</span>");
+    }
     if (summary.degraded) {
       parts.push('<span style="color:#ffb86b;">⚠ ' + (summary.degraded_reason || "degraded mode") + "</span>");
     }
@@ -406,18 +249,6 @@
 
     cardsEl.innerHTML = "";
     var jobs = result.jobs || [];
-    if (remoteOnlyInput.checked) {
-      jobs = jobs.filter(function (matched) { return isRemoteFriendly(matched.job || {}); });
-    }
-    if (activeSearch.query) {
-      jobs = jobs.filter(function (matched) {
-        return evaluateQuery(activeSearch.query, jobSearchText(matched.job || {}));
-      });
-    }
-    jobs = jobs.slice(0, activeSearch.maxResults);
-    if (activeSearch.query || remoteOnlyInput.checked) {
-      summaryEl.innerHTML += "<span><strong>" + jobs.length + "</strong> shown after filters</span>";
-    }
 
     if (!jobs.length) {
       var empty = document.createElement("div");
@@ -469,7 +300,7 @@
     try {
       payload = buildRequestPayload();
     } catch (err) {
-      showError("Invalid keyword query: " + err.message);
+      showError("Invalid search settings: " + err.message);
       return;
     }
     setVisible(errorEl, false);

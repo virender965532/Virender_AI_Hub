@@ -35,7 +35,7 @@ def api_job_search():
     try:
         parsed = JobSearchRequest.model_validate(payload)
     except ValidationError as exc:
-        return jsonify({"ok": False, "error": "invalid request", "details": exc.errors()}), 400
+        return jsonify({"ok": False, "error": "invalid request", "details": exc.errors(include_url=False, include_context=False)}), 400
 
     run_id = new_run_id()
     set_status(run_id, "running")
@@ -114,7 +114,7 @@ def api_test_source():
     try:
         parsed = SourceTestRequest.model_validate(payload)
     except ValidationError as exc:
-        return jsonify({"ok": False, "error": "invalid request", "details": exc.errors()}), 400
+        return jsonify({"ok": False, "error": "invalid request", "details": exc.errors(include_url=False, include_context=False)}), 400
 
     result = asyncio.run(test_source(parsed.source_id))
     status_code = 200 if result.get("ok") else 502

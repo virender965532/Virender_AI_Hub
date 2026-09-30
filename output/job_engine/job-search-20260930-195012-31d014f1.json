@@ -1,0 +1,1042 @@
+{
+  "run_id": "job-search-20260930-195012-31d014f1",
+  "status": "completed",
+  "summary": {
+    "sources_processed": 1,
+    "jobs_discovered": 10,
+    "jobs_validated": 10,
+    "duplicates_removed": 0,
+    "jobs_matched": 10,
+    "jobs_recommended": 10,
+    "degraded": false,
+    "degraded_reason": null
+  },
+  "jobs": [
+    {
+      "job": {
+        "job_id": "bd1c392c34efef651f7cf3c8de14018466727f2e219711c0beee8e1c1fc6f597",
+        "source": "linkedin",
+        "source_job_id": "4472630502",
+        "title": "Software Engineer",
+        "company": "SunSolarOne",
+        "location": "Mumbai (On-site)",
+        "employment_type": null,
+        "experience_required": null,
+        "description": "🚀 We’re Hiring | Senior Software Engineer – Solar SaaS\n\n\n\n\nCompany: SunSolarOne\n\nLocation: Mumbai / Navi Mumbai | Hybrid / On-site\n\nEmployment: Full-time\n\nExperience: 3–6 Years\n\n\n\n\nWe are building a next-generation Solar SaaS platform to simplify and digitize the solar ecosystem—from solar design and proposal generation to project management, monitoring, O&M and business analytics.\n\n\n\n\nWe are looking for a Senior Software Engineer who can take ownership of core product modules and work closely with the product and business teams.\n\n\n\n\nKey Responsibilities\n\n\n\n\n* Design, develop and maintain scalable Solar SaaS applications\n\n* Build modules for:\n\n    * Solar Design & Engineering\n\n    * Automated Proposal Generation\n\n    * Customer/CRM Management\n\n    * Project Management\n\n    * Operations & Maintenance (O&M)\n\n    * Solar Plant Monitoring & Analytics\n\n* Develop responsive web applications and APIs\n\n* Work on product architecture, integrations and database design\n\n* Convert business requirements into scalable software solutions\n\n* Improve application performance, security and reliability\n\n* Work closely with Product, Design and Business teams\n\n* Take end-to-end ownership of assigned modules from development to deployment\n\n\n\n\nRequired Skills\n\n\n\n\n* Strong experience in JavaScript / TypeScript\n\n* React.js / Next.js\n\n* Node.js / backend development\n\n* REST APIs and third-party integrations\n\n* SQL / NoSQL databases\n\n* Git & modern development practices\n\n* Experience in SaaS / B2B software products\n\n* Strong problem-solving and product-thinking ability\n\n\n\n\nPreferred Experience\n\n\n\n\nExperience in Solar / Renewable Energy software, especially:\n\n\n\n\n* Solar PV design software\n\n* Solar proposal generation\n\n* Solar CRM / ERP\n\n* Solar monitoring\n\n* O&M platforms\n\n* Energy analytics\n\n* PV system calculations/design tools\n\n\n\n\nWhat You Will Get\n\n\n\n\n* Opportunity to build a product from the ground up\n\n* High ownership and direct involvement in product decisions\n\n* Opportunity to work at the intersection of Technology + Solar Energy + AI\n\n* Fast-growing entrepreneurial environment\n\n* Scope to take a leadership role as the product scales\n\n\n\n\n📩 Interested candidates can apply by sending their \n\nCV to:\n\n[hr@sunsolarone.com]\n\n\n\n\nSubject: Application – Senior Software Engineer | SunSolarOne\n\n\n\n\n#Hiring #SunSolarOne #SolarEnergy #SolarSaaS #SoftwareEngineer #SaaS #RenewableEnergy #SolarTechnology #JavaScript #ReactJS #NodeJS #TechJobs #MumbaiJobs #NaviMumbaiJobs\n\n… more",
+        "requirements": [],
+        "responsibilities": [],
+        "skills": [],
+        "salary": null,
+        "posted_date": "2026-09-30T19:26:40.866160Z",
+        "application_url": "https://www.linkedin.com/jobs/view/4472630502/",
+        "source_url": "https://www.linkedin.com/jobs/search-results/?keywords=%28JavaScript+OR+TypeScript%29+AND+%28React+OR+%22React.js%22+OR+Next.js%29+AND+%28Node.js+OR+Node%29+AND+AWS+NOT+Python+NOT+Java+NOT+%22.NET%22+NOT+%22C%23%22&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&referralSearchId=JmVqo1tRdxIEMQQB2PxpeA%3D%3D&geoId=102713980&f_TPR=r86400&f_AL=true&f_SAL=f_SA_id_225001%3A272001&start=0",
+        "remote_type": "hybrid",
+        "raw_text_hash": "bd1c392c34efef651f7cf3c8de14018466727f2e219711c0beee8e1c1fc6f597",
+        "discovered_at": "2026-09-30T19:50:40.866160Z"
+      },
+      "match_score": 80.3,
+      "recommendation": "good_match",
+      "rule_evaluation": {
+        "passed": true,
+        "rejection_reasons": [],
+        "mandatory_skills_matched": [],
+        "mandatory_skills_missing": [],
+        "rule_score": 0.0,
+        "seniority_ok": true,
+        "role_related": true
+      },
+      "llm_analysis": {
+        "score": 85.0,
+        "role_match": 90.0,
+        "technical_match": 90.0,
+        "ai_match": 80.0,
+        "experience_match": 90.0,
+        "matched_skills": [
+          "JavaScript",
+          "TypeScript",
+          "React.js",
+          "Next.js",
+          "Node.js",
+          "REST APIs",
+          "SQL",
+          "NoSQL databases",
+          "Git"
+        ],
+        "missing_required_skills": [
+          "Experience in SaaS / B2B software products",
+          "Experience in Solar / Renewable Energy software"
+        ],
+        "matched_requirements": [
+          "Design, develop and maintain scalable applications",
+          "Develop responsive web applications and APIs",
+          "Improve application performance, security and reliability",
+          "Work closely with Product, Design and Business teams"
+        ],
+        "strengths": [
+          "7 years of experience as a Full Stack Developer",
+          "Strong experience in JavaScript, TypeScript, React.js, Next.js, and Node.js",
+          "Proven track record of optimizing application performance and deployment processes",
+          "Experience in building scalable and reliable solutions"
+        ],
+        "concerns": [
+          "No direct experience in Solar or Renewable Energy software",
+          "Experience in SaaS/B2B software products is not explicitly demonstrated"
+        ],
+        "recommendation": "good_match",
+        "explanation": "The candidate has strong technical skills and relevant experience in full stack development, particularly with JavaScript, TypeScript, React.js, Next.js, and Node.js, which align well with the job requirements. However, the candidate lacks specific experience in Solar or Renewable Energy software and SaaS/B2B products, which are preferred for this role."
+      },
+      "matched_skills": [
+        "JavaScript",
+        "TypeScript",
+        "React.js",
+        "Next.js",
+        "Node.js",
+        "REST APIs",
+        "SQL",
+        "NoSQL databases",
+        "Git"
+      ],
+      "missing_required_skills": [
+        "Experience in SaaS / B2B software products",
+        "Experience in Solar / Renewable Energy software"
+      ],
+      "strengths": [
+        "7 years of experience as a Full Stack Developer",
+        "Strong experience in JavaScript, TypeScript, React.js, Next.js, and Node.js",
+        "Proven track record of optimizing application performance and deployment processes",
+        "Experience in building scalable and reliable solutions"
+      ],
+      "concerns": [
+        "No direct experience in Solar or Renewable Energy software",
+        "Experience in SaaS/B2B software products is not explicitly demonstrated"
+      ],
+      "explanation": "The candidate has strong technical skills and relevant experience in full stack development, particularly with JavaScript, TypeScript, React.js, Next.js, and Node.js, which align well with the job requirements. However, the candidate lacks specific experience in Solar or Renewable Energy software and SaaS/B2B products, which are preferred for this role.",
+      "rejected": false,
+      "rejection_reason": null
+    },
+    {
+      "job": {
+        "job_id": "65234c3dd4de49465518acefe1b41caac6671a07deabee84877bcc2bd9d9e4ca",
+        "source": "linkedin",
+        "source_job_id": "4473786530",
+        "title": "Full Stack Engineer",
+        "company": "SecondWind by Joveo",
+        "location": "India (Remote)",
+        "employment_type": null,
+        "experience_required": null,
+        "description": "Role: Full Stack Engineer\nLocation: Remote\nEmployment Type: Full-time\n\n\n\n\nCompensation: Competitive salary commensurate with experience, qualifications, and location. Indicative range: $100,000 – $160,000 (USD equivalent), plus benefits.\n\n\n\n\nRole Overview\n\nWe are hiring a Full Stack Engineer to build features end-to-end across our web application. The role spans frontend, backend, and the database underneath — partnering with product and design to ship things that work and scale.\n\n\n\n\nKey Responsibilities\n\n- Build user-facing features end-to-end, from UI through API to database\n\n- Write clean, maintainable code with appropriate test coverage\n\n- Design APIs and data models that hold up as the product grows\n\n- Conduct code reviews and contribute to engineering practices\n\n- Diagnose and resolve production issues across the stack\n\n- Partner with product and design on feasibility and trade-offs\n\n\n\n\nRequired Skills and Qualifications\n\n- 3+ years building production web applications end-to-end\n\n- Strong proficiency in JavaScript/TypeScript and a modern frontend framework (React, Vue, or similar)\n\n- Backend experience with Node.js, Python, Ruby, or Go\n\n- Experience with relational databases and writing efficient SQL\n\n- Familiarity with cloud platforms (AWS, GCP, Azure) and CI/CD\n\n- Solid testing discipline and Git workflow experience\n\n\n\n\nWhat You'll Bring\n\n- Curiosity to dig into systems and turn findings into shipped improvements\n\n- Strong written communication and ability to explain technical decisions\n\n- A test-and-learn mindset; you ship fast, measure, and iterate\n\n- Comfort working asynchronously across time zones\n\n\n\n\nWhat We Offer\n\n- Fully remote, flexible work hours\n\n- Performance-based bonus structure\n\n- Annual learning & development stipend\n\n- Health and wellness benefits (varies by location)\n\n- Opportunity to work on high-scale, real-world impact projects\n\n\n\n\nEqual Opportunity Statement\n\nThis is an equal opportunity role. Applications are welcomed from all qualified individuals regardless of race, color, ethnicity, nationality, gender, gender identity or expression, sexual orientation, age, religion, disability, marital status, or any other characteristic protected by applicable law. All hiring decisions are based solely on qualifications, skills, and demonstrated ability.\n\n… more",
+        "requirements": [],
+        "responsibilities": [],
+        "skills": [],
+        "salary": null,
+        "posted_date": "2026-09-30T13:50:34.902996Z",
+        "application_url": "https://www.linkedin.com/jobs/view/4473786530/",
+        "source_url": "https://www.linkedin.com/jobs/search-results/?keywords=%28JavaScript+OR+TypeScript%29+AND+%28React+OR+%22React.js%22+OR+Next.js%29+AND+%28Node.js+OR+Node%29+AND+AWS+NOT+Python+NOT+Java+NOT+%22.NET%22+NOT+%22C%23%22&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&referralSearchId=JmVqo1tRdxIEMQQB2PxpeA%3D%3D&geoId=102713980&f_TPR=r86400&f_AL=true&f_SAL=f_SA_id_225001%3A272001&start=0",
+        "remote_type": "remote",
+        "raw_text_hash": "65234c3dd4de49465518acefe1b41caac6671a07deabee84877bcc2bd9d9e4ca",
+        "discovered_at": "2026-09-30T19:50:34.902996Z"
+      },
+      "match_score": 78.7,
+      "recommendation": "good_match",
+      "rule_evaluation": {
+        "passed": true,
+        "rejection_reasons": [],
+        "mandatory_skills_matched": [],
+        "mandatory_skills_missing": [],
+        "rule_score": 0.0,
+        "seniority_ok": true,
+        "role_related": true
+      },
+      "llm_analysis": {
+        "score": 85.0,
+        "role_match": 90.0,
+        "technical_match": 80.0,
+        "ai_match": 70.0,
+        "experience_match": 90.0,
+        "matched_skills": [
+          "JavaScript",
+          "TypeScript",
+          "React",
+          "Node.js",
+          "AWS",
+          "CI/CD"
+        ],
+        "missing_required_skills": [
+          "Python",
+          "Ruby",
+          "Go",
+          "SQL"
+        ],
+        "matched_requirements": [
+          "3+ years building production web applications end-to-end",
+          "Strong proficiency in JavaScript/TypeScript and a modern frontend framework (React)",
+          "Backend experience with Node.js",
+          "Familiarity with cloud platforms (AWS) and CI/CD"
+        ],
+        "strengths": [
+          "7 years of experience as a Full Stack Developer",
+          "Proven track record of optimizing deployment pipelines and application performance",
+          "Strong focus on clean code and continuous delivery"
+        ],
+        "concerns": [
+          "Lack of experience with Python, Ruby, or Go as backend languages",
+          "No explicit mention of SQL experience"
+        ],
+        "recommendation": "good_match",
+        "explanation": "The candidate has strong experience in full stack development, particularly with JavaScript, TypeScript, React, and Node.js, which aligns well with the job requirements. However, the absence of Python, Ruby, or Go experience, as well as SQL, are notable gaps."
+      },
+      "matched_skills": [
+        "JavaScript",
+        "TypeScript",
+        "React",
+        "Node.js",
+        "AWS",
+        "CI/CD"
+      ],
+      "missing_required_skills": [
+        "Python",
+        "Ruby",
+        "Go",
+        "SQL"
+      ],
+      "strengths": [
+        "7 years of experience as a Full Stack Developer",
+        "Proven track record of optimizing deployment pipelines and application performance",
+        "Strong focus on clean code and continuous delivery"
+      ],
+      "concerns": [
+        "Lack of experience with Python, Ruby, or Go as backend languages",
+        "No explicit mention of SQL experience"
+      ],
+      "explanation": "The candidate has strong experience in full stack development, particularly with JavaScript, TypeScript, React, and Node.js, which aligns well with the job requirements. However, the absence of Python, Ruby, or Go experience, as well as SQL, are notable gaps.",
+      "rejected": false,
+      "rejection_reason": null
+    },
+    {
+      "job": {
+        "job_id": "55e6caa5aaa6ab4fa6c14068222e3c2eb6018a8086dbc5e6a178b1eb06c49881",
+        "source": "linkedin",
+        "source_job_id": "4438943404",
+        "title": "Backend Developer (Node.js, JavaScript, TypeScript)",
+        "company": "Action1",
+        "location": "Poland (Remote)",
+        "employment_type": null,
+        "experience_required": null,
+        "description": "Action1 is an autonomous endpoint management platform trusted by many Fortune 500 companies. Cloud-native, infinitely scalable, highly secure, and configurable in 5 minutes—it just works and is always free for the first 200 endpoints, with no functional limits. By pioneering autonomous OS and third-party patching with peer-to-peer patch distribution and real-time vulnerability assessment without needing a VPN, it eliminates routine labor, preempts ransomware and security risks, and protects the digital employee experience.\n\nIn 2025, Action1 was recognized by Inc. 5000 as the fastest-growing private software company in America. The company is founder-led by Alex Vovk and Mike Walters, American entrepreneurs who previously founded Netwrix, a multi-billion-dollar cybersecurity company.\n\nWe are stepping into an exciting growth stage and are looking for a Backend developer to join our amazing development team.\n\nYou will:\n\n\nDevelop API and backend for a high-load product with numerous endpoints\nWrite unit and integration tests for backend\nRefactor code and improve application performance\n\n\nRequirements:\n\n\n4+ years of software development experience\nGood knowledge of Node.js, JavaScript, TypeScript\nExperience in designing and developing REST APIs and high load applications \nProficiency in working with databases (DynamoDB, MySQL)\nExperience writing tests\nGood knowledge of Docker and AWS (Lambda, EC2)\n\n\nWe offer:\n\n\nFully remote work, giving you the flexibility you need in the modern world\nA multitude of interesting challenges and opportunities\nStable income and flexible working hours, opportunities for promotion\nFriendly and professional peers, eager to help and help you grow\n\n\nJoin Action1 and be a driving force behind our success!\n… more",
+        "requirements": [],
+        "responsibilities": [],
+        "skills": [],
+        "salary": null,
+        "posted_date": "2026-09-29T21:50:55.664328Z",
+        "application_url": "https://www.linkedin.com/jobs/view/4438943404/",
+        "source_url": "https://www.linkedin.com/jobs/search-results/?keywords=%28JavaScript+OR+TypeScript%29+AND+%28React+OR+%22React.js%22+OR+Next.js%29+AND+%28Node.js+OR+Node%29+AND+AWS+NOT+Python+NOT+Java+NOT+%22.NET%22+NOT+%22C%23%22&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&referralSearchId=JmVqo1tRdxIEMQQB2PxpeA%3D%3D&geoId=105072130&start=0&f_TPR=r86400&f_AL=true&f_SAL=f_SA_id_225001%3A272001",
+        "remote_type": "remote",
+        "raw_text_hash": "55e6caa5aaa6ab4fa6c14068222e3c2eb6018a8086dbc5e6a178b1eb06c49881",
+        "discovered_at": "2026-09-30T19:50:55.664328Z"
+      },
+      "match_score": 78.0,
+      "recommendation": "good_match",
+      "rule_evaluation": {
+        "passed": true,
+        "rejection_reasons": [],
+        "mandatory_skills_matched": [],
+        "mandatory_skills_missing": [],
+        "rule_score": 60.0,
+        "seniority_ok": true,
+        "role_related": true
+      },
+      "llm_analysis": {
+        "score": 85.0,
+        "role_match": 90.0,
+        "technical_match": 80.0,
+        "ai_match": 70.0,
+        "experience_match": 90.0,
+        "matched_skills": [
+          "Node.js",
+          "JavaScript",
+          "TypeScript",
+          "REST APIs",
+          "DynamoDB",
+          "MySQL",
+          "Docker",
+          "AWS"
+        ],
+        "missing_required_skills": [
+          "None"
+        ],
+        "matched_requirements": [
+          "4+ years of software development experience",
+          "Good knowledge of Node.js, JavaScript, TypeScript",
+          "Experience in designing and developing REST APIs and high load applications",
+          "Proficiency in working with databases (DynamoDB, MySQL)",
+          "Experience writing tests",
+          "Good knowledge of Docker and AWS (Lambda, EC2)"
+        ],
+        "strengths": [
+          "7 years of experience in software development",
+          "Strong expertise in Node.js, JavaScript, and TypeScript",
+          "Proven experience in developing REST APIs",
+          "Experience with high-load applications and performance optimization",
+          "Proficient in AWS services and Docker"
+        ],
+        "concerns": [],
+        "recommendation": "strong_match",
+        "explanation": "The candidate has 7 years of experience and demonstrates strong skills in Node.js, JavaScript, TypeScript, REST APIs, and AWS, all of which align well with the job requirements. They also have experience with databases like DynamoDB and MySQL, and their background in optimizing application performance is a strong asset for the role."
+      },
+      "matched_skills": [
+        "Node.js",
+        "JavaScript",
+        "TypeScript",
+        "REST APIs",
+        "DynamoDB",
+        "MySQL",
+        "Docker",
+        "AWS"
+      ],
+      "missing_required_skills": [
+        "None"
+      ],
+      "strengths": [
+        "7 years of experience in software development",
+        "Strong expertise in Node.js, JavaScript, and TypeScript",
+        "Proven experience in developing REST APIs",
+        "Experience with high-load applications and performance optimization",
+        "Proficient in AWS services and Docker"
+      ],
+      "concerns": [],
+      "explanation": "The candidate has 7 years of experience and demonstrates strong skills in Node.js, JavaScript, TypeScript, REST APIs, and AWS, all of which align well with the job requirements. They also have experience with databases like DynamoDB and MySQL, and their background in optimizing application performance is a strong asset for the role.",
+      "rejected": false,
+      "rejection_reason": null
+    },
+    {
+      "job": {
+        "job_id": "e704b18eb1fa9e18805b626dababca375c9a3e2bb55509dac3d43f8eac3d5c48",
+        "source": "linkedin",
+        "source_job_id": "4472621622",
+        "title": "Senior FDE, Full Stack App Development",
+        "company": "Commotion",
+        "location": "India (Remote)",
+        "employment_type": null,
+        "experience_required": null,
+        "description": "Company Description Commotion is building an AI-native operating system designed to power the future of business across customer experience, operations, and workforce transformation. Its unified platform brings together omnichannel customer experience, real-time Voice AI, and enterprise-grade AI Workers to transform conversations and workflows at scale. By modernizing how organizations communicate and automate, Commotion enables more efficient, intelligent, and scalable operations. The company focuses on defining the next generation of customer experience and employee enablement. Team members join a fast-evolving environment where AI is central to product innovation and impact.\nRole Description The Senior FDE, Full Stack App Development role is a full-time, remote position responsible for designing, building, and maintaining scalable web applications that power Commotion’s AI-native platform. This role involves developing robust front-end interfaces and back-end services, integrating with AI and data systems, and ensuring performance, reliability, and security across the stack. Day-to-day tasks include collaborating with product managers and designers to refine requirements, implementing new features, improving existing functionality, writing clean and testable code, and participating in code reviews. The Senior FDE also helps define technical architecture, mentors other engineers, and contributes to continuous improvement of development practices and tooling.\nQualifications\n \nDemonstrated experience with modern front-end technologies (e.g., React, Vue, or similar frameworks) and building responsive, accessible user interfaces.\nStrong back-end development skills with server-side languages and frameworks (e.g., Node.js, Python, Java, or similar) and RESTful or GraphQL APIs.\nProficiency with databases and data storage (e.g., SQL/NoSQL, schema design, query optimization) and integration with distributed systems.\nExperience with cloud platforms and DevOps practices (e.g., AWS, GCP, or Azure; containers, CI/CD, monitoring, and logging).\nSolid software engineering fundamentals, including testing strategies, code quality, performance optimization, and secure development practices.\nAbility to work effectively in a remote, cross-functional team, communicate clearly, and provide technical leadership and mentorship.\nBackground in building products that integrate AI, data, or real-time communication systems is highly beneficial.\nBachelor’s degree in Computer Science, Engineering, or related field, or equivalent practical experience.\n… more",
+        "requirements": [],
+        "responsibilities": [],
+        "skills": [],
+        "salary": null,
+        "posted_date": "2026-09-30T18:55:24.528894Z",
+        "application_url": "https://www.linkedin.com/jobs/view/4472621622/",
+        "source_url": "https://www.linkedin.com/jobs/search-results/?keywords=%28JavaScript+OR+TypeScript%29+AND+%28React+OR+%22React.js%22+OR+Next.js%29+AND+%28Node.js+OR+Node%29+AND+AWS+NOT+Python+NOT+Java+NOT+%22.NET%22+NOT+%22C%23%22&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&referralSearchId=JmVqo1tRdxIEMQQB2PxpeA%3D%3D&geoId=102713980&f_TPR=r86400&f_AL=true&f_SAL=f_SA_id_225001%3A272001&start=0",
+        "remote_type": "remote",
+        "raw_text_hash": "e704b18eb1fa9e18805b626dababca375c9a3e2bb55509dac3d43f8eac3d5c48",
+        "discovered_at": "2026-09-30T19:50:24.528894Z"
+      },
+      "match_score": 76.8,
+      "recommendation": "good_match",
+      "rule_evaluation": {
+        "passed": true,
+        "rejection_reasons": [],
+        "mandatory_skills_matched": [],
+        "mandatory_skills_missing": [],
+        "rule_score": 0.0,
+        "seniority_ok": true,
+        "role_related": true
+      },
+      "llm_analysis": {
+        "score": 85.0,
+        "role_match": 90.0,
+        "technical_match": 80.0,
+        "ai_match": 85.0,
+        "experience_match": 80.0,
+        "matched_skills": [
+          "React.js",
+          "Node.js",
+          "REST APIs",
+          "GraphQL",
+          "AWS",
+          "CI/CD Pipelines"
+        ],
+        "missing_required_skills": [
+          "Vue",
+          "Python",
+          "Java",
+          "GCP",
+          "Azure"
+        ],
+        "matched_requirements": [
+          "Experience with modern front-end technologies",
+          "Strong back-end development skills",
+          "Proficiency with databases and data storage",
+          "Experience with cloud platforms and DevOps practices",
+          "Solid software engineering fundamentals",
+          "Ability to work effectively in a remote, cross-functional team",
+          "Bachelor’s degree in Computer Science"
+        ],
+        "strengths": [
+          "7 years of experience in full stack development",
+          "Strong expertise in React.js and Node.js",
+          "Proficient in AWS and CI/CD practices",
+          "Experience in building scalable applications with a focus on performance optimization"
+        ],
+        "concerns": [
+          "Lack of experience with Vue, Python, and Java",
+          "No mention of GCP or Azure experience"
+        ],
+        "recommendation": "good_match",
+        "explanation": "The candidate has strong alignment with the role's requirements, particularly in full stack development using React.js and Node.js, as well as experience with AWS and CI/CD practices. However, the absence of experience with Vue, Python, Java, GCP, and Azure presents some gaps."
+      },
+      "matched_skills": [
+        "React.js",
+        "Node.js",
+        "REST APIs",
+        "GraphQL",
+        "AWS",
+        "CI/CD Pipelines"
+      ],
+      "missing_required_skills": [
+        "Vue",
+        "Python",
+        "Java",
+        "GCP",
+        "Azure"
+      ],
+      "strengths": [
+        "7 years of experience in full stack development",
+        "Strong expertise in React.js and Node.js",
+        "Proficient in AWS and CI/CD practices",
+        "Experience in building scalable applications with a focus on performance optimization"
+      ],
+      "concerns": [
+        "Lack of experience with Vue, Python, and Java",
+        "No mention of GCP or Azure experience"
+      ],
+      "explanation": "The candidate has strong alignment with the role's requirements, particularly in full stack development using React.js and Node.js, as well as experience with AWS and CI/CD practices. However, the absence of experience with Vue, Python, Java, GCP, and Azure presents some gaps.",
+      "rejected": false,
+      "rejection_reason": null
+    },
+    {
+      "job": {
+        "job_id": "a03ff3a1c4ec5f935c3d89ae4d1222acd75411486d2c2495e298919f8f5bc55e",
+        "source": "linkedin",
+        "source_job_id": "4473762009",
+        "title": "Senior Fullstack Developer (Node/React)",
+        "company": "Intellias",
+        "location": "Poland (Remote)",
+        "employment_type": null,
+        "experience_required": null,
+        "description": "Intro:\n\nDive deep into Digital! For 20 years Intellias has been developing top-tier digital solutions for the world’s leading companies, keeping them in line with the latest technology trends. Join in and provide innovations for the future!\n\n\n\n\nProject overview:\n\nOur team is growing, and we are looking for a talented back-end developer. You will work in small teams on various products, from integrating multiple platforms into one dashboard to managing our data and analytics systems.\n\nOur client provides a property management software product and support services for the $100 billion Airbnb and vacation rental market. They are one of the fastest growing high-tech start-ups in Tel Aviv, profitable and showing very promising results.\n\nThe team is all about accuracy, architecture, and impact. We handle complex business logic, data flows and transformations, and focus on providing high-most quality & accuracy. We rely heavily on AI across both dev and design, expecting code to be authored via AI tools rather than written manually, allowing us to focus on system structure, edge cases, and high-most quality\n\nWhen you will join us, you will have a tremendous impact on company's success.\n\nStack: Node.js, NestJS, TypeScript, MongoDB, postgreSQL, Kafka, RabbitMQ, React, AWS\n\nIf you are looking for an interesting product and enjoy being challenged - this is the place for you!\n\n\n\n\nRequirements:\n\nAt least 5 years of experience in development roles, preferably from startups (or other agile environments).\nExperience with NodeJS/Typescript (ExpressJS/NestJS)- Must!\nExperience with React\nExperience in designing high performance, highly scalable microservices architecture with OOP design-patterns and complex business logic.\nExperience in relational databases and NoSQL databases (PostgreSQL, MongoDB, Redis).\nProficiency in design of distributed enterprise systems - Advantage!\nExperience in the payments domain - nice to have\nPassionate about technology, enjoys solving complex problems and learning new technologies.\nB.Sc in Computer Science (or equivalent)\nA team player with strong communication skills.\n\n\n\n\nResponsibilities:\n\nDesign of the data-intensive web applications.\nOptimize performance to support the fast growing business.\nWrite clean maintainable code\nOn-call duties are also present on the project\n… more",
+        "requirements": [],
+        "responsibilities": [],
+        "skills": [],
+        "salary": null,
+        "posted_date": "2026-09-30T10:50:48.628912Z",
+        "application_url": "https://www.linkedin.com/jobs/view/4473762009/",
+        "source_url": "https://www.linkedin.com/jobs/search-results/?keywords=%28JavaScript+OR+TypeScript%29+AND+%28React+OR+%22React.js%22+OR+Next.js%29+AND+%28Node.js+OR+Node%29+AND+AWS+NOT+Python+NOT+Java+NOT+%22.NET%22+NOT+%22C%23%22&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&referralSearchId=JmVqo1tRdxIEMQQB2PxpeA%3D%3D&geoId=105072130&start=0&f_TPR=r86400&f_AL=true&f_SAL=f_SA_id_225001%3A272001",
+        "remote_type": "remote",
+        "raw_text_hash": "a03ff3a1c4ec5f935c3d89ae4d1222acd75411486d2c2495e298919f8f5bc55e",
+        "discovered_at": "2026-09-30T19:50:48.628912Z"
+      },
+      "match_score": 74.5,
+      "recommendation": "good_match",
+      "rule_evaluation": {
+        "passed": true,
+        "rejection_reasons": [],
+        "mandatory_skills_matched": [],
+        "mandatory_skills_missing": [],
+        "rule_score": 0.0,
+        "seniority_ok": true,
+        "role_related": true
+      },
+      "llm_analysis": {
+        "score": 85.0,
+        "role_match": 90.0,
+        "technical_match": 80.0,
+        "ai_match": 70.0,
+        "experience_match": 90.0,
+        "matched_skills": [
+          "Node.js",
+          "React",
+          "TypeScript",
+          "PostgreSQL",
+          "MongoDB"
+        ],
+        "missing_required_skills": [
+          "NestJS",
+          "Kafka",
+          "RabbitMQ",
+          "Redis"
+        ],
+        "matched_requirements": [
+          "At least 5 years of experience in development roles",
+          "Experience with NodeJS/Typescript",
+          "Experience with React",
+          "Experience in relational databases and NoSQL databases"
+        ],
+        "strengths": [
+          "7 years of experience as a Full Stack Developer",
+          "Strong background in cloud-native applications",
+          "Proven track record of performance optimization and scalable solutions"
+        ],
+        "concerns": [
+          "Lack of experience with NestJS, Kafka, RabbitMQ, and Redis"
+        ],
+        "recommendation": "good_match",
+        "explanation": "The candidate has strong experience in Node.js, React, and TypeScript, which aligns well with the job requirements. They also have extensive experience with PostgreSQL and MongoDB. However, they lack specific experience with NestJS, Kafka, RabbitMQ, and Redis, which are mentioned as important in the job description."
+      },
+      "matched_skills": [
+        "Node.js",
+        "React",
+        "TypeScript",
+        "PostgreSQL",
+        "MongoDB"
+      ],
+      "missing_required_skills": [
+        "NestJS",
+        "Kafka",
+        "RabbitMQ",
+        "Redis"
+      ],
+      "strengths": [
+        "7 years of experience as a Full Stack Developer",
+        "Strong background in cloud-native applications",
+        "Proven track record of performance optimization and scalable solutions"
+      ],
+      "concerns": [
+        "Lack of experience with NestJS, Kafka, RabbitMQ, and Redis"
+      ],
+      "explanation": "The candidate has strong experience in Node.js, React, and TypeScript, which aligns well with the job requirements. They also have extensive experience with PostgreSQL and MongoDB. However, they lack specific experience with NestJS, Kafka, RabbitMQ, and Redis, which are mentioned as important in the job description.",
+      "rejected": false,
+      "rejection_reason": null
+    },
+    {
+      "job": {
+        "job_id": "9e6284fc91077b9d2248c3836c37123ac44245950d8878aa32c3d0308a1c4b2a",
+        "source": "linkedin",
+        "source_job_id": "4465170344",
+        "title": "Development Manager - Integrations",
+        "company": "Action1",
+        "location": "Poland (Remote)",
+        "employment_type": null,
+        "experience_required": null,
+        "description": "Action1 is an autonomous patch management platform trusted by many Fortune 500 companies. Cloud-native, infinitely scalable, highly secure, and configurable in 5 minutes, it just works and is always free for the first 200 endpoints, with no functional limits. By pioneering autonomous OS and third-party application patching, Action1 helps organizations eliminate routine work, reduce ransomware and security risks, and protect the digital employee experience. It provides real-time vulnerability assessment and remediation across remote and on-site endpoints without requiring a VPN, while peer-to-peer patch distribution reduces bandwidth use on local networks.\n\nIn 2026, Action1 was recognized as the fastest-growing founder-led cybersecurity company in America on the Inc. 5000. Action1 is led by industry veterans Alex Vovk and Mike Walters, American entrepreneurs who founded Netwrix, which has grown into an industry-leading, multibillion-dollar cybersecurity company.\n\nWe are looking for a Dev Manager to lead the engineering team responsible for integrations between our product and external systems, including the Integrations Store. You will combine engineering leadership with hands-on technical expertise to deliver secure, reliable integrations that fit our customers' workflows.\n\nWhat you'll do:\n\n\nLead and develop a team of engineers, providing technical direction, mentoring, and regular feedback\nOwn delivery outcomes within the agreed scope, provide practical estimates, and make capacity and priority tradeoffs visible\nDelegate ownership to engineers and, as the team grows, team leads; distinguish near-term delivery from long-term capability development. Keep the role to no more than three clearly defined focus areas, with team leads taking ownership as capacity grows\nWork with Product Management to define priorities, plan delivery, and translate customer needs into integration capabilities\nOversee the design, development, and maintenance of integrations, including:\n Connectors to third-party applications and services\n An Integrations Store for discovering and managing available integrations\n Data mapping, validation, and synchronization between systems\n Authentication, authorization, and secure credential handling\n Monitoring, troubleshooting, and recovery from integration failures\nGuide technical decisions within the assigned domain from solution design through development and production rollout, coordinating cross-cutting architecture and security decisions with their designated owners\nEstablish reusable integration patterns that handle retries, rate limits, duplicate events, and API version changes reliably\nOwn automated pipelines for building, testing, validating, and deploying integrations\nImprove integration reliability, performance, and observability, and guide the team in resolving production issues\nCoordinate with other engineering teams and external partners to manage dependencies and compatibility\nApply AI technologies where they improve integration development, testing, or support, with appropriate validation of outputs\n\n\nRequirements\n\nWhat we're looking for:\n\n\n Experience leading software engineers and owning the delivery and operation of production systems. \n Strong software engineering fundamentals and the ability to contribute to technical problem-solving. \n Excellent knowledge of Node.js, JavaScript, and TypeScript. \n Experience building and operating AWS services in production. \n Hands-on experience designing and maintaining APIs and integrations with external systems\nUnderstanding of distributed systems, asynchronous processing, data consistency, and failure recovery\n Proficiency in SQL and experience with data modeling, aggregation, and query performance. \n Experience with secure authentication and authorization for integrations\n Strong communication skills and the ability to align engineering work with product priorities. \n Professional working proficiency in English for leading an English-speaking team and collaborating across functions\n\n\nNice to have:\n\n\nExperience writing automated integration and contract tests\nProficiency in SQL\nExperience with runtime isolation and sandboxing for sensitive execution\nExperience in B2B SaaS, security, compliance, or data governance\nExperience building high-load products with numerous endpoints\nExperience maintaining integrations across multiple third-party API versions\n\n\nBenefits\n\n\nFully remote work with flexibility to support your work-life balance. \n A collaborative environment that empowers you to own your domain and implement best practices. \n Stable income, benefits, flexible working hours, and opportunities for career advancement. \n Friendly, professional colleagues who are eager to support you and help you grow. \n Engaging challenges and opportunities to make a meaningful impact\n… more",
+        "requirements": [],
+        "responsibilities": [],
+        "skills": [],
+        "salary": null,
+        "posted_date": "2026-09-29T21:50:58.565808Z",
+        "application_url": "https://www.linkedin.com/jobs/view/4465170344/",
+        "source_url": "https://www.linkedin.com/jobs/search-results/?keywords=%28JavaScript+OR+TypeScript%29+AND+%28React+OR+%22React.js%22+OR+Next.js%29+AND+%28Node.js+OR+Node%29+AND+AWS+NOT+Python+NOT+Java+NOT+%22.NET%22+NOT+%22C%23%22&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&referralSearchId=JmVqo1tRdxIEMQQB2PxpeA%3D%3D&geoId=105072130&start=0&f_TPR=r86400&f_AL=true&f_SAL=f_SA_id_225001%3A272001",
+        "remote_type": "remote",
+        "raw_text_hash": "9e6284fc91077b9d2248c3836c37123ac44245950d8878aa32c3d0308a1c4b2a",
+        "discovered_at": "2026-09-30T19:50:58.565808Z"
+      },
+      "match_score": 69.4,
+      "recommendation": "possible_match",
+      "rule_evaluation": {
+        "passed": true,
+        "rejection_reasons": [],
+        "mandatory_skills_matched": [],
+        "mandatory_skills_missing": [],
+        "rule_score": 0.0,
+        "seniority_ok": true,
+        "role_related": true
+      },
+      "llm_analysis": {
+        "score": 75.0,
+        "role_match": 70.0,
+        "technical_match": 80.0,
+        "ai_match": 70.0,
+        "experience_match": 80.0,
+        "matched_skills": [
+          "Node.js",
+          "JavaScript",
+          "TypeScript",
+          "AWS"
+        ],
+        "missing_required_skills": [
+          "Experience leading software engineers",
+          "Experience building and operating AWS services in production",
+          "Hands-on experience designing and maintaining APIs and integrations with external systems",
+          "Understanding of distributed systems, asynchronous processing, data consistency, and failure recovery",
+          "Experience with secure authentication and authorization for integrations",
+          "Proficiency in SQL"
+        ],
+        "matched_requirements": [
+          "Strong software engineering fundamentals and the ability to contribute to technical problem-solving",
+          "Strong communication skills and the ability to align engineering work with product priorities",
+          "Professional working proficiency in English for leading an English-speaking team and collaborating across functions"
+        ],
+        "strengths": [
+          "7 years of experience as a Full Stack Developer",
+          "Proven track record of delivering measurable impact",
+          "Experience with cloud-native applications and modern architecture"
+        ],
+        "concerns": [
+          "Lacks direct experience leading a team of engineers",
+          "Missing specific experience with integrations and external systems",
+          "No demonstrated experience with SQL or distributed systems"
+        ],
+        "recommendation": "possible_match",
+        "explanation": "The candidate has strong technical skills in Node.js, JavaScript, TypeScript, and AWS, which align well with the job requirements. However, they lack direct experience leading engineers and specific experience with integrations, SQL, and distributed systems, which are critical for the Development Manager role."
+      },
+      "matched_skills": [
+        "Node.js",
+        "JavaScript",
+        "TypeScript",
+        "AWS"
+      ],
+      "missing_required_skills": [
+        "Experience leading software engineers",
+        "Experience building and operating AWS services in production",
+        "Hands-on experience designing and maintaining APIs and integrations with external systems",
+        "Understanding of distributed systems, asynchronous processing, data consistency, and failure recovery",
+        "Experience with secure authentication and authorization for integrations",
+        "Proficiency in SQL"
+      ],
+      "strengths": [
+        "7 years of experience as a Full Stack Developer",
+        "Proven track record of delivering measurable impact",
+        "Experience with cloud-native applications and modern architecture"
+      ],
+      "concerns": [
+        "Lacks direct experience leading a team of engineers",
+        "Missing specific experience with integrations and external systems",
+        "No demonstrated experience with SQL or distributed systems"
+      ],
+      "explanation": "The candidate has strong technical skills in Node.js, JavaScript, TypeScript, and AWS, which align well with the job requirements. However, they lack direct experience leading engineers and specific experience with integrations, SQL, and distributed systems, which are critical for the Development Manager role.",
+      "rejected": false,
+      "rejection_reason": null
+    },
+    {
+      "job": {
+        "job_id": "a9e9207caf9aa724ac9ec24aa58bdf85cb2d70b3c66a6dcd535ef5376be5a185",
+        "source": "linkedin",
+        "source_job_id": "4473928321",
+        "title": "Software Engineer / Senior Software Engineer, AI & Search (India)",
+        "company": "Yieldmo",
+        "location": "India (Remote)",
+        "employment_type": null,
+        "experience_required": null,
+        "description": "Who We Are\n\nYieldmo is an advertising platform that helps brands invent creative experiences through tech and AI, using custom ad formats, proprietary attention signals, predictive format selection, and privacy-safe premium inventory curation. We believe all ads should be human-centered, tailored, and provoke emotion and action. Yieldmo helps brands deliver the best ad for every impression opportunity, merging creative and media for proven results.\n\nThe Role\n\nWe're hiring a Software Engineer / Senior Software Engineer (5–10 years of experience) to help build Yieldmo's AI-powered search engine, which will change how users discover and engage with content across major publishers. This is a full-stack role with a strong ML component. You'll build backend services and ML-powered features, and ship the user-facing interfaces that bring them to life. We care most about builders: engineers who write production code, iterate quickly, make pragmatic tradeoffs, and own their work end to end.\n\nWhat You'll Do\n\n\nDesign, build, and operate backend services and APIs that power AI-driven search, including retrieval, ranking, and indexing components.\nBuild and deploy ML features into production: embeddings, vector search, RAG pipelines, LLM integrations, and model evaluation.\nDevelop responsive, performant front-end experiences that surface search results and AI features to users and internal teams.\nBuild and maintain data and content ingestion pipelines that feed the search system.\nOwn features end to end, from prototype through production, monitoring, and iteration.\nPartner with Product, ML, and Engineering teams to turn requirements into shipped features.\nDrive quality, performance, and reliability for the services you own, including testing, code reviews, and observability.\nShare knowledge and support teammates; senior engineers will mentor others and contribute to technical design decisions.\n\n\nRequirements\n\n\nMust be based in India.\n5–10 years of professional software engineering experience, building and operating production systems.\nStrong backend skills in Python, with solid SQL and experience designing APIs and microservices.\nHands-on front-end experience with a modern framework (React preferred) plus JavaScript/TypeScript, HTML, and CSS.\nPractical ML experience in production: working with embeddings, vector databases, LLMs, RAG, or ranking/recommendation models.\nExperience with Docker, cloud platforms (AWS or GCP), and CI/CD.\nStrong fundamentals in data structures, system design, and testing.\nClear written and verbal communication, and comfort working cross-functionally in a fast-moving, remote team.\nAn ownership mindset: you ship, measure, and improve.\n\n\nNice to Haves\n\n\nDeeper ML/AI backend experience: model serving, fine-tuning, training pipelines, or online/offline evaluation.\nExperience building search or retrieval systems (inverted indexes, BM25, hybrid search, rerankers).\nFamiliarity with data tools such as Kafka, Spark, Airflow, or a modern data warehouse.\nExperience with publisher-scale content, recommendation systems, or adtech.\n\n\nHiring Process\n\nSelected candidates will be invited to a 30-minute screening call with our Talent Acquisition team, where we'll share full process details. The process typically includes:\n\n\nA 30-minute video interview with the Hiring Manager.\nA remote round of video interviews with team members and leadership.\nAn offer for successful candidates.\n\n\nOur Values\n\n\nInnovation: We encourage curiosity, embrace new ideas, and believe no idea is too bold.\nAgility: We embrace change, act quickly, and adapt with a focus on getting things done.\nIntelligence: We make decisions guided by data, aiming to deliver maximum value to our customers.\nAutonomy: We empower individuals to create their own paths with flexibility and independence.\nTogetherness: We foster teamwork, mutual support, and an environment where every voice matters.\n\n\nWhat We Offer\n\n\nRemote work: A fully distributed team, with annual offsites, holiday parties, and more.\nCompany-paid health coverage: Medical, dental, and vision plans for you and your family.\nEquity: Share in Yieldmo's success through our employee stock option program.\nFlexible time off: Plus company slowdowns and Summer Fridays.\nHome office setup and stipend: Premium technology packages and a stipend for extra needs.\nProfessional development: An annual stipend to grow your hard and soft skills.\n… more",
+        "requirements": [],
+        "responsibilities": [],
+        "skills": [],
+        "salary": null,
+        "posted_date": "2026-09-30T17:50:38.098967Z",
+        "application_url": "https://www.linkedin.com/jobs/view/4473928321/",
+        "source_url": "https://www.linkedin.com/jobs/search-results/?keywords=%28JavaScript+OR+TypeScript%29+AND+%28React+OR+%22React.js%22+OR+Next.js%29+AND+%28Node.js+OR+Node%29+AND+AWS+NOT+Python+NOT+Java+NOT+%22.NET%22+NOT+%22C%23%22&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&referralSearchId=JmVqo1tRdxIEMQQB2PxpeA%3D%3D&geoId=102713980&f_TPR=r86400&f_AL=true&f_SAL=f_SA_id_225001%3A272001&start=0",
+        "remote_type": "hybrid",
+        "raw_text_hash": "a9e9207caf9aa724ac9ec24aa58bdf85cb2d70b3c66a6dcd535ef5376be5a185",
+        "discovered_at": "2026-09-30T19:50:38.098967Z"
+      },
+      "match_score": 68.5,
+      "recommendation": "possible_match",
+      "rule_evaluation": {
+        "passed": true,
+        "rejection_reasons": [],
+        "mandatory_skills_matched": [],
+        "mandatory_skills_missing": [],
+        "rule_score": 0.0,
+        "seniority_ok": true,
+        "role_related": true
+      },
+      "llm_analysis": {
+        "score": 75.0,
+        "role_match": 80.0,
+        "technical_match": 70.0,
+        "ai_match": 60.0,
+        "experience_match": 80.0,
+        "matched_skills": [
+          "React.js",
+          "JavaScript",
+          "TypeScript",
+          "HTML",
+          "CSS",
+          "AWS",
+          "Docker",
+          "CI/CD"
+        ],
+        "missing_required_skills": [
+          "Python",
+          "ML experience",
+          "SQL"
+        ],
+        "matched_requirements": [
+          "5–10 years of professional software engineering experience",
+          "Strong backend skills",
+          "Hands-on front-end experience with a modern framework",
+          "Experience with Docker, cloud platforms (AWS) and CI/CD"
+        ],
+        "strengths": [
+          "7 years of experience as a Full Stack Developer",
+          "Strong focus on modern architecture and performance optimization",
+          "Proven track record of delivering measurable impact"
+        ],
+        "concerns": [
+          "Lack of demonstrated Python experience",
+          "No explicit ML experience in production mentioned",
+          "SQL experience not demonstrated"
+        ],
+        "recommendation": "possible_match",
+        "explanation": "The candidate has strong full-stack development experience and relevant skills in React.js, JavaScript, TypeScript, HTML, CSS, AWS, Docker, and CI/CD, which align well with the job requirements. However, the candidate lacks demonstrated experience in Python, ML, and SQL, which are critical for the role."
+      },
+      "matched_skills": [
+        "React.js",
+        "JavaScript",
+        "TypeScript",
+        "HTML",
+        "CSS",
+        "AWS",
+        "Docker",
+        "CI/CD"
+      ],
+      "missing_required_skills": [
+        "Python",
+        "ML experience",
+        "SQL"
+      ],
+      "strengths": [
+        "7 years of experience as a Full Stack Developer",
+        "Strong focus on modern architecture and performance optimization",
+        "Proven track record of delivering measurable impact"
+      ],
+      "concerns": [
+        "Lack of demonstrated Python experience",
+        "No explicit ML experience in production mentioned",
+        "SQL experience not demonstrated"
+      ],
+      "explanation": "The candidate has strong full-stack development experience and relevant skills in React.js, JavaScript, TypeScript, HTML, CSS, AWS, Docker, and CI/CD, which align well with the job requirements. However, the candidate lacks demonstrated experience in Python, ML, and SQL, which are critical for the role.",
+      "rejected": false,
+      "rejection_reason": null
+    },
+    {
+      "job": {
+        "job_id": "8a51fb42492034b70449940d88b7ccd85d37e7c5ee4b96db56a7dc6699f384c7",
+        "source": "linkedin",
+        "source_job_id": "4472328437",
+        "title": "Technical Lead",
+        "company": "Magneton Technologies Pvt Ltd",
+        "location": "Bengaluru (Hybrid)",
+        "employment_type": null,
+        "experience_required": null,
+        "description": "Tech Lead – React.js ,Node.js , Python\n\nThis is a contract-to-hire position\n\nExperience: 8+ Years\n\nLocation: Bangalore/Hybrid\n\n\n\n\nJob Description:\n\nWe are looking for a strong Tech Lead with 8+ years of hands-on  development experience, with expertise in React.js, Node.js and Python. \n\n\n\n\nThe candidate should be comfortable leading technical implementation while remaining hands-on with coding, architecture and problem-solving.\n\n\n\n\nKey Responsibilities:\n\nLead the design, development and delivery of scalable web applications.\nHands-on development using React.js, Node.js and Python.\nDefine application architecture, coding standards and technical best practices.\nReview code, troubleshoot complex technical issues and ensure quality delivery.\nLead and mentor developers and conduct technical discussions/code reviews.\nWork closely with product managers, clients and engineering teams to translate requirements into technical solutions.\nDesign and integrate REST APIs, third-party APIs and databases.\nIdentify performance, scalability and security improvements.\nParticipate in deployment, debugging and production support.\nStay updated with modern frameworks, cloud technologies and emerging development practices.\n\nRequired Skills:\n\n8+ years of professional software development experience.\nStrong hands-on expertise in React.js.\nStrong experience with Node.js and backend development.\nGood hands-on experience in Python.\nStrong knowledge of JavaScript/TypeScript, REST APIs and databases.\nExperience with application architecture and scalable systems.\nGood understanding of Git, CI/CD and cloud environments.\nStrong debugging, problem-solving and communication skills.\nExperience leading a development team or taking technical ownership of projects.\n\nPreferred:\n\nExperience with AWS/Azure/GCP.\nExperience with Docker and microservices.\nExposure to AI/GenAI integrations is an advantage.\nExperience working in Agile/Scrum environments.\n\nIdeal Candidate:\n\nA hands-on technical leader who can architect, code, review, mentor and deliver—not someone limited to people management.\n\n\n\n\n… more",
+        "requirements": [],
+        "responsibilities": [],
+        "skills": [],
+        "salary": null,
+        "posted_date": "2026-09-30T18:50:31.593099Z",
+        "application_url": "https://www.linkedin.com/jobs/view/4472328437/",
+        "source_url": "https://www.linkedin.com/jobs/search-results/?keywords=%28JavaScript+OR+TypeScript%29+AND+%28React+OR+%22React.js%22+OR+Next.js%29+AND+%28Node.js+OR+Node%29+AND+AWS+NOT+Python+NOT+Java+NOT+%22.NET%22+NOT+%22C%23%22&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&referralSearchId=JmVqo1tRdxIEMQQB2PxpeA%3D%3D&geoId=102713980&f_TPR=r86400&f_AL=true&f_SAL=f_SA_id_225001%3A272001&start=0",
+        "remote_type": "hybrid",
+        "raw_text_hash": "8a51fb42492034b70449940d88b7ccd85d37e7c5ee4b96db56a7dc6699f384c7",
+        "discovered_at": "2026-09-30T19:50:31.593099Z"
+      },
+      "match_score": 64.9,
+      "recommendation": "possible_match",
+      "rule_evaluation": {
+        "passed": true,
+        "rejection_reasons": [],
+        "mandatory_skills_matched": [],
+        "mandatory_skills_missing": [],
+        "rule_score": 0.0,
+        "seniority_ok": true,
+        "role_related": true
+      },
+      "llm_analysis": {
+        "score": 70.0,
+        "role_match": 60.0,
+        "technical_match": 70.0,
+        "ai_match": 80.0,
+        "experience_match": 60.0,
+        "matched_skills": [
+          "React.js",
+          "Node.js",
+          "JavaScript",
+          "TypeScript",
+          "REST APIs",
+          "Git",
+          "CI/CD"
+        ],
+        "missing_required_skills": [
+          "Python",
+          "8+ years of professional software development experience",
+          "Experience leading a development team or taking technical ownership of projects"
+        ],
+        "matched_requirements": [
+          "Strong hands-on expertise in React.js",
+          "Strong experience with Node.js and backend development",
+          "Strong knowledge of JavaScript/TypeScript, REST APIs and databases",
+          "Good understanding of Git, CI/CD and cloud environments"
+        ],
+        "strengths": [
+          "7 years of experience in full stack development",
+          "Proven track record of performance optimization and deployment improvements",
+          "Experience with cloud-native applications and AWS"
+        ],
+        "concerns": [
+          "Candidate has only 7 years of experience, while the job requires 8+ years",
+          "Python experience is not demonstrated in the provided profile",
+          "No explicit experience leading a development team or taking technical ownership"
+        ],
+        "recommendation": "possible_match",
+        "explanation": "The candidate has strong skills in React.js and Node.js, along with relevant experience in cloud-native applications and CI/CD practices. However, they lack demonstrated experience in Python and do not meet the 8+ years of experience requirement. Additionally, there is no evidence of leading a development team, which is a key responsibility for the role."
+      },
+      "matched_skills": [
+        "React.js",
+        "Node.js",
+        "JavaScript",
+        "TypeScript",
+        "REST APIs",
+        "Git",
+        "CI/CD"
+      ],
+      "missing_required_skills": [
+        "Python",
+        "8+ years of professional software development experience",
+        "Experience leading a development team or taking technical ownership of projects"
+      ],
+      "strengths": [
+        "7 years of experience in full stack development",
+        "Proven track record of performance optimization and deployment improvements",
+        "Experience with cloud-native applications and AWS"
+      ],
+      "concerns": [
+        "Candidate has only 7 years of experience, while the job requires 8+ years",
+        "Python experience is not demonstrated in the provided profile",
+        "No explicit experience leading a development team or taking technical ownership"
+      ],
+      "explanation": "The candidate has strong skills in React.js and Node.js, along with relevant experience in cloud-native applications and CI/CD practices. However, they lack demonstrated experience in Python and do not meet the 8+ years of experience requirement. Additionally, there is no evidence of leading a development team, which is a key responsibility for the role.",
+      "rejected": false,
+      "rejection_reason": null
+    },
+    {
+      "job": {
+        "job_id": "41da3445bb73ade961d7f55d159cea5abdc2b7a426b2d353f6ecda74d45ed865",
+        "source": "linkedin",
+        "source_job_id": "4464525823",
+        "title": "Development Manager - Executive reporting",
+        "company": "Action1",
+        "location": "Poland (Remote)",
+        "employment_type": null,
+        "experience_required": null,
+        "description": "Action1 is an autonomous patch management platform trusted by many Fortune 500 companies. Cloud-native, infinitely scalable, highly secure, and configurable in 5 minutes, it just works and is always free for the first 200 endpoints, with no functional limits. By pioneering autonomous OS and third-party application patching, Action1 helps organizations eliminate routine work, reduce ransomware and security risks, and protect the digital employee experience. It provides real-time vulnerability assessment and remediation across remote and on-site endpoints without requiring a VPN, while peer-to-peer patch distribution reduces bandwidth use on local networks.\n\nIn 2026, Action1 was recognized as the fastest-growing founder-led cybersecurity company in America on the Inc. 5000. Action1 is led by industry veterans Alex Vovk and Mike Walters, American entrepreneurs who founded Netwrix, which has grown into an industry-leading, multibillion-dollar cybersecurity company.\n\nWe are looking for a Dev Manager to lead the engineering team responsible for Executive Reporting.\n\nYou will combine engineering leadership with hands-on technical expertise to help customers understand patching and vulnerability trends over time through reliable reports and dashboards.\n\nWhat you'll do:\n\n\nLead and develop a team of engineers, providing technical direction, mentoring, and regular feedback. \nOwn delivery outcomes within the agreed scope, provide practical estimates, and make capacity and priority trade-offs visible. \n Work with Product Management and the EVP to define priorities and translate customer needs into executive reporting capabilities. \n Oversee the design, development, and operation of reporting capabilities, including: \n Historical reporting on patches and vulnerabilities\n The Enterprise Reports Engine and reusable report execution capabilities\n Dashboard services for presenting trends and status to decision-makers\n Data aggregation and consistent calculation of reporting metrics\n Report generation, scheduling, and export workflows\n Guide technical decisions within the assigned domain, from solution design through development and production rollout, while coordinating cross-cutting architecture and security decisions with their designated owners. \n Establish clear definitions for metrics, reporting periods, data freshness, and missing data so customers can interpret results accurately. \n Coordinate with Product Value and core engineering teams on source data, reporting content, access controls, and shared infrastructure. \n Own automated pipelines for building, testing, validating, and deploying reporting services. \n Improve reporting accuracy, query performance, reliability, and observability as customer data volumes grow. \n Apply AI technologies where they improve reporting development, validation, or interpretation\n\n\nRequirements\n\nWhat we're looking for:\n\n\n Experience leading software engineers and owning the delivery and operation of production systems. \n Strong software engineering fundamentals and the ability to contribute to technical problem-solving. \n Excellent knowledge of Node.js, JavaScript, and TypeScript. \n Experience building and operating AWS services in production. \n Hands-on experience with reporting platforms, analytics services, or data-intensive applications. \n Proficiency in SQL and experience with data modeling, aggregation, and query performance. \n Understanding of historical data, metric consistency, and data-quality validation. \n Strong communication skills and the ability to align engineering work with product priorities. \n Professional working proficiency in English for leading an English-speaking team and collaborating across functions\n\n\nNice to have:\n\n\nExperience writing automated tests for data pipelines, reporting calculations, and report generation. \n Experience with dashboard engines, scheduled reporting, and large data exports. \n Experience with patch management or vulnerability reporting. \n Experience with runtime isolation and sandboxing for sensitive execution. \n Experience in B2B SaaS, security, compliance, or data governance. \n Experience building high-load products that support large numbers of endpoints\n\n\nBenefits\n\n\nFully remote work with flexibility to support your work-life balance. \n A collaborative environment that empowers you to own your domain and implement best practices. \n Stable income, benefits, flexible working hours, and opportunities for career advancement. \n Friendly, professional colleagues who are eager to support you and help you grow. \n Engaging challenges and opportunities to make a meaningful impact\n… more",
+        "requirements": [],
+        "responsibilities": [],
+        "skills": [],
+        "salary": null,
+        "posted_date": "2026-09-29T21:51:03.434081Z",
+        "application_url": "https://www.linkedin.com/jobs/view/4464525823/",
+        "source_url": "https://www.linkedin.com/jobs/search-results/?keywords=%28JavaScript+OR+TypeScript%29+AND+%28React+OR+%22React.js%22+OR+Next.js%29+AND+%28Node.js+OR+Node%29+AND+AWS+NOT+Python+NOT+Java+NOT+%22.NET%22+NOT+%22C%23%22&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&referralSearchId=JmVqo1tRdxIEMQQB2PxpeA%3D%3D&geoId=105072130&start=0&f_TPR=r86400&f_AL=true&f_SAL=f_SA_id_225001%3A272001",
+        "remote_type": "remote",
+        "raw_text_hash": "41da3445bb73ade961d7f55d159cea5abdc2b7a426b2d353f6ecda74d45ed865",
+        "discovered_at": "2026-09-30T19:51:03.434081Z"
+      },
+      "match_score": 63.0,
+      "recommendation": "possible_match",
+      "rule_evaluation": {
+        "passed": true,
+        "rejection_reasons": [],
+        "mandatory_skills_matched": [],
+        "mandatory_skills_missing": [],
+        "rule_score": 0.0,
+        "seniority_ok": true,
+        "role_related": true
+      },
+      "llm_analysis": {
+        "score": 70.0,
+        "role_match": 60.0,
+        "technical_match": 80.0,
+        "ai_match": 70.0,
+        "experience_match": 70.0,
+        "matched_skills": [
+          "Node.js",
+          "JavaScript",
+          "TypeScript",
+          "AWS"
+        ],
+        "missing_required_skills": [
+          "experience leading software engineers",
+          "hands-on experience with reporting platforms",
+          "proficiency in SQL",
+          "experience with data modeling",
+          "experience with dashboard engines",
+          "experience with patch management"
+        ],
+        "matched_requirements": [
+          "Strong software engineering fundamentals",
+          "Excellent knowledge of Node.js, JavaScript, and TypeScript",
+          "Experience building and operating AWS services in production"
+        ],
+        "strengths": [
+          "7 years of experience as a Full Stack Developer",
+          "Strong focus on cloud-native applications",
+          "Proven track record of performance optimization and deployment efficiency"
+        ],
+        "concerns": [
+          "Lack of direct experience leading a team of engineers",
+          "No demonstrated experience with reporting platforms or analytics services",
+          "No SQL proficiency mentioned"
+        ],
+        "recommendation": "possible_match",
+        "explanation": "The candidate has strong technical skills in Node.js, JavaScript, TypeScript, and AWS, which align well with the job requirements. However, they lack demonstrated experience in leading engineering teams, reporting platforms, and SQL, which are critical for the Development Manager role."
+      },
+      "matched_skills": [
+        "Node.js",
+        "JavaScript",
+        "TypeScript",
+        "AWS"
+      ],
+      "missing_required_skills": [
+        "experience leading software engineers",
+        "hands-on experience with reporting platforms",
+        "proficiency in SQL",
+        "experience with data modeling",
+        "experience with dashboard engines",
+        "experience with patch management"
+      ],
+      "strengths": [
+        "7 years of experience as a Full Stack Developer",
+        "Strong focus on cloud-native applications",
+        "Proven track record of performance optimization and deployment efficiency"
+      ],
+      "concerns": [
+        "Lack of direct experience leading a team of engineers",
+        "No demonstrated experience with reporting platforms or analytics services",
+        "No SQL proficiency mentioned"
+      ],
+      "explanation": "The candidate has strong technical skills in Node.js, JavaScript, TypeScript, and AWS, which align well with the job requirements. However, they lack demonstrated experience in leading engineering teams, reporting platforms, and SQL, which are critical for the Development Manager role.",
+      "rejected": false,
+      "rejection_reason": null
+    },
+    {
+      "job": {
+        "job_id": "51c0012fd103032ee184090628cf52e848972edccb1854b26208961c0e90a75e",
+        "source": "linkedin",
+        "source_job_id": "4473728795",
+        "title": "Senior Platform Engineer with GO",
+        "company": "Luxoft",
+        "location": "Poland (Remote)",
+        "employment_type": null,
+        "experience_required": null,
+        "description": "Who are we\n\nDXC Luxoft is a global IT services and consulting company, part of DXC Technology, delivering cutting-edge digital and software solutions worldwide. We partner with leading financial institutions and global enterprises, helping them transform and scale through modern technology.\n\n\n\n\nJoin a global community of engineers and be part of building impactful, modern technology solutions!\n\n\n\n\nProject Description:\n\nWe're building a Cloud Observability platform for market leading large Germany based company with 440,000 customers worldwide.\n\nOriginally known for leadership in enterprise resource planning (ERP) software, the company has evolved to become a market leader in end-to-end enterprise application software, database, analytics, intelligent technologies, and experience management. A top cloud company with 200 million users worldwide, the company helps businesses of all sizes and in all industries to operate profitably, adapt continuously, and achieve their purpose.\n\n\n\n\nResponsibilities:\n\n• Lead sprint-based feature development for routing and collector-as-a-service platforms\n\n• Develop Kubernetes operators using controller-runtime / Operator SDK (kubebuilder)\n\n• Design and implement CRDs & Admission Webhooks\n\n• Build custom OpenTelemetry Collector distributions and exporters\n\n• Develop frontend components using React / TypeScript / Tailwind / Vite / TanStack\n\n• Implement and maintain Istio service mesh and mTLS/OIDC/JWT security\n\n• Integrate with Open Service Broker / Cloud Broker APIs and enterprise platform services\n\n• Maintain CI/CD pipelines using GitHub Actions and ArgoCD\n\n• Contribute to architecture decisions and create ADRs for major changes\n\n• Participate in developer on-call rotation outside core hours\n\n\n\n\nMandatory Skills Description:\n\n• Go language development\n\n• Node.js / TypeScript development\n\n• Kubernetes container orchestration\n\n• OpenTelemetry (OTEL) observability\n\n• controller-runtime / Operator SDK (kubebuilder)\n\n• CRDs & Admission Webhooks\n\n• GitHub Actions and ArgoCD CI/CD\n\n• Kustomize configuration management\n\n• Istio / Service Mesh infrastructure\n\n• mTLS / OIDC / JWT / OAuth2 security\n\n• PostgreSQL and Kafka\n\n• ModelContext Protocol (MCP) AI framework\n\n• React / Frontend Stack (TS, Tailwind, Vite, TanStack)\n\n• Open Service Broker / Cloud Broker APIs\n\n\n\n\nNice-to-Have Skills Description:\n\n• OTEL Collector custom distributions and exporters\n\n• gRPC networking\n\n• Gardener cluster lifecycle management\n\n• GCP / Azure / AWS cloud platforms\n\n• Prometheus / Grafana / Jaeger / Splunk monitoring\n\n• Enterprise platform integration (BTP or similar)\n\n• AI-assisted / spec-driven development practices\n\n• NATS messaging, Helm, HashiCorp Vault, Kyverno, HAProxy\n\n• Sovereign / Air-gapped architecture\n\n• Cost Management & FinOps\n\n\n\n\nLanguages:\n\nEnglish: C1 Advanced\n\n\n\n\n\n\n\n… more",
+        "requirements": [],
+        "responsibilities": [],
+        "skills": [],
+        "salary": null,
+        "posted_date": "2026-09-30T08:51:01.173558Z",
+        "application_url": "https://www.linkedin.com/jobs/view/4473728795/",
+        "source_url": "https://www.linkedin.com/jobs/search-results/?keywords=%28JavaScript+OR+TypeScript%29+AND+%28React+OR+%22React.js%22+OR+Next.js%29+AND+%28Node.js+OR+Node%29+AND+AWS+NOT+Python+NOT+Java+NOT+%22.NET%22+NOT+%22C%23%22&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&referralSearchId=JmVqo1tRdxIEMQQB2PxpeA%3D%3D&geoId=105072130&start=0&f_TPR=r86400&f_AL=true&f_SAL=f_SA_id_225001%3A272001",
+        "remote_type": "remote",
+        "raw_text_hash": "51c0012fd103032ee184090628cf52e848972edccb1854b26208961c0e90a75e",
+        "discovered_at": "2026-09-30T19:51:01.173558Z"
+      },
+      "match_score": 50.0,
+      "recommendation": "possible_match",
+      "rule_evaluation": {
+        "passed": true,
+        "rejection_reasons": [],
+        "mandatory_skills_matched": [],
+        "mandatory_skills_missing": [],
+        "rule_score": 0.0,
+        "seniority_ok": true,
+        "role_related": true
+      },
+      "llm_analysis": {
+        "score": 45.0,
+        "role_match": 40.0,
+        "technical_match": 50.0,
+        "ai_match": 60.0,
+        "experience_match": 50.0,
+        "matched_skills": [
+          "Node.js",
+          "TypeScript",
+          "React"
+        ],
+        "missing_required_skills": [
+          "Go language development",
+          "Kubernetes container orchestration",
+          "OpenTelemetry (OTEL) observability",
+          "controller-runtime / Operator SDK (kubebuilder)",
+          "CRDs & Admission Webhooks",
+          "GitHub Actions and ArgoCD CI/CD",
+          "Kustomize configuration management",
+          "Istio / Service Mesh infrastructure",
+          "mTLS / OIDC / JWT / OAuth2 security",
+          "PostgreSQL",
+          "Kafka",
+          "ModelContext Protocol (MCP) AI framework",
+          "Open Service Broker / Cloud Broker APIs"
+        ],
+        "matched_requirements": [],
+        "strengths": [
+          "7 years of experience as a Full Stack Developer",
+          "Strong skills in Node.js, TypeScript, and React",
+          "Experience with cloud-native applications and CI/CD pipelines"
+        ],
+        "concerns": [
+          "Lack of experience with Go language",
+          "No demonstrated experience with Kubernetes or OpenTelemetry",
+          "Missing knowledge of Istio and service mesh infrastructure"
+        ],
+        "recommendation": "poor_match",
+        "explanation": "The candidate has strong experience in Node.js, TypeScript, and React, but lacks the required Go language skills and Kubernetes experience. Additionally, many mandatory skills such as OpenTelemetry, Istio, and CI/CD tools specific to the role are not demonstrated in the profile."
+      },
+      "matched_skills": [
+        "Node.js",
+        "TypeScript",
+        "React",
+        "PostgreSQL"
+      ],
+      "missing_required_skills": [
+        "Go language development",
+        "Kubernetes container orchestration",
+        "OpenTelemetry (OTEL) observability",
+        "controller-runtime / Operator SDK (kubebuilder)",
+        "CRDs & Admission Webhooks",
+        "GitHub Actions and ArgoCD CI/CD",
+        "Kustomize configuration management",
+        "Istio / Service Mesh infrastructure",
+        "mTLS / OIDC / JWT / OAuth2 security",
+        "Kafka",
+        "ModelContext Protocol (MCP) AI framework",
+        "Open Service Broker / Cloud Broker APIs"
+      ],
+      "strengths": [
+        "7 years of experience as a Full Stack Developer",
+        "Strong skills in Node.js, TypeScript, and React",
+        "Experience with cloud-native applications and CI/CD pipelines"
+      ],
+      "concerns": [
+        "Lack of experience with Go language",
+        "No demonstrated experience with Kubernetes or OpenTelemetry",
+        "Missing knowledge of Istio and service mesh infrastructure"
+      ],
+      "explanation": "The candidate has strong experience in Node.js, TypeScript, and React, but lacks the required Go language skills and Kubernetes experience. Additionally, many mandatory skills such as OpenTelemetry, Istio, and CI/CD tools specific to the role are not demonstrated in the profile.",
+      "rejected": false,
+      "rejection_reason": null
+    }
+  ],
+  "source_errors": [],
+  "metrics": {
+    "jobs_processed": 10,
+    "jobs_filtered_out": {},
+    "jobs_rejected_by_rules": 0,
+    "jobs_sent_to_llm": 10,
+    "llm_calls": 10,
+    "llm_retries": 0,
+    "llm_prompt_tokens": 23811,
+    "llm_completion_tokens": 2566,
+    "llm_total_tokens": 26377,
+    "llm_estimated_cost_usd": 0.0051,
+    "jobs_recommended": 10,
+    "match_distribution": {
+      "good_match": 5,
+      "possible_match": 5
+    },
+    "run_id": "job-search-20260930-195012-31d014f1",
+    "jobs_discovered": 10,
+    "jobs_validated": 10,
+    "source_failures": 0,
+    "browser_failures": 0,
+    "workflow_duration_ms": 86167.0
+  }
+}
