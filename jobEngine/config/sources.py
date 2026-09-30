@@ -136,3 +136,12 @@ def load_job_sources(path: Path | None = None) -> list[JobSourceConfig]:
 
 def enabled_sources(sources: list[JobSourceConfig]) -> list[JobSourceConfig]:
     return [s for s in sources if s.enabled]
+
+
+# Enabled sources that are not searched by default: unchecked on the Remote Job
+# Finder page (the user can still tick them) and skipped by the hourly cron.
+DEFAULT_UNCHECKED_SOURCES = frozenset({"instinctools"})
+
+
+def default_search_source_ids(sources: list[JobSourceConfig]) -> list[str]:
+    return [s.id for s in enabled_sources(sources) if s.id not in DEFAULT_UNCHECKED_SOURCES]

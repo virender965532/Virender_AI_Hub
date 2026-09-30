@@ -113,7 +113,6 @@ def create_source_node(source_config: JobSourceConfig) -> NodeFn:
             await asyncio.sleep(backoff)
 
         assert result is not None
-        print(f"TESTING new: jobs={len(result.jobs)} pages={result.pages_processed} duration_ms={result.duration_ms} errors={len(result.errors)}, jobs={result.jobs}")
         if result.status == "failed":
             circuit_breaker.record_failure(cfg.id)
         else:

@@ -14,7 +14,7 @@ import logging
 
 from flask import Blueprint, jsonify, render_template, request
 
-from jobEngine.config.sources import load_job_sources
+from jobEngine.config.sources import DEFAULT_UNCHECKED_SOURCES, load_job_sources
 from jobEngine.sources.search_keywords import url_keywords
 from jobEngine.persistence.saved_jobs import (
     SAVED_JOB_STATUSES,
@@ -35,8 +35,6 @@ DEFAULT_SEARCH_FORM = {
     "min_score": 30,
     "max_results": 10,
 }
-# Enabled sources that start unchecked (the user can still tick them).
-DEFAULT_UNCHECKED_SOURCES = {"instinctools"}
 
 
 @remote_job_finder_bp.route("/remote-job-finder")

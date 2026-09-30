@@ -66,3 +66,21 @@ To search a different keyword set on a given source, add another
 `search_urls` entry (or another source config entirely) with the query
 baked into the URL, e.g. LinkedIn's
 `?keywords=Generative%20AI%20Engineer`.
+
+## Scheduled search + Pushover notifications
+
+`python -m jobEngine.cron` runs one search with the Remote Job Finder's default
+sources and the keywords already in `config/job_sources.yaml`, saves the results
+like a manual search, and sends a [Pushover](https://pushover.net/api#messages)
+push listing the jobs this run added (a failed run is pushed too). Run it hourly
+via Windows Task Scheduler (`scripts/job_search_cron.cmd`, log in
+`output/logs/job_search_cron.log`) or cron.
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `PUSHOVER_TOKEN` / `PUSHOVER_USER` | — | Pushover application token / user key; no push is sent if missing |
+| `JOB_CRON_MIN_MATCH_SCORE` | `30` | Minimum match score |
+| `JOB_CRON_MAX_RESULTS` | `-1` | Jobs per search URL, `-1` = all |
+| `JOB_CRON_REMOTE_ONLY` | `true` | Keep only remote/hybrid roles |
+| `JOB_CRON_SOURCES` | page defaults | Comma-separated source ids |
+| `JOB_CRON_SAVED_JOBS_URL` | `https://ai.ritishka.in/saved-jobs` | Link opened from the push |

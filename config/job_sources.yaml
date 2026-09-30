@@ -31,7 +31,7 @@ job_sources:
     timeout_seconds: 300
     max_jobs: 400
     max_pages: 20
-    rate_limit_delay_seconds: 20.0
+    rate_limit_delay_seconds: 2.0
     notes: >
       Reuses the saved Playwright session (LINKEDIN_STORAGE_STATE_PATH, default
       history/job_engine/linkedin_storage_state.json). If it is missing or expired, signs
