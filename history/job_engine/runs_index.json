@@ -180,5 +180,47 @@
     "saved_at": "2026-09-29T22:19:58.454764+00:00",
     "jobs_recommended": 140,
     "sources_processed": 1
+  },
+  {
+    "run_id": "job-search-20260930-041000-d9c3c952",
+    "status": "completed",
+    "saved_at": "2026-09-30T04:25:18.988826+00:00",
+    "jobs_recommended": 135,
+    "sources_processed": 1
+  },
+  {
+    "run_id": "job-search-20260930-054541-185d46d6",
+    "status": "completed",
+    "saved_at": "2026-09-30T05:59:37.911161+00:00",
+    "jobs_recommended": 129,
+    "sources_processed": 1
+  },
+  {
+    "run_id": "job-search-20260930-084824-9f576eec",
+    "status": "completed",
+    "saved_at": "2026-09-30T09:00:35.991084+00:00",
+    "jobs_recommended": 124,
+    "sources_processed": 1
+  },
+  {
+    "run_id": "job-search-20260930-100545-8f4ee1e2",
+    "status": "completed",
+    "saved_at": "2026-09-30T10:17:23.998510+00:00",
+    "jobs_recommended": 124,
+    "sources_processed": 1
+  },
+  {
+    "run_id": "job-search-20260930-122708-1a224767",
+    "status": "completed",
+    "saved_at": "2026-09-30T12:28:24.975819+00:00",
+    "jobs_recommended": 8,
+    "sources_processed": 1
+  },
+  {
+    "run_id": "job-search-20260930-171206-6fdfd893",
+    "status": "completed",
+    "saved_at": "2026-09-30T17:13:43.726640+00:00",
+    "jobs_recommended": 7,
+    "sources_processed": 1
   }
 ]

@@ -122,6 +122,7 @@ def _merge(store: dict[str, dict[str, Any]], jobs: list[dict[str, Any]], *, run_
             **matched,
             "saved_key": key,
             "status": (previous or {}).get("status", "new"),
+            "applied_at": (previous or {}).get("applied_at"),
             "first_seen_at": (previous or {}).get("first_seen_at", seen_at),
             "last_seen_at": seen_at,
             "run_ids": run_ids[-_MAX_RUN_IDS:],
@@ -184,6 +185,10 @@ def update_saved_job_status(key: str, status: str) -> dict[str, Any] | None:
         if job is None:
             return None
         job["status"] = status
+        if status == "applied":
+            job["applied_at"] = job.get("applied_at") or _now()
+        else:
+            job.pop("applied_at", None)
         _write(store)
     return job
 

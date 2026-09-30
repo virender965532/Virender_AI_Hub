@@ -68,7 +68,9 @@ def api_update_saved_job_status(key: str):
         return jsonify({"ok": False, "error": str(exc)}), 400
     if job is None:
         return jsonify({"ok": False, "error": "saved job not found"}), 404
-    return jsonify({"ok": True, "saved_key": key, "status": job["status"]}), 200
+    return jsonify(
+        {"ok": True, "saved_key": key, "status": job["status"], "applied_at": job.get("applied_at")}
+    ), 200
 
 
 @remote_job_finder_bp.route("/api/saved-jobs/<path:key>", methods=["DELETE"])

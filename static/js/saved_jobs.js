@@ -83,6 +83,10 @@
     return String(s || "").replace(/_/g, " ").replace(/\b\w/g, function (c) { return c.toUpperCase(); });
   }
 
+  function isApplied(saved) {
+    return saved.status === "applied" ? 1 : 0;
+  }
+
   function score(job) {
     var s = Number(job.match_score);
     return isNaN(s) ? 0 : s;
@@ -143,6 +147,9 @@
       posted: function (s) { return (s.job || {}).posted_date || ""; },
     }[f.sort];
     jobs.sort(function (a, b) {
+      // Applied jobs sink to the bottom so the list leads with jobs still to look at.
+      var applied = isApplied(a) - isApplied(b);
+      if (applied) return applied;
       if (!sortKey) return score(b) - score(a);
       var ka = sortKey(a), kb = sortKey(b);
       return ka < kb ? 1 : ka > kb ? -1 : score(b) - score(a);
@@ -285,6 +292,14 @@
       apply.href = job.application_url;
       apply.target = "_blank";
       apply.rel = "noopener noreferrer";
+      // Opening the posting (left or middle click) marks the job applied so it is
+      // flagged — and sorted last — the next time the list is scanned.
+      function markApplied(e) {
+        if (e.type === "auxclick" && e.button !== 1) return;
+        if (saved.status !== "applied") setStatus(saved, card, "applied");
+      }
+      apply.addEventListener("click", markApplied);
+      apply.addEventListener("auxclick", markApplied);
       actions.appendChild(apply);
     }
     var del = el("button", "btn btn--ghost", "Remove from saved");
@@ -306,8 +321,35 @@
     select.value = saved.status || "new";
     select.addEventListener("click", function (e) { e.stopPropagation(); });
     select.addEventListener("keydown", function (e) { e.stopPropagation(); });
-    select.addEventListener("change", function () { updateStatus(saved, select); });
+    select.addEventListener("change", function () {
+      setStatus(saved, select.closest(".sj-job"), select.value);
+    });
     return select;
+  }
+
+  function appliedLabel(saved) {
+    var when = relTime(saved.applied_at);
+    return "✓ Applied" + (when ? " " + when : "");
+  }
+
+  /** Sync a card's applied badge, dimming and status dropdown with ``saved.status``. */
+  function paintStatus(saved, card) {
+    if (!card) return;
+    var applied = saved.status === "applied";
+    card.classList.toggle("sj-job--applied", applied);
+    var select = card.querySelector(".sj-status");
+    if (select) select.value = saved.status || "new";
+    var badge = card.querySelector(".sj-applied");
+    if (applied) {
+      if (!badge) {
+        badge = el("span", "sj-applied");
+        card.querySelector(".sj-job__title-row").appendChild(badge);
+      }
+      badge.textContent = appliedLabel(saved);
+      badge.title = saved.applied_at ? "Applied " + fmtDate(saved.applied_at) : "Applied";
+    } else if (badge) {
+      badge.remove();
+    }
   }
 
   function renderCard(saved) {
@@ -365,6 +407,7 @@
         toggle();
       }
     });
+    paintStatus(saved, card);
     return card;
   }
 
@@ -402,26 +445,33 @@
     return "/api/saved-jobs/" + encodeURIComponent(saved.saved_key) + (suffix || "");
   }
 
-  function updateStatus(saved, select) {
-    var previous = saved.status || "new";
-    var next = select.value;
-    select.disabled = true;
-    fetch(apiUrl(saved, "/status"), {
+  function setStatus(saved, card, next) {
+    var select = card && card.querySelector(".sj-status");
+    if (select) select.disabled = true;
+    return fetch(apiUrl(saved, "/status"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: next }),
     })
-      .then(function (r) { return r.json().then(function (d) { if (!r.ok || !d.ok) throw new Error(d.error || r.statusText); }); })
-      .then(function () {
-        saved.status = next;
+      .then(function (r) {
+        return r.json().then(function (d) {
+          if (!r.ok || !d.ok) throw new Error(d.error || r.statusText);
+          return d;
+        });
+      })
+      .then(function (d) {
+        saved.status = d.status;
+        saved.applied_at = d.applied_at || null;
         showError("");
         renderStats(applyFilters().length);
       })
       .catch(function (err) {
-        select.value = previous;
         showError("Could not update status: " + err.message);
       })
-      .finally(function () { select.disabled = false; });
+      .finally(function () {
+        if (select) select.disabled = false;
+        paintStatus(saved, card); // on failure this reverts the dropdown
+      });
   }
 
   function removeJob(saved, card) {

@@ -74,6 +74,19 @@ def test_status_validation_and_delete(store_paths):
     assert saved_jobs.delete_saved_job("linkedin:1") is False
 
 
+def test_applied_at_is_stamped_kept_across_runs_and_cleared(store_paths):
+    saved_jobs.save_jobs_from_run({"run_id": "r1", "jobs": [_matched("1", 60)]})
+    stamped = saved_jobs.update_saved_job_status("linkedin:1", "applied")["applied_at"]
+    assert stamped
+    assert saved_jobs.update_saved_job_status("linkedin:1", "applied")["applied_at"] == stamped
+
+    saved_jobs.save_jobs_from_run({"run_id": "r2", "jobs": [_matched("1", 70)]})
+    job = saved_jobs.list_saved_jobs()[0]
+    assert (job["status"], job["applied_at"]) == ("applied", stamped)
+
+    assert "applied_at" not in saved_jobs.update_saved_job_status("linkedin:1", "interested")
+
+
 def _iso(hours_ago):
     from datetime import datetime, timedelta, timezone
 
