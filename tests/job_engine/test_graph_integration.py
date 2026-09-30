@@ -225,3 +225,38 @@ async def test_max_jobs_from_each_of_two_search_urls():
     assert result["summary"]["jobs_discovered"] == 10  # 5 + 5
     assert result["metrics"]["jobs_processed"] == 10
     assert len(result["jobs"]) == 10  # all shown and saved (every fake job scores well)
+
+
+async def test_saved_jobs_reuse_stored_analysis_without_rescoring(monkeypatch):
+    from jobEngine.graph.nodes import matching
+    from jobEngine.persistence.saved_jobs import saved_job_key
+
+    configs = [_source_cfg("many_a", "_test_many_adapter")]
+    first = (await _run(configs, request={"max_jobs": 2, "max_results": 500, "minimum_match_score": 0}))["final_result"]
+    cached = dict(first["jobs"][0])
+    cached.update(
+        saved_key=saved_job_key(cached),
+        match_score=88.0,
+        recommendation="strong_match",
+        explanation="stored analysis",
+        llm_analysis={
+            "score": 88, "role_match": 90, "technical_match": 85, "ai_match": 80, "experience_match": 90,
+            "recommendation": "strong_match", "explanation": "stored analysis",
+        },
+    )
+    monkeypatch.setattr(matching, "list_saved_jobs", lambda: [cached])
+
+    rule_calls = []
+    real_evaluate = matching.evaluate_rules
+    monkeypatch.setattr(matching, "evaluate_rules", lambda job, *a, **kw: rule_calls.append(job.title) or real_evaluate(job, *a, **kw))
+
+    second = (await _run(configs, request={"max_jobs": 2, "max_results": 500, "minimum_match_score": 0}))["final_result"]
+    reused = next(j for j in second["jobs"] if saved_job_key(j) == cached["saved_key"])
+
+    assert reused["match_score"] == 88.0 and reused["explanation"] == "stored analysis"
+    assert second["metrics"]["jobs_reused_from_saved"] == 1
+    assert rule_calls == [j["job"]["title"] for j in second["jobs"] if saved_job_key(j) != cached["saved_key"]]
+
+    # The current request's minimum still applies to a reused job.
+    high_bar = (await _run(configs, request={"max_jobs": 2, "max_results": 500, "minimum_match_score": 95}))["final_result"]
+    assert all(saved_job_key(j) != cached["saved_key"] for j in high_bar["jobs"])

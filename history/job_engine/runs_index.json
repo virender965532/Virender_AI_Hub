@@ -299,5 +299,26 @@
     "saved_at": "2026-09-30T20:55:42.611905+00:00",
     "jobs_recommended": 10,
     "sources_processed": 1
+  },
+  {
+    "run_id": "job-search-20260930-210553-51d46b4f",
+    "status": "completed",
+    "saved_at": "2026-09-30T21:06:50.763178+00:00",
+    "jobs_recommended": 8,
+    "sources_processed": 1
+  },
+  {
+    "run_id": "job-search-20260930-210832-a8bf0f76",
+    "status": "completed",
+    "saved_at": "2026-09-30T21:09:24.696009+00:00",
+    "jobs_recommended": 12,
+    "sources_processed": 1
+  },
+  {
+    "run_id": "job-search-20260930-211044-ec255ce9",
+    "status": "completed",
+    "saved_at": "2026-09-30T21:22:21.801246+00:00",
+    "jobs_recommended": 137,
+    "sources_processed": 1
   }
 ]

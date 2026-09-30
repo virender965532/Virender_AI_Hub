@@ -123,6 +123,15 @@ def recommendation_for_score(score: float) -> Recommendation:
     return "reject"
 
 
+def is_below_minimum(
+    score: float, recommendation: str, *, settings: EngineSettings, minimum_match_score: float | None = None
+) -> bool:
+    effective_minimum = settings.minimum_match_score if minimum_match_score is None else minimum_match_score
+    # The "reject" band (<30) only applies when the caller gave no explicit
+    # minimum; otherwise a request-level bar below 30 would be silently ignored.
+    return score < effective_minimum or (minimum_match_score is None and recommendation == "reject")
+
+
 def build_matched_job(
     *,
     job: Job,
@@ -174,9 +183,7 @@ def build_matched_job(
             f"with the candidate profile."
         )
 
-    # The "reject" band (<30) only applies when the caller gave no explicit
-    # minimum; otherwise a request-level bar below 30 would be silently ignored.
-    rejected = score < effective_minimum or (minimum_match_score is None and recommendation == "reject")
+    rejected = is_below_minimum(score, recommendation, settings=settings, minimum_match_score=minimum_match_score)
     rejection_reason = None
     if rejected:
         rejection_reason = explanation if explanation else f"score {score} below minimum {effective_minimum}"

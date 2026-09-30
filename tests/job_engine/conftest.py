@@ -17,6 +17,14 @@ from jobEngine.models.profile import CandidateProfile, PersonalInfo, RoleInfo  #
 get_settings.cache_clear()
 
 
+@pytest.fixture(autouse=True)
+def _no_real_saved_jobs(monkeypatch):
+    """The matching node reuses analyses from the saved-jobs store; never read the real one in tests."""
+    from jobEngine.graph.nodes import matching
+
+    monkeypatch.setattr(matching, "list_saved_jobs", lambda: [])
+
+
 @pytest.fixture()
 def settings():
     get_settings.cache_clear()
