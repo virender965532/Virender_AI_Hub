@@ -74,7 +74,7 @@ def test_cron_request_defaults(monkeypatch):
 
 async def test_only_jobs_not_saved_before_are_pushed(monkeypatch, captured):
     old, new = _matched(1), _matched(2)
-    monkeypatch.setattr(cron, "list_saved_jobs", lambda: [{"saved_key": cron.saved_job_key(old)}])
+    monkeypatch.setattr(cron, "saved_job_keys", lambda: {cron.saved_job_key(old)})
 
     async def fake_search(request):
         return {"run_id": "r1", "status": "completed", "summary": {"jobs_discovered": 2, "jobs_recommended": 2}, "jobs": [old, new]}

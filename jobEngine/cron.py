@@ -6,7 +6,7 @@ Run once per schedule tick (Windows Task Scheduler / cron, hourly):
 
 Runs the same search as the Remote Job Finder page with its default sources
 and the keywords already in ``config/job_sources.yaml``. Results are saved to
-the saved-jobs store like a manual search. A push notification lists the jobs
+the MongoDB saved-jobs collection like a manual search. A push notification lists the jobs
 this run added (jobs already saved by an earlier run are not re-announced);
 a failed run is pushed too, so a broken schedule doesn't go unnoticed.
 
@@ -35,7 +35,7 @@ load_dotenv(_PROJECT_ROOT / ".env")
 from .api.schemas import JobSearchRequest  # noqa: E402  (after load_dotenv: settings read env)
 from .config.sources import default_search_source_ids, load_job_sources  # noqa: E402
 from .notifications import send_pushover  # noqa: E402
-from .persistence.saved_jobs import list_saved_jobs, saved_job_key  # noqa: E402
+from .persistence.saved_jobs import saved_job_key, saved_job_keys  # noqa: E402
 from .services.job_engine_service import run_job_search  # noqa: E402
 
 logger = logging.getLogger("jobEngine.cron")
@@ -67,7 +67,12 @@ def _format_summary(summary: dict[str, Any]) -> str:
 
 async def run_once() -> int:
     request = _build_request()
-    known_keys = {job.get("saved_key") for job in list_saved_jobs()} - {None}
+    try:
+        known_keys = saved_job_keys()
+    except Exception as exc:  # noqa: BLE001
+        logger.exception("Could not read saved jobs from MongoDB")
+        send_pushover(f"Scheduled job search could not reach MongoDB: {exc}", title="Job search failed", priority=0)
+        return 1
 
     try:
         result = await run_job_search(request)

@@ -18,6 +18,32 @@ get_settings.cache_clear()
 
 
 @pytest.fixture(autouse=True)
+def _in_memory_mongo():
+    """Every test gets a fresh in-memory MongoDB; the real MONGODB_URI is never used."""
+    import mongomock
+
+    from jobEngine.persistence import mongo
+
+    mongo.reset_for_tests(mongomock.MongoClient(tz_aware=True))
+    yield
+    mongo.reset_for_tests(None)
+
+
+@pytest.fixture(autouse=True)
+def _mongomock_bulk_write(monkeypatch):
+    """mongomock's bulk_write predates pymongo 4.11's ``sort`` on ReplaceOne; replay ops one by one."""
+    import mongomock
+    from pymongo import ReplaceOne
+
+    def bulk_write(self, requests, ordered=True, **_):
+        for op in requests:
+            assert isinstance(op, ReplaceOne), op
+            self.replace_one(op._filter, op._doc, upsert=op._upsert)
+
+    monkeypatch.setattr(mongomock.Collection, "bulk_write", bulk_write)
+
+
+@pytest.fixture(autouse=True)
 def _no_real_saved_jobs(monkeypatch):
     """Source + matching nodes reuse saved jobs; never read the real store in tests."""
     from jobEngine.graph.nodes import matching, source_discovery

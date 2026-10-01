@@ -30,6 +30,11 @@ pydantic>=2.6.0
 PyYAML>=6.0.0
 pytest>=8.0.0
 pytest-asyncio>=0.24.0
+# MongoDB store for job-engine runs, saved jobs and browser sessions
+# (dnspython resolves mongodb+srv:// URIs); mongomock backs the tests.
+pymongo>=4.6.0
+dnspython>=2.4.0
+mongomock>=4.1.0
 # Force CPU PyTorch (no CUDA packages)
 torch==2.7.1+cpu
 --extra-index-url https://download.pytorch.org/whl/cpu

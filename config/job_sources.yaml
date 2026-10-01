@@ -33,9 +33,9 @@ job_sources:
     max_pages: 20
     rate_limit_delay_seconds: 2.0
     notes: >
-      Reuses the saved Playwright session (LINKEDIN_STORAGE_STATE_PATH, default
-      history/job_engine/linkedin_storage_state.json). If it is missing or expired, signs
-      in at signin_url with LINKEDIN_EMAIL / LINKEDIN_PASSWORD and saves a fresh session.
+      Reuses the saved Playwright session (cookies) from the MongoDB browser_sessions
+      collection. If it is missing or expired, signs in at signin_url with
+      LINKEDIN_EMAIL / LINKEDIN_PASSWORD and saves a fresh session to MongoDB.
       No CAPTCHA/anti-bot bypass: a security checkpoint must be completed by hand
       (JOB_BROWSER_HEADLESS=true), otherwise the source reports a SourceError.
 

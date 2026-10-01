@@ -13,9 +13,11 @@ from __future__ import annotations
 import logging
 
 from flask import Blueprint, jsonify, render_template, request
+from pymongo.errors import PyMongoError
 
 from jobEngine.config.sources import DEFAULT_UNCHECKED_SOURCES, load_job_sources
 from jobEngine.sources.search_keywords import url_keywords
+from jobEngine.persistence.mongo import MongoNotConfigured
 from jobEngine.persistence.saved_jobs import (
     SAVED_JOB_STATUSES,
     clear_saved_jobs,
@@ -27,6 +29,13 @@ from jobEngine.persistence.saved_jobs import (
 logger = logging.getLogger(__name__)
 
 remote_job_finder_bp = Blueprint("remote_job_finder", __name__)
+
+
+@remote_job_finder_bp.errorhandler(PyMongoError)
+@remote_job_finder_bp.errorhandler(MongoNotConfigured)
+def _database_unavailable(exc: Exception):
+    logger.error("MongoDB unavailable: %s", exc)
+    return jsonify({"ok": False, "error": "database unavailable"}), 503
 
 # Pre-filled (editable) form values on the Remote Job Finder page. Whatever the
 # user leaves or types in the fields is exactly what gets sent to /api/jobs/search.
