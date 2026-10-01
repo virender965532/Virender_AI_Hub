@@ -355,5 +355,12 @@
     "saved_at": "2026-10-01T07:34:17.648975+00:00",
     "jobs_recommended": 5,
     "sources_processed": 1
+  },
+  {
+    "run_id": "job-search-20261001-073555-e1920b25",
+    "status": "completed",
+    "saved_at": "2026-10-01T07:36:28.060878+00:00",
+    "jobs_recommended": 6,
+    "sources_processed": 1
   }
 ]

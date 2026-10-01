@@ -14,12 +14,12 @@
       "responsibilities": [],
       "skills": [],
       "salary": null,
-      "posted_date": "2026-09-30T19:33:59.421115Z",
+      "posted_date": "2026-09-30T19:36:20.875827Z",
       "application_url": "https://www.linkedin.com/jobs/view/4473936345/",
       "source_url": "https://www.linkedin.com/jobs/search-results/?keywords=%28JavaScript+OR+TypeScript%29+AND+%28React+OR+%22React.js%22+OR+Next.js%29+AND+%28Node.js+OR+Node%29+AND+AWS+NOT+Python+NOT+Java+NOT+%22.NET%22+NOT+%22C%23%22&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&referralSearchId=JmVqo1tRdxIEMQQB2PxpeA%3D%3D&geoId=102713980&f_TPR=r86400&f_AL=true&f_SAL=f_SA_id_225001%3A272001&start=0",
       "remote_type": "onsite",
       "raw_text_hash": "117b213e2e2666f94f2acb7b19427880a57ad01864ce98461b61a0e335b24baa",
-      "discovered_at": "2026-10-01T07:33:59.421115Z"
+      "discovered_at": "2026-10-01T07:36:20.875827Z"
     },
     "match_score": 80.0,
     "recommendation": "good_match",
@@ -107,9 +107,10 @@
     "status": "applied",
     "applied_at": "2026-10-01T07:34:36.591700+00:00",
     "first_seen_at": "2026-10-01T07:34:17.654983+00:00",
-    "last_seen_at": "2026-10-01T07:34:17.654983+00:00",
+    "last_seen_at": "2026-10-01T07:36:28.068884+00:00",
     "run_ids": [
-      "job-search-20261001-073327-ab06f51e"
+      "job-search-20261001-073327-ab06f51e",
+      "job-search-20261001-073555-e1920b25"
     ]
   },
   "linkedin:4473786530": {
@@ -127,12 +128,12 @@
       "responsibilities": [],
       "skills": [],
       "salary": null,
-      "posted_date": "2026-09-30T13:33:42.511791Z",
+      "posted_date": "2026-09-30T13:36:05.177850Z",
       "application_url": "https://www.linkedin.com/jobs/view/4473786530/",
       "source_url": "https://www.linkedin.com/jobs/search-results/?keywords=%28JavaScript+OR+TypeScript%29+AND+%28React+OR+%22React.js%22+OR+Next.js%29+AND+%28Node.js+OR+Node%29+AND+AWS+NOT+Python+NOT+Java+NOT+%22.NET%22+NOT+%22C%23%22&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&referralSearchId=JmVqo1tRdxIEMQQB2PxpeA%3D%3D&geoId=102713980&f_TPR=r86400&f_AL=true&f_SAL=f_SA_id_225001%3A272001&start=0",
       "remote_type": "remote",
       "raw_text_hash": "65234c3dd4de49465518acefe1b41caac6671a07deabee84877bcc2bd9d9e4ca",
-      "discovered_at": "2026-10-01T07:33:42.511791Z"
+      "discovered_at": "2026-10-01T07:36:05.177850Z"
     },
     "match_score": 78.7,
     "recommendation": "good_match",
@@ -213,9 +214,10 @@
     "status": "new",
     "applied_at": null,
     "first_seen_at": "2026-10-01T07:34:17.654983+00:00",
-    "last_seen_at": "2026-10-01T07:34:17.654983+00:00",
+    "last_seen_at": "2026-10-01T07:36:28.068884+00:00",
     "run_ids": [
-      "job-search-20261001-073327-ab06f51e"
+      "job-search-20261001-073327-ab06f51e",
+      "job-search-20261001-073555-e1920b25"
     ]
   },
   "linkedin:4473756712": {
@@ -233,12 +235,12 @@
       "responsibilities": [],
       "skills": [],
       "salary": null,
-      "posted_date": "2026-09-30T11:33:55.978411Z",
+      "posted_date": "2026-09-30T11:36:18.406599Z",
       "application_url": "https://www.linkedin.com/jobs/view/4473756712/",
       "source_url": "https://www.linkedin.com/jobs/search-results/?keywords=%28JavaScript+OR+TypeScript%29+AND+%28React+OR+%22React.js%22+OR+Next.js%29+AND+%28Node.js+OR+Node%29+AND+AWS+NOT+Python+NOT+Java+NOT+%22.NET%22+NOT+%22C%23%22&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&referralSearchId=JmVqo1tRdxIEMQQB2PxpeA%3D%3D&geoId=102713980&f_TPR=r86400&f_AL=true&f_SAL=f_SA_id_225001%3A272001&start=0",
       "remote_type": "remote",
       "raw_text_hash": "67886749949deb75bd8d4e796e2f1357d1ffe2f877bc2d1d23e4879a654a28fe",
-      "discovered_at": "2026-10-01T07:33:55.978411Z"
+      "discovered_at": "2026-10-01T07:36:18.406599Z"
     },
     "match_score": 77.2,
     "recommendation": "good_match",
@@ -318,9 +320,10 @@
     "status": "new",
     "applied_at": null,
     "first_seen_at": "2026-10-01T07:34:17.654983+00:00",
-    "last_seen_at": "2026-10-01T07:34:17.654983+00:00",
+    "last_seen_at": "2026-10-01T07:36:28.068884+00:00",
     "run_ids": [
-      "job-search-20261001-073327-ab06f51e"
+      "job-search-20261001-073327-ab06f51e",
+      "job-search-20261001-073555-e1920b25"
     ]
   },
   "linkedin:4473997822": {
@@ -338,12 +341,12 @@
       "responsibilities": [],
       "skills": [],
       "salary": null,
-      "posted_date": "2026-10-01T03:33:52.708768Z",
+      "posted_date": "2026-10-01T03:36:15.161698Z",
       "application_url": "https://www.linkedin.com/jobs/view/4473997822/",
       "source_url": "https://www.linkedin.com/jobs/search-results/?keywords=%28JavaScript+OR+TypeScript%29+AND+%28React+OR+%22React.js%22+OR+Next.js%29+AND+%28Node.js+OR+Node%29+AND+AWS+NOT+Python+NOT+Java+NOT+%22.NET%22+NOT+%22C%23%22&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&referralSearchId=JmVqo1tRdxIEMQQB2PxpeA%3D%3D&geoId=102713980&f_TPR=r86400&f_AL=true&f_SAL=f_SA_id_225001%3A272001&start=0",
       "remote_type": "hybrid",
       "raw_text_hash": "da3ba9dc88490463d89b1e7e2cca5441e32cb431c23c2570df7628945c3214cf",
-      "discovered_at": "2026-10-01T07:33:52.708768Z"
+      "discovered_at": "2026-10-01T07:36:15.161698Z"
     },
     "match_score": 76.0,
     "recommendation": "good_match",
@@ -430,9 +433,10 @@
     "status": "new",
     "applied_at": null,
     "first_seen_at": "2026-10-01T07:34:17.654983+00:00",
-    "last_seen_at": "2026-10-01T07:34:17.654983+00:00",
+    "last_seen_at": "2026-10-01T07:36:28.068884+00:00",
     "run_ids": [
-      "job-search-20261001-073327-ab06f51e"
+      "job-search-20261001-073327-ab06f51e",
+      "job-search-20261001-073555-e1920b25"
     ]
   },
   "linkedin:4473906607": {
@@ -450,12 +454,12 @@
       "responsibilities": [],
       "skills": [],
       "salary": "$3M/yr - $4M/yr",
-      "posted_date": "2026-09-30T16:33:47.134591Z",
+      "posted_date": "2026-09-30T16:36:09.756941Z",
       "application_url": "https://www.linkedin.com/jobs/view/4473906607/",
       "source_url": "https://www.linkedin.com/jobs/search-results/?keywords=%28JavaScript+OR+TypeScript%29+AND+%28React+OR+%22React.js%22+OR+Next.js%29+AND+%28Node.js+OR+Node%29+AND+AWS+NOT+Python+NOT+Java+NOT+%22.NET%22+NOT+%22C%23%22&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&referralSearchId=JmVqo1tRdxIEMQQB2PxpeA%3D%3D&geoId=102713980&f_TPR=r86400&f_AL=true&f_SAL=f_SA_id_225001%3A272001&start=0",
       "remote_type": "remote",
       "raw_text_hash": "cfa9ef60360341962418522c80ec523f2cbe0db5a54604be7f140fac9aca9e81",
-      "discovered_at": "2026-10-01T07:33:47.134591Z"
+      "discovered_at": "2026-10-01T07:36:09.756941Z"
     },
     "match_score": 68.2,
     "recommendation": "possible_match",
@@ -539,9 +543,151 @@
     "status": "new",
     "applied_at": null,
     "first_seen_at": "2026-10-01T07:34:17.654983+00:00",
-    "last_seen_at": "2026-10-01T07:34:17.654983+00:00",
+    "last_seen_at": "2026-10-01T07:36:28.068884+00:00",
     "run_ids": [
-      "job-search-20261001-073327-ab06f51e"
+      "job-search-20261001-073327-ab06f51e",
+      "job-search-20261001-073555-e1920b25"
+    ]
+  },
+  "linkedin:4472690633": {
+    "job": {
+      "job_id": "ca42cc7e9dc53dcc9fefd0f92f9d2c181ba062179805747aa9bfd41ff1fead17",
+      "source": "linkedin",
+      "source_job_id": "4472690633",
+      "title": "Senior Java and Node.js Developer ( 6+ years )",
+      "company": "MindBrain",
+      "location": "India (Remote)",
+      "employment_type": null,
+      "experience_required": null,
+      "description": "Job Description: Java + Node.js Developer\n\nJob Title: Java + Node.js Developer\n\n Experience: 5+ Years\n\n Location: India / Remote\n\n Employment Type: Full-Time / Contract\n\n Notice Period: Immediate Joiners Preferred\n\nJob Overview\n\nWe are looking for an experienced Java + Node.js Developer with strong backend development expertise. The candidate will be responsible for designing, developing, integrating, and maintaining scalable backend applications using Java, Spring Boot, Node.js, and modern API technologies.\n\nKey Responsibilities\nDevelop and maintain backend applications using Java, Spring Boot, and Node.js.\nDesign and develop RESTful APIs and microservices.\nBuild scalable and high-performance server-side applications.\nWork with databases such as MySQL, PostgreSQL, MongoDB, or Oracle.\nImplement authentication, authorization, and API security.\nIntegrate third-party APIs and external services.\nTroubleshoot, debug, and optimize application performance.\nWrite clean, maintainable, and reusable code.\nParticipate in code reviews, testing, and Agile/Scrum activities.\nCollaborate with frontend developers, QA engineers, DevOps teams, and business stakeholders.\nWork with Git, CI/CD, Docker, and cloud platforms where required.\nRequired Skills\nJava 8+ / 11+ / 17+\nSpring Boot, Spring MVC, Spring Security\nNode.js, Express.js\nREST APIs / Microservices\nJavaScript / TypeScript\nSQL and NoSQL databases\nMaven / Gradle\nGit / GitHub / GitLab\nJUnit / Mockito\nStrong understanding of OOP, data structures, design patterns, and system design\nKnowledge of Docker and CI/CD\nGood to Have\nAWS / Azure / GCP\nKafka or RabbitMQ\nRedis\nKubernetes\nGraphQL\nElasticsearch\nReact or Angular\nExperience with event-driven architecture\nQualifications\n\nBachelor's degree in Computer Science, Information Technology, Engineering, or a related field, with strong professional experience in backend development.\n\nKey Skills\n\nJava | Spring Boot | Node.js | Express.js | REST API | Microservices | JavaScript/TypeScript | SQL | MongoDB | Docker | Git | CI/CD | AWS/Azure\n\n… more",
+      "requirements": [],
+      "responsibilities": [],
+      "skills": [],
+      "salary": null,
+      "posted_date": "2026-10-01T07:05:23.722561Z",
+      "application_url": "https://www.linkedin.com/jobs/view/4472690633/",
+      "source_url": "https://www.linkedin.com/jobs/search-results/?keywords=%28JavaScript+OR+TypeScript%29+AND+%28React+OR+%22React.js%22+OR+Next.js%29+AND+%28Node.js+OR+Node%29+AND+AWS+NOT+Python+NOT+Java+NOT+%22.NET%22+NOT+%22C%23%22&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&referralSearchId=JmVqo1tRdxIEMQQB2PxpeA%3D%3D&geoId=102713980&f_TPR=r86400&f_AL=true&f_SAL=f_SA_id_225001%3A272001&start=0",
+      "remote_type": "remote",
+      "raw_text_hash": "ca42cc7e9dc53dcc9fefd0f92f9d2c181ba062179805747aa9bfd41ff1fead17",
+      "discovered_at": "2026-10-01T07:36:23.722561Z"
+    },
+    "match_score": 56.0,
+    "recommendation": "possible_match",
+    "rule_evaluation": {
+      "passed": true,
+      "rejection_reasons": [],
+      "mandatory_skills_matched": [],
+      "mandatory_skills_missing": [],
+      "rule_score": 20.0,
+      "seniority_ok": true,
+      "role_related": true
+    },
+    "llm_analysis": {
+      "score": 60.0,
+      "role_match": 70.0,
+      "technical_match": 50.0,
+      "ai_match": 40.0,
+      "experience_match": 70.0,
+      "matched_skills": [
+        "Node.js",
+        "JavaScript",
+        "TypeScript",
+        "REST APIs",
+        "Microservices",
+        "Git",
+        "CI/CD",
+        "Docker",
+        "PostgreSQL",
+        "MongoDB"
+      ],
+      "missing_required_skills": [
+        "Java",
+        "Spring Boot",
+        "Spring MVC",
+        "Spring Security",
+        "Maven",
+        "Gradle",
+        "JUnit",
+        "Mockito",
+        "SQL",
+        "Oracle",
+        "AWS/Azure/GCP",
+        "Kafka",
+        "RabbitMQ",
+        "Redis",
+        "Kubernetes",
+        "GraphQL",
+        "Elasticsearch",
+        "React",
+        "Angular"
+      ],
+      "matched_requirements": [
+        "Bachelor's degree in Computer Science"
+      ],
+      "strengths": [
+        "7 years of experience as a Full Stack Developer",
+        "Strong experience with Node.js and backend development",
+        "Proven track record of optimizing application performance and deployment processes"
+      ],
+      "concerns": [
+        "Lack of Java and Spring framework experience",
+        "Missing experience with specific tools and technologies listed in the job description"
+      ],
+      "recommendation": "possible_match",
+      "explanation": "The candidate has strong experience in Node.js and related technologies, but lacks demonstrated experience with Java and Spring frameworks, which are critical for this role. While the candidate meets the educational requirement and has relevant backend development experience, the absence of key required skills limits the overall match."
+    },
+    "matched_skills": [
+      "Node.js",
+      "JavaScript",
+      "TypeScript",
+      "REST APIs",
+      "Microservices",
+      "Git",
+      "CI/CD",
+      "Docker",
+      "PostgreSQL",
+      "MongoDB",
+      "GraphQL"
+    ],
+    "missing_required_skills": [
+      "Java",
+      "Spring Boot",
+      "Spring MVC",
+      "Spring Security",
+      "Maven",
+      "Gradle",
+      "JUnit",
+      "Mockito",
+      "SQL",
+      "Oracle",
+      "AWS/Azure/GCP",
+      "Kafka",
+      "RabbitMQ",
+      "Redis",
+      "Kubernetes",
+      "Elasticsearch",
+      "React",
+      "Angular"
+    ],
+    "strengths": [
+      "7 years of experience as a Full Stack Developer",
+      "Strong experience with Node.js and backend development",
+      "Proven track record of optimizing application performance and deployment processes"
+    ],
+    "concerns": [
+      "Lack of Java and Spring framework experience",
+      "Missing experience with specific tools and technologies listed in the job description"
+    ],
+    "explanation": "The candidate has strong experience in Node.js and related technologies, but lacks demonstrated experience with Java and Spring frameworks, which are critical for this role. While the candidate meets the educational requirement and has relevant backend development experience, the absence of key required skills limits the overall match.",
+    "rejected": false,
+    "rejection_reason": null,
+    "saved_key": "linkedin:4472690633",
+    "status": "new",
+    "applied_at": null,
+    "first_seen_at": "2026-10-01T07:36:28.068884+00:00",
+    "last_seen_at": "2026-10-01T07:36:28.068884+00:00",
+    "run_ids": [
+      "job-search-20261001-073555-e1920b25"
     ]
   }
 }
