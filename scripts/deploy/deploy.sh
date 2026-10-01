@@ -67,6 +67,13 @@ fi
 # Docker must start on boot so the container comes back after an EC2 stop/start.
 sudo systemctl enable --now docker >/dev/null 2>&1 || true
 
+# The container runs as root, so files it writes to bind-mounted dirs are root-owned
+# and the backup/restore below (run as this user) could not overwrite them.
+log "Reclaiming ownership of runtime dirs"
+for d in "${RUNTIME_DIRS[@]}" scraper_debug Profile config; do
+  if [ -e "$d" ]; then sudo chown -R "$(id -u):$(id -g)" "$d"; fi
+done
+
 # ---------------------------------------------------------------------------
 log "Backing up runtime data"
 BACKUP_DIR="$(mktemp -d)"
