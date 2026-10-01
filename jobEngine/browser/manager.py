@@ -15,7 +15,6 @@ import asyncio
 import logging
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
-from pathlib import Path
 from typing import AsyncIterator
 
 from playwright.async_api import Browser, BrowserContext, Page, Playwright, async_playwright
@@ -71,9 +70,12 @@ class BrowserManager:
         *,
         source_id: str,
         allowed_domains: list[str] | None = None,
-        storage_state_path: str | None = None,
+        storage_state: dict | None = None,
     ) -> AsyncIterator[ManagedPage]:
-        """Yield an isolated ``ManagedPage``; the context is always closed on exit."""
+        """Yield an isolated ``ManagedPage``; the context is always closed on exit.
+
+        ``storage_state`` is a Playwright storage-state dict (cookies + origins),
+        e.g. a saved session loaded from MongoDB."""
         browser = await self._ensure_browser()
         async with self._semaphore:
             context_kwargs: dict[str, object] = {
@@ -81,8 +83,8 @@ class BrowserManager:
                 "user_agent": _USER_AGENT,
                 "locale": "en-US",
             }
-            if storage_state_path and Path(storage_state_path).exists():
-                context_kwargs["storage_state"] = storage_state_path
+            if storage_state:
+                context_kwargs["storage_state"] = storage_state
 
             context = await browser.new_context(**context_kwargs)
 

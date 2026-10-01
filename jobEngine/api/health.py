@@ -36,16 +36,14 @@ def check_browser_available() -> dict[str, Any]:
 
 
 def check_database() -> dict[str, Any]:
-    from ..config.settings import JOB_ENGINE_OUTPUT_DIR
+    from ..persistence.mongo import ping
 
     try:
-        JOB_ENGINE_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-        probe = JOB_ENGINE_OUTPUT_DIR / ".health_probe"
-        probe.write_text("ok", encoding="utf-8")
-        probe.unlink(missing_ok=True)
-        return {"ok": True, "backend": "flat-file (output/job_engine)"}
+        ping()
+        return {"ok": True, "backend": "mongodb"}
     except Exception as exc:  # noqa: BLE001
-        return {"ok": False, "error": str(exc)}
+        # Exception text can include the host; never the URI's credentials.
+        return {"ok": False, "backend": "mongodb", "error": type(exc).__name__}
 
 
 def build_health_report() -> dict[str, Any]:

@@ -1,13 +1,15 @@
 """LinkedIn — auth-gated source (section 10).
 
 Session handling:
-  1. If a saved Playwright ``storage_state`` exists (``LINKEDIN_STORAGE_STATE_PATH``,
-     default ``history/job_engine/linkedin_storage_state.json``) it is loaded and
-     the search page is opened directly.
+  1. If a saved Playwright ``storage_state`` (cookies) exists in the MongoDB
+     ``browser_sessions`` collection it is loaded and the search page is opened
+     directly. A session file left by the pre-MongoDB version
+     (``LINKEDIN_STORAGE_STATE_PATH``, default
+     ``history/job_engine/linkedin_storage_state.json``) is imported once.
   2. If there is no session, or LinkedIn bounces the saved one to a login page,
      the adapter signs in via ``signin_url`` using the candidate's own
-     ``LINKEDIN_EMAIL`` / ``LINKEDIN_PASSWORD`` and saves the new session so the
-     next run skips the login step.
+     ``LINKEDIN_EMAIL`` / ``LINKEDIN_PASSWORD`` and saves the new session to
+     MongoDB so the next run skips the login step.
 
 No CAPTCHA/anti-bot bypass is attempted. If LinkedIn raises a security
 checkpoint after login, the adapter waits (``LINKEDIN_CHECKPOINT_WAIT_SECONDS``)
@@ -36,6 +38,7 @@ from ...guardrails.content_limits import (
 from ...guardrails.url_guardrails import SSRFViolation, validate_navigation_url
 from ...models.errors import SourceError, SourceErrorStatus
 from ...models.job import RawJob
+from ...persistence.sessions import load_storage_state, save_storage_state
 from ..base import JobSourceAdapter, SourceDiscoveryResult, SourceExecutionContext, TimedDiscovery
 from ..dom_utils import extract_link_cards, text_or_none
 from ..registry import register_adapter
@@ -128,7 +131,7 @@ _LOGIN_URL_MARKERS = ("/login", "/uas/login", "/authwall", "/signup")
 _CHECKPOINT_URL_MARKERS = ("/checkpoint/", "/challenge")
 
 
-def _storage_state_path() -> Path:
+def _legacy_storage_state_path() -> Path:
     raw = (os.getenv("LINKEDIN_STORAGE_STATE_PATH") or "").strip()
     return Path(raw) if raw else _DEFAULT_STORAGE_STATE_PATH
 
@@ -177,9 +180,15 @@ class LinkedInAdapter(JobSourceAdapter):
     async def discover_jobs(self, context: SourceExecutionContext) -> SourceDiscoveryResult:
         cfg = context.config
         timer = TimedDiscovery(cfg.id)
-        storage_state = _storage_state_path()
+        try:
+            saved_state = await asyncio.to_thread(
+                load_storage_state, cfg.id, legacy_path=_legacy_storage_state_path()
+            )
+        except Exception:  # noqa: BLE001
+            logger.exception("Could not load saved LinkedIn session from MongoDB; signing in fresh")
+            saved_state = None
 
-        if cfg.requires_auth and not storage_state.exists() and not _credentials():
+        if cfg.requires_auth and not saved_state and not _credentials():
             timer.errors.append(
                 SourceError(
                     source_id=cfg.id,
@@ -197,7 +206,7 @@ class LinkedInAdapter(JobSourceAdapter):
             async with context.browser_manager.open_page(
                 source_id=cfg.id,
                 allowed_domains=cfg.allowed_domains,
-                storage_state_path=str(storage_state) if storage_state.exists() else None,
+                storage_state=saved_state,
             ) as managed:
                 page = managed.page
                 seen_ids: set[str] = set()
@@ -205,8 +214,8 @@ class LinkedInAdapter(JobSourceAdapter):
                 # LinkedIn serves unfiltered guest results instead of redirecting when
                 # signed out, so check for the auth cookie up front.
                 if not await self._has_session(managed.context):
-                    await self._sign_in(page, cfg=cfg, storage_state=storage_state)
-                    await managed.context.storage_state(path=str(storage_state))
+                    await self._sign_in(page, cfg=cfg)
+                    await self._save_session(managed.context, cfg.id)
 
                 for search_url in cfg.search_urls:
                     url_jobs = 0
@@ -224,8 +233,8 @@ class LinkedInAdapter(JobSourceAdapter):
                             break
 
                         if _is_login_url(page.url) or _is_checkpoint_url(page.url):
-                            await self._sign_in(page, cfg=cfg, storage_state=storage_state)
-                            await managed.context.storage_state(path=str(storage_state))
+                            await self._sign_in(page, cfg=cfg)
+                            await self._save_session(managed.context, cfg.id)
                             if not await self._goto(page, url, cfg=cfg, timer=timer):
                                 break
                             if _is_login_url(page.url) or _is_checkpoint_url(page.url):
@@ -268,11 +277,7 @@ class LinkedInAdapter(JobSourceAdapter):
                         await asyncio.sleep(cfg.rate_limit_delay_seconds)
 
                 # Refresh the saved session (cookies rotate) for the next run.
-                try:
-                    storage_state.parent.mkdir(parents=True, exist_ok=True)
-                    await managed.context.storage_state(path=str(storage_state))
-                except Exception:  # noqa: BLE001
-                    logger.exception("Failed to save LinkedIn storage_state")
+                await self._save_session(managed.context, cfg.id)
 
         except _AuthError as exc:
             timer.errors.append(
@@ -319,7 +324,15 @@ class LinkedInAdapter(JobSourceAdapter):
         cookies = await context.cookies("https://www.linkedin.com")
         return any(c.get("name") == "li_at" and c.get("value") for c in cookies)
 
-    async def _sign_in(self, page: Page, *, cfg, storage_state: Path) -> None:
+    async def _save_session(self, context, source_id: str) -> None:
+        """Store the context's cookies in MongoDB; a failure only costs a sign-in next run."""
+        try:
+            state = await context.storage_state()
+            await asyncio.to_thread(save_storage_state, source_id, state)
+        except Exception:  # noqa: BLE001
+            logger.exception("Failed to save LinkedIn session to MongoDB")
+
+    async def _sign_in(self, page: Page, *, cfg) -> None:
         creds = _credentials()
         if not creds:
             raise _AuthError(
@@ -384,8 +397,7 @@ class LinkedInAdapter(JobSourceAdapter):
                 f"LinkedIn sign-in failed{': ' + error if error else ''}",
             )
 
-        storage_state.parent.mkdir(parents=True, exist_ok=True)
-        logger.info("LinkedIn sign-in succeeded; session will be saved to %s", storage_state)
+        logger.info("LinkedIn sign-in succeeded; session will be saved to MongoDB")
 
     async def _load_all_cards(self, page: Page) -> None:
         """The results list lazy-renders cards as it scrolls; scroll it to the bottom."""

@@ -1,9 +1,9 @@
-"""Cumulative store of every recommended job across search runs.
+"""Cumulative store of every recommended job across search runs (MongoDB).
 
-``repository.py`` keeps one JSON file per run; this module keeps a single
+``repository.py`` keeps one document per run; this module keeps a single
 de-duplicated library of matched jobs (LLM score, strengths, concerns, full
-description, skills, ...) for the Saved Jobs page. Same flat-file convention —
-one JSON document, guarded by a process-wide lock.
+description, skills, ...) for the Saved Jobs page, in the ``saved_jobs``
+collection — one document per job, ``_id`` = ``saved_key``.
 
 A job is keyed by ``<source>:<source_job_id>`` when the source exposes a stable
 id (LinkedIn does), otherwise by the content-hash ``job_id``. Seeing a job again
@@ -12,27 +12,34 @@ the user's ``status`` are kept.
 
 Jobs older than ``SAVED_JOBS_MAX_AGE_HOURS`` (default 24) are purged whenever the
 store is written by a search run or read by the Saved Jobs page. Age is taken
-from the job's posted date, falling back to when it was first saved.
+from the job's posted date, falling back to when it was first saved; it is
+stored as ``age_ref`` (a BSON date) so the purge is a single ``delete_many``.
 """
 
 from __future__ import annotations
 
-import json
 import logging
 import os
 import threading
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-from ..config.settings import JOB_ENGINE_HISTORY_DIR, JOB_ENGINE_OUTPUT_DIR
+from pymongo import DESCENDING, ReplaceOne, ReturnDocument
+
+from .mongo import SAVED_JOBS_COLLECTION, get_collection, to_bson_safe
 
 logger = logging.getLogger(__name__)
 
 _lock = threading.Lock()
-_SAVED_JOBS_FILE = JOB_ENGINE_HISTORY_DIR / "saved_jobs.json"
 _MAX_RUN_IDS = 20
+# Internal fields never returned to callers (saved_key already mirrors _id).
+_HIDDEN_FIELDS = {"_id": 0, "age_ref": 0}
 
 SAVED_JOB_STATUSES = ("new", "interested", "applied", "not_interested")
+
+
+def _saved_jobs():
+    return get_collection(SAVED_JOBS_COLLECTION)
 
 
 def _max_age() -> timedelta | None:
@@ -59,17 +66,16 @@ def job_age_reference(saved: dict[str, Any]) -> datetime | None:
     return _parse_ts((saved.get("job") or {}).get("posted_date")) or _parse_ts(saved.get("first_seen_at"))
 
 
-def _purge_expired(store: dict[str, dict[str, Any]], *, now: datetime | None = None) -> int:
+def _purge_expired(*, now: datetime | None = None) -> int:
     max_age = _max_age()
     if max_age is None:
         return 0
     cutoff = (now or datetime.now(timezone.utc)) - max_age
-    expired = [key for key, saved in store.items() if (job_age_reference(saved) or cutoff) < cutoff]
-    for key in expired:
-        del store[key]
-    if expired:
-        logger.info("Saved jobs store: purged %s jobs older than %s", len(expired), max_age)
-    return len(expired)
+    # Jobs with no usable date have age_ref null, which $lt never matches: kept.
+    removed = _saved_jobs().delete_many({"age_ref": {"$lt": cutoff}}).deleted_count
+    if removed:
+        logger.info("Saved jobs store: purged %s jobs older than %s", removed, max_age)
+    return removed
 
 
 def saved_job_key(matched: dict[str, Any]) -> str | None:
@@ -86,54 +92,52 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-def _load() -> dict[str, dict[str, Any]]:
-    if not _SAVED_JOBS_FILE.exists():
-        return {}
-    try:
-        with _SAVED_JOBS_FILE.open("r", encoding="utf-8") as fh:
-            data = json.load(fh)
-        return data if isinstance(data, dict) else {}
-    except Exception:  # noqa: BLE001
-        logger.warning("Could not read saved jobs store; treating as empty", exc_info=True)
-        return {}
+def _merged_doc(matched: dict[str, Any], previous: dict[str, Any] | None, *, key: str, run_id: str, seen_at: str) -> dict[str, Any]:
+    run_ids = list((previous or {}).get("run_ids") or [])
+    if run_id and run_id not in run_ids:
+        run_ids.append(run_id)
+    # A re-run may miss the posted time (e.g. detail pane skipped); keep the one we had.
+    prev_posted = ((previous or {}).get("job") or {}).get("posted_date")
+    if prev_posted and not (matched.get("job") or {}).get("posted_date"):
+        matched = {**matched, "job": {**matched["job"], "posted_date": prev_posted}}
+    doc = {
+        **to_bson_safe(matched),
+        "_id": key,
+        "saved_key": key,
+        "status": (previous or {}).get("status", "new"),
+        "applied_at": (previous or {}).get("applied_at"),
+        "first_seen_at": (previous or {}).get("first_seen_at", seen_at),
+        "last_seen_at": seen_at,
+        "run_ids": run_ids[-_MAX_RUN_IDS:],
+    }
+    doc["age_ref"] = job_age_reference(doc)
+    return doc
 
 
-def _write(store: dict[str, dict[str, Any]]) -> None:
-    JOB_ENGINE_HISTORY_DIR.mkdir(parents=True, exist_ok=True)
-    tmp = _SAVED_JOBS_FILE.with_suffix(".json.tmp")
-    with tmp.open("w", encoding="utf-8") as fh:
-        json.dump(store, fh, indent=2, ensure_ascii=False, default=str)
-    tmp.replace(_SAVED_JOBS_FILE)
-
-
-def _merge(store: dict[str, dict[str, Any]], jobs: list[dict[str, Any]], *, run_id: str, seen_at: str) -> int:
-    added = 0
+def upsert_jobs(jobs: list[dict[str, Any]], *, run_id: str, seen_at: str) -> int:
+    """Merge matched jobs into the store; returns how many were new."""
+    by_key: dict[str, dict[str, Any]] = {}
     for matched in jobs:
         if not isinstance(matched, dict) or matched.get("rejected"):
             continue
         key = saved_job_key(matched)
-        if not key:
-            continue
-        previous = store.get(key)
-        run_ids = list((previous or {}).get("run_ids") or [])
-        if run_id and run_id not in run_ids:
-            run_ids.append(run_id)
-        # A re-run may miss the posted time (e.g. detail pane skipped); keep the one we had.
-        prev_posted = ((previous or {}).get("job") or {}).get("posted_date")
-        if prev_posted and not (matched.get("job") or {}).get("posted_date"):
-            matched = {**matched, "job": {**matched["job"], "posted_date": prev_posted}}
-        store[key] = {
-            **matched,
-            "saved_key": key,
-            "status": (previous or {}).get("status", "new"),
-            "applied_at": (previous or {}).get("applied_at"),
-            "first_seen_at": (previous or {}).get("first_seen_at", seen_at),
-            "last_seen_at": seen_at,
-            "run_ids": run_ids[-_MAX_RUN_IDS:],
-        }
-        if previous is None:
-            added += 1
-    return added
+        if key:
+            by_key[key] = matched  # a later duplicate in the same run wins
+    if not by_key:
+        return 0
+
+    coll = _saved_jobs()
+    previous = {doc["_id"]: doc for doc in coll.find({"_id": {"$in": list(by_key)}})}
+    ops = [
+        ReplaceOne(
+            {"_id": key},
+            _merged_doc(matched, previous.get(key), key=key, run_id=run_id, seen_at=seen_at),
+            upsert=True,
+        )
+        for key, matched in by_key.items()
+    ]
+    coll.bulk_write(ops, ordered=False)
+    return sum(1 for key in by_key if key not in previous)
 
 
 def save_jobs_from_run(result: dict[str, Any]) -> int:
@@ -142,74 +146,49 @@ def save_jobs_from_run(result: dict[str, Any]) -> int:
     if not jobs:
         return 0
     with _lock:
-        store = _load_or_backfill()
-        added = _merge(store, jobs, run_id=result.get("run_id", ""), seen_at=_now())
-        _purge_expired(store)
-        _write(store)
+        added = upsert_jobs(jobs, run_id=result.get("run_id", ""), seen_at=_now())
+        _purge_expired()
     logger.info("Saved jobs store: %s new / %s total from run %s", added, len(jobs), result.get("run_id"))
     return added
-
-
-def _load_or_backfill() -> dict[str, dict[str, Any]]:
-    """First use: seed the store from runs already persisted in ``output/job_engine``."""
-    if _SAVED_JOBS_FILE.exists():
-        return _load()
-    store: dict[str, dict[str, Any]] = {}
-    run_files = sorted(JOB_ENGINE_OUTPUT_DIR.glob("*.json")) if JOB_ENGINE_OUTPUT_DIR.exists() else []
-    for path in run_files:  # oldest first, so later runs refresh scores
-        try:
-            with path.open("r", encoding="utf-8") as fh:
-                run = json.load(fh)
-        except Exception:  # noqa: BLE001
-            logger.warning("Skipping unreadable run file %s during backfill", path)
-            continue
-        seen_at = datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc).isoformat()
-        _merge(store, run.get("jobs") or [], run_id=run.get("run_id", path.stem), seen_at=seen_at)
-    if store:
-        logger.info("Backfilled saved jobs store with %s jobs from %s runs", len(store), len(run_files))
-    _write(store)
-    return store
 
 
 def list_saved_jobs() -> list[dict[str, Any]]:
     """All saved jobs (expired ones purged first), most recently seen first."""
     with _lock:
-        store = _load_or_backfill()
-        if _purge_expired(store):
-            _write(store)
-    return sorted(store.values(), key=lambda j: j.get("last_seen_at") or "", reverse=True)
+        _purge_expired()
+    return list(_saved_jobs().find({}, _HIDDEN_FIELDS).sort("last_seen_at", DESCENDING))
+
+
+def saved_job_keys() -> set[str]:
+    """Keys of every saved job — a cheap existence check (no purge, ids only)."""
+    return {doc["_id"] for doc in _saved_jobs().find({}, {"_id": 1})}
+
+
+def get_saved_job(key: str) -> dict[str, Any] | None:
+    return _saved_jobs().find_one({"_id": key}, _HIDDEN_FIELDS)
 
 
 def update_saved_job_status(key: str, status: str) -> dict[str, Any] | None:
     if status not in SAVED_JOB_STATUSES:
         raise ValueError(f"status must be one of {SAVED_JOB_STATUSES}")
-    with _lock:
-        store = _load_or_backfill()
-        job = store.get(key)
-        if job is None:
-            return None
-        job["status"] = status
-        if status == "applied":
-            job["applied_at"] = job.get("applied_at") or _now()
-        else:
-            job.pop("applied_at", None)
-        _write(store)
-    return job
+    coll = _saved_jobs()
+    if status == "applied":
+        # Stamp applied_at only the first time (matches a null or missing field).
+        coll.update_one({"_id": key, "applied_at": None}, {"$set": {"applied_at": _now()}})
+        update: dict[str, Any] = {"$set": {"status": status}}
+    else:
+        update = {"$set": {"status": status}, "$unset": {"applied_at": ""}}
+    return coll.find_one_and_update(
+        {"_id": key}, update, projection=_HIDDEN_FIELDS, return_document=ReturnDocument.AFTER
+    )
 
 
 def delete_saved_job(key: str) -> bool:
-    with _lock:
-        store = _load_or_backfill()
-        if store.pop(key, None) is None:
-            return False
-        _write(store)
-    return True
+    return _saved_jobs().delete_one({"_id": key}).deleted_count == 1
 
 
 def clear_saved_jobs() -> int:
     """Remove every saved job; returns how many were removed."""
-    with _lock:
-        count = len(_load_or_backfill())
-        _write({})
+    count = _saved_jobs().delete_many({}).deleted_count
     logger.info("Saved jobs store cleared (%s jobs removed)", count)
     return count

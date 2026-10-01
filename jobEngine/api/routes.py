@@ -15,10 +15,12 @@ import threading
 
 from flask import Blueprint, jsonify, request
 from pydantic import ValidationError
+from pymongo.errors import PyMongoError
 
 from ..config.sources import load_job_sources
 from ..observability.logging import new_run_id
-from ..persistence.repository import get_run, list_runs
+from ..persistence.mongo import MongoNotConfigured
+from ..persistence.repository import find_job_in_runs, get_run, list_runs
 from ..services.job_engine_service import run_job_search, test_source
 from .health import build_health_report
 from .run_status import get_status, set_status
@@ -27,6 +29,13 @@ from .schemas import JobSearchRequest, SourceTestRequest
 logger = logging.getLogger(__name__)
 
 job_engine_bp = Blueprint("job_engine", __name__, url_prefix="/api/jobs")
+
+
+@job_engine_bp.errorhandler(PyMongoError)
+@job_engine_bp.errorhandler(MongoNotConfigured)
+def _database_unavailable(exc: Exception):
+    logger.error("MongoDB unavailable: %s", exc)
+    return jsonify({"ok": False, "error": "database unavailable"}), 503
 
 
 @job_engine_bp.route("/search", methods=["POST"])
@@ -74,13 +83,10 @@ def api_list_recent_runs():
 
 @job_engine_bp.route("/<job_id>", methods=["GET"])
 def api_get_job(job_id: str):
-    for run_summary in list_runs(limit=100):
-        run = get_run(run_summary["run_id"])
-        if not run:
-            continue
-        for matched in run.get("jobs") or []:
-            if matched.get("job", {}).get("job_id") == job_id:
-                return jsonify({"ok": True, "job": matched, "run_id": run.get("run_id")}), 200
+    found = find_job_in_runs(job_id)
+    if found is not None:
+        matched, run_id = found
+        return jsonify({"ok": True, "job": matched, "run_id": run_id}), 200
     return jsonify({"ok": False, "error": "job not found in recent runs"}), 404
 
 
