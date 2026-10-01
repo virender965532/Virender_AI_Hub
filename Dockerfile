@@ -45,6 +45,10 @@ RUN pip install --upgrade pip \
 
 COPY . .
 
+# Lets deploy.sh tell this app's images (kept) from other unused images (pruned).
+# Placed after the dependency layers so it never invalidates their cache.
+LABEL app=viru-ai-hub
+
 EXPOSE 8000
 
 CMD ["python", "app.py"]

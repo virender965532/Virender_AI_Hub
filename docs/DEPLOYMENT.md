@@ -11,6 +11,13 @@ EC2 host and runs [scripts/deploy/deploy.sh](../scripts/deploy/deploy.sh) in `~/
 3. `docker compose up -d` and poll `http://127.0.0.1:8000/` for up to 180 s. If it never comes up, the previous image is
    restored and the workflow fails.
 
+4. Reclaim disk: remove stopped containers, unused networks, the image older than `previous`, and (with
+   `PRUNE_OTHER_IMAGES=1`, the default) any unused image not labelled `app=viru-ai-hub`. Build cache is capped at
+   `BUILD_CACHE_KEEP` (default 5GB) so unchanged pip/apt layers stay cached. If free disk is below `MIN_FREE_GB`
+   (default 8) before a build, the whole build cache is cleared first (that build is then a slow full one).
+   Volumes and the bind-mounted data dirs are never touched. Container logs are capped at 5 × 20 MB by
+   `docker-compose.yml`.
+
 EC2 stop/start: the container has `restart: unless-stopped` and Docker is enabled at boot, so the app comes back
 by itself. Deploys only happen on push; a push while the instance is stopped fails, so re-run it from the Actions tab.
 
@@ -32,7 +39,8 @@ Keep `~/AI-Backend/VIRU-AI-HUB/.env` on the server; it is never in git.
 
 ## GitHub secrets
 
-Repo → Settings → Secrets and variables → Actions:
+The workflow uses the `production` environment, so add these under Repo → Settings → Environments →
+`production` → Environment secrets (repository secrets also work, as a fallback):
 
 | Secret | Value |
 | --- | --- |
