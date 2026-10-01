@@ -60,5 +60,14 @@ def has_storage_state(source_id: str) -> bool:
     return _sessions().count_documents({"_id": source_id, "storage_state.cookies.0": {"$exists": True}}, limit=1) > 0
 
 
+def storage_state_info(source_id: str) -> dict[str, Any] | None:
+    """Cookie count and last save time of a stored session, without the cookies."""
+    doc = _sessions().find_one({"_id": source_id}, {"cookie_count": 1, "updated_at": 1})
+    if not doc or not doc.get("cookie_count"):
+        return None
+    updated = doc.get("updated_at")
+    return {"cookie_count": doc["cookie_count"], "updated_at": updated.isoformat() if updated else None}
+
+
 def delete_storage_state(source_id: str) -> bool:
     return _sessions().delete_one({"_id": source_id}).deleted_count == 1

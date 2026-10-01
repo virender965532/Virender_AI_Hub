@@ -10,6 +10,10 @@ Session handling:
      the adapter signs in via ``signin_url`` using the candidate's own
      ``LINKEDIN_EMAIL`` / ``LINKEDIN_PASSWORD`` and saves the new session to
      MongoDB so the next run skips the login step.
+  3. Or sign in by hand: "Connect LinkedIn" on the Remote Job Finder page
+     (``remote_login.py``, works on the headless server) or, on a machine with a
+     display, ``python -m jobEngine.sources.linkedin.login``. Both save the
+     session to MongoDB when the sign-in completes.
 
 No CAPTCHA/anti-bot bypass is attempted. If LinkedIn raises a security
 checkpoint after login, the adapter waits (``LINKEDIN_CHECKPOINT_WAIT_SECONDS``)
@@ -196,6 +200,7 @@ class LinkedInAdapter(JobSourceAdapter):
                     message=(
                         "No saved LinkedIn session and LINKEDIN_EMAIL / LINKEDIN_PASSWORD "
                         "are not set — cannot sign in."
+                        " Use 'Connect LinkedIn' on the Remote Job Finder page (or run `python -m jobEngine.sources.linkedin.login`) to sign in by hand."
                     ),
                     retryable=False,
                 )
@@ -337,7 +342,8 @@ class LinkedInAdapter(JobSourceAdapter):
         if not creds:
             raise _AuthError(
                 SourceErrorStatus.AUTH_REQUIRED,
-                "saved LinkedIn session expired and LINKEDIN_EMAIL / LINKEDIN_PASSWORD are not set",
+                "saved LinkedIn session expired and LINKEDIN_EMAIL / LINKEDIN_PASSWORD are not set."
+                " Use 'Connect LinkedIn' on the Remote Job Finder page (or run `python -m jobEngine.sources.linkedin.login`) to sign in by hand.",
             )
         email, password = creds
         signin_url = validate_navigation_url(
@@ -385,9 +391,9 @@ class LinkedInAdapter(JobSourceAdapter):
             except PlaywrightTimeoutError as exc:
                 raise _AuthError(
                     SourceErrorStatus.ANTI_BOT_BLOCKED,
-                    "LinkedIn asked for a security verification after sign-in. Run once with "
-                    "JOB_BROWSER_HEADLESS=false and complete it in the browser window; the "
-                    "session is then saved for later runs.",
+                    "LinkedIn asked for a security verification after sign-in. Sign in with "
+                    "\"Connect LinkedIn\" on the Remote Job Finder page and complete it there; "
+                    "the session is then saved for later runs.",
                 ) from exc
 
         if _is_login_url(page.url):
