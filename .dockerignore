@@ -22,3 +22,15 @@ docker-compose.yml
 Thumbs.db
 _dev_*.txt
 .github
+# Bind-mounted by docker-compose.yml at runtime, so copying them into the image only
+# bloats every build (Data/ alone is ~430MB) and every kept image.
+Data
+Profile
+config
+output
+history
+dynamicRAG/uploads
+enterpriseRAG/uploads
+enterpriseRAG/data
+tests
+docs

@@ -12,7 +12,8 @@ APP_DIR="${APP_DIR:-$HOME/AI-Backend/VIRU-AI-HUB}"
 BRANCH="${BRANCH:-main}"
 REPO="${REPO:-}"                       # owner/name, set by the workflow
 IMAGE="viru-ai-hub"
-HEALTH_URL="${HEALTH_URL:-http://127.0.0.1:8000/}"
+APP_PORT="${APP_PORT:-8000}"
+HEALTH_URL="${HEALTH_URL:-http://127.0.0.1:$APP_PORT/}"
 HEALTH_TIMEOUT="${HEALTH_TIMEOUT:-180}"
 # Build cache kept so unchanged pip/apt layers stay cached; everything above this is freed.
 BUILD_CACHE_KEEP="${BUILD_CACHE_KEEP:-5GB}"
@@ -124,14 +125,30 @@ fi
 docker compose build web
 
 log "Restarting container"
-docker compose up -d --remove-orphans web
-
-log "Health check: $HEALTH_URL"
-healthy=0
-for ((i = 0; i < HEALTH_TIMEOUT; i += 5)); do
-  if curl -fsS -o /dev/null --max-time 5 "$HEALTH_URL"; then healthy=1; break; fi
-  sleep 5
+# A container from another compose project or a manual `docker run` (e.g. an older
+# copy of this app) holding the port makes `up` fail with "port is already allocated".
+for id in $(docker ps -q --filter "publish=$APP_PORT"); do
+  project="$(docker inspect -f '{{index .Config.Labels "com.docker.compose.project"}}' "$id")"
+  if [ "$project" != "$IMAGE" ]; then
+    echo "Removing container $(docker inspect -f '{{.Name}}' "$id") (project '${project:-none}') holding port $APP_PORT"
+    docker rm -f "$id" >/dev/null
+  fi
 done
+
+healthy=0
+if docker compose up -d --remove-orphans web; then
+  log "Health check: $HEALTH_URL"
+  for ((i = 0; i < HEALTH_TIMEOUT; i += 5)); do
+    if curl -fsS -o /dev/null --max-time 5 "$HEALTH_URL"; then healthy=1; break; fi
+    sleep 5
+  done
+else
+  echo "docker compose up failed" >&2
+  if sudo ss -ltnp "sport = :$APP_PORT" 2>/dev/null | grep -q LISTEN; then
+    echo "Port $APP_PORT is held by a non-Docker process:" >&2
+    sudo ss -ltnp "sport = :$APP_PORT" >&2 || true
+  fi
+fi
 
 if [ "$healthy" -ne 1 ]; then
   echo "App did not become healthy within ${HEALTH_TIMEOUT}s. Recent logs:" >&2

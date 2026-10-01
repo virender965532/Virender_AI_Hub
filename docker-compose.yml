@@ -23,6 +23,7 @@ services:
         max-size: "20m"
         max-file: "5"
     volumes:
+      - ./Data:/app/Data:ro
       - ./Profile:/app/Profile
       - ./output:/app/output
       - ./scraper_debug:/app/scraper_debug
