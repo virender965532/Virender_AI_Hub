@@ -16,6 +16,7 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: production
     timeout-minutes: 45   # first build (Chrome + torch + Playwright) is slow
     steps:
       - uses: actions/checkout@v4

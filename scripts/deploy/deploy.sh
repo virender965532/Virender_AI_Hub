@@ -4,7 +4,8 @@
 #
 # Steps: sync code to origin/main (keeping server-written data) -> rebuild image
 # (pip/apt layers only re-run when requirements.txt / Dockerfile change) ->
-# restart container -> health check -> roll back to the previous image on failure.
+# restart container -> health check -> roll back to the previous image on failure ->
+# reclaim disk (old images, stopped containers, build cache above a cap).
 set -euo pipefail
 
 APP_DIR="${APP_DIR:-$HOME/AI-Backend/VIRU-AI-HUB}"
@@ -13,6 +14,12 @@ REPO="${REPO:-}"                       # owner/name, set by the workflow
 IMAGE="viru-ai-hub"
 HEALTH_URL="${HEALTH_URL:-http://127.0.0.1:8000/}"
 HEALTH_TIMEOUT="${HEALTH_TIMEOUT:-180}"
+# Build cache kept so unchanged pip/apt layers stay cached; everything above this is freed.
+BUILD_CACHE_KEEP="${BUILD_CACHE_KEEP:-5GB}"
+# Below this much free disk, wipe the whole build cache before building.
+MIN_FREE_GB="${MIN_FREE_GB:-8}"
+# 1 = also remove unused images that are not this app's (other projects, old base images).
+PRUNE_OTHER_IMAGES="${PRUNE_OTHER_IMAGES:-1}"
 
 # The workflow sends its short-lived GITHUB_TOKEN as the first stdin line so it
 # never appears in argv or on disk. Then detach stdin so nothing below eats it.
@@ -24,6 +31,31 @@ exec </dev/null
 RUNTIME_DIRS=(history output enterpriseRAG/data dynamicRAG/uploads enterpriseRAG/uploads)
 
 log() { printf '\n==> %s\n' "$*"; }
+
+free_gb() {
+  local dir=/var/lib/docker
+  [ -d "$dir" ] || dir=/
+  df -Pk "$dir" | awk 'NR==2 {print int($4 / 1048576)}'
+}
+
+prune_build_cache() {
+  # --reserved-space is the Docker 28+ name for --keep-storage.
+  docker builder prune -f --reserved-space "$1" >/dev/null 2>&1 \
+    || docker builder prune -f --keep-storage "$1" >/dev/null 2>&1 || true
+}
+
+cleanup() {
+  # Never touches volumes or the app's bind-mounted data.
+  docker container prune -f >/dev/null || true
+  # Old builds: re-tagging leaves the image before "previous" untagged (dangling).
+  docker image prune -f >/dev/null || true
+  if [ "$PRUNE_OTHER_IMAGES" = "1" ]; then
+    # Unused images without this app's label; latest/previous carry it and are kept.
+    docker image prune -af --filter "label!=app=$IMAGE" >/dev/null || true
+  fi
+  docker network prune -f >/dev/null || true
+  prune_build_cache "$BUILD_CACHE_KEEP"
+}
 
 cd "$APP_DIR"
 
@@ -76,6 +108,14 @@ fi
 
 # ---------------------------------------------------------------------------
 log "Building image"
+FREE="$(free_gb)"
+echo "Free disk: ${FREE} GB"
+if [ "$FREE" -lt "$MIN_FREE_GB" ]; then
+  echo "Low disk space, clearing unused images and the whole build cache first"
+  cleanup
+  docker builder prune -af >/dev/null || true
+  echo "Free disk now: $(free_gb) GB"
+fi
 HAD_PREVIOUS=0
 if docker image inspect "$IMAGE:latest" >/dev/null 2>&1; then
   docker tag "$IMAGE:latest" "$IMAGE:previous"
@@ -104,8 +144,11 @@ if [ "$healthy" -ne 1 ]; then
   exit 1
 fi
 
-log "Cleaning up dangling images"
-docker image prune -f >/dev/null || true
+log "Reclaiming disk"
+cleanup
+git gc --auto --quiet || true
+docker system df
+echo "Free disk: $(free_gb) GB"
 
 log "Deployed $NEW_REV"
 docker compose ps
