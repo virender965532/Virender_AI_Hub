@@ -118,6 +118,10 @@ def _merge(store: dict[str, dict[str, Any]], jobs: list[dict[str, Any]], *, run_
         run_ids = list((previous or {}).get("run_ids") or [])
         if run_id and run_id not in run_ids:
             run_ids.append(run_id)
+        # A re-run may miss the posted time (e.g. detail pane skipped); keep the one we had.
+        prev_posted = ((previous or {}).get("job") or {}).get("posted_date")
+        if prev_posted and not (matched.get("job") or {}).get("posted_date"):
+            matched = {**matched, "job": {**matched["job"], "posted_date": prev_posted}}
         store[key] = {
             **matched,
             "saved_key": key,

@@ -327,5 +327,33 @@
     "saved_at": "2026-10-01T03:39:34.224229+00:00",
     "jobs_recommended": 86,
     "sources_processed": 1
+  },
+  {
+    "run_id": "job-search-20261001-061821-be07ce5f",
+    "status": "completed",
+    "saved_at": "2026-10-01T06:19:51.208383+00:00",
+    "jobs_recommended": 10,
+    "sources_processed": 1
+  },
+  {
+    "run_id": "job-search-20261001-063809-e8b4313e",
+    "status": "completed",
+    "saved_at": "2026-10-01T06:38:59.398141+00:00",
+    "jobs_recommended": 10,
+    "sources_processed": 1
+  },
+  {
+    "run_id": "job-search-20261001-071810-8060d939",
+    "status": "completed",
+    "saved_at": "2026-10-01T07:19:10.458914+00:00",
+    "jobs_recommended": 5,
+    "sources_processed": 1
+  },
+  {
+    "run_id": "job-search-20261001-073327-ab06f51e",
+    "status": "completed",
+    "saved_at": "2026-10-01T07:34:17.648975+00:00",
+    "jobs_recommended": 5,
+    "sources_processed": 1
   }
 ]

@@ -25,8 +25,9 @@ _HYBRID_RE = re.compile(r"\bhybrid\b", re.IGNORECASE)
 
 
 _RELATIVE_POSTED_RE = re.compile(
-    r"(\d+)\s*(minute|min|hour|hr|day|week|month|year)s?\s+ago", re.IGNORECASE
+    r"(\d+|an?)\s*(minute|min|hour|hr|day|week|month|year)s?\s+ago", re.IGNORECASE
 )
+_JUST_NOW_RE = re.compile(r"just now|moments? ago", re.IGNORECASE)
 _UNIT_SECONDS = {
     "minute": 60, "min": 60, "hour": 3600, "hr": 3600, "day": 86400,
     "week": 7 * 86400, "month": 30 * 86400, "year": 365 * 86400,
@@ -38,7 +39,7 @@ def _parse_posted_date(raw: str | None, discovered_at: Any) -> datetime | None:
     if not raw:
         return None
     match = _RELATIVE_POSTED_RE.search(raw)
-    if not match:
+    if not match and not _JUST_NOW_RE.search(raw):
         return None
     if isinstance(discovered_at, str):
         try:
@@ -49,7 +50,10 @@ def _parse_posted_date(raw: str | None, discovered_at: Any) -> datetime | None:
         anchor = discovered_at
     else:
         anchor = datetime.now(timezone.utc)
-    seconds = int(match.group(1)) * _UNIT_SECONDS[match.group(2).lower()]
+    if not match:
+        return anchor
+    count = 1 if match.group(1).lower() in ("a", "an") else int(match.group(1))
+    seconds = count * _UNIT_SECONDS[match.group(2).lower()]
     return anchor - timedelta(seconds=seconds)
 
 

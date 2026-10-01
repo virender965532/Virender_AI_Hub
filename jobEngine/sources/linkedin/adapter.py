@@ -21,6 +21,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import os
+import re
 from pathlib import Path
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
@@ -50,6 +51,16 @@ _PAGE_SIZE = 25
 _NEW_CARD_ID_PREFIX = "job-card-component-ref-"
 _NEW_CARD_SELECTOR = f"div[role=button][componentkey^='{_NEW_CARD_ID_PREFIX}']"
 _NEW_ABOUT_SELECTOR = "[componentkey='JobDetails_AboutTheJob_{job_id}']"
+# Text above "About the job" in the detail pane: walk up from that section until an
+# ancestor also holds the top card ("India · 17 hours ago · Over 100 applicants").
+_NEW_PANE_HEADER_JS = """s => {
+  let e = document.querySelector(s);
+  for (let i = 0; i < 8 && e; i++, e = e.parentElement) {
+    const head = (e.innerText || '').split('About the job')[0];
+    if (/\\bago\\b|just now/i.test(head)) return head;
+  }
+  return null;
+}"""
 # Read every card in one pass: clicking a card re-renders the list, which detaches
 # any element handles taken beforehand. <p> order is title, company, location, ...
 _NEW_CARDS_JS = """els => els.map(card => {
@@ -57,7 +68,8 @@ _NEW_CARDS_JS = """els => els.map(card => {
     .map(p => (p.innerText || '').split('\\n')[0].trim())
     .filter(t => t && t !== '·');
   const text = card.innerText || '';
-  const posted = (text.match(/Posted\\s+([^\\n]*?ago)/i) || [])[1] || null;
+  // Cards show a bare "11 hours ago" / "Reposted 2 days ago" — no "Posted" prefix.
+  const posted = (text.match(/(\\d+|an?)\\s+(minute|min|hour|hr|day|week|month|year)s?\\s+ago|just now|moments? ago/i) || [])[0] || null;
   const salary = ps.find(t => /(\\/(yr|month|hr)|INR|\\$|€|£|LPA)/i.test(t)) || null;
   return {
     job_id: (card.getAttribute('componentkey') || '').replace('job-card-component-ref-', ''),
@@ -108,6 +120,10 @@ _POSTED_SELECTORS = [
     ".job-details-jobs-unified-top-card__tertiary-description-container",
     ".job-details-jobs-unified-top-card__primary-description-container",
 ]
+_POSTED_TEXT_RE = re.compile(
+    r"(\d+|an?)\s+(minute|min|hour|hr|day|week|month|year)s?\s+ago|just now|moments? ago",
+    re.IGNORECASE,
+)
 _LOGIN_URL_MARKERS = ("/login", "/uas/login", "/authwall", "/signup")
 _CHECKPOINT_URL_MARKERS = ("/checkpoint/", "/challenge")
 
@@ -453,9 +469,12 @@ class LinkedInAdapter(JobSourceAdapter):
             company = await self._first_text(card, _COMPANY_SELECTORS)
             location = await self._first_text(card, _LOCATION_SELECTORS)
             if job_id and job_id in known:
-                description, posted = known[job_id], None
+                description, posted = known[job_id], await self._card_posted(card)
+                if not posted:  # card says "Viewed" — the pane still shows the age
+                    posted = (await self._read_details(page, card))[1]
             else:
                 description, posted = await self._read_details(page, card)
+                posted = posted or await self._card_posted(card)
 
             if job_id:
                 seen_ids.add(job_id)
@@ -518,6 +537,14 @@ class LinkedInAdapter(JobSourceAdapter):
             if not job_id or job_id in seen_ids or not title:
                 continue
             seen_ids.add(job_id)
+            posted = fields.get("posted")
+            description = known.get(job_id)
+            # A card you've opened shows "Viewed" instead of its age, so the pane is
+            # the only place left to read it — open it even for already-saved jobs.
+            if description is None or not posted:
+                pane_description, pane_posted = await self._read_new_details(page, job_id)
+                description = description if description is not None else pane_description
+                posted = posted or pane_posted
             jobs.append(
                 RawJob(
                     source=cfg.id,
@@ -526,10 +553,8 @@ class LinkedInAdapter(JobSourceAdapter):
                     company=fields.get("company") or "",
                     location=fields.get("location"),
                     salary=fields.get("salary"),
-                    description=enforce_description_size(
-                        known[job_id] if job_id in known else await self._read_new_details(page, job_id)
-                    ),
-                    posted_date_raw=fields.get("posted"),
+                    description=enforce_description_size(description),
+                    posted_date_raw=posted,
                     remote_type="remote" if "f_WT=2" in source_url else None,
                     application_url=f"{cfg.base_url.rstrip('/')}/jobs/view/{job_id}/",
                     source_url=source_url,
@@ -538,10 +563,11 @@ class LinkedInAdapter(JobSourceAdapter):
             )
         return jobs
 
-    async def _read_new_details(self, page: Page, job_id: str) -> str:
+    async def _read_new_details(self, page: Page, job_id: str) -> tuple[str, str | None]:
         """Click the card and wait until *its* "About the job" section has text.
         The card is re-located by id on every attempt (the list re-renders on each
-        click), and the first click after a page load is sometimes swallowed."""
+        click), and the first click after a page load is sometimes swallowed.
+        Also returns the pane's age ("India · 17 hours ago · Over 100 applicants")."""
         selector = _NEW_ABOUT_SELECTOR.format(job_id=job_id)
         card = page.locator(f"div[role=button][componentkey='{_NEW_CARD_ID_PREFIX}{job_id}']").first
         for _ in range(2):
@@ -554,10 +580,29 @@ class LinkedInAdapter(JobSourceAdapter):
                     timeout=10_000,
                 )
                 text = (await page.inner_text(selector)).strip()
-                return text.removeprefix("About the job").strip()
+                return text.removeprefix("About the job").strip(), await self._pane_posted(page, selector)
             except Exception:  # noqa: BLE001
                 continue
-        return ""
+        return "", None
+
+    async def _pane_posted(self, page: Page, about_selector: str) -> str | None:
+        """Age from the pane's top card, which sits a few ancestors above "About the job"."""
+        try:
+            header = await page.evaluate(_NEW_PANE_HEADER_JS, about_selector)
+        except Exception:  # noqa: BLE001
+            return None
+        match = _POSTED_TEXT_RE.search(header or "")
+        return match.group(0) if match else None
+
+    async def _card_posted(self, card) -> str | None:
+        """Relative age from the card's own footer ("11 hours ago"), for jobs whose
+        detail pane was skipped (already saved) or failed to load."""
+        try:
+            text = await card.inner_text()
+        except Exception:  # noqa: BLE001
+            return None
+        match = _POSTED_TEXT_RE.search(text or "")
+        return match.group(0) if match else None
 
     async def _first_text(self, card, selectors: list[str]) -> str | None:
         for sel in selectors:
