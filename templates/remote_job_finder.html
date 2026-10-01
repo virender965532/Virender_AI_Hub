@@ -174,6 +174,77 @@
     text-align: center;
     color: var(--text-muted);
   }
+  .li-status {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+  }
+  .li-status--ok { color: #5cf0e8; }
+  .li-status--missing { color: #ffb86b; }
+  .li-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(3, 4, 10, 0.78);
+  }
+  .li-modal.hidden { display: none; }
+  .li-modal__panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    width: min(1040px, 100%);
+    max-height: 100%;
+    padding: 1rem 1.1rem;
+    overflow: auto;
+    background: var(--bg-deep, #05060d);
+  }
+  .li-modal__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .li-modal__title { margin: 0; font-size: 1.05rem; }
+  .li-modal__message { margin: 0; font-size: 0.86rem; color: var(--text-muted); }
+  .li-modal__message--error { color: #ff9d9d; }
+  .li-modal__message--ok { color: #5cf0e8; }
+  .li-screen {
+    position: relative;
+    outline: none;
+    border: 1px solid rgba(92, 240, 232, 0.35);
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+    cursor: pointer;
+  }
+  .li-screen:focus { border-color: #5cf0e8; box-shadow: 0 0 0 2px rgba(92, 240, 232, 0.25); }
+  .li-screen img {
+    display: block;
+    width: 100%;
+    height: auto;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+  .li-screen__hint {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #333;
+    font-size: 0.9rem;
+  }
+  .li-modal__keys {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .li-modal__keys input { flex: 1; min-width: 12rem; }
+  .li-modal__keys .btn { padding: 0.35rem 0.8rem; font-size: 0.82rem; }
 </style>
 {% endblock %}
 
@@ -223,6 +294,8 @@
       </label>
       <button type="button" id="rjf-btn-search" class="btn">Find remote jobs</button>
       <a href="{{ url_for('remote_job_finder.saved_jobs_ui') }}" class="btn btn--ghost">View saved jobs</a>
+      <button type="button" id="li-btn-connect" class="btn btn--ghost" title="Sign in to LinkedIn through the server's browser so LinkedIn searches can run.">Connect LinkedIn</button>
+      <span id="li-status" class="li-status" aria-live="polite"></span>
     </div>
   </div>
 
@@ -238,6 +311,28 @@
 
   <div id="rjf-error" class="alert alert--error glass hidden" role="alert"></div>
 
+  <div id="li-modal" class="li-modal hidden" role="dialog" aria-modal="true" aria-labelledby="li-modal-title">
+    <div class="li-modal__panel glass">
+      <div class="li-modal__head">
+        <h2 class="li-modal__title" id="li-modal-title">Connect LinkedIn</h2>
+        <button type="button" id="li-btn-close" class="btn btn--ghost">Close</button>
+      </div>
+      <p class="li-modal__message" id="li-message">Starting a browser on the server…</p>
+      <div id="li-screen" class="li-screen" tabindex="0" aria-label="LinkedIn browser. Click to interact, then type.">
+        <img id="li-frame" alt="" draggable="false" />
+        <div id="li-screen-hint" class="li-screen__hint">Loading LinkedIn…</div>
+      </div>
+      <div class="li-modal__keys">
+        <input type="text" id="li-text" class="job-filter-input" placeholder="Or type/paste text here and press Send (click a field in the window first)" autocomplete="off" />
+        <button type="button" class="btn btn--ghost" id="li-btn-send">Send</button>
+        <button type="button" class="btn btn--ghost" data-li-key="Enter">Enter</button>
+        <button type="button" class="btn btn--ghost" data-li-key="Tab">Tab</button>
+        <button type="button" class="btn btn--ghost" data-li-key="Backspace">⌫</button>
+      </div>
+      <p class="li-modal__message">Click a field in the window, then type with your keyboard. You complete any CAPTCHA or verification yourself; the window closes once you are signed in. Your password goes to LinkedIn through this server's browser and is not stored.</p>
+    </div>
+  </div>
+
   <div id="rjf-results" class="hidden">
     <div class="rjf-summary glass" id="rjf-summary"></div>
     <div id="rjf-cards" class="rjf-cards"></div>
@@ -247,5 +342,6 @@
 
 {% block scripts %}
 <script id="rjf-sources-data" type="application/json">{{ sources | tojson }}</script>
+<script src="{{ url_for('static', filename='js/linkedin_connect.js') }}"></script>
 <script src="{{ url_for('static', filename='js/remote_job_finder.js') }}"></script>
 {% endblock %}

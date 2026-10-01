@@ -13,7 +13,7 @@ import asyncio
 import logging
 import threading
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, Response, jsonify, request
 from pydantic import ValidationError
 from pymongo.errors import PyMongoError
 
@@ -21,7 +21,9 @@ from ..config.sources import load_job_sources
 from ..observability.logging import new_run_id
 from ..persistence.mongo import MongoNotConfigured
 from ..persistence.repository import find_job_in_runs, get_run, list_runs
+from ..persistence.sessions import storage_state_info
 from ..services.job_engine_service import run_job_search, test_source
+from ..sources.linkedin.remote_login import LoginNotFound, remote_login_manager
 from .health import build_health_report
 from .run_status import get_status, set_status
 from .schemas import JobSearchRequest, SourceTestRequest
@@ -132,3 +134,53 @@ def api_job_engine_health():
     report = build_health_report()
     status_code = 200 if report.get("ok") else 503
     return jsonify({"ok": report.get("ok", False), "checks": report}), status_code
+
+
+# --- LinkedIn "Connect" popup: the candidate signs in through a server-side browser.
+
+
+@job_engine_bp.errorhandler(LoginNotFound)
+def _login_not_found(exc: LoginNotFound):
+    return jsonify({"ok": False, "error": "sign-in not found or already finished"}), 404
+
+
+@job_engine_bp.route("/linkedin/session", methods=["GET"])
+def api_linkedin_session():
+    info = storage_state_info("linkedin")
+    return jsonify({"ok": True, "connected": info is not None, **(info or {})}), 200
+
+
+@job_engine_bp.route("/linkedin/login", methods=["POST"])
+def api_linkedin_login_start():
+    try:
+        status = remote_login_manager.start()
+    except Exception as exc:  # noqa: BLE001
+        logger.exception("Could not start remote LinkedIn login")
+        return jsonify({"ok": False, "error": f"could not start the browser: {exc}"}), 500
+    return jsonify({"ok": status.get("state") == "waiting", **status}), 200
+
+
+@job_engine_bp.route("/linkedin/login/<login_id>", methods=["GET"])
+def api_linkedin_login_status(login_id: str):
+    return jsonify({"ok": True, **remote_login_manager.status(login_id)}), 200
+
+
+@job_engine_bp.route("/linkedin/login/<login_id>", methods=["DELETE"])
+def api_linkedin_login_cancel(login_id: str):
+    remote_login_manager.cancel(login_id)
+    return jsonify({"ok": True}), 200
+
+
+@job_engine_bp.route("/linkedin/login/<login_id>/frame", methods=["GET"])
+def api_linkedin_login_frame(login_id: str):
+    image = remote_login_manager.frame(login_id)
+    return Response(image, mimetype="image/jpeg", headers={"Cache-Control": "no-store"})
+
+
+@job_engine_bp.route("/linkedin/login/<login_id>/input", methods=["POST"])
+def api_linkedin_login_input(login_id: str):
+    try:
+        remote_login_manager.send_input(login_id, request.get_json(silent=True) or {})
+    except (ValueError, KeyError, TypeError) as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 400
+    return jsonify({"ok": True}), 200

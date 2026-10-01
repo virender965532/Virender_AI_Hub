@@ -244,7 +244,20 @@
     if ((result.source_errors || []).length) {
       parts.push("<span style=\"color:#ff9d9d;\">" + result.source_errors.length + " source error(s)</span>");
     }
+    var linkedinAuthError = (result.source_errors || []).some(function (e) {
+      return e.source_id === "linkedin" && (e.status === "auth_required" || e.status === "anti_bot_blocked");
+    });
+    if (linkedinAuthError && window.LinkedInConnect) {
+      parts.push('<span style="color:#ffb86b;">LinkedIn needs you to sign in. ' +
+        '<button type="button" class="btn btn--ghost" id="rjf-li-signin">Connect LinkedIn</button></span>');
+    }
     summaryEl.innerHTML = parts.join("");
+    var signinBtn = document.getElementById("rjf-li-signin");
+    if (signinBtn) {
+      signinBtn.addEventListener("click", function () {
+        window.LinkedInConnect.open("LinkedIn asked for a sign-in during the last search. Sign in below, then run the search again.");
+      });
+    }
 
     cardsEl.innerHTML = "";
     var jobs = result.jobs || [];
