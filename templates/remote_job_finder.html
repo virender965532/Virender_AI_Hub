@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+{% block title %}Global Remote Job Finder — Virender AI Hub{% endblock %}
+
+{% block extra_head %}
+<style>
+  .rjf-config {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    padding: 1rem 1.15rem;
+    margin-bottom: 1.25rem;
+  }
+  .rjf-config__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.75rem 1rem;
+  }
+  .rjf-config__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-width: 12rem;
+  }
+  .rjf-config__field--grow {
+    flex: 1;
+    min-width: 16rem;
+  }
+  #rjf-keywords {
+    resize: vertical;
+    min-height: 2.6rem;
+    font: inherit;
+  }
+  .rjf-config__num {
+    width: 8rem;
+    max-width: 8rem;
+    flex: 0 0 auto;
+  }
+  .rjf-checks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+  }
+  .rjf-checks .job-toolbar-check {
+    margin: 0;
+  }
+  .rjf-checks .job-toolbar-check--disabled {
+    opacity: 0.45;
+  }
+  .rjf-config__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1rem;
+    margin-top: 0.15rem;
+  }
+  .rjf-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 1.25rem;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+  .rjf-summary strong {
+    color: var(--text-primary, #e8ecff);
+  }
+  .rjf-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1rem;
+  }
+  .rjf-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 1.1rem 1.2rem;
+  }
+  .rjf-card__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .rjf-card__title {
+    font-size: 1.05rem;
+    font-weight: 650;
+    margin: 0;
+  }
+  .rjf-card__company {
+    margin: 0.15rem 0 0;
+    color: var(--text-muted);
+    font-size: 0.88rem;
+  }
+  .rjf-score {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 3.4rem;
+    height: 3.4rem;
+    border-radius: 999px;
+    background: rgba(56, 182, 255, 0.12);
+    border: 1px solid rgba(56, 182, 255, 0.4);
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #5cf0e8;
+  }
+  .rjf-score--strong { border-color: #5cf0e8; color: #5cf0e8; background: rgba(92, 240, 232, 0.14); }
+  .rjf-score--good { border-color: #38b6ff; color: #38b6ff; background: rgba(56, 182, 255, 0.12); }
+  .rjf-score--possible { border-color: #b967ff; color: #b967ff; background: rgba(185, 103, 255, 0.12); }
+  .rjf-score--poor, .rjf-score--reject { border-color: #ff6b6b; color: #ff6b6b; background: rgba(255, 107, 107, 0.12); }
+  .rjf-score small { font-size: 0.6rem; font-weight: 500; opacity: 0.8; }
+  .rjf-tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+  .rjf-tag {
+    font-size: 0.72rem;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    background: rgba(92, 240, 232, 0.12);
+    color: #5cf0e8;
+    border: 1px solid rgba(92, 240, 232, 0.35);
+  }
+  .rjf-tag--missing {
+    background: rgba(255, 107, 107, 0.1);
+    color: #ff9d9d;
+    border-color: rgba(255, 107, 107, 0.3);
+  }
+  .rjf-card__explanation {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.45;
+  }
+  .rjf-card__details {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.25rem 0.9rem;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin: 0;
+  }
+  .rjf-card__details dt {
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+  .rjf-card__details dd {
+    margin: 0 0 0.35rem;
+    color: var(--text-primary, #e8ecff);
+    word-break: break-word;
+  }
+  .rjf-card__section {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.4;
+  }
+  .rjf-card__section strong {
+    color: var(--text-primary, #e8ecff);
+  }
+  .rjf-card__footer {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .rjf-empty {
+    padding: 1.5rem;
+    text-align: center;
+    color: var(--text-muted);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <p class="hero__eyebrow neon-text">Global Remote Job Finder</p>
+  <h1 class="hero__title">Remote roles abroad, <span class="hero__accent">matched to your profile</span></h1>
+  <p class="hero__subtitle">
+    Runs the AI job discovery + matching pipeline and shows the full job record for every match —
+    salary, employment type, skills, source, and the explainable match breakdown.
+  </p>
+</section>
+
+<div id="rjf-app" class="job-app">
+  <div class="rjf-config glass">
+    <div class="rjf-config__row">
+      <div class="rjf-config__field rjf-config__field--grow">
+        <label class="job-control-label" for="rjf-keywords">Keywords</label>
+        <textarea
+          id="rjf-keywords"
+          class="job-filter-input"
+          rows="2"
+          placeholder="Search keywords sent to LinkedIn (supports AND / OR / NOT)"
+          autocomplete="off"
+          spellcheck="false"
+        >{{ defaults.keywords }}</textarea>
+      </div>
+      <div class="rjf-config__field">
+        <label class="job-control-label" for="rjf-min-score">Min match score</label>
+        <input type="number" id="rjf-min-score" class="job-filter-input rjf-config__num" min="0" max="100" step="1" value="{{ defaults.min_score }}" autocomplete="off" />
+      </div>
+      <div class="rjf-config__field">
+        <label class="job-control-label" for="rjf-max-results">Max results <small>(per search URL, -1 = all)</small></label>
+        <input type="number" id="rjf-max-results" class="job-filter-input rjf-config__num" min="-1" max="1000" step="1" value="{{ defaults.max_results }}" title="How many jobs to fetch from each search URL in job_sources.yaml. -1 = all." autocomplete="off" />
+      </div>
+    </div>
+
+    <div>
+      <p class="job-control-label" style="margin-bottom: 0.45rem;">Sources</p>
+      <div id="rjf-sources" class="rjf-checks" role="group" aria-label="Job sources"></div>
+    </div>
+
+    <div class="rjf-config__actions">
+      <label class="job-toolbar-check" title="Only include remote-friendly roles in the results below.">
+        <input type="checkbox" id="rjf-remote-only" checked />
+        <span>Remote roles only</span>
+      </label>
+      <button type="button" id="rjf-btn-search" class="btn">Find remote jobs</button>
+      <a href="{{ url_for('remote_job_finder.saved_jobs_ui') }}" class="btn btn--ghost">View saved jobs</a>
+    </div>
+  </div>
+
+  <div id="rjf-loading" class="loading-panel glass hidden" role="status" aria-live="polite">
+    <div class="loading-panel__row">
+      <div class="spinner" aria-hidden="true"></div>
+      <div class="loading-panel__body">
+        <p class="loading-panel__text" id="rjf-loading-text">Running discovery workflow…</p>
+        <p class="loading-panel__hint">Sources are scraped in parallel, then matched against your resume. This can take a while.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="rjf-error" class="alert alert--error glass hidden" role="alert"></div>
+
+  <div id="rjf-results" class="hidden">
+    <div class="rjf-summary glass" id="rjf-summary"></div>
+    <div id="rjf-cards" class="rjf-cards"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script id="rjf-sources-data" type="application/json">{{ sources | tojson }}</script>
+<script src="{{ url_for('static', filename='js/remote_job_finder.js') }}"></script>
+{% endblock %}

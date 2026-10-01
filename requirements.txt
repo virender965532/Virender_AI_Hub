@@ -22,6 +22,14 @@ IPython>=9.13.0
 huggingface_hub>=0.28.0
 rank-bm25>=0.2.2
 sentence-transformers>=3.0.0
+# AI Job Discovery & Matching Engine (jobEngine/) — pydantic/PyYAML are already
+# transitive deps of langchain/langgraph but are pinned explicitly here since
+# jobEngine depends on them directly; pytest/pytest-asyncio are the first
+# test dependencies in this project (tests/job_engine/).
+pydantic>=2.6.0
+PyYAML>=6.0.0
+pytest>=8.0.0
+pytest-asyncio>=0.24.0
 # Force CPU PyTorch (no CUDA packages)
 torch==2.7.1+cpu
 --extra-index-url https://download.pytorch.org/whl/cpu

@@ -118,8 +118,19 @@ docker run --rm -p 8000:8000 --shm-size=2g --env-file .env viru-ai-hub
 | `Dockerfile` / `docker-compose.yml` | Container image and Compose service |
 | `routes/main_routes.py` | Pages + JSON API |
 | `services/naukri_service.py` | `login_to_naukri()`, `fetch_jobs()`, `run_login_and_fetch_jobs()` |
+| `jobEngine/` | AI Job Discovery & Matching Engine — LangGraph-orchestrated, config-driven multi-source job scraping + resume matching. See `docs/job_engine/ARCHITECTURE.md`. |
+| `config/job_sources.yaml` | Job sources for `jobEngine` (LinkedIn, Instinctools, ...) |
 | `templates/` | Jinja2 HTML |
 | `static/` | CSS / JS |
+
+## AI Job Discovery & Matching Engine
+
+`jobEngine/` scrapes multiple configured job websites in parallel via
+Playwright, normalizes and deduplicates the results, and scores each job
+against `Profile/Summary.txt` using a rule + embedding + LLM pipeline with
+an explainable, configurable score. Endpoints live under `/api/jobs/*`
+(`POST /api/jobs/search`, `GET /api/jobs/search/<run_id>`, `GET /api/jobs/sources`,
+`GET /api/jobs/health`, ...). Full docs: `docs/job_engine/`.
 
 ## Optional environment variables
 

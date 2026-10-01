@@ -1,6 +1,12 @@
+name: viru-ai-hub
+
 services:
   web:
     build: .
+    image: viru-ai-hub:latest
+    # Comes back automatically after an EC2 stop/start (Docker starts on boot).
+    restart: unless-stopped
+    init: true
     ports:
       - "8000:8000"
     env_file:
@@ -11,6 +17,11 @@ services:
       FLASK_DEBUG: "0"
       NAUKRI_HEADLESS: "1"
     shm_size: "2gb"
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "5"
     volumes:
       - ./Profile:/app/Profile
       - ./output:/app/output
@@ -18,3 +29,5 @@ services:
       - ./dynamicRAG/uploads:/app/dynamicRAG/uploads
       - ./enterpriseRAG/uploads:/app/enterpriseRAG/uploads
       - ./enterpriseRAG/data:/app/enterpriseRAG/data
+      - ./config:/app/config
+      - ./history:/app/history

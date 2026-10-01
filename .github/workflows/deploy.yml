@@ -1,0 +1,49 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: [main]      # merging a PR into main is also a push to main
+  workflow_dispatch:      # manual "Run workflow" button
+
+# Never run two deploys at once; a newer push waits for the running one.
+concurrency:
+  group: deploy-ec2
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45   # first build (Chrome + torch + Playwright) is slow
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up SSH
+        env:
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_PORT: ${{ secrets.EC2_PORT || '22' }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$EC2_SSH_KEY" > ~/.ssh/ec2.pem
+          chmod 600 ~/.ssh/ec2.pem
+          ssh-keyscan -p "$EC2_PORT" -H "$EC2_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Deploy
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER || 'ubuntu' }}
+          EC2_PORT: ${{ secrets.EC2_PORT || '22' }}
+          GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          SSH="ssh -i ~/.ssh/ec2.pem -p $EC2_PORT -o ServerAliveInterval=30 $EC2_USER@$EC2_HOST"
+          # Ship the script from this commit so the deploy logic itself is always current.
+          scp -i ~/.ssh/ec2.pem -P "$EC2_PORT" scripts/deploy/deploy.sh "$EC2_USER@$EC2_HOST:/tmp/viru-deploy.sh"
+          printf '%s\n' "$GIT_TOKEN" | $SSH \
+            "REPO='${{ github.repository }}' BRANCH='main' bash /tmp/viru-deploy.sh"
+
+      - name: Clean up key
+        if: always()
+        run: rm -f ~/.ssh/ec2.pem

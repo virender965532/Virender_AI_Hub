@@ -1,5 +1,5 @@
 /**
- * Job Apply Pro — submit JD + hiring manager email, run agent pipeline.
+ * Autonomous application agent — submit JD + hiring manager email, run agent pipeline.
  */
 (function () {
   var form = document.getElementById("job-apply-form");
@@ -46,7 +46,7 @@
     setVisible(loadingEl, true);
     submitBtn.disabled = true;
 
-    fetch("/api/job-apply/submit", {
+    fetch("/api/autonomous-application-agent/submit", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

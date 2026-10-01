@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Job Apply Pro — Virender AI Hub{% endblock %}
+{% block title %}Autonomous application agent — Virender AI Hub{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -79,11 +79,11 @@
 </p>
 
 <section class="page-head">
-  <p class="hero__eyebrow neon-text">Job Apply Pro</p>
-  <h1 class="hero__title">Agentic <span class="hero__accent">application</span></h1>
+  <p class="hero__eyebrow neon-text">Autonomous application agent</p>
+  <h1 class="hero__title">Autonomous <span class="hero__accent">application agent</span></h1>
   <p class="hero__subtitle">
-    Paste the job description and hiring manager email. The pipeline analyzes the JD against your resume in
-    <code class="inline-code">Profile/</code>, drafts a tailored email, and opens Gmail compose.
+    Paste the job description and hiring manager email. The agent matches it against your candidate summary,
+    drafts a tailored email referencing your resume, and opens it as a Gmail draft.
   </p>
 </section>
 
@@ -112,7 +112,7 @@
 
     <div class="job-apply-actions">
       <button type="submit" id="btn-submit" class="btn btn--ghost">Generate &amp; open email</button>
-      <span class="job-toolbar-note">Resume: <code class="inline-code">{{ resume_file }}</code></span>
+      <span class="job-toolbar-note">Resume: <code class="inline-code">{{ resume_file }}</code> · Summary: <code class="inline-code">{{ summary_file }}</code></span>
     </div>
   </form>
 
@@ -121,7 +121,7 @@
       <div class="spinner" aria-hidden="true"></div>
       <div>
         <p class="loading-panel__text">Drafting your application…</p>
-        <p class="loading-panel__hint">Analyzing JD, matching resume profile, generating subject &amp; email. This may take a minute.</p>
+        <p class="loading-panel__hint">Analyzing the JD, matching your candidate summary, generating subject &amp; email. This may take a minute.</p>
       </div>
     </div>
   </div>
@@ -137,5 +137,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('static', filename='js/job_apply.js') }}"></script>
+<script src="{{ url_for('static', filename='js/autonomous_application_agent.js') }}"></script>
 {% endblock %}

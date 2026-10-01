@@ -1,0 +1,60 @@
+# Job source configuration for the AI Job Discovery & Matching Engine.
+#
+# Add a new source by adding one entry here + implementing/registering its
+# adapter (see docs/job_engine/SOURCE_ADAPTER_GUIDE.md) — the LangGraph
+# builder creates the corresponding node dynamically. No core graph changes.
+#
+# Fields:
+#   id                — unique lowercase slug, used as the state key / node name root
+#   adapter           — registered adapter name (jobEngine/sources/registry.py)
+#   graph_node        — optional; defaults to "<id>_job_node"
+#   requires_auth     — if true, the adapter must gracefully degrade (SourceError) when
+#                       no authenticated session is configured; no credential automation,
+#                       no CAPTCHA/anti-bot bypass is implemented anywhere in this engine.
+#   allowed_domains   — SSRF allowlist; auto-derived from base_url/search_urls if omitted
+#   selectors         — optional overrides consumed by the "generic" adapter (CSS selectors)
+#   max_jobs/max_pages — hard caps enforced by guardrails, independent of what the site offers
+
+job_sources:
+  - id: linkedin
+    name: LinkedIn
+    enabled: true
+    base_url: "https://www.linkedin.com"
+    search_urls:
+      - "https://www.linkedin.com/jobs/search-results/?keywords=%28JavaScript%20OR%20TypeScript%29%20AND%20%28React%20OR%20%22React.js%22%20OR%20Next.js%29%20AND%20%28Node.js%20OR%20Node%29%20AND%20AWS%20NOT%20Python%20NOT%20Java%20NOT%20%22.NET%22%20NOT%20%22C%23%22&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&referralSearchId=JmVqo1tRdxIEMQQB2PxpeA%3D%3D&geoId=102713980&f_TPR=r86400&f_AL=true&f_SAL=f_SA_id_225001%3A272001"
+    adapter: linkedin
+    signin_url: "https://www.linkedin.com/login/?trk=guest_homepage-basic_nav-header-signin"
+    allowed_domains: ["linkedin.com", "licdn.com"]
+    graph_node: linkedin_job_node
+    requires_auth: true
+    browser_profile: default
+    timeout_seconds: 300
+    max_jobs: 400
+    max_pages: 20
+    rate_limit_delay_seconds: 2.0
+    notes: >
+      Reuses the saved Playwright session (LINKEDIN_STORAGE_STATE_PATH, default
+      history/job_engine/linkedin_storage_state.json). If it is missing or expired, signs
+      in at signin_url with LINKEDIN_EMAIL / LINKEDIN_PASSWORD and saves a fresh session.
+      No CAPTCHA/anti-bot bypass: a security checkpoint must be completed by hand
+      (JOB_BROWSER_HEADLESS=true), otherwise the source reports a SourceError.
+
+  - id: instinctools
+    name: Instinctools
+    enabled: true
+    base_url: "https://www.instinctools.eu"
+    search_urls:
+      - "https://www.instinctools.eu/vacancies/"
+    adapter: instinctools
+    graph_node: instinctools_job_node
+    requires_auth: false
+    browser_profile: default
+    timeout_seconds: 60
+    max_jobs: 100
+    max_pages: 5
+    rate_limit_delay_seconds: 1.0
+    notes: >
+      Public vacancies listing, no login required. Selectors are best-effort and may need
+      verification/updates if Instinctools changes their markup (see
+      docs/job_engine/SOURCE_ADAPTER_GUIDE.md "Known limitations").
+

@@ -6,3 +6,6 @@ __pycache__/
 .pytest_cache/
 *.log
 scraper_debug/
+
+# LinkedIn session cookies saved by the job engine
+history/job_engine/linkedin_storage_state.json
