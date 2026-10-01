@@ -224,6 +224,7 @@ class LinkedInAdapter(JobSourceAdapter):
                             limit = min(limit, cfg.max_jobs_per_url - url_jobs)
                         found = await self._extract_page(
                             page, cfg=cfg, source_url=url, seen_ids=seen_ids, limit=limit,
+                            known=context.known_descriptions,
                         )
                         if not found:
                             if page_index == 0:
@@ -239,9 +240,10 @@ class LinkedInAdapter(JobSourceAdapter):
 
                         timer.jobs.extend(found)
                         url_jobs += len(found)
+                        already_saved = sum(1 for j in found if j.source_job_id in context.known_descriptions)
                         logger.info(
-                            "LinkedIn page %s: %s new jobs (%s from this URL, total %s)",
-                            page_index + 1, len(found), url_jobs, len(timer.jobs),
+                            "LinkedIn page %s: %s new jobs (%s already saved, not opened; %s from this URL, total %s)",
+                            page_index + 1, len(found), already_saved, url_jobs, len(timer.jobs),
                         )
                         if cfg.max_jobs_per_url and url_jobs >= cfg.max_jobs_per_url:
                             break
@@ -408,13 +410,17 @@ class LinkedInAdapter(JobSourceAdapter):
                 await container.evaluate("el => el.scrollTo(0, 0)")
 
     async def _extract_page(
-        self, page: Page, *, cfg, source_url: str, seen_ids: set[str], limit: int
+        self, page: Page, *, cfg, source_url: str, seen_ids: set[str], limit: int,
+        known: dict[str, str] | None = None,
     ) -> list[RawJob]:
+        """``known``: descriptions of already-saved jobs by id — those jobs are not
+        opened again (no click, no wait for the detail pane)."""
+        known = known or {}
         await self._load_all_cards(page)
 
         if await page.query_selector(_NEW_CARD_SELECTOR):
             return await self._extract_new_layout(
-                page, cfg=cfg, source_url=source_url, seen_ids=seen_ids, limit=limit
+                page, cfg=cfg, source_url=source_url, seen_ids=seen_ids, limit=limit, known=known
             )
 
         cards = []
@@ -446,7 +452,10 @@ class LinkedInAdapter(JobSourceAdapter):
                 continue
             company = await self._first_text(card, _COMPANY_SELECTORS)
             location = await self._first_text(card, _LOCATION_SELECTORS)
-            description, posted = await self._read_details(page, card)
+            if job_id and job_id in known:
+                description, posted = known[job_id], None
+            else:
+                description, posted = await self._read_details(page, card)
 
             if job_id:
                 seen_ids.add(job_id)
@@ -493,11 +502,13 @@ class LinkedInAdapter(JobSourceAdapter):
         return fallback
 
     async def _extract_new_layout(
-        self, page: Page, *, cfg, source_url: str, seen_ids: set[str], limit: int
+        self, page: Page, *, cfg, source_url: str, seen_ids: set[str], limit: int,
+        known: dict[str, str] | None = None,
     ) -> list[RawJob]:
         """Cards on /jobs/search-results/: fields come from the card's <p> order
         (title, company, location, ...); the description from the detail pane,
         which is keyed by job id so a stale pane is never read for the wrong job."""
+        known = known or {}
         jobs: list[RawJob] = []
         for fields in await page.eval_on_selector_all(_NEW_CARD_SELECTOR, _NEW_CARDS_JS):
             if len(jobs) >= limit:
@@ -515,7 +526,9 @@ class LinkedInAdapter(JobSourceAdapter):
                     company=fields.get("company") or "",
                     location=fields.get("location"),
                     salary=fields.get("salary"),
-                    description=enforce_description_size(await self._read_new_details(page, job_id)),
+                    description=enforce_description_size(
+                        known[job_id] if job_id in known else await self._read_new_details(page, job_id)
+                    ),
                     posted_date_raw=fields.get("posted"),
                     remote_type="remote" if "f_WT=2" in source_url else None,
                     application_url=f"{cfg.base_url.rstrip('/')}/jobs/view/{job_id}/",

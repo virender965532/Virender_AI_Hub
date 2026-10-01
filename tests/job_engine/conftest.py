@@ -19,10 +19,11 @@ get_settings.cache_clear()
 
 @pytest.fixture(autouse=True)
 def _no_real_saved_jobs(monkeypatch):
-    """The matching node reuses analyses from the saved-jobs store; never read the real one in tests."""
-    from jobEngine.graph.nodes import matching
+    """Source + matching nodes reuse saved jobs; never read the real store in tests."""
+    from jobEngine.graph.nodes import matching, source_discovery
 
     monkeypatch.setattr(matching, "list_saved_jobs", lambda: [])
+    monkeypatch.setattr(source_discovery, "list_saved_jobs", lambda: [])
 
 
 @pytest.fixture()

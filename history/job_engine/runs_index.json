@@ -320,5 +320,12 @@
     "saved_at": "2026-09-30T21:22:21.801246+00:00",
     "jobs_recommended": 137,
     "sources_processed": 1
+  },
+  {
+    "run_id": "job-search-20261001-033006-caeffa80",
+    "status": "completed",
+    "saved_at": "2026-10-01T03:39:34.224229+00:00",
+    "jobs_recommended": 86,
+    "sources_processed": 1
   }
 ]

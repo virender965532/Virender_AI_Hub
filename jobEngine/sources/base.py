@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import time
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -26,6 +26,10 @@ class SourceExecutionContext:
     config: JobSourceConfig
     browser_manager: BrowserManager
     settings: EngineSettings
+    # source_job_id -> description of jobs already in the saved-jobs store with
+    # an LLM analysis. Adapters may use it instead of opening the job again;
+    # the matching node reuses the stored analysis for these jobs anyway.
+    known_descriptions: dict[str, str] = field(default_factory=dict)
 
 
 class SourceDiscoveryResult(BaseModel):

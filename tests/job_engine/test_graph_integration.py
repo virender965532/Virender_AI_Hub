@@ -260,3 +260,28 @@ async def test_saved_jobs_reuse_stored_analysis_without_rescoring(monkeypatch):
     # The current request's minimum still applies to a reused job.
     high_bar = (await _run(configs, request={"max_jobs": 2, "max_results": 500, "minimum_match_score": 95}))["final_result"]
     assert all(saved_job_key(j) != cached["saved_key"] for j in high_bar["jobs"])
+
+
+@register_adapter("_test_known_recording_adapter")
+class _KnownRecordingAdapter(JobSourceAdapter):
+    seen_known: dict[str, str] = {}
+
+    async def discover_jobs(self, context: SourceExecutionContext) -> SourceDiscoveryResult:
+        _KnownRecordingAdapter.seen_known = dict(context.known_descriptions)
+        return SourceDiscoveryResult(source_id=context.config.id, status="success", jobs=[], pages_processed=1, duration_ms=1)
+
+
+async def test_saved_llm_analyzed_jobs_are_passed_to_the_adapter(monkeypatch):
+    from jobEngine.graph.nodes import source_discovery
+
+    saved = [
+        {"job": {"source": "known_src", "source_job_id": "111", "description": "saved text"}, "llm_analysis": {"score": 80}},
+        {"job": {"source": "known_src", "source_job_id": "222", "description": "rule-only"}, "llm_analysis": None},
+        {"job": {"source": "other_src", "source_job_id": "333", "description": "other"}, "llm_analysis": {"score": 70}},
+    ]
+    monkeypatch.setattr(source_discovery, "list_saved_jobs", lambda: saved)
+
+    await _run([_source_cfg("known_src", "_test_known_recording_adapter")])
+
+    # Only this source's saved jobs that have an LLM analysis skip being opened again.
+    assert _KnownRecordingAdapter.seen_known == {"111": "saved text"}

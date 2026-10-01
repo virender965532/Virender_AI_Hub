@@ -1,8 +1,7 @@
 /**
  * Global Remote Job Finder UI: submit a search against the existing job-engine
  * API (/api/jobs/search, unchanged) and render full job detail cards (salary,
- * employment type, skills, strengths/concerns, source/apply links) instead of
- * the compact cards used by the Job Discovery Engine page.
+ * employment type, skills, strengths/concerns, source/apply links).
  */
 (function () {
   var loadingEl = document.getElementById("rjf-loading");

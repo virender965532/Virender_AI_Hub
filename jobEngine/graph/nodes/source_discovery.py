@@ -19,6 +19,7 @@ from ...config.sources import JobSourceConfig
 from ...guardrails.content_limits import enforce_description_size
 from ...guardrails.url_guardrails import SSRFViolation, validate_navigation_url
 from ...models.errors import SourceError, SourceErrorStatus
+from ...persistence.saved_jobs import list_saved_jobs
 from ...sources import circuit_breaker
 from ...sources.base import SourceExecutionContext
 from ...sources.registry import get_adapter_class
@@ -26,6 +27,21 @@ from ...sources.search_keywords import with_keywords
 from ..builder_types import NodeFn
 
 logger = logging.getLogger(__name__)
+
+
+def _known_descriptions(source_id: str) -> dict[str, str]:
+    """Saved, LLM-analyzed jobs of this source: their descriptions by source_job_id."""
+    try:
+        saved = list_saved_jobs()
+    except Exception:  # noqa: BLE001
+        logger.exception("source=%s: could not read saved jobs; reading every job", source_id)
+        return {}
+    known: dict[str, str] = {}
+    for entry in saved:
+        job = entry.get("job") or {}
+        if job.get("source") == source_id and job.get("source_job_id") and job.get("description") and entry.get("llm_analysis"):
+            known[str(job["source_job_id"])] = job["description"]
+    return known
 
 
 async def _fetch_job_detail(browser_manager, cfg, application_url: str) -> str | None:
@@ -93,7 +109,11 @@ def create_source_node(source_config: JobSourceConfig) -> NodeFn:
         adapter_cls = get_adapter_class(cfg.adapter)
         adapter = adapter_cls()
         context = SourceExecutionContext(
-            run_id=run_id, config=cfg, browser_manager=browser_manager, settings=settings
+            run_id=run_id,
+            config=cfg,
+            browser_manager=browser_manager,
+            settings=settings,
+            known_descriptions=_known_descriptions(cfg.id),
         )
 
         result = None
