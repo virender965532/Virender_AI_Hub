@@ -20,3 +20,5 @@ README.md
 docker-compose.yml
 **/.DS_Store
 Thumbs.db
+_dev_*.txt
+.github
