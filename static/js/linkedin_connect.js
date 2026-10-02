@@ -43,7 +43,9 @@
       .then(function (data) {
         if (data.connected) {
           var when = data.updated_at ? new Date(data.updated_at).toLocaleString() : "";
-          statusEl.textContent = "LinkedIn connected" + (when ? " (saved " + when + ")" : "");
+          var until = data.expires_at ? new Date(data.expires_at).toLocaleDateString() : "";
+          statusEl.textContent = "LinkedIn connected" + (when ? " (saved " + when + ")" : "")
+            + (until ? ", valid until " + until : "");
           statusEl.className = "li-status li-status--ok";
         } else {
           statusEl.textContent = "LinkedIn not connected";

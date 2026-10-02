@@ -16,6 +16,7 @@ Environment overrides (defaults in brackets):
     JOB_CRON_REMOTE_ONLY     [true] keep only remote/hybrid roles
     JOB_CRON_SOURCES         [page defaults] comma-separated source ids
     JOB_CRON_SAVED_JOBS_URL  [https://ai.ritishka.in/saved-jobs] link in the push
+    JOB_CRON_ENABLED         [true] false = exit without searching
 """
 
 from __future__ import annotations
@@ -104,6 +105,11 @@ async def run_once() -> int:
 
 def main() -> int:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+    # Same switch as the in-app schedule, so JOB_CRON_ENABLED=false in .env also
+    # silences an OS-level task (Windows Task Scheduler / crontab) on that machine.
+    if os.getenv("JOB_CRON_ENABLED", "true").strip().lower() not in ("1", "true", "yes", "on"):
+        logger.info("Scheduled job search disabled (JOB_CRON_ENABLED); skipping")
+        return 0
     return asyncio.run(run_once())
 
 
