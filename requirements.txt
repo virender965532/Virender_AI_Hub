@@ -35,6 +35,10 @@ pytest-asyncio>=0.24.0
 pymongo>=4.6.0
 dnspython>=2.4.0
 mongomock>=4.1.0
+# In-process schedule for the job search (jobEngine/scheduler.py); 4.x is a
+# different API. tzdata: the slim image has no system zoneinfo for Asia/Kolkata.
+APScheduler>=3.10,<4
+tzdata
 # Force CPU PyTorch (no CUDA packages)
 torch==2.7.1+cpu
 --extra-index-url https://download.pytorch.org/whl/cpu
