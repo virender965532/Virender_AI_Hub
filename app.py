@@ -67,6 +67,16 @@ if __name__ == "__main__":
     port = int(os.environ.get("FLASK_PORT", "8000"))
     debug = os.environ.get("FLASK_DEBUG", "1").strip().lower() not in ("0", "false", "no")
 
+    # With the reloader on, this block also runs in the watcher parent, which never
+    # serves requests; schedule only in the serving process so a run never doubles.
+    if not (use_reloader and debug) or os.environ.get("WERKZEUG_RUN_MAIN") == "true":
+        from jobEngine.scheduler import start_scheduler
+
+        try:
+            start_scheduler()
+        except Exception:
+            logging.getLogger(__name__).exception("Scheduled job search not started")
+
     app.run(
         host=host,
         port=port,

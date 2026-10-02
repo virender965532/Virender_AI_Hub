@@ -72,12 +72,20 @@ baked into the URL, e.g. LinkedIn's
 `python -m jobEngine.cron` runs one search with the Remote Job Finder's default
 sources and the keywords already in `config/job_sources.yaml`, saves the results
 like a manual search, and sends a [Pushover](https://pushover.net/api#messages)
-push listing the jobs this run added (a failed run is pushed too). Run it hourly
-via Windows Task Scheduler (`scripts/job_search_cron.cmd`, log in
-`output/logs/job_search_cron.log`) or cron.
+push listing the jobs this run added (a failed run is pushed too).
+
+`python app.py` runs it on a schedule by itself (`jobEngine/scheduler.py`), so the
+EC2 container needs no crontab. A scheduled time that passes while the app is
+down, restarting, or still busy with the previous run is skipped, not caught up;
+the next run is the next scheduled time. Set `JOB_CRON_ENABLED=false` on any
+machine that should not run it (e.g. a local dev box), and don't also register
+`scripts/job_search_cron.cmd` with Windows Task Scheduler there.
 
 | Variable | Default | Purpose |
 |---|---|---|
+| `JOB_CRON_ENABLED` | `true` | Run the schedule inside `python app.py` |
+| `JOB_CRON_SCHEDULE` | `0 * * * *` | Crontab expression (minute hour day month weekday); default every hour on the hour |
+| `JOB_CRON_TIMEZONE` | `UTC` | Timezone the schedule is read in |
 | `PUSHOVER_TOKEN` / `PUSHOVER_USER` | — | Pushover application token / user key; no push is sent if missing |
 | `JOB_CRON_MIN_MATCH_SCORE` | `30` | Minimum match score |
 | `JOB_CRON_MAX_RESULTS` | `-1` | Jobs per search URL, `-1` = all |
