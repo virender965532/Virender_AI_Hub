@@ -42,7 +42,7 @@ from ...guardrails.content_limits import (
 from ...guardrails.url_guardrails import SSRFViolation, validate_navigation_url
 from ...models.errors import SourceError, SourceErrorStatus
 from ...models.job import RawJob
-from ...persistence.sessions import load_storage_state, save_storage_state
+from ...persistence.sessions import load_storage_state, mark_signed_out, save_storage_state
 from ..base import JobSourceAdapter, SourceDiscoveryResult, SourceExecutionContext, TimedDiscovery
 from ..dom_utils import extract_link_cards, text_or_none
 from ..registry import register_adapter
@@ -237,7 +237,18 @@ class LinkedInAdapter(JobSourceAdapter):
                         if not await self._goto(page, url, cfg=cfg, timer=timer):
                             break
 
-                        if _is_login_url(page.url) or _is_checkpoint_url(page.url):
+                        # A rejected session either redirects to login or silently drops
+                        # li_at and serves guest results.
+                        if (
+                            _is_login_url(page.url)
+                            or _is_checkpoint_url(page.url)
+                            or not await self._has_session(managed.context)
+                        ):
+                            if saved_state:
+                                await asyncio.to_thread(
+                                    mark_signed_out, cfg.id, f"LinkedIn signed the session out at {page.url}"
+                                )
+                                saved_state = None
                             await self._sign_in(page, cfg=cfg)
                             await self._save_session(managed.context, cfg.id)
                             if not await self._goto(page, url, cfg=cfg, timer=timer):
@@ -281,8 +292,10 @@ class LinkedInAdapter(JobSourceAdapter):
                             break
                         await asyncio.sleep(cfg.rate_limit_delay_seconds)
 
-                # Refresh the saved session (cookies rotate) for the next run.
-                await self._save_session(managed.context, cfg.id)
+                # Refresh the saved session (cookies rotate) for the next run; a
+                # signed-out context is refused by save_storage_state.
+                if await self._has_session(managed.context):
+                    await self._save_session(managed.context, cfg.id)
 
         except _AuthError as exc:
             timer.errors.append(
