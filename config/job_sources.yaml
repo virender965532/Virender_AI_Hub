@@ -21,7 +21,7 @@ job_sources:
     enabled: true
     base_url: "https://www.linkedin.com"
     search_urls:
-      - "https://www.linkedin.com/jobs/search-results/?currentJobId=4473443161&keywords=%28Developer%20OR%20Engineer%20OR%20Software%20OR%20Application%20OR%20Backend%20OR%20Frontend%20OR%20Fullstack%20OR%20%22Full%20Stack%22%20OR%20Programmer%20OR%20Architect%20OR%20%22AI%22%20OR%20%22Machine%20Learning%22%20OR%20%22Data%22%29&origin=JOB_SEARCH_PAGE_JOB_FILTER&referralSearchId=9HLdYeU9jbpoGHbSq9ecuw%3D%3D&f_TPR=r86400&f_AL=true&f_SAL=f_SA_id_225001%3A272001"
+      - "https://www.linkedin.com/jobs/search-results/?currentJobId=4473487188&keywords=%28Developer%20OR%20Engineer%20OR%20Software%20OR%20Application%20OR%20Backend%20OR%20Frontend%20OR%20Fullstack%20OR%20%22Full%20Stack%22%20OR%20Programmer%20OR%20Architect%20OR%20%22AI%22%29&origin=JOB_SEARCH_PAGE_JOB_FILTER&referralSearchId=S6F389VnXeAbQpe%2FV90Piw%3D%3D&f_TPR=r86400&f_AL=true&f_SAL=f_SA_id_227001%3A277001%2C278001%24f_SA_id_226001%3A272015"
     adapter: linkedin
     signin_url: "https://www.linkedin.com/login/?trk=guest_homepage-basic_nav-header-signin"
     allowed_domains: ["linkedin.com", "licdn.com"]
