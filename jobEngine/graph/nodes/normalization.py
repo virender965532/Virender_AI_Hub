@@ -15,6 +15,7 @@ from typing import Any
 from pydantic import ValidationError
 
 from ...guardrails.url_guardrails import check_url
+from ...matching.global_remote import GLOBAL_REMOTE_TAG, is_global_remote
 from ...models.errors import ErrorSeverity, ErrorType, WorkflowError
 from ...models.job import Job, RemoteType, content_hash
 
@@ -117,6 +118,11 @@ async def normalization_node(state: dict[str, Any]) -> dict[str, Any]:
             continue
 
         description = raw.get("description") or ""
+        remote_type = _infer_remote_type(raw.get("location"), description, adapter_hint=raw.get("remote_type"))
+        tags = []
+        # Not gated on REMOTE: "hybrid cloud" in a description reads as HYBRID.
+        if remote_type != RemoteType.ONSITE and is_global_remote(raw.get("location"), description):
+            tags.append(GLOBAL_REMOTE_TAG)
         job_id = content_hash(
             source=source_id,
             title=raw.get("title") or "",
@@ -142,9 +148,8 @@ async def normalization_node(state: dict[str, Any]) -> dict[str, Any]:
                 posted_date=_parse_posted_date(raw.get("posted_date_raw"), raw.get("discovered_at")),
                 application_url=app_url,
                 source_url=src_url,
-                remote_type=_infer_remote_type(
-                    raw.get("location"), description, adapter_hint=raw.get("remote_type")
-                ),
+                remote_type=remote_type,
+                tags=tags,
                 raw_text_hash=job_id,
                 discovered_at=raw.get("discovered_at"),
             )

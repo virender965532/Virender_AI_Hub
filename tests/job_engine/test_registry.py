@@ -8,7 +8,7 @@ from jobEngine.sources.registry import available_adapters, get_adapter_class, re
 
 def test_builtin_adapters_are_registered():
     adapters = available_adapters()
-    assert {"generic", "linkedin", "instinctools"} <= set(adapters)
+    assert {"generic", "linkedin", "linkedin_search", "linkedin_search_results", "instinctools"} <= set(adapters)
 
 
 def test_get_unknown_adapter_raises_with_helpful_message():

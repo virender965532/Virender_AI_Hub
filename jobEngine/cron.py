@@ -35,6 +35,7 @@ load_dotenv(_PROJECT_ROOT / ".env")
 
 from .api.schemas import JobSearchRequest  # noqa: E402  (after load_dotenv: settings read env)
 from .config.sources import default_search_source_ids, load_job_sources  # noqa: E402
+from .matching.global_remote import GLOBAL_REMOTE_TAG  # noqa: E402
 from .notifications import send_pushover  # noqa: E402
 from .persistence.saved_jobs import saved_job_key, saved_job_keys  # noqa: E402
 from .services.job_engine_service import run_job_search  # noqa: E402
@@ -46,10 +47,10 @@ def _build_request() -> dict[str, Any]:
     sources = [s.strip() for s in sources_env.split(",") if s.strip()] or default_search_source_ids(load_job_sources())
     parsed = JobSearchRequest(
         sources=sources,
-        minimum_match_score=float(os.getenv("JOB_CRON_MIN_MATCH_SCORE", "30")),
+        minimum_match_score=float(os.getenv("JOB_CRON_MIN_MATCH_SCORE", "1")),
         max_jobs=int(os.getenv("JOB_CRON_MAX_RESULTS", "-1")),
         max_results=500,
-        remote_only=os.getenv("JOB_CRON_REMOTE_ONLY", "true").strip().lower() in ("1", "true", "yes", "on"),
+        remote_only=os.getenv("JOB_CRON_REMOTE_ONLY", "false").strip().lower() in ("1", "true", "yes", "on"),
     )
     return parsed.model_dump(mode="json")
 
@@ -62,8 +63,9 @@ def _saved_jobs_url() -> str:
     return os.getenv("JOB_CRON_SAVED_JOBS_URL", "").strip() or _DEFAULT_SAVED_JOBS_URL
 
 
-def _format_summary(summary: dict[str, Any]) -> str:
-    return f"<i>{summary.get('jobs_discovered', 0)} scanned · {summary.get('jobs_recommended', 0)} matched</i>"
+def _format_summary(summary: dict[str, Any], *, global_remote: int = 0) -> str:
+    extra = f" · {global_remote} global remote" if global_remote else ""
+    return f"<i>{summary.get('jobs_discovered', 0)} scanned · {summary.get('jobs_recommended', 0)} matched{extra}</i>"
 
 
 async def run_once() -> int:
@@ -94,7 +96,10 @@ async def run_once() -> int:
         return 0
 
     send_pushover(
-        _format_summary(summary),
+        _format_summary(
+            summary,
+            global_remote=sum(1 for j in new_jobs if GLOBAL_REMOTE_TAG in ((j.get("job") or {}).get("tags") or [])),
+        ),
         title=f"{len(new_jobs)} new remote job{'s' if len(new_jobs) != 1 else ''}",
         url=_saved_jobs_url(),
         url_title="Open saved jobs",

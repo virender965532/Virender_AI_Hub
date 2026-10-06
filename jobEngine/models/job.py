@@ -115,6 +115,8 @@ class Job(BaseModel):
     application_url: AnyHttpUrl
     source_url: AnyHttpUrl
     remote_type: RemoteType = RemoteType.UNKNOWN
+    # Display labels derived during normalization, e.g. "Global Remote".
+    tags: list[str] = Field(default_factory=list)
     raw_text_hash: str
     discovered_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 

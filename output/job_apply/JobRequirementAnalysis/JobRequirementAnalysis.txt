@@ -1,0 +1,46 @@
+Here's a detailed breakdown of the job requirement for a Node.js + AWS Developer role:
+
+### Key Responsibilities:
+1. **Backend Application Development**: Build and maintain scalable backend applications using Node.js.
+2. **Serverless Solutions**: Design and implement serverless applications using AWS Lambda.
+3. **Infrastructure as Code**: Utilize AWS CDK for managing and deploying cloud infrastructure.
+4. **API Design**: Create and optimize secure and high-performance Backend/REST APIs.
+5. **Microservices Architecture**: Implement and manage microservices in a cloud-native environment.
+6. **Production Application Optimization**: Troubleshoot, enhance, and optimize applications in a production environment.
+
+### Required Skills:
+#### Hard Skills:
+- **Programming Languages**: Expertise in Node.js and JavaScript.
+- **Cloud Services**: Proficiency in using AWS services, particularly AWS Lambda and AWS CDK.
+- **APIs**: Experience in designing and implementing RESTful APIs.
+- **Microservices**: Knowledge of microservices architecture and its implementation.
+- **Infrastructure Management**: Familiarity with Infrastructure as Code using AWS CDK.
+
+#### Soft Skills:
+- **Problem-Solving**: Ability to troubleshoot and resolve issues in production environments.
+- **Collaboration**: Work effectively in a team setting with cross-functional teams.
+- **Communication**: Strong verbal and written communication skills to articulate technical concepts.
+- **Adaptability**: Willingness to learn new technologies and adapt to changing project requirements.
+
+### Seniority Level:
+- **Mid to Senior Level**: The experience requirement of 6-10 years suggests this role is geared towards mid to senior-level developers.
+
+### Mandatory Qualifications:
+- **Professional Experience**: Minimum of 6 years in Information Technology with a focus on backend development using Node.js and AWS.
+- **Proven Skills**: Demonstrated experience with AWS services, especially AWS Lambda and AWS CDK.
+
+### Nice-to-Have Qualifications:
+- **Certifications**: AWS certifications (e.g., AWS Certified Developer or Solutions Architect) would be advantageous.
+- **Additional Tools**: Familiarity with other AWS services such as DynamoDB, API Gateway, etc.
+- **Frontend Knowledge**: Basic understanding of frontend technologies that interact with backend.
+
+### Suggested Interview Topics:
+1. **Experience with Node.js**: Discuss past projects and the specific challenges faced when scaling applications.
+2. **AWS Knowledge**: Explore the candidate's practical experience with AWS services, focusing on Lambda and CDK.
+3. **API Development**: Ask about the design considerations for creating secure and efficient APIs.
+4. **Microservices**: Review experiences in implementing and managing microservices, including any challenges faced.
+5. **Infrastructure as Code**: Assess knowledge in using AWS CDK for infrastructure management.
+6. **Troubleshooting Techniques**: Explore how the candidate approached problem-solving in production environments. 
+7. **Scalability and Performance**: Discuss strategies for optimizing applications and ensuring high availability.
+
+This breakdown should help in creating a targeted hiring process that effectively assesses candidates against the job requirements.

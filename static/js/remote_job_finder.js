@@ -140,6 +140,12 @@
     recBadge.className = "rjf-tag";
     recBadge.textContent = recommendationLabel(matched.recommendation);
     card.appendChild(recBadge);
+    (job.tags || []).forEach(function (t) {
+      var tag = document.createElement("span");
+      tag.className = "rjf-tag";
+      tag.textContent = t;
+      card.appendChild(tag);
+    });
 
     if (matched.explanation) {
       var explanation = document.createElement("p");

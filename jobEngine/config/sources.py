@@ -45,6 +45,9 @@ class JobSourceConfig(BaseModel):
     rate_limit_delay_seconds: float = Field(default=1.0, ge=0.0, le=60.0)
     allowed_domains: list[str] = Field(default_factory=list)
     selectors: dict[str, str] = Field(default_factory=dict)
+    # Jobs whose title contains none of these keywords are dropped before their
+    # details are opened (see ``jobEngine/sources/title_filter.py``). Empty = keep all.
+    title_keywords: list[str] = Field(default_factory=list)
     notes: str | None = None
 
     @field_validator("id")

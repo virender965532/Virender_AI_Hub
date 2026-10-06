@@ -46,5 +46,17 @@
       "status": "success",
       "message": "Email client opened successfully."
     }
+  },
+  {
+    "timestamp": "2026-10-06T04:09:20.498896+00:00",
+    "domain": "tcs.com",
+    "hiring_manager_email": "swar.sasmita@tcs.com",
+    "job_description_preview": "Node.js + AWS Developer\n\nExciting Opportunity | Node.js + AWS DeveloperAre you passionate about building scalable backend and serverless applications on AWS? We're hiring!🎯 Role: Node.js + AWS Developer💼 Experience: 6–10 Years📍 Location: Chennai | Bangalore | Pune⏳ Notice Period: Immediate to 90 Days💻 Tech StackNode.js | AWS | AWS CDK | AWS Lambda | Backend APIsWe're looking for professionals who can:✔️ Build scalable backend applications using Node.js✔️ Develop serverless solutions using AWS La",
+    "subject": "Application for Node.js + AWS Developer Position",
+    "body": "Dear [Hiring Manager's Name],\n\nI hope this message finds you well. I am writing to express my strong interest in the Node.js + AWS Developer position at your company. With over 7 years of experience in backend development using Node.js and AWS, I am excited about the opportunity to bring my skills to your esteemed team.\n\nIn my current role as an AI Full Stack Senior Developer at Impressico Business Solutions, I have designed and implemented serverless applications using AWS Lambda and effectively managed cloud infrastructure with AWS CDK. My experience in optimizing Backend/REST APIs has achieved a 25% improvement in application performance, which aligns seamlessly with your requirements for high-performance API design.\n\nI possess a solid understanding of microservices architecture and have made substantial enhancements to production applications, such as reducing backend API calls by 80% through strategic optimization efforts. These achievements not only underscore my problem-solving capabilities but also reflect my commitment to providing efficient, scalable solutions.\n\nMoreover, my strong collaboration and communication skills have enabled me to work effectively across cross-functional teams, ensuring that project requirements are met while maintaining quality and efficiency.\n\nI am keen to discuss how my experience and passion for backend development can contribute to your team’s success. Please find my resume and fitment report attached for your review.\n\nThank you for considering my application. I look forward to the opportunity to speak with you.\n\nBest regards,\nVirender Kumar\n+91 7428355297\nvirender7428355297@gmail.com",
+    "email_status": {
+      "status": "success",
+      "message": "Email client opened successfully."
+    }
   }
 ]

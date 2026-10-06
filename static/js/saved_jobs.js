@@ -379,6 +379,7 @@
       stamp.title = relTime(stampIso);
       titleRow.appendChild(stamp);
     }
+    (job.tags || []).forEach(function (t) { titleRow.appendChild(el("span", "sj-pill sj-pill--tag", t)); });
     main.appendChild(titleRow);
     var meta = el("p", "sj-job__meta");
     [job.company, job.location, relTime(stampIso)]
