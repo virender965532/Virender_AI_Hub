@@ -1,46 +1,82 @@
-Here's a detailed breakdown of the job requirement for a Node.js + AWS Developer role:
+### Job Breakdown for Backend Engineer at Azodha
 
-### Key Responsibilities:
-1. **Backend Application Development**: Build and maintain scalable backend applications using Node.js.
-2. **Serverless Solutions**: Design and implement serverless applications using AWS Lambda.
-3. **Infrastructure as Code**: Utilize AWS CDK for managing and deploying cloud infrastructure.
-4. **API Design**: Create and optimize secure and high-performance Backend/REST APIs.
-5. **Microservices Architecture**: Implement and manage microservices in a cloud-native environment.
-6. **Production Application Optimization**: Troubleshoot, enhance, and optimize applications in a production environment.
+#### Key Responsibilities
+- **Design and Development**: 
+  - Design, build, and scale backend services and APIs (REST and GraphQL) using Node.js and TypeScript.
+  - Create and maintain data pipelines and data warehousing solutions using tools like Airbyte, dbt, Apache Airflow, or AWS Glue.
+  
+- **Infrastructure Management**: 
+  - Manage and optimize AWS infrastructure, including ECS, EC2, S3, RDS, and Lambda.
+  
+- **CI/CD Management**: 
+  - Own CI/CD pipelines and automated testing to ensure fast and reliable release cycles.
+  
+- **Data Security**: 
+  - Develop secure, compliant systems focusing on handling protected health information (PHI).
+  
+- **Collaboration**: 
+  - Participate in code reviews and share best practices.
+  - Collaborate with product, QA, and clinical stakeholders throughout the development lifecycle.
+  
+- **Production Support**: 
+  - Support production stability, including on-call coverage as specified in the contract.
 
-### Required Skills:
-#### Hard Skills:
-- **Programming Languages**: Expertise in Node.js and JavaScript.
-- **Cloud Services**: Proficiency in using AWS services, particularly AWS Lambda and AWS CDK.
-- **APIs**: Experience in designing and implementing RESTful APIs.
-- **Microservices**: Knowledge of microservices architecture and its implementation.
-- **Infrastructure Management**: Familiarity with Infrastructure as Code using AWS CDK.
+#### Required Skills
 
-#### Soft Skills:
-- **Problem-Solving**: Ability to troubleshoot and resolve issues in production environments.
-- **Collaboration**: Work effectively in a team setting with cross-functional teams.
-- **Communication**: Strong verbal and written communication skills to articulate technical concepts.
-- **Adaptability**: Willingness to learn new technologies and adapt to changing project requirements.
+**Hard Skills**
+- 5+ years of professional experience in backend development with Node.js and TypeScript.
+- Strong grasp of PostgreSQL, SQL, and ORMs (e.g., Prisma, TypeORM, Sequelize).
+- Hands-on experience with AWS services and infrastructure management.
+- Proficiency in data pipeline tools (Airbyte, dbt, Airflow, AWS Glue).
+- Familiarity with event-driven architectures and message queuing systems.
+- Experience with automated testing frameworks and CI/CD practices.
 
-### Seniority Level:
-- **Mid to Senior Level**: The experience requirement of 6-10 years suggests this role is geared towards mid to senior-level developers.
+**Soft Skills**
+- Excellent written and verbal communication skills.
+- Ability to work independently and manage one's own schedule effectively.
+- Strong problem-solving skills and the ability to deliver against milestones.
 
-### Mandatory Qualifications:
-- **Professional Experience**: Minimum of 6 years in Information Technology with a focus on backend development using Node.js and AWS.
-- **Proven Skills**: Demonstrated experience with AWS services, especially AWS Lambda and AWS CDK.
+#### Seniority Level
+- **Mid to Senior-Level**: This position requires significant experience (5+ years), indicating a mid to senior-level candidate.
 
-### Nice-to-Have Qualifications:
-- **Certifications**: AWS certifications (e.g., AWS Certified Developer or Solutions Architect) would be advantageous.
-- **Additional Tools**: Familiarity with other AWS services such as DynamoDB, API Gateway, etc.
-- **Frontend Knowledge**: Basic understanding of frontend technologies that interact with backend.
+#### Mandatory vs. Nice-to-Have Qualifications
 
-### Suggested Interview Topics:
-1. **Experience with Node.js**: Discuss past projects and the specific challenges faced when scaling applications.
-2. **AWS Knowledge**: Explore the candidate's practical experience with AWS services, focusing on Lambda and CDK.
-3. **API Development**: Ask about the design considerations for creating secure and efficient APIs.
-4. **Microservices**: Review experiences in implementing and managing microservices, including any challenges faced.
-5. **Infrastructure as Code**: Assess knowledge in using AWS CDK for infrastructure management.
-6. **Troubleshooting Techniques**: Explore how the candidate approached problem-solving in production environments. 
-7. **Scalability and Performance**: Discuss strategies for optimizing applications and ensuring high availability.
+**Mandatory Qualifications**
+- 5+ years of backend development experience with Node.js and TypeScript.
+- Experience with PostgreSQL and ORMs.
+- Familiarity with AWS services and infrastructure management.
+- Strong communication skills.
+- Availability for approx. 40 hours/week, with overlap with Eastern Time.
+- Bachelor’s degree in Computer Science or a related field, or equivalent practical experience.
 
-This breakdown should help in creating a targeted hiring process that effectively assesses candidates against the job requirements.
+**Nice-to-Have Qualifications**
+- Experience in healthcare technology with knowledge of HIPAA compliance and standards (FHIR or HL7).
+- Infrastructure as Code experience (Terraform or CloudFormation).
+- Container orchestration experience (Docker, Kubernetes).
+- Knowledge of disaster recovery and backup strategies in AWS.
+- Experience with GCP or Azure.
+- Contributions to open-source projects.
+
+#### Suggested Interview Topics
+- **Technical Questions**: 
+  - Discuss your experience with Node.js and TypeScript—can you walk us through a significant project?
+  - Explain your understanding and experience with REST and GraphQL APIs.
+  - Describe how you have optimized AWS infrastructure in previous roles.
+  - What tools have you used for CI/CD, and what practices do you follow?
+  
+- **Data Management**: 
+  - Discuss any experience you have with data pipelines (Airbyte, dbt, etc.) and data warehousing.
+  - How do you ensure data security and compliance, especially when dealing with PHI?
+
+- **Collaboration and Communication**: 
+  - Provide an example of how you have collaborated with cross-functional teams.
+  - Discuss a time when clear communication made a difference in a project.
+
+- **Problem Solving and Autonomy**: 
+  - Describe how you prioritize and manage your tasks independently.
+  - Have you ever had to troubleshoot a production issue? How did you handle it?
+
+- **Healthcare Technology Environment**: (If applicable)
+  - What experience do you have with healthcare technology standards like HIPAA, FHIR, or HL7?
+
+This breakdown should provide a comprehensive overview of the role you're considering at Azodha, ensuring clarity for both candidates and hiring teams.

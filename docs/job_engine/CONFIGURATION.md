@@ -78,8 +78,7 @@ push listing the jobs this run added (a failed run is pushed too).
 EC2 container needs no crontab. A scheduled time that passes while the app is
 down, restarting, or still busy with the previous run is skipped, not caught up;
 the next run is the next scheduled time. Set `JOB_CRON_ENABLED=false` on any
-machine that should not run it (e.g. a local dev box), and don't also register
-`scripts/job_search_cron.cmd` with Windows Task Scheduler there.
+machine that should not run it (e.g. a local dev box).
 
 | Variable | Default | Purpose |
 |---|---|---|
