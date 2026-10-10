@@ -198,8 +198,9 @@ class EngineSettings:
     minimum_match_score: float = field(
         default_factory=lambda: _env_float("JOB_MIN_MATCH_SCORE", 70.0, minimum=0.0)
     )
+    # <= 0 (e.g. -1) sends every validated job to the LLM, uncapped.
     llm_matching_top_k: int = field(
-        default_factory=lambda: _env_int("JOB_LLM_TOP_K", 50, minimum=1)
+        default_factory=lambda: _env_int("JOB_LLM_TOP_K", 50)
     )
     rule_prefilter_min_score: float = field(
         default_factory=lambda: _env_float(

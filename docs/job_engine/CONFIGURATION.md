@@ -38,7 +38,7 @@ it — see `degrade_on_llm_failure`).
 | `JOB_MAX_HTML_BYTES` | `5000000` | Raw HTML size guard (defense in depth) |
 | `JOB_MATCH_WEIGHT_*` (6 vars) | 0.30/0.20/0.15/0.20/0.10/0.05 | Must sum to ~1.0 (validated at startup) |
 | `JOB_MIN_MATCH_SCORE` | `70` | Engine-wide default; overridable per-request |
-| `JOB_LLM_TOP_K` | `50` | Jobs sent to the (expensive) LLM stage, ranked by rule score |
+| `JOB_LLM_TOP_K` | `50` | Jobs sent to the (expensive) LLM stage, ranked by rule score; `<= 0` (e.g. `-1`) sends every job |
 | `JOB_RULE_PREFILTER_MIN_SCORE` | `15` | Defined but currently unused (no prefilter stage runs) — left as a settings no-op rather than a breaking removal |
 | `JOB_CANDIDATE_EXPERIENCE_YEARS` | `7` | Fallback if the profile's summary text doesn't state years explicitly |
 | `JOB_MAX_EXPERIENCE_GAP_YEARS` | `3` | How far a job's stated required-years can exceed the candidate's before hard rejection |

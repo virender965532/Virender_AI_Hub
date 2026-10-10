@@ -1,6 +1,6 @@
 """ResumeJobMatcher node (sections 16/19/20/22): every validated job gets a
 deterministic rule evaluation, is ranked by rule score, and the top-K
-(cost-capped) get a grounded LLM analysis; everyone else degrades to
+(cost-capped; ``JOB_LLM_TOP_K<=0`` means all) get a grounded LLM analysis; everyone else degrades to
 rule-only scoring — never silently dropped, just less deeply analyzed.
 Jobs already in the saved-jobs store with an LLM analysis reuse that stored
 analysis (no rule evaluation, no LLM call); only the minimum match score of
@@ -96,10 +96,13 @@ async def matching_node(state: dict[str, Any]) -> dict[str, Any]:
             "scores reflect rule-based signals only."
         )
 
+    top_k = settings.llm_matching_top_k
+    llm_limit = len(scored) if top_k <= 0 else min(top_k, len(scored))
+
     matched_jobs: list[dict[str, Any]] = list(reused)
     for idx, (job, rule_eval) in enumerate(scored):
         llm_analysis = None
-        if llm_available and idx < settings.llm_matching_top_k:
+        if llm_available and idx < llm_limit:
             llm_analysis = await asyncio.to_thread(
                 llm_matcher.analyze, profile=profile, job=job, metrics=llm_metrics
             )
@@ -116,7 +119,7 @@ async def matching_node(state: dict[str, Any]) -> dict[str, Any]:
     metrics = dict(state.get("metrics") or {})
     metrics["jobs_rejected_by_rules"] = metrics.get("jobs_rejected_by_rules", 0) + rejected_by_rules
     metrics["jobs_reused_from_saved"] = len(reused)
-    metrics["jobs_sent_to_llm"] = min(settings.llm_matching_top_k, len(scored)) if llm_available else 0
+    metrics["jobs_sent_to_llm"] = llm_limit if llm_available else 0
     metrics["llm_calls"] = llm_metrics.calls
     metrics["llm_retries"] = llm_metrics.retries
     metrics["llm_prompt_tokens"] = llm_metrics.prompt_tokens
