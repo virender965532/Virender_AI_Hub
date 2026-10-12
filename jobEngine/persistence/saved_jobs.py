@@ -97,9 +97,22 @@ def _merged_doc(matched: dict[str, Any], previous: dict[str, Any] | None, *, key
     if run_id and run_id not in run_ids:
         run_ids.append(run_id)
     # A re-run may miss the posted time (e.g. detail pane skipped); keep the one we had.
-    prev_posted = ((previous or {}).get("job") or {}).get("posted_date")
+    prev_job = (previous or {}).get("job") or {}
+    prev_posted = prev_job.get("posted_date")
     if prev_posted and not (matched.get("job") or {}).get("posted_date"):
         matched = {**matched, "job": {**matched["job"], "posted_date": prev_posted}}
+    # Same for the employment type (read from the detail pane, skipped for saved jobs),
+    # and keep every search URL that has ever listed the job.
+    if prev_job.get("employment_type") and not matched["job"].get("employment_type"):
+        restored = {"employment_type": prev_job["employment_type"]}
+        # The previous classification saw the employment type; this one didn't.
+        if prev_job.get("worldwide") and prev_job.get("raw_text_hash") == matched["job"].get("raw_text_hash"):
+            restored["worldwide"] = prev_job["worldwide"]
+        matched = {**matched, "job": {**matched["job"], **restored}}
+    if prev_job.get("search_urls"):
+        urls = list(matched["job"].get("search_urls") or [])
+        urls += [u for u in prev_job["search_urls"] if u not in urls]
+        matched = {**matched, "job": {**matched["job"], "search_urls": urls}}
     doc = {
         **to_bson_safe(matched),
         "_id": key,

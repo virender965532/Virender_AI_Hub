@@ -93,6 +93,52 @@ class RemoteType(str, Enum):
     UNKNOWN = "unknown"
 
 
+class WorldwideCategory(str, Enum):
+    """Can the job be done remotely from India? (``matching/worldwide_remote.py``)"""
+
+    WORLDWIDE_CONFIRMED = "worldwide_confirmed"  # A
+    INDIA_ELIGIBLE = "india_eligible"  # B
+    NEEDS_VERIFICATION = "needs_verification"  # C
+    COUNTRY_RESTRICTED = "country_restricted"  # D
+    INSUFFICIENT_INFO = "insufficient_info"  # E
+    # Posted in India: eligible by definition, but not an international role.
+    INDIA_LOCAL = "india_local"
+
+
+class EmploymentArrangement(str, Enum):
+    FULL_TIME_EMPLOYEE = "full_time_employee"
+    FULL_TIME_CONTRACTOR = "full_time_contractor"
+    PART_TIME_CONTRACTOR = "part_time_contractor"
+    CONTRACTOR = "contractor"  # contract, hours not stated
+    FREELANCE = "freelance"
+    TEMPORARY_CONTRACT = "temporary_contract"
+    PART_TIME = "part_time"  # part-time, not stated as a contract
+    OTHER = "other"
+
+
+class WorldwideEvidence(BaseModel):
+    """One piece of text that drove the classification, quoted verbatim."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    text: str = Field(max_length=600)
+    # Where it was found: title / location / workplace_type / employment_type / description.
+    found_in: str
+    signal: Literal["positive", "negative", "neutral"]
+    rule: str = ""
+
+
+class WorldwideClassification(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    category: WorldwideCategory
+    india_eligible: bool = False
+    arrangement: EmploymentArrangement = EmploymentArrangement.OTHER
+    evidence: list[WorldwideEvidence] = Field(default_factory=list)
+    reason: str = ""
+    method: Literal["rules", "llm"] = "rules"
+
+
 class Job(BaseModel):
     """Normalized, validated job — the only shape the matching pipeline understands."""
 
@@ -117,6 +163,10 @@ class Job(BaseModel):
     remote_type: RemoteType = RemoteType.UNKNOWN
     # Display labels derived during normalization, e.g. "Global Remote".
     tags: list[str] = Field(default_factory=list)
+    # Set only when JOB_WORLDWIDE_REMOTE_ENABLED is on.
+    worldwide: WorldwideClassification | None = None
+    # Every configured search URL that listed this job in the run.
+    search_urls: list[str] = Field(default_factory=list)
     raw_text_hash: str
     discovered_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 

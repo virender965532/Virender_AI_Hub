@@ -8,11 +8,12 @@ from __future__ import annotations
 
 from playwright.async_api import Page, TimeoutError as PlaywrightTimeoutError
 
+from ...config.settings import get_settings
 from ...guardrails.content_limits import enforce_description_size
 from ...models.job import RawJob
 from ..registry import register_adapter
 from ..title_filter import title_matches_keywords
-from .base import _POSTED_TEXT_RE, LinkedInBaseAdapter
+from .base import _POSTED_TEXT_RE, LinkedInBaseAdapter, note_relisted, parse_job_insights
 
 # Class names are obfuscated per release, so only these ``componentkey`` hooks
 # (which embed the job id) are stable.
@@ -73,7 +74,10 @@ class LinkedInSearchResultsAdapter(LinkedInBaseAdapter):
                 break
             job_id = fields.get("job_id")
             title = fields.get("title")
-            if not job_id or job_id in seen_ids or not title:
+            if job_id and job_id in seen_ids:
+                note_relisted(seen_ids, job_id, source_url)
+                continue
+            if not job_id or not title:
                 continue
             seen_ids.add(job_id)
             if not title_matches_keywords(title, cfg.title_keywords):
@@ -81,12 +85,16 @@ class LinkedInSearchResultsAdapter(LinkedInBaseAdapter):
                 continue
             posted = fields.get("posted")
             description = known.get(job_id)
-            # A card you've opened shows "Viewed" instead of its age, so the pane is
-            # the only place left to read it — open it even for already-saved jobs.
-            if description is None or not posted:
-                pane_description, pane_posted = await self._read_details(page, job_id)
+            header = ""
+            # Already-saved jobs are never opened again. A card that says "Viewed" has no
+            # age; the saved posted date is reused for it (matching node / saved store).
+            if description is None:
+                pane_description, pane_posted, header = await self._read_details(page, job_id)
                 description = description if description is not None else pane_description
                 posted = posted or pane_posted
+            workplace, employment_type = (
+                parse_job_insights(header) if get_settings().worldwide_remote_enabled else (None, None)
+            )
             jobs.append(
                 RawJob(
                     source=cfg.id,
@@ -97,19 +105,24 @@ class LinkedInSearchResultsAdapter(LinkedInBaseAdapter):
                     salary=fields.get("salary"),
                     description=enforce_description_size(description),
                     posted_date_raw=posted,
+                    employment_type=employment_type,
                     remote_type="remote" if "f_WT=2" in source_url else None,
                     application_url=f"{cfg.base_url.rstrip('/')}/jobs/view/{job_id}/",
                     source_url=source_url,
-                    extra={"easy_apply": bool(fields.get("easy_apply"))},
+                    extra={
+                        "easy_apply": bool(fields.get("easy_apply")),
+                        **({"workplace_type": workplace} if workplace else {}),
+                    },
                 )
             )
         return jobs, filtered
 
-    async def _read_details(self, page: Page, job_id: str) -> tuple[str, str | None]:
+    async def _read_details(self, page: Page, job_id: str) -> tuple[str, str | None, str]:
         """Click the card and wait until *its* "About the job" section has text.
         The card is re-located by id on every attempt (the list re-renders on each
         click), and the first click after a page load is sometimes swallowed.
-        Also returns the pane's age ("India · 17 hours ago · Over 100 applicants")."""
+        Also returns the pane's age ("India · 17 hours ago · Over 100 applicants") and
+        the pane header text (workplace/employment chips are read from it)."""
         selector = _NEW_ABOUT_SELECTOR.format(job_id=job_id)
         card = page.locator(f"div[role=button][componentkey='{_NEW_CARD_ID_PREFIX}{job_id}']").first
         for _ in range(2):
@@ -122,16 +135,17 @@ class LinkedInSearchResultsAdapter(LinkedInBaseAdapter):
                     timeout=10_000,
                 )
                 text = (await page.inner_text(selector)).strip()
-                return text.removeprefix("About the job").strip(), await self._pane_posted(page, selector)
+                header = await self._pane_header(page, selector)
+                match = _POSTED_TEXT_RE.search(header)
+                return text.removeprefix("About the job").strip(), (match.group(0) if match else None), header
             except Exception:  # noqa: BLE001
                 continue
-        return "", None
+        return "", None, ""
 
-    async def _pane_posted(self, page: Page, about_selector: str) -> str | None:
-        """Age from the pane's top card, which sits a few ancestors above "About the job"."""
+    async def _pane_header(self, page: Page, about_selector: str) -> str:
+        """The pane's top card (age, workplace/employment chips), which sits a few
+        ancestors above "About the job"."""
         try:
-            header = await page.evaluate(_NEW_PANE_HEADER_JS, about_selector)
+            return await page.evaluate(_NEW_PANE_HEADER_JS, about_selector) or ""
         except Exception:  # noqa: BLE001
-            return None
-        match = _POSTED_TEXT_RE.search(header or "")
-        return match.group(0) if match else None
+            return ""

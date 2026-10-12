@@ -15,6 +15,7 @@ import logging
 from flask import Blueprint, jsonify, render_template, request
 from pymongo.errors import PyMongoError
 
+from jobEngine.config.settings import get_settings
 from jobEngine.config.sources import DEFAULT_UNCHECKED_SOURCES, load_job_sources
 from jobEngine.sources.search_keywords import url_keywords
 from jobEngine.persistence.mongo import MongoNotConfigured
@@ -41,7 +42,7 @@ def _database_unavailable(exc: Exception):
 # user leaves or types in the fields is exactly what gets sent to /api/jobs/search.
 # The Keywords default is read from the sources' search URLs (``keywords=``).
 DEFAULT_SEARCH_FORM = {
-    "min_score": 30,
+    "min_score": 50,
     "max_results": 10,
 }
 
@@ -64,7 +65,10 @@ def remote_job_finder_ui():
         logger.exception("Failed to load job_sources.yaml for remote-job-finder UI")
         sources = []
     return render_template(
-        "remote_job_finder.html", sources=sources, defaults={**DEFAULT_SEARCH_FORM, "keywords": _default_keywords()}
+        "remote_job_finder.html",
+        sources=sources,
+        defaults={**DEFAULT_SEARCH_FORM, "keywords": _default_keywords()},
+        worldwide_enabled=get_settings().worldwide_remote_enabled,
     )
 
 
@@ -86,7 +90,11 @@ def _default_keywords() -> str:
 @remote_job_finder_bp.route("/saved-jobs")
 def saved_jobs_ui():
     """Every job recommended by past searches, with its full match analysis."""
-    return render_template("saved_jobs.html", statuses=list(SAVED_JOB_STATUSES))
+    return render_template(
+        "saved_jobs.html",
+        statuses=list(SAVED_JOB_STATUSES),
+        worldwide_enabled=get_settings().worldwide_remote_enabled,
+    )
 
 
 @remote_job_finder_bp.route("/api/saved-jobs", methods=["GET"])

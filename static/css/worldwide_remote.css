@@ -1,0 +1,70 @@
+/* Worldwide-remote classification highlights (static/js/worldwide_remote.js). */
+:root {
+  --ww-green: #4ade80;
+  --ww-blue: #38b6ff;
+  --ww-yellow: #facc15;
+  --ww-red: #ff6b6b;
+  --ww-grey: #9ca3af;
+  --ww-violet: #a78bfa;
+}
+
+.ww-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 650;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.ww-badge--worldwide_confirmed { color: var(--ww-green); background: rgba(74, 222, 128, 0.14); }
+.ww-badge--india_eligible { color: var(--ww-blue); background: rgba(56, 182, 255, 0.14); }
+.ww-badge--needs_verification { color: var(--ww-yellow); background: rgba(250, 204, 21, 0.12); }
+.ww-badge--country_restricted { color: var(--ww-red); background: rgba(255, 107, 107, 0.1); opacity: 0.85; }
+.ww-badge--insufficient_info { color: var(--ww-grey); background: rgba(156, 163, 175, 0.12); }
+.ww-badge--india_local { color: var(--ww-violet); background: rgba(167, 139, 250, 0.12); }
+
+.ww-card { border-left: 4px solid transparent; }
+.ww-card--worldwide_confirmed { border-left-color: var(--ww-green); box-shadow: inset 0 0 0 1px rgba(74, 222, 128, 0.25); }
+.ww-card--india_eligible { border-left-color: var(--ww-blue); box-shadow: inset 0 0 0 1px rgba(56, 182, 255, 0.22); }
+.ww-card--needs_verification { border-left-color: var(--ww-yellow); }
+.ww-card--country_restricted { border-left-color: var(--ww-red); opacity: 0.6; }
+.ww-card--country_restricted:hover, .ww-card--country_restricted:focus-within { opacity: 1; }
+.ww-card--insufficient_info { border-left-color: var(--ww-grey); }
+.ww-card--india_local { border-left-color: var(--ww-violet); }
+
+.ww-panel {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-left: 3px solid var(--ww-grey);
+  border-radius: 0.6rem;
+  padding: 0.7rem 0.9rem;
+  font-size: 0.86rem;
+}
+.ww-panel--worldwide_confirmed { border-left-color: var(--ww-green); }
+.ww-panel--india_eligible { border-left-color: var(--ww-blue); }
+.ww-panel--needs_verification { border-left-color: var(--ww-yellow); }
+.ww-panel--country_restricted { border-left-color: var(--ww-red); }
+.ww-panel--india_local { border-left-color: var(--ww-violet); }
+.ww-panel__title { font-weight: 650; margin-bottom: 0.4rem; }
+.ww-facts { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.8rem; margin: 0 0 0.4rem; }
+.ww-facts dt { color: var(--text-muted); }
+.ww-facts dd { margin: 0; }
+.ww-reason { margin: 0.3rem 0; color: var(--text-muted); }
+.ww-evidence { list-style: none; margin: 0.4rem 0 0; padding: 0; display: flex; flex-direction: column; gap: 0.35rem; }
+.ww-evidence__item { padding-left: 0.6rem; border-left: 2px solid var(--ww-grey); overflow-wrap: anywhere; }
+.ww-evidence__item--positive { border-left-color: var(--ww-green); }
+.ww-evidence__item--negative { border-left-color: var(--ww-red); }
+.ww-evidence__where { color: var(--text-muted); margin-right: 0.35rem; font-size: 0.78rem; }
+.ww-urls { margin-top: 0.5rem; font-size: 0.78rem; }
+.ww-urls summary { cursor: pointer; color: var(--text-muted); }
+.ww-urls a { display: block; color: var(--neon-cyan, #5cf0e8); overflow-wrap: anywhere; margin-top: 0.2rem; }
+
+.ww-toolbar { display: flex; flex-wrap: wrap; gap: 0.75rem 1rem; align-items: flex-end; padding: 0.8rem 1.1rem; margin-bottom: 1rem; }
+.ww-toolbar label { display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.82rem; color: var(--text-muted); }
+.ww-legend { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-left: auto; }
+
+@media (max-width: 640px) {
+  .ww-legend { margin-left: 0; }
+  .ww-facts { grid-template-columns: 1fr; }
+}

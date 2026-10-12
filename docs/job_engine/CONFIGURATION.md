@@ -39,6 +39,8 @@ it — see `degrade_on_llm_failure`).
 | `JOB_MATCH_WEIGHT_*` (6 vars) | 0.30/0.20/0.15/0.20/0.10/0.05 | Must sum to ~1.0 (validated at startup) |
 | `JOB_MIN_MATCH_SCORE` | `70` | Engine-wide default; overridable per-request |
 | `JOB_LLM_TOP_K` | `50` | Jobs sent to the (expensive) LLM stage, ranked by rule score; `<= 0` (e.g. `-1`) sends every job |
+| `JOB_LLM_CONCURRENCY` | `6` | LLM calls (matching + worldwide review) running at the same time; every job is analyzed independently. Raise for speed, lower if OpenAI returns 429 rate-limit errors |
+| `LINKEDIN_MAX_TABS` | `2` | Browser tabs scraping LinkedIn at once, shared by every search URL: a search URL's results pages are scraped this many at a time (each tab has its own detail pane). `1` = one page at a time. Higher is faster but makes LinkedIn security checks more likely. Already-saved jobs are never re-opened |
 | `JOB_RULE_PREFILTER_MIN_SCORE` | `15` | Defined but currently unused (no prefilter stage runs) — left as a settings no-op rather than a breaking removal |
 | `JOB_CANDIDATE_EXPERIENCE_YEARS` | `7` | Fallback if the profile's summary text doesn't state years explicitly |
 | `JOB_MAX_EXPERIENCE_GAP_YEARS` | `3` | How far a job's stated required-years can exceed the candidate's before hard rejection |
@@ -48,6 +50,9 @@ it — see `degrade_on_llm_failure`).
 | `JOB_ENGINE_DEGRADE_ON_LLM_FAILURE` | `true` | Mark result `degraded` instead of failing when LLM is unavailable |
 | `LINKEDIN_STORAGE_STATE_PATH` | unset | Path to a pre-authenticated Playwright storage_state JSON |
 | `JOB_LLM_PRICE_PER_1K_PROMPT_USD` / `_COMPLETION_USD` | gpt-4o-mini rates | For cost-estimate observability only |
+| `JOB_WORLDWIDE_REMOTE_ENABLED` | `false` | Classify every job's eligibility from India (worldwide / India-eligible / needs verification / restricted / insufficient info) with quoted evidence, read LinkedIn's workplace + employment chips, and show badges, filters and an eligibility sort in the UI. Off = previous behaviour |
+| `JOB_WORLDWIDE_LLM_REVIEW` | `true` | With the flag above on and the LLM available, send shown "needs verification" jobs to the existing OpenAI model for a second opinion; its quotes must appear verbatim in the posting or the verdict is ignored |
+| `JOB_WORLDWIDE_LLM_MAX_JOBS` | `25` | Cap on those review calls per run (a saved review is reused while the description is unchanged) |
 
 ## Request-level overrides (`POST /api/jobs/search` body)
 

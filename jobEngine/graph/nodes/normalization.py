@@ -14,8 +14,10 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from ...config.settings import get_settings
 from ...guardrails.url_guardrails import check_url
 from ...matching.global_remote import GLOBAL_REMOTE_TAG, is_global_remote
+from ...matching.worldwide_remote import classify_worldwide
 from ...models.errors import ErrorSeverity, ErrorType, WorkflowError
 from ...models.job import Job, RemoteType, content_hash
 
@@ -86,6 +88,7 @@ async def normalization_node(state: dict[str, Any]) -> dict[str, Any]:
     run_id = state.get("run_id")
     raw_jobs = state.get("discovered_jobs") or []
     source_configs = {c["id"]: c for c in state.get("source_configs") or []}
+    worldwide_enabled = get_settings().worldwide_remote_enabled
 
     normalized: list[dict[str, Any]] = []
     errors: list[dict[str, Any]] = []
@@ -123,6 +126,17 @@ async def normalization_node(state: dict[str, Any]) -> dict[str, Any]:
         # Not gated on REMOTE: "hybrid cloud" in a description reads as HYBRID.
         if remote_type != RemoteType.ONSITE and is_global_remote(raw.get("location"), description):
             tags.append(GLOBAL_REMOTE_TAG)
+        extra = raw.get("extra") or {}
+        worldwide = None
+        if worldwide_enabled:
+            worldwide = classify_worldwide(
+                title=raw.get("title") or "",
+                location=raw.get("location"),
+                description=description,
+                employment_type=raw.get("employment_type"),
+                workplace_type=extra.get("workplace_type"),
+                remote_type=remote_type,
+            )
         job_id = content_hash(
             source=source_id,
             title=raw.get("title") or "",
@@ -150,6 +164,8 @@ async def normalization_node(state: dict[str, Any]) -> dict[str, Any]:
                 source_url=src_url,
                 remote_type=remote_type,
                 tags=tags,
+                worldwide=worldwide,
+                search_urls=extra.get("search_urls") or [],
                 raw_text_hash=job_id,
                 discovered_at=raw.get("discovered_at"),
             )

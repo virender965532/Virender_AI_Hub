@@ -41,12 +41,15 @@
     source: document.getElementById("sj-source"),
     minScore: document.getElementById("sj-min-score"),
     sort: document.getElementById("sj-sort"),
+    worldwide: document.getElementById("sj-worldwide"),
     error: document.getElementById("sj-error"),
     stats: document.getElementById("sj-stats"),
     list: document.getElementById("sj-list"),
   };
 
   var allJobs = [];
+  // Worldwide-remote classification (only present when JOB_WORLDWIDE_REMOTE_ENABLED is on).
+  var WW = window.WorldwideRemote || null;
 
   function el(tag, className, text) {
     var node = document.createElement(tag);
@@ -122,6 +125,7 @@
       source: els.source.value,
       minScore: Number(els.minScore.value) || 0,
       sort: els.sort.value,
+      worldwide: els.worldwide ? els.worldwide.value : "",
     };
   }
 
@@ -134,6 +138,7 @@
       if (f.status && (saved.status || "new") !== f.status) return false;
       if (f.source && job.source !== f.source) return false;
       if (score(saved) < f.minScore) return false;
+      if (WW && f.worldwide && !WW.matches(job, f.worldwide)) return false;
       if (terms.length) {
         var blob = searchBlob(saved);
         for (var i = 0; i < terms.length; i++) if (blob.indexOf(terms[i]) === -1) return false;
@@ -150,6 +155,9 @@
       // Applied jobs sink to the bottom so the list leads with jobs still to look at.
       var applied = isApplied(a) - isApplied(b);
       if (applied) return applied;
+      if (WW && f.sort === "eligibility") {
+        return WW.rank(a.job) - WW.rank(b.job) || score(b) - score(a);
+      }
       if (!sortKey) return score(b) - score(a);
       var ka = sortKey(a), kb = sortKey(b);
       return ka < kb ? 1 : ka > kb ? -1 : score(b) - score(a);
@@ -235,6 +243,8 @@
       ["Location", job.location],
       ["Remote type", job.remote_type && titleCase(job.remote_type)],
       ["Employment type", job.employment_type],
+      ["Arrangement", WW && WW.arrangementLabel(job)],
+      ["Detected", fmtDate(job.discovered_at)],
       ["Experience required", job.experience_required],
       ["Salary", job.salary],
       ["Posted", fmtDate(job.posted_date)],
@@ -255,6 +265,8 @@
     var job = saved.job || {};
     var llm = saved.llm_analysis || null;
     var body = el("div", "sj-job__body");
+    var wwPanel = WW && WW.panel(job);
+    if (wwPanel) body.appendChild(section("Eligibility from India", wwPanel));
 
     var explanation = saved.explanation || (llm && llm.explanation);
     if (explanation) body.appendChild(section("Why it matches", el("p", "sj-explanation", explanation)));
@@ -355,7 +367,7 @@
   function renderCard(saved) {
     var job = saved.job || {};
     var rec = saved.recommendation || "possible_match";
-    var card = el("article", "sj-job glass");
+    var card = el("article", "sj-job glass" + (WW ? " " + WW.cardClass(job) : ""));
     card.dataset.open = "false";
 
     var head = el("div", "sj-job__head");
@@ -379,6 +391,8 @@
       stamp.title = relTime(stampIso);
       titleRow.appendChild(stamp);
     }
+    var wwBadge = WW && WW.badge(job);
+    if (wwBadge) titleRow.appendChild(wwBadge);
     (job.tags || []).forEach(function (t) { titleRow.appendChild(el("span", "sj-pill sj-pill--tag", t)); });
     main.appendChild(titleRow);
     var meta = el("p", "sj-job__meta");
@@ -530,7 +544,8 @@
     clearTimeout(debounce);
     debounce = setTimeout(render, 150);
   });
-  [els.recommendation, els.status, els.source, els.minScore, els.sort].forEach(function (node) {
+  if (WW && els.worldwide) WW.fillFilterSelect(els.worldwide);
+  [els.recommendation, els.status, els.source, els.minScore, els.sort, els.worldwide].filter(Boolean).forEach(function (node) {
     node.addEventListener("change", render);
   });
   load();

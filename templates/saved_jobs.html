@@ -2,6 +2,7 @@
 {% block title %}Saved Jobs — Virender AI Hub{% endblock %}
 
 {% block extra_head %}
+{% if worldwide_enabled %}<link rel="stylesheet" href="{{ url_for('static', filename='css/worldwide_remote.css') }}" />{% endif %}
 <style>
   .sj-toolbar {
     display: flex;
@@ -215,6 +216,12 @@
         <option value="poor_match">Poor match</option>
       </select>
     </div>
+    {% if worldwide_enabled %}
+    <div class="sj-field">
+      <label class="job-control-label" for="sj-worldwide">Eligibility from India</label>
+      <select id="sj-worldwide" class="job-filter-input"></select>
+    </div>
+    {% endif %}
     <div class="sj-field">
       <label class="job-control-label" for="sj-status-filter">Status</label>
       <select id="sj-status-filter" class="job-filter-input">
@@ -229,11 +236,12 @@
     </div>
     <div class="sj-field">
       <label class="job-control-label" for="sj-min-score">Min score</label>
-      <input type="number" id="sj-min-score" class="job-filter-input sj-num" min="0" max="100" step="1" value="40" />
+      <input type="number" id="sj-min-score" class="job-filter-input sj-num" min="0" max="100" step="1" value="55" />
     </div>
     <div class="sj-field">
       <label class="job-control-label" for="sj-sort">Sort by</label>
       <select id="sj-sort" class="job-filter-input">
+        {% if worldwide_enabled %}<option value="eligibility">Worldwide / India-eligible first</option>{% endif %}
         <option value="score">Match score</option>
         <option value="last_seen">Last seen</option>
         <option value="posted" selected>Posted date</option>
@@ -250,5 +258,6 @@
 
 {% block scripts %}
 <script id="sj-statuses" type="application/json">{{ statuses | tojson }}</script>
+{% if worldwide_enabled %}<script src="{{ url_for('static', filename='js/worldwide_remote.js') }}"></script>{% endif %}
 <script src="{{ url_for('static', filename='js/saved_jobs.js') }}"></script>
 {% endblock %}

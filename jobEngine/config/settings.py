@@ -202,6 +202,11 @@ class EngineSettings:
     llm_matching_top_k: int = field(
         default_factory=lambda: _env_int("JOB_LLM_TOP_K", 50)
     )
+    # How many LLM calls (matching + worldwide review) run at the same time. Each job
+    # is independent; keep this within your OpenAI rate limit (429s are retried).
+    llm_concurrency: int = field(
+        default_factory=lambda: _env_int("JOB_LLM_CONCURRENCY", 6, minimum=1)
+    )
     rule_prefilter_min_score: float = field(
         default_factory=lambda: _env_float(
             "JOB_RULE_PREFILTER_MIN_SCORE", 15.0, minimum=0.0
@@ -216,6 +221,20 @@ class EngineSettings:
         default_factory=lambda: _env_float(
             "JOB_MAX_EXPERIENCE_GAP_YEARS", 3.0, minimum=0.0
         )
+    )
+
+    # --- Worldwide-remote classification (see jobEngine/matching/worldwide_remote.py) ---
+    # Off = the pipeline and UI behave exactly as before this feature existed.
+    worldwide_remote_enabled: bool = field(
+        default_factory=lambda: _env_bool("JOB_WORLDWIDE_REMOTE_ENABLED", False)
+    )
+    # Second opinion from the existing OpenAI integration for jobs the rules leave
+    # at "needs verification"; only used when the flag above is on and the LLM is available.
+    worldwide_llm_review: bool = field(
+        default_factory=lambda: _env_bool("JOB_WORLDWIDE_LLM_REVIEW", True)
+    )
+    worldwide_llm_max_jobs: int = field(
+        default_factory=lambda: _env_int("JOB_WORLDWIDE_LLM_MAX_JOBS", 25, minimum=0)
     )
 
     # --- Operational modes ---
