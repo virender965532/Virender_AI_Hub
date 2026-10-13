@@ -1,7 +1,7 @@
 /**
  * Saved Jobs page: lists every job stored by past Remote Job Finder searches
  * (GET /api/saved-jobs) with client-side filter/sort, a per-job status, and a
- * full detail panel (LLM breakdown, strengths, concerns, skills, description).
+ * full detail panel (LLM score, strengths, honest concerns, skills, description).
  * All scraped text goes through textContent — never innerHTML.
  */
 (function () {
@@ -20,12 +20,6 @@
     poor_match: "Poor match",
     reject: "Rejected",
   };
-  var LLM_BARS = [
-    ["technical_match", "Technical"],
-    ["role_match", "Role"],
-    ["experience_match", "Experience"],
-    ["ai_match", "AI / GenAI"],
-  ];
 
   var statuses = [];
   try {
@@ -90,9 +84,27 @@
     return saved.status === "applied" ? 1 : 0;
   }
 
-  function score(job) {
-    var s = Number(job.match_score);
+  /**
+   * The reviewed score when the concern reviewer checked the job, else the LLM score
+   * (older saves also kept a blended match_score).
+   */
+  function score(saved) {
+    var llm = saved.llm_analysis;
+    var s = saved.review ? saved.review.score
+      : Number(llm && llm.score !== undefined && llm.score !== null ? llm.score : saved.match_score);
+    s = Number(s);
     return isNaN(s) ? 0 : s;
+  }
+
+  /** Same bands as jobEngine/matching/scorer.py recommendation_for_score. */
+  function recommendation(saved) {
+    if (!saved.llm_analysis) return saved.recommendation || "possible_match";
+    var s = score(saved);
+    if (s >= 85) return "strong_match";
+    if (s >= 70) return "good_match";
+    if (s >= 50) return "possible_match";
+    if (s >= 30) return "poor_match";
+    return "reject";
   }
 
   function searchBlob(saved) {
@@ -134,7 +146,7 @@
     var terms = f.q ? f.q.split(/\s+/) : [];
     var jobs = allJobs.filter(function (saved) {
       var job = saved.job || {};
-      if (f.recommendation && saved.recommendation !== f.recommendation) return false;
+      if (f.recommendation && recommendation(saved) !== f.recommendation) return false;
       if (f.status && (saved.status || "new") !== f.status) return false;
       if (f.source && job.source !== f.source) return false;
       if (score(saved) < f.minScore) return false;
@@ -211,28 +223,146 @@
     return row;
   }
 
-  function scoreBars(llm, overall) {
-    var grid = el("div", "sj-bars");
-    var rows = [["__overall", "Overall match", overall]];
-    if (llm && llm.score !== undefined && llm.score !== null) rows.push(["score", "LLM score", llm.score]);
-    LLM_BARS.forEach(function (b) {
-      if (llm && llm[b[0]] !== undefined && llm[b[0]] !== null) rows.push([b[0], b[1], llm[b[0]]]);
+  function scoreBar(value, labelText) {
+    value = Math.max(0, Math.min(100, Number(value) || 0));
+    var bar = el("div", "sj-bar");
+    var label = el("div", "sj-bar__label");
+    label.appendChild(el("span", null, labelText));
+    label.appendChild(el("strong", null, Math.round(value)));
+    var track = el("div", "sj-bar__track");
+    var fill = el("div", "sj-bar__fill");
+    fill.style.width = value + "%";
+    track.appendChild(fill);
+    bar.appendChild(label);
+    bar.appendChild(track);
+    return bar;
+  }
+
+  // --- concern review (jobEngine/matching/concern_reviewer.py) -----------------
+
+  var VERDICT_LABELS = { met: "Met", implied: "Implied", partial: "Partial", missing: "Missing" };
+  var TIER_LABELS = { core: "Core", required: "Required", preferred: "Preferred", nice_to_have: "Nice to have" };
+  var DECISION_LABELS = {
+    drop_implied: "Implied by",
+    drop_covered: "Shown in profile",
+  };
+
+  function keptItems(review) {
+    return (review.items || []).filter(function (i) { return i.decision === "keep" || i.decision === "downgrade"; });
+  }
+
+  function scoreBlock(saved) {
+    var review = saved.review;
+    var wrap = el("div");
+    wrap.appendChild(scoreBar(score(saved), review ? "Reviewed score" : "LLM score"));
+    if (review) {
+      var dropped = (review.items || []).length - keptItems(review).length;
+      var basis = review.score_basis === "requirements"
+        ? "computed from " + (review.requirements || []).length + " requirements"
+        : "kept the matcher's score (no requirements found)";
+      wrap.appendChild(el("p", "sj-review-note",
+        "Matcher scored " + Math.round(review.score_before) + "; the reviewer dismissed " + dropped +
+        " concern" + (dropped === 1 ? "" : "s") + " and the score was " + basis + "."));
+    }
+    return wrap;
+  }
+
+  /** Kept concerns with their severity; dismissed ones in a collapsed list with the reason. */
+  function concernsBlock(review) {
+    var wrap = el("div");
+    var kept = keptItems(review).filter(function (i) { return i.kind !== "missing_skill"; });
+    if (kept.length) {
+      var ul = el("ul", "sj-points");
+      kept.forEach(function (i) {
+        var li = el("li");
+        li.appendChild(el("span", "sj-sev sj-sev--" + i.severity, i.severity));
+        li.appendChild(document.createTextNode(" " + i.item));
+        if (i.kind === "added_concern") li.appendChild(el("span", "sj-review-tag", "added by reviewer"));
+        // Why code downgraded it, e.g. "GraphQL is listed in the profile".
+        if (i.decision === "downgrade" && i.adjusted) li.appendChild(el("div", "sj-review-note", "Downgraded: " + i.adjusted));
+        ul.appendChild(li);
+      });
+      wrap.appendChild(ul);
+    } else {
+      wrap.appendChild(el("p", "sj-review-note", "No concerns left after review."));
+    }
+    var dismissed = (review.items || []).filter(function (i) { return i.decision !== "keep" && i.decision !== "downgrade"; });
+    if (dismissed.length) {
+      var details = el("details", "sj-dismissed");
+      details.appendChild(el("summary", null, "Dismissed by reviewer (" + dismissed.length + ")"));
+      var list = el("ul", "sj-points");
+      dismissed.forEach(function (i) {
+        var li = el("li", null, i.item);
+        var why = i.decision === "drop_implied" && i.implied_by
+          ? DECISION_LABELS.drop_implied + " " + i.implied_by
+          : DECISION_LABELS[i.decision] || titleCase(i.decision);
+        if (i.reason) why += " — " + i.reason;
+        li.appendChild(el("div", "sj-review-note", why));
+        list.appendChild(li);
+      });
+      details.appendChild(list);
+      wrap.appendChild(details);
+    }
+    return wrap;
+  }
+
+  function requirementsBlock(review) {
+    var ul = el("ul", "sj-points sj-reqs");
+    (review.requirements || []).forEach(function (r) {
+      var li = el("li");
+      li.appendChild(el("span", "sj-verdict sj-verdict--" + r.verdict, VERDICT_LABELS[r.verdict] || r.verdict));
+      li.appendChild(document.createTextNode(" " + r.requirement + " "));
+      li.appendChild(el("span", "sj-review-tag", TIER_LABELS[r.tier] || r.tier));
+      if (r.verdict === "implied" && r.implied_by) li.appendChild(el("span", "sj-review-tag", "via " + r.implied_by));
+      ul.appendChild(li);
     });
-    rows.forEach(function (r) {
-      var value = Math.max(0, Math.min(100, Number(r[2]) || 0));
-      var bar = el("div", "sj-bar");
-      var label = el("div", "sj-bar__label");
-      label.appendChild(el("span", null, r[1]));
-      label.appendChild(el("strong", null, Math.round(value)));
-      var track = el("div", "sj-bar__track");
-      var fill = el("div", "sj-bar__fill");
-      fill.style.width = value + "%";
-      track.appendChild(fill);
-      bar.appendChild(label);
-      bar.appendChild(track);
-      grid.appendChild(bar);
+    return ul;
+  }
+
+  /** Collapsed-by-default job description with a copy-to-clipboard button. */
+  function descriptionBlock(text) {
+    var details = el("details", "sj-desc");
+    var summary = el("summary", "sj-desc__summary");
+    summary.appendChild(el("span", "sj-desc__label", "Description"));
+    var copy = el("button", "btn btn--ghost sj-desc__copy", "Copy description");
+    copy.type = "button";
+    copy.addEventListener("click", function (e) {
+      e.preventDefault(); // don't toggle the <details>
+      e.stopPropagation();
+      copyText(text).then(
+        function () { flash(copy, "Copied ✓"); },
+        function () { flash(copy, "Copy failed"); }
+      );
     });
-    return grid;
+    summary.appendChild(copy);
+    details.appendChild(summary);
+    details.appendChild(el("pre", "sj-description", text));
+    return details;
+  }
+
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+    // Fallback for plain-http hosts, where the Clipboard API is unavailable.
+    return new Promise(function (resolve, reject) {
+      var ta = el("textarea");
+      ta.value = text;
+      ta.setAttribute("readonly", "");
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      var ok = false;
+      try { ok = document.execCommand("copy"); } catch (err) { ok = false; }
+      ta.remove();
+      if (ok) resolve(); else reject(new Error("copy failed"));
+    });
+  }
+
+  function flash(button, message) {
+    var original = "Copy description";
+    button.textContent = message;
+    clearTimeout(button._flash);
+    button._flash = setTimeout(function () { button.textContent = original; }, 1600);
   }
 
   function detailsList(saved) {
@@ -270,14 +400,19 @@
 
     var explanation = saved.explanation || (llm && llm.explanation);
     if (explanation) body.appendChild(section("Why it matches", el("p", "sj-explanation", explanation)));
-    body.appendChild(section("Score breakdown", scoreBars(llm, score(saved))));
+    var review = saved.review || null;
+    if (llm) body.appendChild(section("Score", scoreBlock(saved)));
 
     var cols = el("div", "sj-cols");
     var strengths = saved.strengths || (llm && llm.strengths) || [];
     var concerns = saved.concerns || (llm && llm.concerns) || [];
     if (strengths.length) cols.appendChild(section("Strengths", pointList(strengths)));
-    if (concerns.length) cols.appendChild(section("Concerns", pointList(concerns)));
+    if (review) cols.appendChild(section("Honest concerns", concernsBlock(review)));
+    else if (concerns.length) cols.appendChild(section("Honest concerns", pointList(concerns)));
     if (cols.childNodes.length) body.appendChild(cols);
+    if (review && (review.requirements || []).length) {
+      body.appendChild(section("Requirements check", requirementsBlock(review)));
+    }
 
     var skills = el("div", "sj-cols");
     if ((saved.matched_skills || []).length) skills.appendChild(section("Matched skills", tagList(saved.matched_skills)));
@@ -288,7 +423,8 @@
     if (skills.childNodes.length) body.appendChild(skills);
 
     var reqs = el("div", "sj-cols");
-    if (llm && (llm.matched_requirements || []).length) {
+    // The reviewer's requirements check supersedes the matcher's list.
+    if (!(review && (review.requirements || []).length) && llm && (llm.matched_requirements || []).length) {
       reqs.appendChild(section("Requirements you meet", pointList(llm.matched_requirements)));
     }
     if ((job.requirements || []).length) reqs.appendChild(section("Requirements", pointList(job.requirements)));
@@ -296,7 +432,7 @@
     if (reqs.childNodes.length) body.appendChild(reqs);
 
     body.appendChild(section("Job details", detailsList(saved)));
-    if (job.description) body.appendChild(section("Description", el("pre", "sj-description", job.description)));
+    if (job.description) body.appendChild(descriptionBlock(job.description));
 
     var actions = el("div", "sj-actions");
     if (job.application_url) {
@@ -366,7 +502,7 @@
 
   function renderCard(saved) {
     var job = saved.job || {};
-    var rec = saved.recommendation || "possible_match";
+    var rec = recommendation(saved);
     var card = el("article", "sj-job glass" + (WW ? " " + WW.cardClass(job) : ""));
     card.dataset.open = "false";
 
@@ -377,7 +513,7 @@
 
     var badge = el("div", "sj-score sj-score--" + rec);
     badge.appendChild(document.createTextNode(Math.round(score(saved))));
-    badge.appendChild(el("small", null, "score"));
+    badge.appendChild(el("small", null, saved.review ? "reviewed" : "score"));
     badge.title = RECOMMENDATION_LABELS[rec] || titleCase(rec);
     head.appendChild(badge);
 

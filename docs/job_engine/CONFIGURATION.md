@@ -53,6 +53,12 @@ it — see `degrade_on_llm_failure`).
 | `JOB_WORLDWIDE_REMOTE_ENABLED` | `false` | Classify every job's eligibility from India (worldwide / India-eligible / needs verification / restricted / insufficient info) with quoted evidence, read LinkedIn's workplace + employment chips, and show badges, filters and an eligibility sort in the UI. Off = previous behaviour |
 | `JOB_WORLDWIDE_LLM_REVIEW` | `true` | With the flag above on and the LLM available, send shown "needs verification" jobs to the existing OpenAI model for a second opinion; its quotes must appear verbatim in the posting or the verdict is ignored |
 | `JOB_WORLDWIDE_LLM_MAX_JOBS` | `25` | Cap on those review calls per run (a saved review is reused while the description is unchanged) |
+| `JOB_REVIEWER_ENABLED` | `true` | Concern reviewer (`jobEngine/matching/concern_reviewer.py`): a second LLM pass over LLM-analyzed jobs that have concerns or missing skills. It classifies every requirement (core / required / preferred / nice-to-have × met / implied / partial / missing), drops concerns that are sub-topics of a skill the profile shows, and the score is then computed in code from those verdicts. "Implied" is only accepted when `config/implied_skills.yaml` supports it; evidence must be found in the profile / job text. A failed call keeps the matcher's result |
+| `JOB_REVIEWER_MODEL` | `gpt-4o-mini` | Model for the reviewer (always temperature 0) |
+| `JOB_REVIEWER_MIN_SCORE` | `50` | Only jobs whose matcher score is at least this are reviewed. Keep it below `JOB_MIN_MATCH_SCORE` / the search's min score, since the review can lift a job over that bar |
+| `JOB_REVIEWER_MAX_JOBS` | `30` | Cap on new reviews per run, highest matcher scores first. A stored review is reused (no call) until the job text, `Profile/Summary.txt`, the reviewer prompt or `config/implied_skills.yaml` changes |
+
+**Reviewed score** — weights core 3, required 2, preferred 1, nice-to-have 0.5; verdict met / implied = 1, partial = 0.5, missing = 0; score = 100 × weighted share. Then −5 per kept *moderate* experience/other concern, capped at 75 by any kept *blocking* experience/other concern and at 60 when a core requirement is missing (skill gaps count only through the requirement verdicts). Location / eligibility concerns are shown but never change the score. Constants live at the top of `concern_reviewer.py`.
 
 ## Request-level overrides (`POST /api/jobs/search` body)
 

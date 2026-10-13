@@ -2,30 +2,66 @@ Virender Kumar
 Full Stack AI Senior Developer
 Noida, Uttar Pradesh, India
 
-Phone: +91 7428355297
-Email: virender7428355297@gmail.com
+Phone: +91 9821592146
+Email: virenderfullstack@gmail.com
 LinkedIn: https://www.linkedin.com/in/ai-virender-kumar/
 
 PROFILE SUMMARY
-Full Stack Developer with 7 years of experience designing, building, and scaling cloud-native applications using Next.js, React.js, Node.js, TypeScript, AWS and GEN AI. Proven track record of delivering measurable impact, including 25% performance improvements, 40% faster deployment cycles, and enhanced code quality through AI-driven development practices. Experienced in building scalable, reliable, and user-focused solutions while collaborating effectively with clients and cross-functional teams. Strong focus on modern architecture, performance optimization, clean code, and continuous delivery.
+Full Stack Developer with 7 years of experience designing, building, and scaling cloud-native applications using 
+Next.js
+React.js
+Node.js
+TypeScript
+AWS 
+
+Proven track record of delivering measurable impact, including 25% performance improvements, 40% faster deployment cycles, and enhanced code quality through AI-driven development practices. 
+
+Experienced in building scalable, reliable, and user-focused solutions while collaborating effectively with clients and cross-functional teams. Strong focus on modern architecture, performance optimization, clean code, and continuous delivery.
 
 TECHNICAL SKILLS
 
 Front-End Development:
-Next.js, React.js, JavaScript, TypeScript, HTML, CSS
+Next.js
+React.js
+JavaScript
+TypeScript
+HTML
+CSS
 
 Back-End Development:
-Node.js, Strapi, GraphQL, REST APIs, Microservices, Express
+Node.js
+Strapi
+GraphQL
+REST APIs
+Microservices
+Express
 
 Cloud & Infrastructure:
-Vercel, AWS EC2 & ALB, AWS Lambda, AWS S3, AWS OpenSearch, AWS Cognito, AWS CloudWatch & CloudFront, AWS API Gateway, AWS IAM, AWS VPC, AWS Route53, CI/CD Pipelines, Docker, Git
+Vercel
+AWS EC2 & ALB
+AWS Lambda
+AWS S3
+AWS OpenSearch
+AWS Cognito
+AWS CloudWatch & CloudFront
+AWS API Gateway
+AWS IAM
+AWS VPC
+AWS Route53
+CI/CD Pipelines
+Docker
+Git
 
 Databases:
-PostgreSQL, DynamoDB, MySQL, Pinecone, Chroma, FAISS
+MongoDB
+PostgreSQL
+MySQL
 
 
 AI Tools:
-GitHub Copilot, Cursor, Claude Code
+GitHub Copilot
+Cursor
+Claude Code
 
 WORK EXPERIENCE
 

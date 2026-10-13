@@ -5,6 +5,10 @@ rule-only scoring — never silently dropped, just less deeply analyzed.
 Jobs already in the saved-jobs store with an LLM analysis reuse that stored
 analysis (no rule evaluation, no LLM call); only the minimum match score of
 the current request is re-applied to them.
+With JOB_REVIEWER_ENABLED, LLM-analyzed jobs scoring at least JOB_REVIEWER_MIN_SCORE
+that have concerns or missing skills get a concern review (matching/concern_reviewer.py)
+that drops irrelevant concerns and recomputes the score; a stored review is reused
+while the job text, profile and reviewer version are unchanged.
 With JOB_WORLDWIDE_REMOTE_ENABLED, shown jobs the rules left at "needs
 verification" get an LLM eligibility review (capped by JOB_WORLDWIDE_LLM_MAX_JOBS;
 a saved review is reused while the job's description is unchanged).
@@ -20,11 +24,25 @@ import logging
 from typing import Any
 
 from ...config.settings import get_settings
+from ...matching.concern_reviewer import (
+    ConcernReviewer,
+    apply_review,
+    needs_review,
+    profile_fingerprint,
+    review_is_current,
+)
 from ...matching.llm_matcher import LLMCallMetrics, LLMMatcher
 from ...matching.rules import evaluate_rules
 from ...matching.scorer import build_matched_job, is_below_minimum
 from ...matching.worldwide_llm import WorldwideReviewer
-from ...models.job import Job, MatchedJob, RuleEvaluation, WorldwideCategory, WorldwideClassification
+from ...models.job import (
+    Job,
+    JobMatchAnalysis,
+    MatchedJob,
+    RuleEvaluation,
+    WorldwideCategory,
+    WorldwideClassification,
+)
 from ...models.profile import CandidateProfile
 from ...persistence.saved_jobs import list_saved_jobs, saved_job_key
 
@@ -92,6 +110,58 @@ async def _review_worldwide(matched_jobs: list[dict[str, Any]], saved: list[dict
 
     await asyncio.gather(*(_review(j) for j in pending))
     return len(pending)
+
+
+async def _review_concerns(
+    matched_jobs: list[dict[str, Any]],
+    profile: CandidateProfile,
+    *,
+    settings,
+    metrics: LLMCallMetrics,
+    minimum_match_score,
+) -> tuple[int, int]:
+    """Concern review of gated jobs, in place; returns (reviewed now, stored review reused)."""
+    reviewer = ConcernReviewer(settings)
+    if not reviewer.available():
+        return 0, 0
+    profile_hash = profile_fingerprint(profile)
+    pending: list[int] = []
+    reused = 0
+    for idx, matched in enumerate(matched_jobs):
+        if not needs_review(matched, settings):
+            continue
+        if review_is_current(matched, profile_hash=profile_hash, version=reviewer.version):
+            reused += 1  # restored from the saved job together with its reviewed score
+            continue
+        pending.append(idx)
+    # Highest matcher scores first, so the per-run cap spends reviews where they matter most.
+    pending.sort(key=lambda i: float(matched_jobs[i]["llm_analysis"]["score"]), reverse=True)
+    pending = pending[: settings.reviewer_max_jobs]
+
+    if pending:
+        reviewer._structured_llm()  # build the client once; the worker threads share it
+    semaphore = asyncio.Semaphore(settings.llm_concurrency)
+
+    async def _review(idx: int) -> None:
+        matched = matched_jobs[idx]
+        async with semaphore:
+            call_metrics = LLMCallMetrics()
+            review = await asyncio.to_thread(
+                lambda: reviewer.review(
+                    job=Job.model_validate(matched["job"]),
+                    analysis=JobMatchAnalysis.model_validate(matched["llm_analysis"]),
+                    profile=profile,
+                    metrics=call_metrics,
+                )
+            )
+        metrics.merge(call_metrics)
+        if review is not None:
+            matched_jobs[idx] = apply_review(
+                matched, review, settings=settings, minimum_match_score=minimum_match_score
+            )
+
+    await asyncio.gather(*(_review(i) for i in pending))
+    return len(pending), reused
 
 
 def _reuse_saved(job_dict: dict[str, Any], saved: dict[str, Any], *, settings, minimum_match_score) -> dict[str, Any] | None:
@@ -196,11 +266,19 @@ async def matching_node(state: dict[str, Any]) -> dict[str, Any]:
         )
         matched_jobs.append(matched.model_dump(mode="json"))
 
+    # Before the worldwide review: it only looks at shown jobs, and the concern
+    # review can lift a job over the minimum score (or drop it below).
+    concern_reviews, concern_reviews_reused = await _review_concerns(
+        matched_jobs, profile, settings=settings, metrics=llm_metrics, minimum_match_score=minimum_match_score
+    )
+
     worldwide_reviews = 0
     if settings.worldwide_remote_enabled:
         worldwide_reviews = await _review_worldwide(matched_jobs, saved_jobs, settings=settings, metrics=llm_metrics)
 
     metrics = dict(state.get("metrics") or {})
+    metrics["concern_reviews"] = concern_reviews
+    metrics["concern_reviews_reused"] = concern_reviews_reused
     metrics["worldwide_llm_reviews"] = worldwide_reviews
     metrics["jobs_rejected_by_rules"] = metrics.get("jobs_rejected_by_rules", 0) + rejected_by_rules
     metrics["jobs_reused_from_saved"] = len(reused)

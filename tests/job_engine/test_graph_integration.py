@@ -240,7 +240,7 @@ async def test_saved_jobs_reuse_stored_analysis_without_rescoring(monkeypatch):
         recommendation="strong_match",
         explanation="stored analysis",
         llm_analysis={
-            "score": 88, "role_match": 90, "technical_match": 85, "ai_match": 80, "experience_match": 90,
+            "score": 88,
             "recommendation": "strong_match", "explanation": "stored analysis",
         },
     )

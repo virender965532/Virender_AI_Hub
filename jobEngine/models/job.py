@@ -208,11 +208,18 @@ class JobMatchAnalysis(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    score: float = Field(ge=0, le=100)
-    role_match: float = Field(ge=0, le=100)
-    technical_match: float = Field(ge=0, le=100)
-    ai_match: float = Field(ge=0, le=100)
-    experience_match: float = Field(ge=0, le=100)
+    # The job's match score, used as-is (no sub-scores / weighted blend). Older
+    # saved analyses that still carry role/technical/ai/experience sub-scores no
+    # longer validate, so those jobs are re-analyzed the next time they are seen.
+    score: float = Field(
+        ge=0,
+        le=100,
+        description=(
+            "Overall, evidence-grounded fit of the candidate for this job (0-100), judged the way a "
+            "meticulous resume reviewer would: required skills demonstrated, seniority/experience "
+            "range, role focus and location. Conservative — unsupported claims lower the score."
+        ),
+    )
 
     matched_skills: list[str] = Field(
         default_factory=list,
@@ -235,7 +242,14 @@ class JobMatchAnalysis(BaseModel):
     matched_requirements: list[str] = Field(default_factory=list)
 
     strengths: list[str] = Field(default_factory=list)
-    concerns: list[str] = Field(default_factory=list)
+    concerns: list[str] = Field(
+        default_factory=list,
+        description=(
+            "Honest concerns about fit grounded only in the given evidence, each a full sentence stating "
+            "the fact behind it — e.g. seniority gap (under- or over-qualified against the job's stated "
+            "experience range), location/eligibility mismatch, required skills not demonstrated."
+        ),
+    )
 
     recommendation: Recommendation
     explanation: str = Field(max_length=2000)
@@ -255,6 +269,68 @@ class RuleEvaluation(BaseModel):
     role_related: bool = True
 
 
+ReviewTier = Literal["core", "required", "preferred", "nice_to_have"]
+ReviewVerdict = Literal["met", "implied", "partial", "missing"]
+ReviewDecision = Literal["keep", "downgrade", "drop_implied", "drop_covered"]
+ConcernSeverity = Literal["blocking", "moderate", "minor"]
+ConcernCategory = Literal["skill", "experience", "location", "other"]
+
+
+class ReviewedRequirement(BaseModel):
+    """One requirement line of the job, judged against the profile (``matching/concern_reviewer.py``)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    requirement: str = Field(max_length=500)
+    tier: ReviewTier
+    verdict: ReviewVerdict
+    # Profile skill that implies this requirement (verdict "implied").
+    implied_by: str = ""
+    # Text copied from the candidate profile (verdict "met").
+    evidence: str = ""
+    # Set when code overrode the LLM's verdict, e.g. "implied-skills map" / "evidence not in profile".
+    adjusted: str = ""
+
+
+class ReviewedItem(BaseModel):
+    """The reviewer's decision on one of the matcher's concerns or missing skills,
+    or a concern the reviewer added (``added_concern``, backed by a job-text quote)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    item: str = Field(max_length=600)
+    kind: Literal["concern", "missing_skill", "added_concern"]
+    decision: ReviewDecision
+    severity: ConcernSeverity
+    category: ConcernCategory
+    reason: str = Field(default="", max_length=400)
+    implied_by: str = ""
+    evidence: str = ""
+    adjusted: str = ""
+
+    @property
+    def kept(self) -> bool:
+        return self.decision in ("keep", "downgrade")
+
+
+class JobReview(BaseModel):
+    """Stored result of the concern reviewer; reused while all three fingerprints match."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    requirements: list[ReviewedRequirement] = Field(default_factory=list)
+    items: list[ReviewedItem] = Field(default_factory=list)
+    # Matcher (LLM) score before the review, and the score computed in code after it.
+    score_before: float = Field(ge=0, le=100)
+    score: float = Field(ge=0, le=100)
+    score_basis: Literal["requirements", "matcher"] = "requirements"
+    raw_text_hash: str
+    profile_hash: str
+    reviewer_version: str
+    model: str = ""
+    reviewed_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+
 class MatchedJob(BaseModel):
     """Final, ranked, explainable job record — what the API returns."""
 
@@ -265,6 +341,8 @@ class MatchedJob(BaseModel):
     recommendation: Recommendation
     rule_evaluation: RuleEvaluation
     llm_analysis: JobMatchAnalysis | None = None
+    # Set when the concern reviewer checked this job's concerns (JOB_REVIEWER_ENABLED).
+    review: JobReview | None = None
     matched_skills: list[str] = Field(default_factory=list)
     missing_required_skills: list[str] = Field(default_factory=list)
     strengths: list[str] = Field(default_factory=list)

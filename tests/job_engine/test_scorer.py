@@ -57,7 +57,7 @@ def test_llm_analysis_drives_score_when_available(candidate_profile, settings):
     job = _job()
     rule_eval = evaluate_rules(job, candidate_profile, settings=settings)
     llm_analysis = JobMatchAnalysis(
-        score=95, role_match=95, technical_match=95, ai_match=98, experience_match=95,
+        score=95,
         matched_skills=["Python", "LangGraph", "RAG"],
         recommendation="strong_match",
         explanation="Excellent alignment with the candidate's AI/full-stack background.",
@@ -67,7 +67,7 @@ def test_llm_analysis_drives_score_when_available(candidate_profile, settings):
         llm_analysis=llm_analysis, settings=settings,
     )
     assert not matched.rejected
-    assert matched.match_score >= 85
+    assert matched.match_score == 95.0  # the LLM score is used as-is, no weighted blend
     assert matched.recommendation == "strong_match"
 
 
@@ -75,7 +75,7 @@ def test_request_level_minimum_score_overrides_settings_default(candidate_profil
     job = _job()
     rule_eval = evaluate_rules(job, candidate_profile, settings=settings)
     llm_analysis = JobMatchAnalysis(
-        score=60, role_match=60, technical_match=60, ai_match=60, experience_match=60,
+        score=60,
         recommendation="possible_match", explanation="Partial match.",
     )
     # With the engine default (70), this scores just under it and would be rejected...

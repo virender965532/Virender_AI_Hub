@@ -85,7 +85,7 @@ def test_output_guardrail_flags_unsupported_skill_claim(candidate_profile):
         recommendation="good_match",
         rule_evaluation=RuleEvaluation(passed=True, rule_score=80),
         llm_analysis=JobMatchAnalysis(
-            score=80, role_match=80, technical_match=80, ai_match=80, experience_match=80,
+            score=80,
             matched_skills=["Kubernetes", "React"],  # Kubernetes is NOT in the candidate profile
             recommendation="good_match",
             explanation="Good fit.",
@@ -104,7 +104,7 @@ def test_output_guardrail_passes_clean_job(candidate_profile):
         recommendation="strong_match",
         rule_evaluation=RuleEvaluation(passed=True, rule_score=90),
         llm_analysis=JobMatchAnalysis(
-            score=90, role_match=90, technical_match=90, ai_match=90, experience_match=90,
+            score=90,
             matched_skills=["React", "Node"],
             recommendation="strong_match",
             explanation="Strong overlap with candidate's React/Node experience.",
