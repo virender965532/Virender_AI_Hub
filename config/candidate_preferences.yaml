@@ -1,0 +1,24 @@
+# What the candidate wants from a job — used by the rejection analysis on the
+# Applied Jobs page (jobEngine/matching/rejection_analyzer.py) to judge the
+# timezone, compensation, job-type, remote-type and work-authorization
+# dimensions. The resume (Profile/Summary.txt) does not say these things.
+#
+# Leave a value empty when you have no preference; the analysis then says
+# "Not stated in the profile" for that dimension instead of guessing.
+
+# IANA timezone the candidate works from.
+timezone: Asia/Kolkata
+# Overlap the candidate is willing to give another timezone, e.g. "4 hours with US Eastern".
+working_hours_overlap: ""
+# e.g. remote, hybrid, onsite
+remote_preference: remote
+# e.g. [full-time, contract]
+job_types: []
+# Free text, e.g. "USD 60k+/year" or "INR 40 LPA"
+expected_compensation: ""
+# Countries the candidate is authorized to work in without sponsorship.
+work_authorization: [India]
+# Willing to relocate? Free text, e.g. "no" or "yes, within India".
+relocation: ""
+# Languages the candidate works in professionally.
+languages: [English, Hindi]

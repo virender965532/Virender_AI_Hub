@@ -17,7 +17,10 @@ from ..config.settings import get_settings
 from ..config.sources import enabled_sources, load_job_sources
 from ..graph.builder import build_graph
 from ..graph.state import initial_state
+from ..matching.concern_reviewer import profile_fingerprint
+from ..models.profile import CandidateProfile
 from ..observability.logging import log_event, new_run_id
+from ..persistence.rejected_jobs import save_rejected_jobs
 from ..persistence.repository import save_run
 from ..persistence.saved_jobs import save_jobs_from_run
 
@@ -92,6 +95,14 @@ async def run_job_search(request: dict[str, Any], *, run_id: str | None = None) 
             save_jobs_from_run(result)
         except Exception:  # noqa: BLE001
             logger.exception("Failed to update saved jobs store for run %s", run_id)
+        try:
+            # The result only carries recommended jobs; the rejected ones are in the graph state.
+            profile = CandidateProfile.model_validate(final_state.get("candidate_profile") or {})
+            save_rejected_jobs(
+                final_state.get("matched_jobs") or [], run_id=run_id, profile_hash=profile_fingerprint(profile)
+            )
+        except Exception:  # noqa: BLE001
+            logger.exception("Failed to update rejected jobs store for run %s", run_id)
 
     return result
 

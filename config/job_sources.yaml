@@ -16,6 +16,8 @@
 #   title_keywords    — optional; jobs whose title has none of these words are dropped
 #                       before their details are opened (case-insensitive, whole words;
 #                       "full-stack" also matches "Full Stack"/"Fullstack"). Empty = keep all.
+#   title_exclude_keywords — optional; jobs whose title has any of these words are dropped
+#                       the same way (same matching; "java" never matches "JavaScript").
 #   max_jobs/max_pages — hard caps enforced by guardrails, independent of what the site offers
 
 job_sources:
@@ -24,11 +26,9 @@ job_sources:
     enabled: true
     base_url: "https://www.linkedin.com"
     search_urls:
-      # - "https://www.linkedin.com/jobs/search/?currentJobId=4468759788&f_E=3%2C4&f_TPR=r3600&geoId=102713980&keywords=&origin=JOB_SEARCH_PAGE_SEARCH_BUTTON&refresh=true&sortBy=DD&spellCorrectionEnabled=true"
-      # - "https://www.linkedin.com/jobs/search/?currentJobId=4474817472&f_TPR=r3600&geoId=106204383&origin=JOB_SEARCH_PAGE_JOB_FILTER&refresh=true&sortBy=R&spellCorrectionEnabled=true"
-      # - "https://www.linkedin.com/jobs/search/?currentJobId=4477415056&f_JT=P%2CC&f_TPR=r3600&f_WT=2&geoId=92000000&origin=JOB_SEARCH_PAGE_JOB_FILTER&refresh=true&sortBy=R&spellCorrectionEnabled=true"
-      # - "https://www.linkedin.com/jobs/search/?currentJobId=4474819799&f_E=3%2C4&f_TPR=r3600&f_WT=2&geoId=92000000&origin=JOB_SEARCH_PAGE_JOB_FILTER&refresh=true"
-      - "https://www.linkedin.com/jobs/search/?currentJobId=4478560507&f_TPR=r600&f_WT=2&geoId=92000000&keywords=full%20stack&origin=JOB_SEARCH_PAGE_SEARCH_BUTTON&refresh=true&sortBy=DD"
+      - "https://www.linkedin.com/jobs/search/?currentJobId=4478760439&f_TPR=r7200&f_WT=2&geoId=92000000&keywords=full%20stack&origin=JOB_SEARCH_PAGE_SEARCH_BUTTON&refresh=true&sortBy=DD"
+      - "https://www.linkedin.com/jobs/search/?currentJobId=4479266384&f_TPR=r7200&geoId=106204383&keywords=full%20stack&origin=JOB_SEARCH_PAGE_SEARCH_BUTTON&refresh=true&sortBy=DD"
+      # - "https://www.linkedin.com/jobs/search/?currentJobId=4465971248&f_TPR=r7200&geoId=102713980&keywords=full%20stack&origin=JOB_SEARCH_PAGE_SEARCH_BUTTON&refresh=true&sortBy=DD"
     adapter: linkedin
     signin_url: "https://www.linkedin.com/login/?trk=guest_homepage-basic_nav-header-signin"
     allowed_domains: ["linkedin.com", "licdn.com"]
@@ -52,6 +52,10 @@ job_sources:
       database, mongodb, postgresql, mysql, redis, sql, nosql,
       langchain, langgraph, mcp, embeddings, vector, vectordb, openai, transformers,
     ]
+    # Dropped before their details are opened, so never sent to the LLM.
+    title_exclude_keywords: [
+      java, python, intern, internship, c#, .net, dotnet, asp.net, go, golang, manager,
+    ]
     notes: >
       Reuses the saved Playwright session (cookies) from the MongoDB browser_sessions
       collection. If it is missing or expired, signs in at signin_url with
@@ -73,6 +77,10 @@ job_sources:
     max_jobs: 100
     max_pages: 5
     rate_limit_delay_seconds: 1.0
+    # Dropped before their details are opened, so never sent to the LLM.
+    title_exclude_keywords: [
+      java, intern, internship, c#, .net, dotnet, asp.net, go, golang, manager,
+    ]
     notes: >
       Public vacancies listing, no login required. Selectors are best-effort and may need
       verification/updates if Instinctools changes their markup (see

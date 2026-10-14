@@ -12,7 +12,7 @@ from ...config.settings import get_settings
 from ...guardrails.content_limits import enforce_description_size
 from ...models.job import RawJob
 from ..registry import register_adapter
-from ..title_filter import title_matches_keywords
+from ..title_filter import title_passes
 from .base import _PAGE_SIZE, _POSTED_TEXT_RE, LinkedInBaseAdapter, note_relisted, parse_job_insights
 
 # Logged-in search page (left results list) first, guest page second.
@@ -110,7 +110,7 @@ class LinkedInSearchAdapter(LinkedInBaseAdapter):
                     seen_ids.discard(job_id)  # card not rendered: another listing may still read it
                 continue
             title = title.split("\n")[0].strip()
-            if not title_matches_keywords(title, cfg.title_keywords):
+            if not title_passes(title, cfg.title_keywords, cfg.title_exclude_keywords):
                 filtered += 1
                 continue
             company = await self._first_text(card, _COMPANY_SELECTORS)

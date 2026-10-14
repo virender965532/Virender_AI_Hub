@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Applied Jobs — Virender AI Hub{% endblock %}
+
+{% block extra_head %}
+{% if worldwide_enabled %}<link rel="stylesheet" href="{{ url_for('static', filename='css/worldwide_remote.css') }}" />{% endif %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/saved_jobs.css') }}" />
+{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <p class="hero__eyebrow neon-text">Applied Jobs</p>
+  <h1 class="hero__title">Every job you applied to, <span class="hero__accent">kept for good</span></h1>
+  <p class="hero__subtitle">
+    A job lands here when you open its posting or set its status to Applied on
+    <a href="{{ url_for('remote_job_finder.saved_jobs_ui') }}">Saved Jobs</a>, with the full match analysis and description.
+    Unlike saved jobs, applied jobs are never removed automatically.
+    Mark a job <strong>Rejected</strong> to get an honest analysis of why — it is saved with the job and only re-run when you click Re-evaluate.
+    Back to the <a href="{{ url_for('remote_job_finder.remote_job_finder_ui') }}">Global Remote Job Finder</a>.
+  </p>
+</section>
+
+<div id="sj-app" class="job-app" data-mode="applied">
+  <div class="sj-toolbar glass">
+    <div class="sj-field sj-field--grow">
+      <label class="job-control-label" for="sj-search">Search</label>
+      <input type="search" id="sj-search" class="job-filter-input" placeholder="Title, company, skill, description…" autocomplete="off" />
+    </div>
+    <div class="sj-field">
+      <label class="job-control-label" for="sj-recommendation">Match</label>
+      <select id="sj-recommendation" class="job-filter-input">
+        <option value="">All matches</option>
+        <option value="strong_match">Strong match</option>
+        <option value="good_match">Good match</option>
+        <option value="possible_match">Possible match</option>
+        <option value="poor_match">Poor match</option>
+      </select>
+    </div>
+    {% if worldwide_enabled %}
+    <div class="sj-field">
+      <label class="job-control-label" for="sj-worldwide">Eligibility from India</label>
+      <select id="sj-worldwide" class="job-filter-input"></select>
+    </div>
+    {% endif %}
+    <div class="sj-field">
+      <label class="job-control-label" for="sj-outcome">Outcome</label>
+      <select id="sj-outcome" class="job-filter-input">
+        <option value="">All outcomes</option>
+        <option value="rejected">Rejected</option>
+        <option value="open">Not rejected</option>
+      </select>
+    </div>
+    <div class="sj-field">
+      <label class="job-control-label" for="sj-evaluated">Rejection analysis</label>
+      <select id="sj-evaluated" class="job-filter-input">
+        <option value="">All jobs</option>
+        <option value="evaluated">Evaluated only</option>
+        <option value="not_evaluated">Not evaluated</option>
+      </select>
+    </div>
+    <div class="sj-field">
+      <label class="job-control-label" for="sj-source">Source</label>
+      <select id="sj-source" class="job-filter-input">
+        <option value="">All sources</option>
+      </select>
+    </div>
+    <div class="sj-field">
+      <label class="job-control-label" for="sj-min-score">Min score</label>
+      <input type="number" id="sj-min-score" class="job-filter-input sj-num" min="0" max="100" step="1" value="0" />
+    </div>
+    <div class="sj-field">
+      <label class="job-control-label" for="sj-sort">Sort by</label>
+      <select id="sj-sort" class="job-filter-input">
+        <option value="applied" selected>Applied date</option>
+        <option value="rejected">Rejected date</option>
+        <option value="score">Match score</option>
+        <option value="posted">Posted date</option>
+        {% if worldwide_enabled %}<option value="eligibility">Worldwide / India-eligible first</option>{% endif %}
+      </select>
+    </div>
+  </div>
+
+  <div id="sj-error" class="alert alert--error glass hidden" role="alert"></div>
+  <div id="sj-stats" class="sj-stats glass hidden" aria-live="polite"></div>
+  <div id="sj-list" class="sj-list"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if worldwide_enabled %}<script src="{{ url_for('static', filename='js/worldwide_remote.js') }}"></script>{% endif %}
+<script src="{{ url_for('static', filename='js/saved_jobs.js') }}"></script>
+{% endblock %}

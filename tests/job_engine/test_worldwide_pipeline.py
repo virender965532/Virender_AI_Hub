@@ -91,7 +91,7 @@ def _card(job_id, title="Senior Node.js Engineer"):
 
 def test_duplicate_job_ids_from_different_search_urls_are_scraped_once():
     adapter = LinkedInSearchResultsAdapter()
-    cfg = SimpleNamespace(id="linkedin", title_keywords=[], base_url="https://www.linkedin.com")
+    cfg = SimpleNamespace(id="linkedin", title_keywords=[], title_exclude_keywords=[], base_url="https://www.linkedin.com")
     known = {i: _DESCRIPTION for i in ("111", "222", "333")}  # already saved: the detail pane is not opened
     seen = SeenJobIds()
     jobs = []

@@ -32,11 +32,25 @@ def _compile(keywords: tuple[str, ...]) -> re.Pattern[str] | None:
     return re.compile(rf"(?<![a-z0-9])(?:{body})(?![a-z0-9])")
 
 
-def title_matches_keywords(title: str | None, keywords: list[str] | tuple[str, ...]) -> bool:
-    """True when ``title`` contains at least one keyword, or no keywords are configured."""
+def title_has_keyword(title: str | None, keywords: list[str] | tuple[str, ...]) -> bool:
+    """True when ``title`` contains at least one keyword (never when none are configured)."""
     pattern = _compile(tuple(keywords))
     if pattern is None:
-        return True
+        return False
     lowered = (title or "").lower()
     variants = (lowered, _SEPARATORS_RE.sub(" ", lowered), _SEPARATORS_RE.sub("", lowered))
     return any(pattern.search(v) for v in variants)
+
+
+def title_matches_keywords(title: str | None, keywords: list[str] | tuple[str, ...]) -> bool:
+    """True when ``title`` contains at least one keyword, or no keywords are configured."""
+    return _compile(tuple(keywords)) is None or title_has_keyword(title, keywords)
+
+
+def title_passes(
+    title: str | None,
+    keywords: list[str] | tuple[str, ...],
+    exclude_keywords: list[str] | tuple[str, ...] = (),
+) -> bool:
+    """``title_keywords`` allow-list passed and no ``title_exclude_keywords`` word in it."""
+    return title_matches_keywords(title, keywords) and not title_has_keyword(title, exclude_keywords)

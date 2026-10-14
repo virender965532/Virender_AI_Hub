@@ -219,7 +219,8 @@ class LinkedInBaseAdapter(JobSourceAdapter):
         known: dict[str, str] | None = None,
     ) -> tuple[list[RawJob], int]:
         """Returns the page's jobs and how many cards were dropped by
-        ``cfg.title_keywords`` (they still count toward "this page had results").
+        ``cfg.title_keywords`` / ``cfg.title_exclude_keywords`` (they still count toward
+        "this page had results").
 
         ``known``: descriptions of already-saved jobs by id — those jobs are not
         opened again (no click, no wait for the detail pane)."""

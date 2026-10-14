@@ -3,6 +3,12 @@
  * (GET /api/saved-jobs) with client-side filter/sort, a per-job status, and a
  * full detail panel (LLM score, strengths, honest concerns, skills, description).
  * All scraped text goes through textContent — never innerHTML.
+ *
+ * The Applied Jobs page reuses this script with ``data-mode="applied"`` on
+ * #sj-app: it reads /api/applied-jobs, has no status dropdown, and "remove"
+ * only drops the job from the applied list. There each job can be marked
+ * rejected; that (or Re-evaluate) runs the stored LLM rejection analysis,
+ * which is then shown from the saved job without another call.
  */
 (function () {
   "use strict";
@@ -21,9 +27,25 @@
     reject: "Rejected",
   };
 
+  var APPLIED_MODE = document.getElementById("sj-app").dataset.mode === "applied";
+  var MODE = APPLIED_MODE
+    ? {
+        api: "/api/applied-jobs",
+        noun: "applied jobs",
+        removeLabel: "Remove from applied",
+        removeAllLabel: "Remove all applied jobs",
+      }
+    : {
+        api: "/api/saved-jobs",
+        noun: "saved jobs",
+        removeLabel: "Remove from saved",
+        removeAllLabel: "Remove all jobs",
+      };
+
   var statuses = [];
+  var statusesNode = document.getElementById("sj-statuses");
   try {
-    statuses = JSON.parse(document.getElementById("sj-statuses").textContent || "[]");
+    statuses = statusesNode ? JSON.parse(statusesNode.textContent || "[]") : [];
   } catch (e) {
     statuses = Object.keys(STATUS_LABELS);
   }
@@ -36,6 +58,8 @@
     minScore: document.getElementById("sj-min-score"),
     sort: document.getElementById("sj-sort"),
     worldwide: document.getElementById("sj-worldwide"),
+    outcome: document.getElementById("sj-outcome"),
+    evaluated: document.getElementById("sj-evaluated"),
     error: document.getElementById("sj-error"),
     stats: document.getElementById("sj-stats"),
     list: document.getElementById("sj-list"),
@@ -82,6 +106,10 @@
 
   function isApplied(saved) {
     return saved.status === "applied" ? 1 : 0;
+  }
+
+  function isRejected(saved) {
+    return saved.outcome === "rejected";
   }
 
   /**
@@ -133,11 +161,13 @@
     return {
       q: els.search.value.trim().toLowerCase(),
       recommendation: els.recommendation.value,
-      status: els.status.value,
+      status: els.status ? els.status.value : "",
       source: els.source.value,
       minScore: Number(els.minScore.value) || 0,
       sort: els.sort.value,
       worldwide: els.worldwide ? els.worldwide.value : "",
+      outcome: els.outcome ? els.outcome.value : "",
+      evaluated: els.evaluated ? els.evaluated.value : "",
     };
   }
 
@@ -151,6 +181,8 @@
       if (f.source && job.source !== f.source) return false;
       if (score(saved) < f.minScore) return false;
       if (WW && f.worldwide && !WW.matches(job, f.worldwide)) return false;
+      if (f.outcome && (f.outcome === "rejected") !== isRejected(saved)) return false;
+      if (f.evaluated && (f.evaluated === "evaluated") !== !!saved.rejection_analysis) return false;
       if (terms.length) {
         var blob = searchBlob(saved);
         for (var i = 0; i < terms.length; i++) if (blob.indexOf(terms[i]) === -1) return false;
@@ -162,10 +194,12 @@
       last_seen: function (s) { return s.last_seen_at || ""; },
       first_seen: function (s) { return s.first_seen_at || ""; },
       posted: function (s) { return (s.job || {}).posted_date || ""; },
+      applied: function (s) { return s.applied_at || ""; },
+      rejected: function (s) { return s.rejected_at || ""; },
     }[f.sort];
     jobs.sort(function (a, b) {
       // Applied jobs sink to the bottom so the list leads with jobs still to look at.
-      var applied = isApplied(a) - isApplied(b);
+      var applied = APPLIED_MODE ? 0 : isApplied(a) - isApplied(b);
       if (applied) return applied;
       if (WW && f.sort === "eligibility") {
         return WW.rank(a.job) - WW.rank(b.job) || score(b) - score(a);
@@ -195,8 +229,12 @@
     statuses.forEach(function (st) {
       if (counts[st]) stat(STATUS_LABELS[st] || titleCase(st), counts[st]);
     });
+    if (APPLIED_MODE) {
+      stat("Rejected", allJobs.filter(isRejected).length);
+      stat("Evaluated", allJobs.filter(function (s) { return !!s.rejection_analysis; }).length);
+    }
     if (allJobs.length) {
-      var clearBtn = el("button", "btn btn--ghost sj-clear", "Remove all jobs");
+      var clearBtn = el("button", "btn btn--ghost sj-clear", MODE.removeAllLabel);
       clearBtn.type = "button";
       clearBtn.addEventListener("click", function () { removeAll(clearBtn); });
       els.stats.appendChild(clearBtn);
@@ -380,6 +418,7 @@
       ["Posted", fmtDate(job.posted_date)],
       ["Source", job.source && titleCase(job.source)],
       ["Source job ID", job.source_job_id],
+      ["Applied", fmtDate(saved.applied_at)],
       ["First saved", fmtDate(saved.first_seen_at)],
       ["Last seen", fmtDate(saved.last_seen_at)],
       ["Seen in runs", (saved.run_ids || []).length || null],
@@ -391,10 +430,142 @@
     return dl;
   }
 
+  // --- rejection analysis (jobEngine/matching/rejection_analyzer.py) -------------
+
+  var FINAL_VERDICT_LABELS = {
+    strong_fit_rejected_anyway: "Strong fit — rejected anyway",
+    partial_fit: "Partial fit",
+    weak_fit: "Weak fit",
+    not_eligible: "Not eligible",
+  };
+  var DIM_VERDICT_LABELS = { match: "Match", partial: "Partial", mismatch: "Mismatch", unknown: "Unknown" };
+  var REAPPLY_LABELS = { yes: "Yes", maybe: "Maybe", no: "No" };
+
+  function chip(className, text) {
+    return el("span", "rj-chip " + className, text);
+  }
+
+  function dimensionsTable(dims) {
+    var wrap = el("div", "rj-table-wrap");
+    var table = el("table", "rj-table");
+    var head = el("tr");
+    ["Dimension", "Verdict", "Impact", "The job asks", "You have", "Why"].forEach(function (h) {
+      head.appendChild(el("th", null, h));
+    });
+    var thead = el("thead");
+    thead.appendChild(head);
+    table.appendChild(thead);
+    var tbody = el("tbody");
+    (dims || []).forEach(function (d) {
+      var tr = el("tr", "rj-row rj-row--" + d.verdict);
+      tr.appendChild(el("th", null, titleCase(d.dimension)));
+      var v = el("td");
+      v.appendChild(chip("rj-verdict--" + d.verdict, DIM_VERDICT_LABELS[d.verdict] || d.verdict));
+      tr.appendChild(v);
+      var imp = el("td");
+      imp.appendChild(chip("rj-impact--" + d.impact, titleCase(d.impact)));
+      tr.appendChild(imp);
+      tr.appendChild(el("td", null, d.job_requirement));
+      tr.appendChild(el("td", null, d.candidate_fact));
+      tr.appendChild(el("td", null, d.explanation));
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    wrap.appendChild(table);
+    return wrap;
+  }
+
+  function rejectionBlock(saved) {
+    var a = saved.rejection_analysis;
+    var wrap = el("div", "rj-analysis");
+    var banner = el("div", "rj-banner rj-banner--" + a.final_verdict);
+    var title = el("div", "rj-banner__title");
+    title.appendChild(el("strong", null, FINAL_VERDICT_LABELS[a.final_verdict] || titleCase(a.final_verdict)));
+    title.appendChild(chip("rj-chip--neutral", "Fit " + a.fit_score + "/100"));
+    title.appendChild(chip("rj-chip--neutral", titleCase(a.confidence) + " confidence"));
+    banner.appendChild(title);
+    banner.appendChild(el("p", "rj-banner__summary", a.verdict_summary));
+    wrap.appendChild(banner);
+
+    if (a.honest_opinion) wrap.appendChild(section("Honest opinion", el("p", "sj-explanation", a.honest_opinion)));
+
+    if ((a.primary_reasons || []).length) {
+      var ol = el("ol", "sj-points rj-reasons");
+      a.primary_reasons.forEach(function (r) {
+        var li = el("li");
+        li.appendChild(chip("rj-impact--" + r.impact, titleCase(r.impact)));
+        li.appendChild(el("span", "sj-review-tag", titleCase(r.dimension)));
+        li.appendChild(document.createTextNode(" " + r.reason));
+        ol.appendChild(li);
+      });
+      wrap.appendChild(section("Most likely reasons", ol));
+    }
+
+    wrap.appendChild(section("Dimension by dimension", dimensionsTable(a.dimensions)));
+
+    var skills = el("div", "sj-cols");
+    if ((a.matched_skills || []).length) skills.appendChild(section("Skills you matched", tagList(a.matched_skills)));
+    if ((a.missing_skills || []).length) skills.appendChild(section("Skills you were missing", tagList(a.missing_skills, "missing")));
+    if (skills.childNodes.length) wrap.appendChild(skills);
+
+    var cols = el("div", "sj-cols");
+    if ((a.red_flags || []).length) cols.appendChild(section("Red flags in the posting", pointList(a.red_flags)));
+    if ((a.improvement_actions || []).length) cols.appendChild(section("What to do next time", pointList(a.improvement_actions)));
+    if (cols.childNodes.length) wrap.appendChild(cols);
+
+    var reapply = el("div");
+    reapply.appendChild(chip("rj-reapply--" + a.reapply_similar_roles, REAPPLY_LABELS[a.reapply_similar_roles] || a.reapply_similar_roles));
+    reapply.appendChild(document.createTextNode(" " + (a.reapply_advice || "")));
+    wrap.appendChild(section("Apply to similar roles?", reapply));
+
+    var meta = [
+      "Evaluated " + (fmtDate(a.evaluated_at) || "—"),
+      a.model,
+      a.tokens ? a.tokens + " tokens" : null,
+    ].filter(Boolean).join(" · ");
+    wrap.appendChild(el("p", "sj-review-note", meta));
+    return wrap;
+  }
+
+  /** The rejection section of an applied job: analysis (when stored) + its buttons. */
+  function rejectionSection(saved, card) {
+    var wrap = el("div", "sj-section rj-section");
+    wrap.appendChild(el("h3", null, "Why was I rejected?"));
+    if (saved.rejection_analysis) {
+      wrap.appendChild(rejectionBlock(saved));
+    } else if (isRejected(saved)) {
+      wrap.appendChild(el("p", "sj-review-note", "No analysis stored yet. Click Evaluate to run it."));
+    } else {
+      wrap.appendChild(el("p", "sj-review-note", "Mark this job as rejected to get an analysis of why."));
+    }
+    var actions = el("div", "sj-actions");
+    if (isRejected(saved) || saved.rejection_analysis) {
+      var evalBtn = el("button", "btn", saved.rejection_analysis ? "Re-evaluate" : "Evaluate");
+      evalBtn.type = "button";
+      evalBtn.addEventListener("click", function () { evaluate(saved, card, evalBtn); });
+      actions.appendChild(evalBtn);
+    }
+    actions.appendChild(rejectButton(saved, card, "btn btn--ghost"));
+    wrap.appendChild(actions);
+    return wrap;
+  }
+
+  function rejectButton(saved, card, className) {
+    var btn = el("button", className, isRejected(saved) ? "Unmark rejected" : "Mark as rejected");
+    btn.type = "button";
+    btn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      setRejected(saved, card, !isRejected(saved), btn);
+    });
+    btn.addEventListener("keydown", function (e) { e.stopPropagation(); });
+    return btn;
+  }
+
   function buildBody(saved, card) {
     var job = saved.job || {};
     var llm = saved.llm_analysis || null;
     var body = el("div", "sj-job__body");
+    if (APPLIED_MODE) body.appendChild(rejectionSection(saved, card));
     var wwPanel = WW && WW.panel(job);
     if (wwPanel) body.appendChild(section("Eligibility from India", wwPanel));
 
@@ -444,13 +615,13 @@
       // flagged — and sorted last — the next time the list is scanned.
       function markApplied(e) {
         if (e.type === "auxclick" && e.button !== 1) return;
-        if (saved.status !== "applied") setStatus(saved, card, "applied");
+        if (!APPLIED_MODE && saved.status !== "applied") setStatus(saved, card, "applied");
       }
       apply.addEventListener("click", markApplied);
       apply.addEventListener("auxclick", markApplied);
       actions.appendChild(apply);
     }
-    var del = el("button", "btn btn--ghost", "Remove from saved");
+    var del = el("button", "btn btn--ghost", MODE.removeLabel);
     del.type = "button";
     del.addEventListener("click", function () { removeJob(saved, card); });
     actions.appendChild(del);
@@ -484,7 +655,8 @@
   function paintStatus(saved, card) {
     if (!card) return;
     var applied = saved.status === "applied";
-    card.classList.toggle("sj-job--applied", applied);
+    // Every job on the Applied Jobs page is applied: no need to dim them.
+    card.classList.toggle("sj-job--applied", applied && !APPLIED_MODE);
     var select = card.querySelector(".sj-status");
     if (select) select.value = saved.status || "new";
     var badge = card.querySelector(".sj-applied");
@@ -527,6 +699,16 @@
       stamp.title = relTime(stampIso);
       titleRow.appendChild(stamp);
     }
+    if (APPLIED_MODE && isRejected(saved)) {
+      var rej = el("span", "rj-badge", "✗ Rejected");
+      if (saved.rejected_at) rej.title = "Marked rejected " + fmtDate(saved.rejected_at);
+      titleRow.appendChild(rej);
+    }
+    if (APPLIED_MODE && saved.rejection_analysis) {
+      var a = saved.rejection_analysis;
+      titleRow.appendChild(el("span", "rj-badge rj-badge--eval rj-banner--" + a.final_verdict,
+        "Evaluated: " + (FINAL_VERDICT_LABELS[a.final_verdict] || titleCase(a.final_verdict))));
+    }
     var wwBadge = WW && WW.badge(job);
     if (wwBadge) titleRow.appendChild(wwBadge);
     (job.tags || []).forEach(function (t) { titleRow.appendChild(el("span", "sj-pill sj-pill--tag", t)); });
@@ -540,7 +722,8 @@
 
     var side = el("div", "sj-job__side");
     side.appendChild(el("span", "sj-pill", RECOMMENDATION_LABELS[rec] || titleCase(rec)));
-    side.appendChild(statusSelect(saved));
+    if (!APPLIED_MODE) side.appendChild(statusSelect(saved));
+    else side.appendChild(rejectButton(saved, card, "btn btn--ghost rj-head-btn"));
     side.appendChild(el("span", "sj-job__chev", "›"));
     head.appendChild(side);
     card.appendChild(head);
@@ -568,16 +751,24 @@
     renderStats(jobs.length);
     if (!allJobs.length) {
       var empty = el("div", "sj-empty glass");
-      empty.appendChild(document.createTextNode("No saved jobs yet. Run a search on the "));
-      var link = el("a", null, "Global Remote Job Finder");
-      link.href = "/remote-job-finder";
-      empty.appendChild(link);
-      empty.appendChild(document.createTextNode(" and its matches will appear here."));
+      if (APPLIED_MODE) {
+        empty.appendChild(document.createTextNode("No applied jobs yet. Open a job posting on "));
+        var savedLink = el("a", null, "Saved Jobs");
+        savedLink.href = "/saved-jobs";
+        empty.appendChild(savedLink);
+        empty.appendChild(document.createTextNode(" or set its status to Applied, and it will be kept here."));
+      } else {
+        empty.appendChild(document.createTextNode("No saved jobs yet. Run a search on the "));
+        var link = el("a", null, "Global Remote Job Finder");
+        link.href = "/remote-job-finder";
+        empty.appendChild(link);
+        empty.appendChild(document.createTextNode(" and its matches will appear here."));
+      }
       els.list.appendChild(empty);
       return;
     }
     if (!jobs.length) {
-      els.list.appendChild(el("div", "sj-empty glass", "No saved jobs match these filters."));
+      els.list.appendChild(el("div", "sj-empty glass", "No " + MODE.noun + " match these filters."));
       return;
     }
     var frag = document.createDocumentFragment();
@@ -593,7 +784,7 @@
   }
 
   function apiUrl(saved, suffix) {
-    return "/api/saved-jobs/" + encodeURIComponent(saved.saved_key) + (suffix || "");
+    return MODE.api + "/" + encodeURIComponent(saved.saved_key) + (suffix || "");
   }
 
   function setStatus(saved, card, next) {
@@ -625,9 +816,70 @@
       });
   }
 
+  function postJson(url, payload) {
+    return fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload || {}),
+    }).then(function (r) {
+      return r.json().then(function (d) { return { ok: r.ok && d.ok, data: d, status: r.statusText }; });
+    });
+  }
+
+  /** Swap in the server's copy of the job and redraw its card, opened on the analysis. */
+  function replaceJob(saved, card, fresh) {
+    Object.keys(saved).forEach(function (k) { delete saved[k]; });
+    Object.assign(saved, fresh);
+    var next = renderCard(saved);
+    card.replaceWith(next);
+    next.querySelector(".sj-job__head").click();
+    renderStats(applyFilters().length);
+    return next;
+  }
+
+  function busy(button, text) {
+    button.disabled = true;
+    button.dataset.label = button.textContent;
+    button.textContent = text;
+  }
+
+  function idle(button) {
+    button.disabled = false;
+    if (button.dataset.label) button.textContent = button.dataset.label;
+  }
+
+  function setRejected(saved, card, rejected, button) {
+    // Marking rejected runs the analysis when none is stored: this can take a while.
+    busy(button, rejected && !saved.rejection_analysis ? "Analysing rejection…" : "Saving…");
+    postJson(apiUrl(saved, "/rejected"), { rejected: rejected })
+      .then(function (res) {
+        if (!res.ok) throw new Error(res.data.error || res.status);
+        replaceJob(saved, card, res.data.job);
+        showError(res.data.analysis_error ? "Marked rejected, but the analysis failed: " + res.data.analysis_error : "");
+      })
+      .catch(function (err) {
+        idle(button);
+        showError("Could not update the job: " + err.message);
+      });
+  }
+
+  function evaluate(saved, card, button) {
+    busy(button, "Evaluating…");
+    postJson(apiUrl(saved, "/evaluate"))
+      .then(function (res) {
+        if (!res.ok) throw new Error(res.data.error || res.status);
+        replaceJob(saved, card, res.data.job);
+        showError("");
+      })
+      .catch(function (err) {
+        idle(button);
+        showError("Could not evaluate the job: " + err.message);
+      });
+  }
+
   function removeJob(saved, card) {
     var title = (saved.job || {}).title || "this job";
-    if (!window.confirm("Remove “" + title + "” from saved jobs?")) return;
+    if (!window.confirm("Remove “" + title + "” from " + MODE.noun + "?")) return;
     fetch(apiUrl(saved), { method: "DELETE" })
       .then(function (r) { return r.json().then(function (d) { if (!r.ok || !d.ok) throw new Error(d.error || r.statusText); }); })
       .then(function () {
@@ -641,9 +893,9 @@
 
   function removeAll(button) {
     var n = allJobs.length;
-    if (!window.confirm("Remove all " + n + " saved jobs? This cannot be undone.")) return;
+    if (!window.confirm("Remove all " + n + " " + MODE.noun + "? This cannot be undone.")) return;
     button.disabled = true;
-    fetch("/api/saved-jobs", { method: "DELETE" })
+    fetch(MODE.api, { method: "DELETE" })
       .then(function (r) { return r.json().then(function (d) { if (!r.ok || !d.ok) throw new Error(d.error || r.statusText); }); })
       .then(function () {
         allJobs = [];
@@ -657,8 +909,8 @@
   }
 
   function load() {
-    els.list.appendChild(el("div", "sj-empty glass", "Loading saved jobs…"));
-    fetch("/api/saved-jobs")
+    els.list.appendChild(el("div", "sj-empty glass", "Loading " + MODE.noun + "…"));
+    fetch(MODE.api)
       .then(function (r) { return r.json(); })
       .then(function (data) {
         if (!data.ok) throw new Error(data.error || "request failed");
@@ -670,18 +922,18 @@
       })
       .catch(function (err) {
         els.list.textContent = "";
-        showError("Could not load saved jobs: " + err.message);
+        showError("Could not load " + MODE.noun + ": " + err.message);
       });
   }
 
-  fillSelect(els.status, statuses, function (st) { return STATUS_LABELS[st] || titleCase(st); });
+  if (els.status) fillSelect(els.status, statuses, function (st) { return STATUS_LABELS[st] || titleCase(st); });
   var debounce;
   els.search.addEventListener("input", function () {
     clearTimeout(debounce);
     debounce = setTimeout(render, 150);
   });
   if (WW && els.worldwide) WW.fillFilterSelect(els.worldwide);
-  [els.recommendation, els.status, els.source, els.minScore, els.sort, els.worldwide].filter(Boolean).forEach(function (node) {
+  [els.recommendation, els.status, els.source, els.minScore, els.sort, els.worldwide, els.outcome, els.evaluated].filter(Boolean).forEach(function (node) {
     node.addEventListener("change", render);
   });
   load();

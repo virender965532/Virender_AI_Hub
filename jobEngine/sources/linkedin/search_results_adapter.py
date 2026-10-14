@@ -12,7 +12,7 @@ from ...config.settings import get_settings
 from ...guardrails.content_limits import enforce_description_size
 from ...models.job import RawJob
 from ..registry import register_adapter
-from ..title_filter import title_matches_keywords
+from ..title_filter import title_passes
 from .base import _POSTED_TEXT_RE, LinkedInBaseAdapter, note_relisted, parse_job_insights
 
 # Class names are obfuscated per release, so only these ``componentkey`` hooks
@@ -80,7 +80,7 @@ class LinkedInSearchResultsAdapter(LinkedInBaseAdapter):
             if not job_id or not title:
                 continue
             seen_ids.add(job_id)
-            if not title_matches_keywords(title, cfg.title_keywords):
+            if not title_passes(title, cfg.title_keywords, cfg.title_exclude_keywords):
                 filtered += 1
                 continue
             posted = fields.get("posted")

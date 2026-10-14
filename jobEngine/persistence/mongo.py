@@ -8,6 +8,8 @@ own. Indexes are created once per collection on first use.
 Collections:
     job_engine_runs   one document per search run (``_id`` = run_id)
     saved_jobs        de-duplicated library of matched jobs (``_id`` = saved_key)
+    applied_jobs      snapshot of every job marked applied, never purged (``_id`` = saved_key)
+    rejected_jobs     jobs a run rejected, so later runs skip them; TTL-expired (``_id`` = saved_key)
     browser_sessions  Playwright storage_state (cookies) per source (``_id`` = source id)
 """
 
@@ -24,6 +26,8 @@ from pymongo.database import Database
 
 RUNS_COLLECTION = "job_engine_runs"
 SAVED_JOBS_COLLECTION = "saved_jobs"
+APPLIED_JOBS_COLLECTION = "applied_jobs"
+REJECTED_JOBS_COLLECTION = "rejected_jobs"
 SESSIONS_COLLECTION = "browser_sessions"
 
 _INDEXES: dict[str, list[tuple[list[tuple[str, int]], dict[str, Any]]]] = {
@@ -34,6 +38,14 @@ _INDEXES: dict[str, list[tuple[list[tuple[str, int]], dict[str, Any]]]] = {
     SAVED_JOBS_COLLECTION: [
         ([("last_seen_at", DESCENDING)], {}),
         ([("age_ref", ASCENDING)], {}),
+    ],
+    APPLIED_JOBS_COLLECTION: [
+        ([("applied_at", DESCENDING)], {}),
+    ],
+    REJECTED_JOBS_COLLECTION: [
+        # TTL: MongoDB deletes each document once its own expires_at has passed.
+        ([("expires_at", ASCENDING)], {"expireAfterSeconds": 0}),
+        ([("job.source", ASCENDING)], {}),
     ],
     SESSIONS_COLLECTION: [],
 }

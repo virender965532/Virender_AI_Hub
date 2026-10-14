@@ -256,6 +256,14 @@ class EngineSettings:
         default_factory=lambda: _env_int("JOB_REVIEWER_MAX_JOBS", 30, minimum=0)
     )
 
+    # --- Rejection analysis (see jobEngine/matching/rejection_analyzer.py) ---
+    # Runs only when a job is marked rejected on the Applied Jobs page or re-evaluated,
+    # and the result is stored, so a stronger model than the per-run matcher is
+    # affordable (~4k tokens per analysis). gpt-4o-mini under-calls skill gaps here.
+    rejection_model: str = field(
+        default_factory=lambda: _env_str("JOB_REJECTION_MODEL", "gpt-4o")
+    )
+
     # --- Operational modes ---
     dry_run: bool = field(default_factory=lambda: _env_bool("JOB_ENGINE_DRY_RUN", False))
     debug: bool = field(default_factory=lambda: _env_bool("JOB_ENGINE_DEBUG", False))
