@@ -26,6 +26,7 @@ from typing import Any
 
 from pymongo import DESCENDING, ReplaceOne, ReturnDocument
 
+from .applied_jobs import forget_applied_job, record_applied_job
 from .mongo import SAVED_JOBS_COLLECTION, get_collection, to_bson_safe
 
 logger = logging.getLogger(__name__)
@@ -97,9 +98,22 @@ def _merged_doc(matched: dict[str, Any], previous: dict[str, Any] | None, *, key
     if run_id and run_id not in run_ids:
         run_ids.append(run_id)
     # A re-run may miss the posted time (e.g. detail pane skipped); keep the one we had.
-    prev_posted = ((previous or {}).get("job") or {}).get("posted_date")
+    prev_job = (previous or {}).get("job") or {}
+    prev_posted = prev_job.get("posted_date")
     if prev_posted and not (matched.get("job") or {}).get("posted_date"):
         matched = {**matched, "job": {**matched["job"], "posted_date": prev_posted}}
+    # Same for the employment type (read from the detail pane, skipped for saved jobs),
+    # and keep every search URL that has ever listed the job.
+    if prev_job.get("employment_type") and not matched["job"].get("employment_type"):
+        restored = {"employment_type": prev_job["employment_type"]}
+        # The previous classification saw the employment type; this one didn't.
+        if prev_job.get("worldwide") and prev_job.get("raw_text_hash") == matched["job"].get("raw_text_hash"):
+            restored["worldwide"] = prev_job["worldwide"]
+        matched = {**matched, "job": {**matched["job"], **restored}}
+    if prev_job.get("search_urls"):
+        urls = list(matched["job"].get("search_urls") or [])
+        urls += [u for u in prev_job["search_urls"] if u not in urls]
+        matched = {**matched, "job": {**matched["job"], "search_urls": urls}}
     doc = {
         **to_bson_safe(matched),
         "_id": key,
@@ -152,11 +166,17 @@ def save_jobs_from_run(result: dict[str, Any]) -> int:
     return added
 
 
-def list_saved_jobs() -> list[dict[str, Any]]:
-    """All saved jobs (expired ones purged first), most recently seen first."""
+def list_saved_jobs(*, include_not_eligible: bool = True) -> list[dict[str, Any]]:
+    """All saved jobs (expired ones purged first), most recently seen first.
+
+    ``include_not_eligible=False`` leaves out jobs classified country-restricted
+    (not doable from India); saved before that check rejected them, they stay
+    in the store until purged so the search can still reuse their analysis.
+    """
     with _lock:
         _purge_expired()
-    return list(_saved_jobs().find({}, _HIDDEN_FIELDS).sort("last_seen_at", DESCENDING))
+    query: dict[str, Any] = {} if include_not_eligible else {"job.worldwide.category": {"$ne": "country_restricted"}}
+    return list(_saved_jobs().find(query, _HIDDEN_FIELDS).sort("last_seen_at", DESCENDING))
 
 
 def saved_job_keys() -> set[str]:
@@ -178,9 +198,16 @@ def update_saved_job_status(key: str, status: str) -> dict[str, Any] | None:
         update: dict[str, Any] = {"$set": {"status": status}}
     else:
         update = {"$set": {"status": status}, "$unset": {"applied_at": ""}}
-    return coll.find_one_and_update(
+    job = coll.find_one_and_update(
         {"_id": key}, update, projection=_HIDDEN_FIELDS, return_document=ReturnDocument.AFTER
     )
+    # Mirror into the applied-jobs collection, which outlives the saved-jobs purge.
+    if job is not None:
+        if status == "applied":
+            record_applied_job(job)
+        else:
+            forget_applied_job(key)
+    return job
 
 
 def delete_saved_job(key: str) -> bool:

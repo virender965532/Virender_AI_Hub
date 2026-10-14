@@ -41,15 +41,31 @@ _CATEGORY_TO_FIELD = {
 }
 
 
+_KNOWN_SECTIONS = {"PROFILE SUMMARY", "TECHNICAL SKILLS", "WORK EXPERIENCE", "KEY PROJECTS", "EDUCATION"}
+
+
 def _split_sections(lines: list[str]) -> tuple[list[str], dict[str, list[str]]]:
-    """Return (preamble_lines, {section_name: body_lines})."""
+    """Return (preamble_lines, {section_name: body_lines}).
+
+    An ALL-CAPS line is a section header only if it is a known section or starts
+    a new block (blank line before it) — otherwise an all-caps skill listed one
+    per line ("HTML", "AWS IAM") would split the skills section.
+    """
     preamble: list[str] = []
     sections: dict[str, list[str]] = {}
     current: str | None = None
+    previous_blank = True
     for raw_line in lines:
         line = raw_line.rstrip("\n")
         stripped = line.strip()
-        if stripped and _HEADER_RE.match(stripped) and stripped.upper() == stripped:
+        is_header = (
+            bool(stripped)
+            and bool(_HEADER_RE.match(stripped))
+            and stripped.upper() == stripped
+            and (stripped in _KNOWN_SECTIONS or previous_blank)
+        )
+        previous_blank = not stripped
+        if is_header:
             current = stripped
             sections[current] = []
             continue
@@ -103,20 +119,21 @@ def _parse_summary(lines: list[str], *, headline: str) -> tuple[str, float | Non
 
 
 def _parse_technical_skills(lines: list[str]) -> dict[str, list[str]]:
+    """``Category:`` followed by its skills — comma-separated, one per line, or both —
+    up to the next ``Category:`` line."""
     skills: dict[str, list[str]] = {}
-    pending_category: str | None = None
+    category: str | None = None
     for raw in lines:
         stripped = raw.strip()
         if not stripped:
             continue
         if stripped.endswith(":"):
-            pending_category = stripped[:-1].strip()
+            category = stripped[:-1].strip()
+            skills.setdefault(category, [])
             continue
-        if pending_category:
-            values = [v.strip() for v in stripped.split(",") if v.strip()]
-            skills[pending_category] = values
-            pending_category = None
-    return skills
+        if category:
+            skills[category].extend(v.strip() for v in stripped.split(",") if v.strip())
+    return {name: values for name, values in skills.items() if values}
 
 
 def _bucket_technical_skills(technical_skills: dict[str, list[str]]) -> dict[str, list[str]]:

@@ -20,6 +20,12 @@
 
   var pollTimer = null;
 
+  // Worldwide-remote classification (only present when JOB_WORLDWIDE_REMOTE_ENABLED is on).
+  var WW = window.WorldwideRemote || null;
+  var wwFilterInput = document.getElementById("rjf-ww-filter");
+  var wwSortInput = document.getElementById("rjf-ww-sort");
+  var lastJobs = [];
+
   function loadJsonScript(id) {
     var el = document.getElementById(id);
     if (!el) return [];
@@ -113,7 +119,7 @@
   function renderCard(matched) {
     var job = matched.job || {};
     var card = document.createElement("article");
-    card.className = "rjf-card glass";
+    card.className = "rjf-card glass" + (WW ? " " + WW.cardClass(job) : "");
 
     var head = document.createElement("div");
     head.className = "rjf-card__head";
@@ -122,6 +128,11 @@
     var title = document.createElement("h3");
     title.className = "rjf-card__title";
     title.textContent = job.title || "Untitled role";
+    var wwBadge = WW && WW.badge(job);
+    if (wwBadge) {
+      title.appendChild(document.createTextNode(" "));
+      title.appendChild(wwBadge);
+    }
     var company = document.createElement("p");
     company.className = "rjf-card__company";
     company.textContent = [job.company, job.location].filter(Boolean).join(" · ");
@@ -140,6 +151,15 @@
     recBadge.className = "rjf-tag";
     recBadge.textContent = recommendationLabel(matched.recommendation);
     card.appendChild(recBadge);
+    (job.tags || []).forEach(function (t) {
+      var tag = document.createElement("span");
+      tag.className = "rjf-tag";
+      tag.textContent = t;
+      card.appendChild(tag);
+    });
+
+    var wwPanel = WW && WW.panel(job);
+    if (wwPanel) card.appendChild(wwPanel);
 
     if (matched.explanation) {
       var explanation = document.createElement("p");
@@ -152,11 +172,13 @@
     details.className = "rjf-card__details";
     details.innerHTML =
       detailRow("Employment type", job.employment_type) +
+      detailRow("Arrangement", WW && WW.arrangementLabel(job)) +
       detailRow("Experience", job.experience_required) +
       detailRow("Salary", job.salary) +
       detailRow("Remote type", job.remote_type) +
       detailRow("Source", job.source) +
-      detailRow("Posted", job.posted_date ? new Date(job.posted_date).toLocaleDateString() : "");
+      detailRow("Posted", job.posted_date ? new Date(job.posted_date).toLocaleDateString() : "") +
+      detailRow("Detected", WW && job.discovered_at ? new Date(job.discovered_at).toLocaleString() : "");
     if (details.innerHTML) card.appendChild(details);
 
     if ((matched.matched_skills || []).length || (matched.missing_required_skills || []).length) {
@@ -259,19 +281,48 @@
       });
     }
 
+    lastJobs = result.jobs || [];
+    renderCards();
+    setVisible(resultsEl, true);
+  }
+
+  function jobKey(matched) {
+    var job = matched.job || {};
+    return job.source + ":" + (job.source_job_id || job.job_id);
+  }
+
+  /** Cards for the last run, after the eligibility filter/sort (when enabled). */
+  function renderCards() {
     cardsEl.innerHTML = "";
-    var jobs = result.jobs || [];
+    var seen = {};
+    var jobs = lastJobs.filter(function (matched) {
+      var key = jobKey(matched);
+      if (seen[key]) return false;
+      seen[key] = true;
+      return true;
+    });
+    if (WW && wwFilterInput) {
+      var filter = wwFilterInput.value;
+      jobs = jobs.filter(function (matched) { return WW.matches(matched.job, filter); });
+      if (wwSortInput && wwSortInput.value === "eligibility") {
+        // Stable: server order (match score) is kept within each eligibility group.
+        jobs = jobs
+          .map(function (m, i) { return [m, i]; })
+          .sort(function (a, b) { return WW.rank(a[0].job) - WW.rank(b[0].job) || a[1] - b[1]; })
+          .map(function (pair) { return pair[0]; });
+      }
+    }
 
     if (!jobs.length) {
       var empty = document.createElement("div");
       empty.className = "rjf-empty glass";
-      empty.textContent = "No jobs matched the selected filters for this search.";
+      empty.textContent = lastJobs.length
+        ? "No jobs in this run match the selected eligibility filter."
+        : "No jobs matched the selected filters for this search.";
       cardsEl.appendChild(empty);
     } else {
       jobs.forEach(function (matched) { cardsEl.appendChild(renderCard(matched)); });
     }
-
-    setVisible(resultsEl, true);
   }
 
   function showError(message) {
@@ -342,5 +393,10 @@
   }
 
   renderSourceCheckboxes();
+  if (WW && wwFilterInput) {
+    WW.fillFilterSelect(wwFilterInput);
+    wwFilterInput.addEventListener("change", renderCards);
+    if (wwSortInput) wwSortInput.addEventListener("change", renderCards);
+  }
   searchBtn.addEventListener("click", startSearch);
 })();

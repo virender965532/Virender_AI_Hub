@@ -1,6 +1,6 @@
 """RankJobs node (section 48): deterministic ranking of non-rejected matches.
 
-Sort order: match_score desc -> AI alignment desc -> fewer missing mandatory
+Sort order: match_score desc -> fewer missing mandatory
 skills -> more recent posting (unknown dates sort last) -> stable original
 order (acts as a source-priority tiebreak, since sources are processed in
 ``config/job_sources.yaml`` order upstream).
@@ -16,11 +16,9 @@ logger = logging.getLogger(__name__)
 
 def _sort_key(indexed_job: tuple[int, dict[str, Any]]) -> tuple:
     idx, job = indexed_job
-    llm = job.get("llm_analysis") or {}
     posted = (job.get("job") or {}).get("posted_date")
     return (
         -float(job.get("match_score", 0.0)),
-        -float(llm.get("ai_match", 0.0)),
         len(job.get("missing_required_skills") or []),
         0 if posted else 1,
         idx,

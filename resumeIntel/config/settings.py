@@ -77,7 +77,7 @@ class ResumeIntelSettings:
     )
     default_resume_filename: str = field(
         default_factory=lambda: _env_str(
-            "RESUME_INTEL_DEFAULT_RESUME_FILE", "VirenderFullstackAIResume.pdf"
+            "RESUME_INTEL_DEFAULT_RESUME_FILE", "VirenderFullstackResumeUpdated.pdf"
         )
     )
     max_upload_bytes: int = field(

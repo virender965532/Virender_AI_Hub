@@ -2,6 +2,7 @@
 {% block title %}Global Remote Job Finder — Virender AI Hub{% endblock %}
 
 {% block extra_head %}
+{% if worldwide_enabled %}<link rel="stylesheet" href="{{ url_for('static', filename='css/worldwide_remote.css') }}" />{% endif %}
 <style>
   .rjf-config {
     display: flex;
@@ -294,6 +295,7 @@
       </label>
       <button type="button" id="rjf-btn-search" class="btn">Find remote jobs</button>
       <a href="{{ url_for('remote_job_finder.saved_jobs_ui') }}" class="btn btn--ghost">View saved jobs</a>
+      <a href="{{ url_for('remote_job_finder.applied_jobs_ui') }}" class="btn btn--ghost">View applied jobs</a>
       <button type="button" id="li-btn-connect" class="btn btn--ghost" title="Sign in to LinkedIn through the server's browser so LinkedIn searches can run.">Connect LinkedIn</button>
       <span id="li-status" class="li-status" aria-live="polite"></span>
     </div>
@@ -335,6 +337,26 @@
 
   <div id="rjf-results" class="hidden">
     <div class="rjf-summary glass" id="rjf-summary"></div>
+    {% if worldwide_enabled %}
+    <div class="ww-toolbar glass">
+      <label for="rjf-ww-filter">Eligibility from India
+        <select id="rjf-ww-filter" class="job-filter-input"></select>
+      </label>
+      <label for="rjf-ww-sort">Sort by
+        <select id="rjf-ww-sort" class="job-filter-input">
+          <option value="eligibility" selected>Worldwide / India-eligible first</option>
+          <option value="score">Match score</option>
+        </select>
+      </label>
+      <div class="ww-legend" aria-hidden="true">
+        <span class="ww-badge ww-badge--worldwide_confirmed">Worldwide ✓</span>
+        <span class="ww-badge ww-badge--india_eligible">India eligible ✓</span>
+        <span class="ww-badge ww-badge--needs_verification">Verify eligibility</span>
+        <span class="ww-badge ww-badge--country_restricted">Not eligible</span>
+        <span class="ww-badge ww-badge--insufficient_info">Insufficient info</span>
+      </div>
+    </div>
+    {% endif %}
     <div id="rjf-cards" class="rjf-cards"></div>
   </div>
 </div>
@@ -343,5 +365,6 @@
 {% block scripts %}
 <script id="rjf-sources-data" type="application/json">{{ sources | tojson }}</script>
 <script src="{{ url_for('static', filename='js/linkedin_connect.js') }}"></script>
+{% if worldwide_enabled %}<script src="{{ url_for('static', filename='js/worldwide_remote.js') }}"></script>{% endif %}
 <script src="{{ url_for('static', filename='js/remote_job_finder.js') }}"></script>
 {% endblock %}

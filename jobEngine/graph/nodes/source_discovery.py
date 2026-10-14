@@ -19,24 +19,31 @@ from ...config.sources import JobSourceConfig
 from ...guardrails.content_limits import enforce_description_size
 from ...guardrails.url_guardrails import SSRFViolation, validate_navigation_url
 from ...models.errors import SourceError, SourceErrorStatus
+from ...persistence.rejected_jobs import rejected_descriptions
 from ...persistence.saved_jobs import list_saved_jobs
 from ...sources import circuit_breaker
 from ...sources.base import SourceExecutionContext
 from ...sources.registry import get_adapter_class
 from ...sources.search_keywords import with_keywords
+from ...sources.title_filter import title_has_keyword
 from ..builder_types import NodeFn
 
 logger = logging.getLogger(__name__)
 
 
 def _known_descriptions(source_id: str) -> dict[str, str]:
-    """Saved, LLM-analyzed jobs of this source: their descriptions by source_job_id."""
+    """Saved, LLM-analyzed jobs and rejected jobs of this source: their descriptions by
+    source_job_id. The adapter doesn't open these again; matching reuses their analysis."""
+    known: dict[str, str] = {}
+    try:
+        known.update(rejected_descriptions(source_id))
+    except Exception:  # noqa: BLE001
+        logger.exception("source=%s: could not read rejected jobs; reading them again", source_id)
     try:
         saved = list_saved_jobs()
     except Exception:  # noqa: BLE001
         logger.exception("source=%s: could not read saved jobs; reading every job", source_id)
-        return {}
-    known: dict[str, str] = {}
+        return known
     for entry in saved:
         job = entry.get("job") or {}
         if job.get("source") == source_id and job.get("source_job_id") and job.get("description") and entry.get("llm_analysis"):
@@ -138,6 +145,16 @@ def create_source_node(source_config: JobSourceConfig) -> NodeFn:
         else:
             circuit_breaker.record_success(cfg.id)
 
+
+        # Every adapter: drop excluded titles before any detail fetch or LLM call
+        # (LinkedIn already skipped them on the results page, before opening them).
+        if cfg.title_exclude_keywords:
+            kept = [job for job in result.jobs if not title_has_keyword(job.title, cfg.title_exclude_keywords)]
+            if len(kept) != len(result.jobs):
+                logger.info(
+                    "source=%s: %s jobs dropped by title_exclude_keywords", cfg.id, len(result.jobs) - len(kept)
+                )
+                result.jobs = kept
 
         # Only fetch detail pages for jobs the adapter returned without a description
         # (e.g. link-scan fallback); adapters like LinkedIn already read it in-session.

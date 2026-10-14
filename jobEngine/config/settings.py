@@ -198,8 +198,14 @@ class EngineSettings:
     minimum_match_score: float = field(
         default_factory=lambda: _env_float("JOB_MIN_MATCH_SCORE", 70.0, minimum=0.0)
     )
+    # <= 0 (e.g. -1) sends every validated job to the LLM, uncapped.
     llm_matching_top_k: int = field(
-        default_factory=lambda: _env_int("JOB_LLM_TOP_K", 50, minimum=1)
+        default_factory=lambda: _env_int("JOB_LLM_TOP_K", 50)
+    )
+    # How many LLM calls (matching + worldwide review) run at the same time. Each job
+    # is independent; keep this within your OpenAI rate limit (429s are retried).
+    llm_concurrency: int = field(
+        default_factory=lambda: _env_int("JOB_LLM_CONCURRENCY", 6, minimum=1)
     )
     rule_prefilter_min_score: float = field(
         default_factory=lambda: _env_float(
@@ -215,6 +221,47 @@ class EngineSettings:
         default_factory=lambda: _env_float(
             "JOB_MAX_EXPERIENCE_GAP_YEARS", 3.0, minimum=0.0
         )
+    )
+
+    # --- Worldwide-remote classification (see jobEngine/matching/worldwide_remote.py) ---
+    # Off = the pipeline and UI behave exactly as before this feature existed.
+    worldwide_remote_enabled: bool = field(
+        default_factory=lambda: _env_bool("JOB_WORLDWIDE_REMOTE_ENABLED", False)
+    )
+    # Second opinion from the existing OpenAI integration for jobs the rules leave
+    # at "needs verification"; only used when the flag above is on and the LLM is available.
+    worldwide_llm_review: bool = field(
+        default_factory=lambda: _env_bool("JOB_WORLDWIDE_LLM_REVIEW", True)
+    )
+    worldwide_llm_max_jobs: int = field(
+        default_factory=lambda: _env_int("JOB_WORLDWIDE_LLM_MAX_JOBS", 25, minimum=0)
+    )
+
+    # --- Concern reviewer (see jobEngine/matching/concern_reviewer.py) ---
+    # A second, cheaper LLM pass that drops concerns/missing skills already implied by
+    # the profile (e.g. SSR under Next.js) and recomputes the score in code.
+    reviewer_enabled: bool = field(
+        default_factory=lambda: _env_bool("JOB_REVIEWER_ENABLED", True)
+    )
+    reviewer_model: str = field(
+        default_factory=lambda: _env_str("JOB_REVIEWER_MODEL", "gpt-4o-mini")
+    )
+    # Only jobs whose matcher score is at least this are reviewed; keep it below
+    # JOB_MIN_MATCH_SCORE so a job the review lifts over that bar is not missed.
+    reviewer_min_score: float = field(
+        default_factory=lambda: _env_float("JOB_REVIEWER_MIN_SCORE", 50.0, minimum=0.0)
+    )
+    # Cap on new reviews per run (highest matcher scores first); stored reviews don't count.
+    reviewer_max_jobs: int = field(
+        default_factory=lambda: _env_int("JOB_REVIEWER_MAX_JOBS", 30, minimum=0)
+    )
+
+    # --- Rejection analysis (see jobEngine/matching/rejection_analyzer.py) ---
+    # Runs only when a job is marked rejected on the Applied Jobs page or re-evaluated,
+    # and the result is stored, so a stronger model than the per-run matcher is
+    # affordable (~4k tokens per analysis). gpt-4o-mini under-calls skill gaps here.
+    rejection_model: str = field(
+        default_factory=lambda: _env_str("JOB_REJECTION_MODEL", "gpt-4o")
     )
 
     # --- Operational modes ---

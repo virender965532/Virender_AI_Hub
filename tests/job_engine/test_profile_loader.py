@@ -15,9 +15,39 @@ def test_parses_real_summary_txt():
     assert profile.total_experience_years == 7.0
     assert profile.current_role is not None
     assert profile.current_role.company == "Impressico Business Solutions"
-    assert "LangGraph" in profile.ai_skills
+    # Skills listed one per line, including all-caps ones, are all parsed.
+    for skill in ("Next.js", "React.js", "HTML", "CSS", "Git", "REST APIs", "AWS IAM"):
+        assert skill in profile.all_skills()
     assert len(profile.previous_roles) >= 2
     assert profile.education
+
+
+def test_skills_one_per_line_with_all_caps_entries():
+    text = textwrap.dedent(
+        """\
+        Jane Doe
+        Engineer
+
+        TECHNICAL SKILLS
+
+        Front-End Development:
+        React.js
+        HTML
+        CSS, Tailwind
+
+        Cloud & Infrastructure:
+        AWS IAM
+        AWS VPC
+        Git
+
+        WORK EXPERIENCE
+        Acme — Engineer
+        """
+    )
+    profile = parse_summary_text(text)
+    assert profile.frontend_skills == ["React.js", "HTML", "CSS", "Tailwind"]
+    assert profile.cloud_skills == ["AWS IAM", "AWS VPC", "Git"]
+    assert profile.current_role is not None and profile.current_role.company == "Acme"
 
 
 def test_phone_never_appears_in_llm_context():

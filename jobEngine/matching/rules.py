@@ -7,8 +7,6 @@ from __future__ import annotations
 
 import re
 
-from IPython.display import JSON
-
 from ..config.settings import EngineSettings
 from ..models.job import Job, RequirementTier, RuleEvaluation
 from ..models.profile import CandidateProfile

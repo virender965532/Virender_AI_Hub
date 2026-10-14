@@ -33,6 +33,11 @@ class LLMCallMetrics:
         self.calls = 0
         self.estimated_cost_usd = 0.0
 
+    def merge(self, other: "LLMCallMetrics") -> None:
+        """Add another call's counters (concurrent calls each get their own instance)."""
+        for name in ("prompt_tokens", "completion_tokens", "total_tokens", "retries", "calls", "estimated_cost_usd"):
+            setattr(self, name, getattr(self, name) + getattr(other, name))
+
 
 def _load_prompt(name: str) -> str:
     return (_PROMPTS_DIR / name).read_text(encoding="utf-8")

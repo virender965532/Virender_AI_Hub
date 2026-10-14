@@ -1,8 +1,8 @@
-"""Combines rule evaluation + LLM analysis into one explainable,
-configurable-weight final score (section 17) and the resulting
-``MatchedJob`` record. The final recommendation is always derived from the
-computed weighted score, never taken verbatim from the LLM (section 71 —
-"no blind LLM decisions"); the LLM's own analysis is kept for explainability.
+"""Turns rule evaluation + LLM analysis into the final score and the resulting
+``MatchedJob`` record. With an LLM analysis the score is the LLM's single overall
+score; without one it is a configurable-weight blend of rule-based dimensions
+(section 17). The recommendation band is always derived from that score, never
+taken verbatim from the LLM.
 """
 
 from __future__ import annotations
@@ -45,21 +45,15 @@ def compute_dimension_scores(
     job: Job,
     profile: CandidateProfile,
     rule_eval: RuleEvaluation,
-    llm_analysis: JobMatchAnalysis | None,
 ) -> dict[str, float]:
+    """Rule-based dimensions — only used when no LLM analysis is available."""
     job_tokens = _job_tokens(job)
     candidate_tokens = skill_token_set(profile.all_skills())
 
-    if llm_analysis is not None:
-        role = llm_analysis.role_match
-        technical = llm_analysis.technical_match
-        ai = llm_analysis.ai_match
-        experience = llm_analysis.experience_match
-    else:
-        role = 100.0 if rule_eval.role_related else 0.0
-        technical = rule_eval.rule_score
-        ai = overlap_score(job_tokens & _AI_KEYWORDS, candidate_tokens) if (job_tokens & _AI_KEYWORDS) else 0.0
-        experience = 100.0 if rule_eval.seniority_ok else 30.0
+    role = 100.0 if rule_eval.role_related else 0.0
+    technical = rule_eval.rule_score
+    ai = overlap_score(job_tokens & _AI_KEYWORDS, candidate_tokens) if (job_tokens & _AI_KEYWORDS) else 0.0
+    experience = 100.0 if rule_eval.seniority_ok else 30.0
 
     # A job posting that simply doesn't discuss architecture/cloud concerns is
     # not evidence the role is architecturally irrelevant to the candidate —
@@ -157,13 +151,13 @@ def build_matched_job(
             rejection_reason="; ".join(rule_eval.rejection_reasons) or "failed hard-rejection rules",
         )
 
-    dims = compute_dimension_scores(
-        job=job,
-        profile=profile,
-        rule_eval=rule_eval,
-        llm_analysis=llm_analysis,
-    )
-    score = compute_final_score(dims, settings.weights.as_dict())
+    if llm_analysis is not None:
+        # The LLM score is the job's score (same single-score, resume-reviewer
+        # judgement as Resume Intelligence); the weighted blend is rule-only fallback.
+        score = round(min(100.0, max(0.0, llm_analysis.score)), 1)
+    else:
+        dims = compute_dimension_scores(job=job, profile=profile, rule_eval=rule_eval)
+        score = compute_final_score(dims, settings.weights.as_dict())
     recommendation = recommendation_for_score(score)
 
     if llm_analysis is not None:

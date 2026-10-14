@@ -1,0 +1,103 @@
+# Implied-skills map for the concern reviewer (jobEngine/matching/concern_reviewer.py).
+#
+# A skill the candidate profile demonstrates covers its core sub-topics: a job that
+# asks for "SSR" is satisfied by Next.js experience, "Context API" by React.
+# The reviewer may only mark a requirement "implied" (or drop a concern/missing
+# skill as implied) when this map supports it — the map, not the LLM, decides
+# what counts as implied. Extend it as needed; editing this file invalidates
+# stored reviews, so jobs are re-reviewed with the new map.
+#
+# Each entry:
+#   aliases — how the skill can appear in Profile/Summary.txt (any one present = candidate has it)
+#   implies — sub-topics it covers, matched as whole words/phrases (case-insensitive)
+#
+# Keep "implies" to things that genuinely come with the parent skill. A separate
+# tool (e.g. Redux, Kubernetes) does not belong here.
+
+next.js:
+  aliases: [next.js, nextjs, next js]
+  implies:
+    - ssr
+    - server-side rendering
+    - server side rendering
+    - ssg
+    - static site generation
+    - csr
+    - client-side rendering
+    - client side rendering
+    - isr
+    - incremental static regeneration
+    - app router
+    - pages router
+    - api routes
+    - file-based routing
+    - react server components
+    - server components
+    - image optimization
+
+react:
+  aliases: [react, react.js, reactjs]
+  implies:
+    - jsx
+    - hooks
+    - react hooks
+    - context api
+    - reusable components
+    - functional components
+    - component-based architecture
+    - virtual dom
+    - spa
+    - single page application
+    - single-page application
+
+javascript:
+  aliases: [javascript]
+  implies: [es6, es6+, ecmascript, es2015, async/await, promises, dom manipulation]
+
+typescript:
+  aliases: [typescript]
+  implies: [static typing, type safety]
+
+html:
+  aliases: [html, html5]
+  implies: [html5, semantic html]
+
+css:
+  aliases: [css, css3, tailwind]
+  implies: [css3, flexbox, css grid, responsive design, responsive web design, media queries]
+
+node.js:
+  aliases: [node.js, nodejs, node js]
+  implies: [npm, event loop, server-side javascript]
+
+rest apis:
+  aliases: [rest apis, rest api, restful]
+  implies: [restful apis, restful api, rest, api integration, http apis, json apis]
+
+git:
+  aliases: [git]
+  implies: [version control, version control systems, source control]
+
+aws:
+  aliases: [aws]
+  implies: [cloud platform, cloud platforms, cloud services]
+
+ci/cd:
+  aliases: [ci/cd, ci/cd pipelines]
+  implies: [continuous integration, continuous deployment, continuous delivery, ci/cd pipelines, deployment pipelines]
+
+docker:
+  aliases: [docker]
+  implies: [containers, containerization, dockerfile]
+
+postgresql:
+  aliases: [postgresql, postgres]
+  implies: [sql, relational databases, relational database]
+
+mysql:
+  aliases: [mysql]
+  implies: [sql, relational databases, relational database]
+
+mongodb:
+  aliases: [mongodb]
+  implies: [nosql, nosql databases, document database]

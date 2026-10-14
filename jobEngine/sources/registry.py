@@ -39,6 +39,8 @@ def _ensure_builtin_adapters_imported() -> None:
     from .generic.adapter import GenericAdapter  # noqa: F401
     from .instinctools.adapter import InstinctoolsAdapter  # noqa: F401
     from .linkedin.adapter import LinkedInAdapter  # noqa: F401
+    from .linkedin.search_adapter import LinkedInSearchAdapter  # noqa: F401
+    from .linkedin.search_results_adapter import LinkedInSearchResultsAdapter  # noqa: F401
 
 
 _ensure_builtin_adapters_imported()
