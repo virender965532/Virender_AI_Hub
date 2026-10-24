@@ -205,7 +205,18 @@ class EngineSettings:
     # How many LLM calls (matching + worldwide review) run at the same time. Each job
     # is independent; keep this within your OpenAI rate limit (429s are retried).
     llm_concurrency: int = field(
-        default_factory=lambda: _env_int("JOB_LLM_CONCURRENCY", 6, minimum=1)
+        default_factory=lambda: _env_int("JOB_LLM_CONCURRENCY", 12, minimum=1)
+    )
+    # Worker processes for CPU-bound per-job work (worldwide classification in
+    # normalization: regex-heavy, ~25 ms/job). 0 disables the pool (all inline).
+    cpu_workers: int = field(
+        default_factory=lambda: _env_int(
+            "JOB_CPU_WORKERS", min(4, os.cpu_count() or 1), minimum=0
+        )
+    )
+    # Fewer jobs than this are processed inline: below it, process IPC costs more than it saves.
+    cpu_parallel_min_jobs: int = field(
+        default_factory=lambda: _env_int("JOB_CPU_PARALLEL_MIN_JOBS", 40, minimum=1)
     )
     rule_prefilter_min_score: float = field(
         default_factory=lambda: _env_float(

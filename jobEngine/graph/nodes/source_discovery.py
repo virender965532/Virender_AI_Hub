@@ -120,7 +120,8 @@ def create_source_node(source_config: JobSourceConfig) -> NodeFn:
             config=cfg,
             browser_manager=browser_manager,
             settings=settings,
-            known_descriptions=_known_descriptions(cfg.id),
+            # Blocking MongoDB reads: off the event loop, so the other sources keep scraping.
+            known_descriptions=await asyncio.to_thread(_known_descriptions, cfg.id),
         )
 
         result = None

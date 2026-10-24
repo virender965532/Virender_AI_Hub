@@ -81,12 +81,12 @@ def _checkpoint_wait_seconds() -> int:
 
 def _max_tabs() -> int:
     """``LINKEDIN_MAX_TABS``: tabs of the signed-in browser context scraping at once —
-    results pages of a search URL, and several search URLs, share them (default 2;
+    results pages of a search URL, and several search URLs, share them (default 3;
     1 = one page at a time, as before)."""
     try:
-        return max(1, int((os.getenv("LINKEDIN_MAX_TABS") or "2").strip()))
+        return max(1, int((os.getenv("LINKEDIN_MAX_TABS") or "3").strip()))
     except ValueError:
-        return 2
+        return 3
 
 
 class _TabPool:

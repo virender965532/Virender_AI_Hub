@@ -67,6 +67,12 @@ class TimedDiscovery:
     def elapsed_ms(self) -> int:
         return int((time.perf_counter() - self._t0) * 1000)
 
+    def merge(self, other: "TimedDiscovery") -> None:
+        """Fold in a per-URL timer (search URLs scraped concurrently, merged in URL order)."""
+        self.pages_processed += other.pages_processed
+        self.jobs.extend(other.jobs)
+        self.errors.extend(other.errors)
+
     def to_result(self) -> SourceDiscoveryResult:
         if self.jobs and self.errors:
             status: SourceRunStatus = "partial"

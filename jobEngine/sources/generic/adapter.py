@@ -84,26 +84,33 @@ class GenericAdapter(JobSourceAdapter):
             )
             return timer.to_result()
 
+        # Every search URL in its own page, concurrently (the browser manager caps open
+        # contexts); merged in URL order so the job cap keeps the same jobs as before.
+        per_url = await asyncio.gather(*(self._discover_url(context, u) for u in cfg.search_urls))
+        for url_timer in per_url:
+            timer.merge(url_timer)
+
+        timer.jobs = enforce_job_count(timer.jobs, max_jobs=cfg.max_jobs, source=cfg.id)
+        return timer.to_result()
+
+    async def _discover_url(self, context: SourceExecutionContext, search_url: str) -> TimedDiscovery:
+        cfg = context.config
+        timer = TimedDiscovery(cfg.id)
         try:
             async with context.browser_manager.open_page(
                 source_id=cfg.id, allowed_domains=cfg.allowed_domains
             ) as managed:
-                for search_url in cfg.search_urls:
-                    await self._discover_from_url(managed.page, cfg=cfg, url=search_url, timer=timer)
-                    if len(timer.jobs) >= cfg.max_jobs:
-                        break
+                await self._discover_from_url(managed.page, cfg=cfg, url=search_url, timer=timer)
         except SSRFViolation as exc:
             timer.errors.append(
                 SourceError(source_id=cfg.id, status=SourceErrorStatus.NAVIGATION_ERROR, message=str(exc))
             )
         except Exception as exc:  # noqa: BLE001
-            logger.exception("GenericAdapter failed for source=%s", cfg.id)
+            logger.exception("GenericAdapter failed for source=%s url=%s", cfg.id, search_url)
             timer.errors.append(
                 SourceError(source_id=cfg.id, status=SourceErrorStatus.UNKNOWN, message=str(exc), retryable=True)
             )
-
-        timer.jobs = enforce_job_count(timer.jobs, max_jobs=cfg.max_jobs, source=cfg.id)
-        return timer.to_result()
+        return timer
 
     async def _discover_from_url(
         self, page: Page, *, cfg, url: str, timer: TimedDiscovery

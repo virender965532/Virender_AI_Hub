@@ -8,11 +8,13 @@ so it can also be driven from a script/test/future background worker
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import time
 from typing import Any
 
 from ..browser.manager import BrowserManager
+from ..concurrency import warm_cpu_pool
 from ..config.settings import get_settings
 from ..config.sources import enabled_sources, load_job_sources
 from ..graph.builder import build_graph
@@ -43,6 +45,9 @@ async def run_job_search(request: dict[str, Any], *, run_id: str | None = None) 
     t0 = time.perf_counter()
 
     log_event(logger, logging.INFO, "job_search_started", run_id=run_id, extra_request=request)
+
+    # Spawn the CPU workers now so their startup overlaps scraping, not normalization.
+    warm_cpu_pool()
 
     resolved_sources = _resolve_sources(request)
     graph = build_graph(resolved_sources)
@@ -87,24 +92,39 @@ async def run_job_search(request: dict[str, Any], *, run_id: str | None = None) 
     )
 
     if settings.persist_results and not settings.dry_run:
-        try:
-            save_run(result)
-        except Exception:  # noqa: BLE001
-            logger.exception("Failed to persist run %s (continuing; result still returned)", run_id)
-        try:
-            save_jobs_from_run(result)
-        except Exception:  # noqa: BLE001
-            logger.exception("Failed to update saved jobs store for run %s", run_id)
-        try:
-            # The result only carries recommended jobs; the rejected ones are in the graph state.
-            profile = CandidateProfile.model_validate(final_state.get("candidate_profile") or {})
-            save_rejected_jobs(
-                final_state.get("matched_jobs") or [], run_id=run_id, profile_hash=profile_fingerprint(profile)
-            )
-        except Exception:  # noqa: BLE001
-            logger.exception("Failed to update rejected jobs store for run %s", run_id)
+        # Three independent collections: write them concurrently in worker threads.
+        await asyncio.gather(
+            asyncio.to_thread(_persist_run, result, run_id),
+            asyncio.to_thread(_persist_saved_jobs, result, run_id),
+            asyncio.to_thread(_persist_rejected_jobs, final_state, run_id),
+        )
 
     return result
+
+
+def _persist_run(result: dict[str, Any], run_id: str) -> None:
+    try:
+        save_run(result)
+    except Exception:  # noqa: BLE001
+        logger.exception("Failed to persist run %s (continuing; result still returned)", run_id)
+
+
+def _persist_saved_jobs(result: dict[str, Any], run_id: str) -> None:
+    try:
+        save_jobs_from_run(result)
+    except Exception:  # noqa: BLE001
+        logger.exception("Failed to update saved jobs store for run %s", run_id)
+
+
+def _persist_rejected_jobs(final_state: dict[str, Any], run_id: str) -> None:
+    try:
+        # The result only carries recommended jobs; the rejected ones are in the graph state.
+        profile = CandidateProfile.model_validate(final_state.get("candidate_profile") or {})
+        save_rejected_jobs(
+            final_state.get("matched_jobs") or [], run_id=run_id, profile_hash=profile_fingerprint(profile)
+        )
+    except Exception:  # noqa: BLE001
+        logger.exception("Failed to update rejected jobs store for run %s", run_id)
 
 
 async def test_source(source_id: str) -> dict[str, Any]:

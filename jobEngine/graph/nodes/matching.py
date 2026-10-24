@@ -257,10 +257,13 @@ async def matching_node(state: dict[str, Any]) -> dict[str, Any]:
     llm_matcher = LLMMatcher(settings)
     llm_metrics = LLMCallMetrics()
 
-    saved_jobs = _saved_jobs()
+    # Both stores are blocking MongoDB reads; run them side by side in worker threads.
+    saved_jobs, rejected_before = await asyncio.gather(
+        asyncio.to_thread(_saved_jobs),
+        asyncio.to_thread(_rejected_jobs, [saved_job_key({"job": j}) or "" for j in validated]),
+    )
     saved_analyses = _saved_analyses(saved_jobs)
     profile_hash = profile_fingerprint(profile)
-    rejected_before = _rejected_jobs([saved_job_key({"job": j}) or "" for j in validated])
     reused: list[dict[str, Any]] = []
     reused_rejected = 0
     # Rejected here without an LLM call: its analysis would be thrown away.

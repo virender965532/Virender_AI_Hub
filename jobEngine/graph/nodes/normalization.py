@@ -14,6 +14,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from ...concurrency import map_cpu
 from ...config.settings import get_settings
 from ...guardrails.url_guardrails import check_url
 from ...matching.global_remote import GLOBAL_REMOTE_TAG, is_global_remote
@@ -84,106 +85,133 @@ def _infer_remote_type(location: str | None, description: str, *, adapter_hint: 
     return RemoteType.UNKNOWN
 
 
+def _normalize_raw(
+    raw: dict[str, Any], *, allowed_domains: list[str], worldwide_enabled: bool, run_id: str | None
+) -> tuple[dict[str, Any] | None, list[dict[str, Any]]]:
+    """One raw job -> (normalized job or None, workflow errors). Pure and picklable:
+    ``normalization_node`` runs it in worker processes for large batches."""
+    source_id = raw.get("source", "")
+    errors: list[dict[str, Any]] = []
+
+    app_url = raw.get("application_url") or ""
+    src_url = raw.get("source_url") or app_url
+    if allowed_domains:
+        for url in (app_url, src_url):
+            result = check_url(url, allowed_domains=allowed_domains, resolve_dns=False)
+            if not result.ok:
+                errors.append(
+                    WorkflowError(
+                        error_code="job_url_rejected",
+                        error_type=ErrorType.GUARDRAIL,
+                        message=f"job URL {url!r} rejected: {result.reason}",
+                        source=source_id,
+                        node="normalization",
+                        severity=ErrorSeverity.LOW,
+                        run_id=run_id,
+                    ).model_dump(mode="json")
+                )
+                app_url = None
+                break
+
+    if not app_url:
+        return None, errors
+
+    description = raw.get("description") or ""
+    remote_type = _infer_remote_type(raw.get("location"), description, adapter_hint=raw.get("remote_type"))
+    tags = []
+    # Not gated on REMOTE: "hybrid cloud" in a description reads as HYBRID.
+    if remote_type != RemoteType.ONSITE and is_global_remote(raw.get("location"), description):
+        tags.append(GLOBAL_REMOTE_TAG)
+    extra = raw.get("extra") or {}
+    worldwide = None
+    if worldwide_enabled:
+        worldwide = classify_worldwide(
+            title=raw.get("title") or "",
+            location=raw.get("location"),
+            description=description,
+            employment_type=raw.get("employment_type"),
+            workplace_type=extra.get("workplace_type"),
+            remote_type=remote_type,
+        )
+    job_id = content_hash(
+        source=source_id,
+        title=raw.get("title") or "",
+        company=raw.get("company") or "",
+        description=description,
+    )
+
+    try:
+        job = Job(
+            job_id=job_id,
+            source=source_id,
+            source_job_id=raw.get("source_job_id"),
+            title=raw.get("title") or "",
+            company=raw.get("company") or "",
+            location=raw.get("location"),
+            employment_type=raw.get("employment_type"),
+            experience_required=raw.get("experience_required"),
+            description=description,
+            requirements=raw.get("requirements") or [],
+            responsibilities=raw.get("responsibilities") or [],
+            skills=raw.get("skills") or [],
+            salary=raw.get("salary"),
+            posted_date=_parse_posted_date(raw.get("posted_date_raw"), raw.get("discovered_at")),
+            application_url=app_url,
+            source_url=src_url,
+            remote_type=remote_type,
+            tags=tags,
+            worldwide=worldwide,
+            search_urls=extra.get("search_urls") or [],
+            raw_text_hash=job_id,
+            discovered_at=raw.get("discovered_at"),
+        )
+    except ValidationError as exc:
+        errors.append(
+            WorkflowError(
+                error_code="job_normalization_failed",
+                error_type=ErrorType.VALIDATION,
+                message=str(exc),
+                source=source_id,
+                node="normalization",
+                severity=ErrorSeverity.LOW,
+                run_id=run_id,
+            ).model_dump(mode="json")
+        )
+        return None, errors
+
+    return job.model_dump(mode="json"), errors
+
+
+def _normalize_task(task: tuple[dict[str, Any], list[str], bool, str | None]):
+    raw, allowed_domains, worldwide_enabled, run_id = task
+    return _normalize_raw(raw, allowed_domains=allowed_domains, worldwide_enabled=worldwide_enabled, run_id=run_id)
+
+
 async def normalization_node(state: dict[str, Any]) -> dict[str, Any]:
     run_id = state.get("run_id")
     raw_jobs = state.get("discovered_jobs") or []
     source_configs = {c["id"]: c for c in state.get("source_configs") or []}
     worldwide_enabled = get_settings().worldwide_remote_enabled
 
+    # Every job is independent and the classification is CPU-bound (regex over every
+    # sentence), so large batches are spread over worker processes.
+    tasks = [
+        (
+            raw,
+            (source_configs.get(raw.get("source", "")) or {}).get("allowed_domains") or [],
+            worldwide_enabled,
+            run_id,
+        )
+        for raw in raw_jobs
+    ]
+    outcomes = await map_cpu(_normalize_task, tasks)
+
     normalized: list[dict[str, Any]] = []
     errors: list[dict[str, Any]] = []
-
-    for raw in raw_jobs:
-        source_id = raw.get("source", "")
-        allowed_domains = (source_configs.get(source_id) or {}).get("allowed_domains") or []
-
-        app_url = raw.get("application_url") or ""
-        src_url = raw.get("source_url") or app_url
-        if allowed_domains:
-            for url in (app_url, src_url):
-                result = check_url(url, allowed_domains=allowed_domains, resolve_dns=False)
-                if not result.ok:
-                    errors.append(
-                        WorkflowError(
-                            error_code="job_url_rejected",
-                            error_type=ErrorType.GUARDRAIL,
-                            message=f"job URL {url!r} rejected: {result.reason}",
-                            source=source_id,
-                            node="normalization",
-                            severity=ErrorSeverity.LOW,
-                            run_id=run_id,
-                        ).model_dump(mode="json")
-                    )
-                    app_url = None
-                    break
-
-        if not app_url:
-            continue
-
-        description = raw.get("description") or ""
-        remote_type = _infer_remote_type(raw.get("location"), description, adapter_hint=raw.get("remote_type"))
-        tags = []
-        # Not gated on REMOTE: "hybrid cloud" in a description reads as HYBRID.
-        if remote_type != RemoteType.ONSITE and is_global_remote(raw.get("location"), description):
-            tags.append(GLOBAL_REMOTE_TAG)
-        extra = raw.get("extra") or {}
-        worldwide = None
-        if worldwide_enabled:
-            worldwide = classify_worldwide(
-                title=raw.get("title") or "",
-                location=raw.get("location"),
-                description=description,
-                employment_type=raw.get("employment_type"),
-                workplace_type=extra.get("workplace_type"),
-                remote_type=remote_type,
-            )
-        job_id = content_hash(
-            source=source_id,
-            title=raw.get("title") or "",
-            company=raw.get("company") or "",
-            description=description,
-        )
-
-        try:
-            job = Job(
-                job_id=job_id,
-                source=source_id,
-                source_job_id=raw.get("source_job_id"),
-                title=raw.get("title") or "",
-                company=raw.get("company") or "",
-                location=raw.get("location"),
-                employment_type=raw.get("employment_type"),
-                experience_required=raw.get("experience_required"),
-                description=description,
-                requirements=raw.get("requirements") or [],
-                responsibilities=raw.get("responsibilities") or [],
-                skills=raw.get("skills") or [],
-                salary=raw.get("salary"),
-                posted_date=_parse_posted_date(raw.get("posted_date_raw"), raw.get("discovered_at")),
-                application_url=app_url,
-                source_url=src_url,
-                remote_type=remote_type,
-                tags=tags,
-                worldwide=worldwide,
-                search_urls=extra.get("search_urls") or [],
-                raw_text_hash=job_id,
-                discovered_at=raw.get("discovered_at"),
-            )
-        except ValidationError as exc:
-            errors.append(
-                WorkflowError(
-                    error_code="job_normalization_failed",
-                    error_type=ErrorType.VALIDATION,
-                    message=str(exc),
-                    source=source_id,
-                    node="normalization",
-                    severity=ErrorSeverity.LOW,
-                    run_id=run_id,
-                ).model_dump(mode="json")
-            )
-            continue
-
-        normalized.append(job.model_dump(mode="json"))
+    for job, job_errors in outcomes:
+        errors.extend(job_errors)
+        if job is not None:
+            normalized.append(job)
 
     logger.info("normalization_node: %s/%s raw jobs normalized", len(normalized), len(raw_jobs))
     return {"normalized_jobs": normalized, "errors": errors}

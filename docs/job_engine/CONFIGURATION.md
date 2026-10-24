@@ -39,8 +39,8 @@ it — see `degrade_on_llm_failure`).
 | `JOB_MATCH_WEIGHT_*` (6 vars) | 0.30/0.20/0.15/0.20/0.10/0.05 | Must sum to ~1.0 (validated at startup) |
 | `JOB_MIN_MATCH_SCORE` | `70` | Engine-wide default; overridable per-request |
 | `JOB_LLM_TOP_K` | `50` | Jobs sent to the (expensive) LLM stage, ranked by rule score; `<= 0` (e.g. `-1`) sends every job |
-| `JOB_LLM_CONCURRENCY` | `6` | LLM calls (matching + worldwide review) running at the same time; every job is analyzed independently. Raise for speed, lower if OpenAI returns 429 rate-limit errors |
-| `LINKEDIN_MAX_TABS` | `2` | Browser tabs scraping LinkedIn at once, shared by every search URL: a search URL's results pages are scraped this many at a time (each tab has its own detail pane). `1` = one page at a time. Higher is faster but makes LinkedIn security checks more likely. Already-saved jobs are never re-opened |
+| `JOB_LLM_CONCURRENCY` | `12` | LLM calls (matching + worldwide review) running at the same time; every job is analyzed independently. Raise for speed, lower if OpenAI returns 429 rate-limit errors |
+| `LINKEDIN_MAX_TABS` | `3` | Browser tabs scraping LinkedIn at once, shared by every search URL: a search URL's results pages are scraped this many at a time (each tab has its own detail pane). `1` = one page at a time. Higher is faster but makes LinkedIn security checks more likely. Already-saved jobs are never re-opened |
 | `JOB_RULE_PREFILTER_MIN_SCORE` | `15` | Defined but currently unused (no prefilter stage runs) — left as a settings no-op rather than a breaking removal. Jobs the hard-rejection rules reject are never sent to the LLM |
 | `REJECTED_JOBS_MAX_AGE_HOURS` | `168` | How long a rejected job is remembered (MongoDB `rejected_jobs`, TTL index). While remembered, LinkedIn doesn't re-open it and matching reuses its stored analysis instead of calling the LLM, unless the job text or `Profile/Summary.txt` changed; the run's minimum score is re-applied |
 | `JOB_CANDIDATE_EXPERIENCE_YEARS` | `7` | Fallback if the profile's summary text doesn't state years explicitly |
