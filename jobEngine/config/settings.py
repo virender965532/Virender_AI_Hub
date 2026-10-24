@@ -22,7 +22,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 JOB_SOURCES_CONFIG_PATH = PROJECT_ROOT / "config" / "job_sources.yaml"
 PROFILE_DIR = PROJECT_ROOT / "Profile"
 PROFILE_SUMMARY_PATH = PROFILE_DIR / "Summary.txt"
-PROFILE_RESUME_PDF_PATH = PROFILE_DIR / "VirenderFullstackResumeUpdated.pdf"
+PROFILE_RESUME_PDF_PATH = PROFILE_DIR / "SeniorFullStackAIEngineer.pdf"
 
 JOB_ENGINE_OUTPUT_DIR = PROJECT_ROOT / "output" / "job_engine"
 JOB_ENGINE_DEBUG_DIR = PROJECT_ROOT / "scraper_debug" / "job_engine"

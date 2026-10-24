@@ -1,5 +1,5 @@
 Virender Kumar
-Full Stack AI Senior Developer
+Senior Full Stack AI Developer
 Noida, Uttar Pradesh, India
 
 Phone: +91 9821592146
@@ -7,16 +7,18 @@ Email: virenderfullstack@gmail.com
 LinkedIn: https://www.linkedin.com/in/ai-virender-kumar/
 
 PROFILE SUMMARY
-Full Stack Developer with 7 years of experience designing, building, and scaling cloud-native applications using 
+Senior Full Stack AI Developer with 7+ years of experience designing, building, and scaling cloud-native applications using
 Next.js
 React.js
 Node.js
 TypeScript
-AWS 
+AWS
 
-Proven track record of delivering measurable impact, including 25% performance improvements, 40% faster deployment cycles, and enhanced code quality through AI-driven development practices. 
+Proficient in developing Generative AI solutions using RAG, vector databases, and LangGraph workflows.
 
-Experienced in building scalable, reliable, and user-focused solutions while collaborating effectively with clients and cross-functional teams. Strong focus on modern architecture, performance optimization, clean code, and continuous delivery.
+Proven track record of delivering measurable impact, including 50% fewer deployment failures, 40% fewer backend API calls, 30% faster backend response time, and 50% fewer production defects.
+
+Experienced in building scalable, reliable, and user-focused solutions while collaborating effectively with clients and cross-functional teams. Strong focus on clean architecture, performance optimization, and application security.
 
 TECHNICAL SKILLS
 
@@ -25,80 +27,90 @@ Next.js
 React.js
 JavaScript
 TypeScript
+Angular
 HTML
 CSS
+Tailwind
 
 Back-End Development:
 Node.js
+Python
 Strapi
 GraphQL
 REST APIs
 Microservices
 Express
+Flask
+Laravel
+PHP
+
+AI Technologies:
+LLM
+Generative AI
+RAG
+Agentic AI
+LangGraph
+LangChain
+MCP
 
 Cloud & Infrastructure:
 Vercel
-AWS EC2 & ALB
 AWS Lambda
-AWS S3
 AWS OpenSearch
 AWS Cognito
-AWS CloudWatch & CloudFront
-AWS API Gateway
-AWS IAM
-AWS VPC
-AWS Route53
 CI/CD Pipelines
-Docker
 Git
 
 Databases:
-MongoDB
 PostgreSQL
 MySQL
-
+MongoDB
+Vector Databases (Pinecone, Chroma, FAISS)
 
 AI Tools:
-GitHub Copilot
+Claude AI
 Cursor
-Claude Code
+GitHub Copilot
 
 WORK EXPERIENCE
 
-Impressico Business Solutions — AI Full Stack Senior Developer
+Impressico Business Solutions — Senior Full Stack AI Developer
 Noida, India | Aug 2024 – Present
-• Optimized Vercel CI/CD deployment pipelines, reducing build and production deployment failures by 90% and enabling faster, more reliable release cycles.
-• Reduced backend API calls by 80% by implementing Next.js Static Site Generation (SSG), caching, and performance optimization strategies, significantly improving application performance and user experience.
-• Led the Strapi CMS upgrade from v4 to v5, refactoring custom plugins, middleware, and database queries, resulting in a 30% improvement in backend response time and improved production memory efficiency.
-• Reduced monthly infrastructure costs by over $100 by replacing third-party dependencies with optimized custom React hooks and reusable internal modules, reducing external dependency overhead.
-• Designed and deployed automated CRON-based data synchronization services between Strapi CMS and HubSpot, ensuring reliable, production-grade data consistency and synchronization.
-• Strengthened application security by implementing HTTP security headers, API rate limiting, and bot mitigation strategies, reducing malicious traffic and improving overall platform security.
-• Contributed to post-acquisition integration initiatives for Pi.ai (Inflection AI) within Microsoft's ecosystem, supporting technical transition, system compatibility, and integration stability.
+
+Led the Strapi CMS upgrade from v4 to v5, refactoring custom plugins, middleware, and database queries, resulting in a 30% improvement in backend response time.
+Saved over $1,200 annually in infrastructure costs by replacing third-party dependencies with custom React hooks and reusable internal modules.
+Built automated CRON-based data synchronization between Strapi CMS and HubSpot, ensuring reliable data consistency.
+Optimized Vercel CI/CD pipelines, cutting deployment failures by 50% and accelerating release cycles.
+Reduced backend API calls by 40% using Next.js Static Site Generation (SSG) and caching, improving application performance and user experience.
+Strengthened application security through HTTP security headers, API rate limiting, and bot mitigation, reducing malicious traffic.
 
 Biz2Credit — Full Stack Developer
 Noida, India | Aug 2021 – Aug 2024
-• Designed and integrated secure eSign and eNACH modules for Tata Capital's SME Loan platform, enabling compliant, end-to-end digital loan processing and reducing dependency on manual verification.
-• Architected and implemented the "Sugam Loan" digital approval workflow, optimizing business logic and API orchestration to significantly improve loan approval turnaround time and enhance the user experience for SME applicants.
-• Reduced production defects by 75% through systematic code refactoring, performance optimization, structured logging, and improved testing workflows, leading to higher platform stability and reliability.
-• Engineered a modular, reusable workflow framework using component-driven architecture and configurable business rules, accelerating feature rollout across multiple loan products and improving development scalability.
+
+Built secure eSign and eNACH modules for Tata Capital’s SME Loan platform, enabling end-to-end digital loan processing.
+Architected the “Sugam Loan” digital approval workflow, accelerating loan approvals and enhancing the applicant experience.
+Reduced production defects by 50% through code refactoring, structured logging, and improved testing practices.
+Built a reusable, configurable workflow framework that accelerated feature rollout across multiple loan products.
 
 HestaBit — Laravel Developer
-Noida | Mar 2018 – Aug 2021
+Noida, India | Apr 2020 – Aug 2021
 
-ProProfs — Laravel Developer
-Delhi | Oct 2018 – Feb 2020
+ProProfs — PHP Developer
+Noida, India | Nov 2018 – Jan 2020
 
 KEY PROJECTS
 
 Impressico Business Solutions
-• Legal Technology Hub (Aug 2024 – Present) — Next.js, TypeScript, Node.js, PostgreSQL, Strapi, AWS, Tailwind, Vector Database, Generative AI, RAG
-• Gunner Roofing Platform (Oct 2025 – Present, Parallel Client Project) — Next.js, TypeScript, Node.js, MongoDB, Tailwind
-• Pi Next (Sept 2025, Short-Term Engagement) — Next.js, TypeScript, Node.js, MongoDB
+
+Legal Technology Hub (Aug 2024 – Present) — Next.js, TypeScript, Node.js, PostgreSQL, Strapi, AWS, Tailwind, Vector Database, Generative AI, RAG
+Gunner Roofing Platform (Oct 2025 – Jun 2026) — Next.js, TypeScript, Node.js, MongoDB, Tailwind
+Pi.ai (Sep 2025 – Nov 2025) — Next.js, TypeScript, Node.js, MongoDB
 
 Biz2Credit
-• Loan Origination System — NBFC in a Box (Jul 2022 – Aug 2024) — React, Node.js, TypeScript, MongoDB, Express.js
-• Tata Capital SME Loan Platform (Aug 2021 – Aug 2024) — Angular, React, Node.js, AWS Lambda, MongoDB
+
+Loan Origination System — NBFC in a Box (Jul 2022 – Aug 2024) — Angular, React, Node.js, AWS Lambda, MongoDB
+Tata Capital SME Loan Platform (Aug 2021 – Aug 2024) — Angular, React, Node.js, AWS Lambda, MongoDB
 
 EDUCATION
-Bachelor of Science in Computer Science
-HMR Institute of Technology and Management (Jul 2013 – Jul 2017), New Delhi, India
+Bachelor of Technology in Computer Science
+HMR Institute of Technology and Management, Delhi, India | Graduated May 2013
