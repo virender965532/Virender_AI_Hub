@@ -14,8 +14,10 @@
 #   allowed_domains   — SSRF allowlist; auto-derived from base_url/search_urls if omitted
 #   selectors         — optional overrides consumed by the "generic" adapter (CSS selectors)
 #   title_keywords    — optional; jobs whose title has none of these words are dropped
-#                       before their details are opened (case-insensitive, whole words;
-#                       "full-stack" also matches "Full Stack"/"Fullstack"). Empty = keep all.
+#                       before their details are opened (whole words; "full-stack" also
+#                       matches "Full Stack"/"Fullstack"). Lowercase keywords are matched
+#                       case-insensitively; a keyword with capitals (e.g. AI) is matched
+#                       exactly as written. Empty = keep all.
 #   title_exclude_keywords — optional; jobs whose title has any of these words are dropped
 #                       the same way (same matching; "java" never matches "JavaScript").
 #   max_jobs/max_pages — hard caps enforced by guardrails, independent of what the site offers

@@ -7,110 +7,179 @@ Email: virenderfullstack@gmail.com
 LinkedIn: https://www.linkedin.com/in/ai-virender-kumar/
 
 PROFILE SUMMARY
-Senior Full Stack AI Developer with 7+ years of experience designing, building, and scaling cloud-native applications using
-Next.js
-React.js
-Node.js
-TypeScript
-AWS
 
-Proficient in developing Generative AI solutions using RAG, vector databases, and LangGraph workflows.
+Senior Full Stack AI Developer with 7+ years of experience designing, developing, and scaling cloud-native applications using Next.js, React.js, Node.js, TypeScript, and AWS.
 
-Proven track record of delivering measurable impact, including 50% fewer deployment failures, 40% fewer backend API calls, 30% faster backend response time, and 50% fewer production defects.
+Experienced in building Generative AI solutions using Large Language Models (LLMs), Retrieval-Augmented Generation (RAG), vector databases, and LangGraph-based agentic workflows. Skilled in developing scalable web applications, REST and GraphQL APIs, microservices, and AI-powered solutions.
 
-Experienced in building scalable, reliable, and user-focused solutions while collaborating effectively with clients and cross-functional teams. Strong focus on clean architecture, performance optimization, and application security.
+Proven track record of delivering measurable business impact, including a 50% reduction in deployment failures, a 40% reduction in backend API calls, a 30% improvement in backend response time, and a 50% reduction in production defects.
+
+Experienced in modernizing legacy platforms, optimizing application performance, strengthening security, and streamlining CI/CD pipelines. Strong focus on clean architecture, maintainable code, infrastructure cost optimization, and delivering reliable, user-focused products in collaboration with clients and cross-functional teams.
 
 TECHNICAL SKILLS
 
 Front-End Development:
 Next.js
 React.js
-JavaScript
 TypeScript
+JavaScript
 Angular
-HTML
-CSS
-Tailwind
+HTML5
+CSS3
+Tailwind CSS
 
 Back-End Development:
 Node.js
 Python
-Strapi
+Strapi CMS
 GraphQL
 REST APIs
 Microservices
-Express
+Express.js
 Flask
 Laravel
 PHP
 
-AI Technologies:
-LLM
+AI & Generative AI:
+Large Language Models (LLMs)
 Generative AI
-RAG
+Retrieval-Augmented Generation (RAG)
 Agentic AI
 LangGraph
 LangChain
-MCP
+Model Context Protocol (MCP)
+AI-powered application development
 
 Cloud & Infrastructure:
-Vercel
+Amazon Web Services (AWS)
 AWS Lambda
 AWS OpenSearch
 AWS Cognito
+Vercel
 CI/CD Pipelines
 Git
 
-Databases:
+Databases & Search:
 PostgreSQL
 MySQL
 MongoDB
-Vector Databases (Pinecone, Chroma, FAISS)
+Vector Databases
+Pinecone
+Chroma
+FAISS
+OpenSearch
 
-AI Tools:
-Claude AI
+AI-Assisted Development Tools:
 Cursor
+Claude AI
 GitHub Copilot
 
 WORK EXPERIENCE
 
 Impressico Business Solutions — Senior Full Stack AI Developer
-Noida, India | Aug 2024 – Present
+Noida, India | August 2024 – Present
 
-Led the Strapi CMS upgrade from v4 to v5, refactoring custom plugins, middleware, and database queries, resulting in a 30% improvement in backend response time.
-Saved over $1,200 annually in infrastructure costs by replacing third-party dependencies with custom React hooks and reusable internal modules.
-Built automated CRON-based data synchronization between Strapi CMS and HubSpot, ensuring reliable data consistency.
-Optimized Vercel CI/CD pipelines, cutting deployment failures by 50% and accelerating release cycles.
-Reduced backend API calls by 40% using Next.js Static Site Generation (SSG) and caching, improving application performance and user experience.
-Strengthened application security through HTTP security headers, API rate limiting, and bot mitigation, reducing malicious traffic.
+- Led the migration of Strapi CMS from v4 to v5, refactoring custom plugins, middleware, and database queries to improve backend response time by 30%.
+- Reduced annual infrastructure costs by more than $1,200 by replacing third-party dependencies with custom React hooks and reusable internal modules.
+- Developed automated, CRON-based data synchronization between Strapi CMS and HubSpot to maintain reliable data consistency.
+- Optimized Vercel CI/CD pipelines, reducing deployment failures by 50% and improving release efficiency.
+- Reduced backend API calls by 40% through Next.js Static Site Generation (SSG) and caching strategies, improving application performance and user experience.
+- Strengthened application security through HTTP security headers, API rate limiting, and bot mitigation measures to reduce malicious traffic.
+- Contributed to the development of scalable, cloud-native applications integrating modern frontend frameworks, backend services, databases, and AI technologies.
 
 Biz2Credit — Full Stack Developer
-Noida, India | Aug 2021 – Aug 2024
+Noida, India | August 2021 – August 2024
 
-Built secure eSign and eNACH modules for Tata Capital’s SME Loan platform, enabling end-to-end digital loan processing.
-Architected the “Sugam Loan” digital approval workflow, accelerating loan approvals and enhancing the applicant experience.
-Reduced production defects by 50% through code refactoring, structured logging, and improved testing practices.
-Built a reusable, configurable workflow framework that accelerated feature rollout across multiple loan products.
+- Developed secure electronic signature (eSign) and electronic National Automated Clearing House (eNACH) modules for Tata Capital’s SME Loan platform, enabling end-to-end digital loan processing.
+- Architected the “Sugam Loan” digital approval workflow to accelerate loan approvals and improve the applicant experience.
+- Reduced production defects by 50% through code refactoring, structured logging, and improved testing practices.
+- Designed and implemented a reusable, configurable workflow framework to accelerate feature delivery across multiple loan products.
+- Developed and maintained full-stack applications using Angular, React, Node.js, AWS Lambda, and MongoDB.
 
 HestaBit — Laravel Developer
-Noida, India | Apr 2020 – Aug 2021
+Noida, India | April 2020 – August 2021
+
+- Worked on web application development using Laravel and PHP.
+- Contributed to backend development and application functionality using server-side technologies.
 
 ProProfs — PHP Developer
-Noida, India | Nov 2018 – Jan 2020
+Noida, India | November 2018 – January 2020
+
+- Worked on web application development using PHP.
+- Contributed to backend functionality and application maintenance.
 
 KEY PROJECTS
 
 Impressico Business Solutions
 
-Legal Technology Hub (Aug 2024 – Present) — Next.js, TypeScript, Node.js, PostgreSQL, Strapi, AWS, Tailwind, Vector Database, Generative AI, RAG
-Gunner Roofing Platform (Oct 2025 – Jun 2026) — Next.js, TypeScript, Node.js, MongoDB, Tailwind
-Pi.ai (Sep 2025 – Nov 2025) — Next.js, TypeScript, Node.js, MongoDB
+1. Legal Technology Hub (Legaltech Hub)
+Duration: August 2024 – Present
+Technologies: Next.js, TypeScript, Node.js, PostgreSQL, Strapi, AWS, Tailwind CSS, Vector Databases, Generative AI, RAG
+
+- Contributed to the development and modernization of a legal technology platform that helps law firms, corporate legal departments, and individuals manage and access legal services.
+- Led the Strapi v4-to-v5 migration and optimized backend performance.
+- Worked with Generative AI, RAG, and vector database technologies for AI-powered knowledge retrieval and application capabilities.
+- Improved application performance, deployment reliability, and security.
+
+2. Gunner Roofing Platform
+Duration: October 2025 – June 2026
+Technologies: Next.js, TypeScript, Node.js, MongoDB, Tailwind CSS
+
+- Worked on a digital home improvement platform that enables homeowners to obtain roofing quotes and complete roof purchases online.
+- Contributed to full-stack application development using modern frontend and backend technologies.
+
+3. Pi.ai
+Duration: September 2025 – November 2025
+Technologies: Next.js, TypeScript, Node.js, MongoDB
+
+- Worked on a project associated with an AI-powered conversational platform designed for natural conversations, brainstorming, and everyday assistance.
+- Contributed to application development using Next.js, TypeScript, Node.js, and MongoDB.
 
 Biz2Credit
 
-Loan Origination System — NBFC in a Box (Jul 2022 – Aug 2024) — Angular, React, Node.js, AWS Lambda, MongoDB
-Tata Capital SME Loan Platform (Aug 2021 – Aug 2024) — Angular, React, Node.js, AWS Lambda, MongoDB
+4. Loan Origination System – NBFC in a Box
+Duration: July 2022 – August 2024
+Technologies: Angular, React, Node.js, AWS Lambda, MongoDB
+
+- Contributed to the development of a digital loan origination platform for non-banking financial companies (NBFCs).
+- Worked on frontend and backend components supporting digital lending workflows.
+
+5. Tata Capital SME Loan Platform
+Duration: August 2021 – August 2024
+Technologies: Angular, React, Node.js, AWS Lambda, MongoDB
+
+- Developed digital lending capabilities for Tata Capital’s SME loan platform.
+- Implemented eSign and eNACH modules to support digital loan processing.
+- Contributed to the “Sugam Loan” approval workflow and reusable loan-processing components.
+
+KEY ACHIEVEMENTS
+
+- Deployment Reliability: Reduced deployment failures by 50% through CI/CD pipeline optimization.
+- Backend Performance: Improved backend response time by 30% through platform modernization and performance optimization.
+- API Efficiency: Reduced backend API calls by 40% through caching and Next.js SSG.
+- Production Quality: Reduced production defects by 50% through refactoring, structured logging, and improved testing practices.
+- Infrastructure Cost Optimization: Saved more than $1,200 annually by replacing third-party dependencies with custom-built solutions.
+- Academic Achievement: Scored 100% in Mathematics in the Class 10 Board Examination, demonstrating strong numerical aptitude and problem-solving skills.
 
 EDUCATION
-Bachelor of Technology in Computer Science
-HMR Institute of Technology and Management, Delhi, India | Graduated May 2013
+
+Bachelor of Technology (B.Tech) in Computer Science
+HMR Institute of Technology and Management, Delhi, India
+Graduation: May 2013 - July 2017
+GPA: 6.7/10
+
+PROFESSIONAL TRAINING & CERTIFICATIONS
+
+- The AI Engineer Course: Complete AI Engineer
+- AI Engineer Agentic Track: The Complete Agent & MCP Course
+- LangGraph Agentic Workflows
+- Master Vector Databases
+- SOLID Design Principles
+- MongoDB – The Complete Developer's Guide
+- React.js Essential Training
+- Learning Node.js
+- Databases for Node.js Developers
+
+LANGUAGES
+
+English — Proficient

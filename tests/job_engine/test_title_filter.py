@@ -37,6 +37,22 @@ def test_no_keywords_keeps_everything():
     assert title_matches_keywords("Sales Executive", [])
 
 
+@pytest.mark.parametrize(
+    "title, matches",
+    [
+        ("AI Engineer", True),
+        ("Senior AI/ML Developer", True),
+        ("Gen-AI Specialist", True),
+        ("SOFTWARE ENGINEER", True),  # lowercase keyword stays case-insensitive
+        ("Ai Specialist", False),  # "AI" is matched as written
+        ("ai specialist", False),
+        ("AIR Traffic Controller", False),
+    ],
+)
+def test_uppercase_keyword_is_case_sensitive(title, matches):
+    assert title_matches_keywords(title, ["AI", "engineer"]) is matches
+
+
 _EXCLUDE = ["java", "python", "intern", "c#", ".net", "go", "manager"]
 
 
