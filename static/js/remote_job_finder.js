@@ -392,6 +392,40 @@
       });
   }
 
+  var graphModal = document.getElementById("rjf-graph-modal");
+  var graphImg = document.getElementById("rjf-graph-img");
+  var graphMessage = document.getElementById("rjf-graph-message");
+
+  function openGraph() {
+    setVisible(graphModal, true);
+    setVisible(graphImg, false);
+    setVisible(graphMessage, true);
+    graphMessage.textContent = "Rendering graph…";
+    var sources = selectedSources() || [];
+    fetch("/api/remote-job-finder/graph.png?sources=" + encodeURIComponent(sources.join(",")))
+      .then(function (res) {
+        if (!res.ok) return res.json().then(function (data) { throw new Error(data.error || res.statusText); });
+        return res.blob();
+      })
+      .then(function (blob) {
+        if (graphImg.src) URL.revokeObjectURL(graphImg.src);
+        graphImg.src = URL.createObjectURL(blob);
+        setVisible(graphMessage, false);
+        setVisible(graphImg, true);
+      })
+      .catch(function (err) {
+        graphMessage.textContent = "Could not render the graph: " + err.message;
+      });
+  }
+
+  function closeGraph() {
+    setVisible(graphModal, false);
+  }
+
+  document.getElementById("rjf-btn-graph").addEventListener("click", openGraph);
+  document.getElementById("rjf-btn-graph-close").addEventListener("click", closeGraph);
+  graphModal.addEventListener("click", function (e) { if (e.target === graphModal) closeGraph(); });
+
   renderSourceCheckboxes();
   if (WW && wwFilterInput) {
     WW.fillFilterSelect(wwFilterInput);

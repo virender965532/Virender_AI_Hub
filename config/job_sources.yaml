@@ -29,9 +29,9 @@ job_sources:
     base_url: "https://www.linkedin.com"
     search_urls:
       - "https://www.linkedin.com/jobs/search/?currentJobId=4479673131&f_F=it%2Ceng&f_I=6%2C4%2C1530001%2C96%2C1594%2C3242%2C3102&f_JT=P%2CC&f_TPR=r43200&f_WT=2&geoId=92000000&origin=JOB_SEARCH_PAGE_JOB_FILTER&refresh=true&sortBy=DD&spellCorrectionEnabled=true"
-      # - "https://www.linkedin.com/jobs/search/?currentJobId=4477383631&f_F=it%2Ceng&f_TPR=r43200&geoId=106204383&origin=JOB_SEARCH_PAGE_JOB_FILTER&refresh=true&sortBy=R&spellCorrectionEnabled=true"
-      # - "https://www.linkedin.com/jobs/search/?currentJobId=4475180765&f_C=1441&f_TPR=r14400&geoId=102713980&origin=JOB_SEARCH_PAGE_JOB_FILTER&refresh=true&sortBy=DD&spellCorrectionEnabled=true"
-      # - "https://www.linkedin.com/jobs/search/?currentJobId=4472024409&f_E=4&f_F=it%2Ceng&f_I=96%2C4%2C3231%2C6&f_TPR=r21600&geoId=102713980&origin=JOB_SEARCH_PAGE_JOB_FILTER&refresh=true&sortBy=DD"
+      - "https://www.linkedin.com/jobs/search/?currentJobId=4477383631&f_F=it%2Ceng&f_TPR=r43200&geoId=106204383&origin=JOB_SEARCH_PAGE_JOB_FILTER&refresh=true&sortBy=R&spellCorrectionEnabled=true"
+      - "https://www.linkedin.com/jobs/search/?currentJobId=4475180765&f_C=1441&f_TPR=r14400&geoId=102713980&origin=JOB_SEARCH_PAGE_JOB_FILTER&refresh=true&sortBy=DD&spellCorrectionEnabled=true"
+      - "https://www.linkedin.com/jobs/search/?currentJobId=4472024409&f_E=4&f_F=it%2Ceng&f_I=96%2C4%2C3231%2C6&f_TPR=r21600&geoId=102713980&origin=JOB_SEARCH_PAGE_JOB_FILTER&refresh=true&sortBy=DD"
     adapter: linkedin
     signin_url: "https://www.linkedin.com/login/?trk=guest_homepage-basic_nav-header-signin"
     allowed_domains: ["linkedin.com", "licdn.com"]

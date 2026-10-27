@@ -12,11 +12,13 @@ from __future__ import annotations
 
 import logging
 
-from flask import Blueprint, jsonify, render_template, request
+from flask import Blueprint, Response, jsonify, render_template, request
 from pymongo.errors import PyMongoError
 
 from jobEngine.config.settings import get_settings
 from jobEngine.config.sources import DEFAULT_UNCHECKED_SOURCES, load_job_sources
+from jobEngine.graph.builder import draw_graph_png
+from jobEngine.services.job_engine_service import _resolve_sources
 from jobEngine.services.profile_loader import load_candidate_profile
 from jobEngine.sources.search_keywords import url_keywords
 from jobEngine.matching.rejection_analyzer import RejectionAnalysisError, RejectionAnalyzer
@@ -95,6 +97,18 @@ def _default_keywords() -> str:
     except Exception:
         logger.exception("Failed to read default keywords from job_sources.yaml")
     return ""
+
+
+@remote_job_finder_bp.route("/api/remote-job-finder/graph.png")
+def api_graph_png():
+    """PNG of the LangGraph workflow a search with these ``?sources=a,b`` would run."""
+    requested = [s.strip() for s in request.args.get("sources", "").split(",") if s.strip()]
+    try:
+        png = draw_graph_png(_resolve_sources({"sources": requested}))
+    except Exception as exc:
+        logger.exception("Failed to render the job discovery graph")
+        return jsonify({"ok": False, "error": f"could not render graph: {exc}"}), 502
+    return Response(png, mimetype="image/png")
 
 
 @remote_job_finder_bp.route("/saved-jobs")

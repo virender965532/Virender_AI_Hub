@@ -246,6 +246,15 @@
   }
   .li-modal__keys input { flex: 1; min-width: 12rem; }
   .li-modal__keys .btn { padding: 0.35rem 0.8rem; font-size: 0.82rem; }
+  .rjf-graph-img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 0 auto;
+    border-radius: 8px;
+    background: #fff;
+  }
+  .rjf-graph-img.hidden { display: none; }
 </style>
 {% endblock %}
 
@@ -294,6 +303,7 @@
         <span>Remote roles only</span>
       </label>
       <button type="button" id="rjf-btn-search" class="btn">Find remote jobs</button>
+      <button type="button" id="rjf-btn-graph" class="btn btn--ghost" title="Show the LangGraph workflow a search with the selected sources would run.">View graph</button>
       <a href="{{ url_for('remote_job_finder.saved_jobs_ui') }}" class="btn btn--ghost">View saved jobs</a>
       <a href="{{ url_for('remote_job_finder.applied_jobs_ui') }}" class="btn btn--ghost">View applied jobs</a>
       <button type="button" id="li-btn-connect" class="btn btn--ghost" title="Sign in to LinkedIn through the server's browser so LinkedIn searches can run.">Connect LinkedIn</button>
@@ -312,6 +322,17 @@
   </div>
 
   <div id="rjf-error" class="alert alert--error glass hidden" role="alert"></div>
+
+  <div id="rjf-graph-modal" class="li-modal hidden" role="dialog" aria-modal="true" aria-labelledby="rjf-graph-title">
+    <div class="li-modal__panel glass">
+      <div class="li-modal__head">
+        <h2 class="li-modal__title" id="rjf-graph-title">Workflow graph</h2>
+        <button type="button" id="rjf-btn-graph-close" class="btn btn--ghost">Close</button>
+      </div>
+      <p class="li-modal__message" id="rjf-graph-message">Rendering graph…</p>
+      <img id="rjf-graph-img" class="rjf-graph-img hidden" alt="LangGraph job discovery workflow" />
+    </div>
+  </div>
 
   <div id="li-modal" class="li-modal hidden" role="dialog" aria-modal="true" aria-labelledby="li-modal-title">
     <div class="li-modal__panel glass">

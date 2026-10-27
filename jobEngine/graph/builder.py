@@ -70,3 +70,18 @@ def build_graph(source_configs: list[JobSourceConfig]) -> Any:
     graph.add_edge("final_output", END)
 
     return graph.compile()
+
+
+def draw_graph_png(source_configs: list[JobSourceConfig]) -> bytes:
+    """PNG of the graph wiring for these sources (rendered via mermaid.ink, needs network)."""
+    return build_graph(source_configs).get_graph().draw_mermaid_png()
+
+
+def display_graph(source_configs: list[JobSourceConfig]) -> None:
+    """Show the graph inline in a Jupyter notebook."""
+    from IPython.display import Image, display
+
+    graph = build_graph(source_configs)
+    display(
+        Image(graph.get_graph().draw_mermaid_png())
+    )
