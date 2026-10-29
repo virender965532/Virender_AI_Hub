@@ -9,3 +9,6 @@ scraper_debug/
 
 # LinkedIn session cookies saved by the job engine
 history/job_engine/linkedin_storage_state.json
+
+# Code Assistant index vectors and rollback checkpoints
+code_assistant/data/

@@ -1,82 +1,68 @@
-### Job Breakdown for Backend Engineer at Azodha
+Here's a detailed breakdown of the job requirements for the Senior Software Engineer position at ServiceNow:
 
-#### Key Responsibilities
-- **Design and Development**: 
-  - Design, build, and scale backend services and APIs (REST and GraphQL) using Node.js and TypeScript.
-  - Create and maintain data pipelines and data warehousing solutions using tools like Airbyte, dbt, Apache Airflow, or AWS Glue.
+### Key Responsibilities
+1. **Application Development**: Build highly interactive and scalable applications.
+2. **Tool and Framework Creation**: Design tools, libraries, and frameworks for use by other developers.
+3. **Innovative Solutions**: Implement new technologies to improve platform functionality.
+4. **Code Quality Assurance**: Write clean, reusable, and maintainable code and enforce best practices such as code reviews and unit testing.
+5. **Collaboration with Product Owners**: Work closely with product owners to gather requirements and take ownership of the code from design to delivery.
+6. **User-Centric Design**: Design software that is intuitive for customers, allowing customization and extension of functionality.
+7. **Product Enhancement**: Contribute to the design and implementation of new products/features while enhancing existing products.
+8. **Mentorship**: Mentor team members and promote knowledge sharing within the team.
+
+### Required Skills
+#### Hard Skills
+- **Programming Languages**: 
+  - Backend: Java, JUnit
+  - APIs: REST, JSON
+  - Databases: Relational databases, SQL
+  - Frameworks: Spring, Hibernate
+  - Frontend: Solid experience in JavaScript
+- **Software Design & Architecture**: Competence in creating scalable and usable designs.
+- **Performance Tuning**: Experience in developing high-performance applications.
   
-- **Infrastructure Management**: 
-  - Manage and optimize AWS infrastructure, including ECS, EC2, S3, RDS, and Lambda.
-  
-- **CI/CD Management**: 
-  - Own CI/CD pipelines and automated testing to ensure fast and reliable release cycles.
-  
-- **Data Security**: 
-  - Develop secure, compliant systems focusing on handling protected health information (PHI).
-  
-- **Collaboration**: 
-  - Participate in code reviews and share best practices.
-  - Collaborate with product, QA, and clinical stakeholders throughout the development lifecycle.
-  
-- **Production Support**: 
-  - Support production stability, including on-call coverage as specified in the contract.
+#### Soft Skills
+- **Communication**: Strong written and verbal communication skills.
+- **Team Collaboration**: Ability to work well within a team and collaborate with colleagues.
+- **Problem-Solving**: Strong analytical skills and eagerness to tackle challenges.
 
-#### Required Skills
+### Seniority Level
+- **Experience**: 5+ years in software development, indicating a senior-level position suitable for individuals with substantial industry background.
+- **Educational Requirement**: Bachelor's or Master's degree in Computer Science or a related field.
 
-**Hard Skills**
-- 5+ years of professional experience in backend development with Node.js and TypeScript.
-- Strong grasp of PostgreSQL, SQL, and ORMs (e.g., Prisma, TypeORM, Sequelize).
-- Hands-on experience with AWS services and infrastructure management.
-- Proficiency in data pipeline tools (Airbyte, dbt, Airflow, AWS Glue).
-- Familiarity with event-driven architectures and message queuing systems.
-- Experience with automated testing frameworks and CI/CD practices.
+### Qualifications
+#### Mandatory
+- Significant experience in designing and implementing high-volume applications.
+- Expertise in the listed backend and frontend technologies.
+- Ability to work in a hybrid environment and willingness to adapt to collaborative work dynamics.
 
-**Soft Skills**
-- Excellent written and verbal communication skills.
-- Ability to work independently and manage one's own schedule effectively.
-- Strong problem-solving skills and the ability to deliver against milestones.
+#### Nice-to-Have
+- Hands-on experience with DevOps practices, including CI/CD pipeline design.
+- Knowledge of containerization and orchestration technologies (e.g., Docker, Kubernetes).
+- Familiarity with cloud services (AWS, Azure, GCP).
+- Experience with microservices architecture.
+- Proficiency in monitoring and observability tools (e.g., Grafana, Prometheus, Splunk).
+- Python experience is preferred.
 
-#### Seniority Level
-- **Mid to Senior-Level**: This position requires significant experience (5+ years), indicating a mid to senior-level candidate.
+### Suggested Interview Topics
+1. **Technical Skills Assessment**:
+   - Coding tests focusing on Java, Spring, and JavaScript.
+   - Problem-solving scenarios based on real-world challenges.
+   - Discussion on system design, focusing on scalability and performance.
 
-#### Mandatory vs. Nice-to-Have Qualifications
+2. **DevOps Practices**:
+   - Questions about CI/CD pipeline experiences.
+   - Scenarios involving Docker and Kubernetes.
 
-**Mandatory Qualifications**
-- 5+ years of backend development experience with Node.js and TypeScript.
-- Experience with PostgreSQL and ORMs.
-- Familiarity with AWS services and infrastructure management.
-- Strong communication skills.
-- Availability for approx. 40 hours/week, with overlap with Eastern Time.
-- Bachelor’s degree in Computer Science or a related field, or equivalent practical experience.
+3. **Collaboration and Communication**:
+   - Situational questions about working with product owners and team members.
+   - Experiences in mentoring and knowledge sharing.
 
-**Nice-to-Have Qualifications**
-- Experience in healthcare technology with knowledge of HIPAA compliance and standards (FHIR or HL7).
-- Infrastructure as Code experience (Terraform or CloudFormation).
-- Container orchestration experience (Docker, Kubernetes).
-- Knowledge of disaster recovery and backup strategies in AWS.
-- Experience with GCP or Azure.
-- Contributions to open-source projects.
+4. **Innovative Thinking**:
+   - Instances where new technologies were adopted to solve complex problems.
+   - Specific examples of improving application functionality or performance.
 
-#### Suggested Interview Topics
-- **Technical Questions**: 
-  - Discuss your experience with Node.js and TypeScript—can you walk us through a significant project?
-  - Explain your understanding and experience with REST and GraphQL APIs.
-  - Describe how you have optimized AWS infrastructure in previous roles.
-  - What tools have you used for CI/CD, and what practices do you follow?
-  
-- **Data Management**: 
-  - Discuss any experience you have with data pipelines (Airbyte, dbt, etc.) and data warehousing.
-  - How do you ensure data security and compliance, especially when dealing with PHI?
+5. **User-Centric Design**:
+   - Discussion of design principles and past projects focused on usability.
 
-- **Collaboration and Communication**: 
-  - Provide an example of how you have collaborated with cross-functional teams.
-  - Discuss a time when clear communication made a difference in a project.
-
-- **Problem Solving and Autonomy**: 
-  - Describe how you prioritize and manage your tasks independently.
-  - Have you ever had to troubleshoot a production issue? How did you handle it?
-
-- **Healthcare Technology Environment**: (If applicable)
-  - What experience do you have with healthcare technology standards like HIPAA, FHIR, or HL7?
-
-This breakdown should provide a comprehensive overview of the role you're considering at Azodha, ensuring clarity for both candidates and hiring teams.
+By addressing these areas of focus, both candidates and hiring managers can ensure a comprehensive evaluation aligns with the responsibilities and expectations of the Senior Software Engineer role at ServiceNow.

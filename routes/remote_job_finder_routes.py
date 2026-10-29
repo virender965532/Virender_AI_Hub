@@ -123,8 +123,12 @@ def saved_jobs_ui():
 
 @remote_job_finder_bp.route("/api/saved-jobs", methods=["GET"])
 def api_list_saved_jobs():
-    # Jobs not doable from India are never shown (they only linger from before that check).
-    jobs = list_saved_jobs(include_not_eligible=not get_settings().worldwide_remote_enabled)
+    # With JOB_REJECT_COUNTRY_RESTRICTED, jobs not doable from India (and not offering visa
+    # sponsorship) are never shown; by default they are kept and filtered in the UI.
+    settings = get_settings()
+    jobs = list_saved_jobs(
+        include_not_eligible=not (settings.worldwide_remote_enabled and settings.reject_country_restricted)
+    )
     return jsonify({"ok": True, "count": len(jobs), "jobs": jobs}), 200
 
 

@@ -139,6 +139,73 @@ class WorldwideClassification(BaseModel):
     method: Literal["rules", "llm"] = "rules"
 
 
+class VisaStatus(str, Enum):
+    """Visa-sponsorship evidence in the job text (``matching/visa_remote.py``)."""
+
+    POSITIVE_EVIDENCE = "POSITIVE_EVIDENCE"
+    NEGATIVE_EVIDENCE = "NEGATIVE_EVIDENCE"
+    MENTIONED_UNCLEAR = "MENTIONED_UNCLEAR"
+    NOT_MENTIONED = "NOT_MENTIONED"
+
+
+class RemoteStatus(str, Enum):
+    """Geographic scope of remote work stated in the job text (``matching/visa_remote.py``)."""
+
+    GLOBAL_REMOTE_EVIDENCE = "GLOBAL_REMOTE_EVIDENCE"
+    RESTRICTED_REMOTE = "RESTRICTED_REMOTE"
+    REMOTE_UNCLEAR = "REMOTE_UNCLEAR"
+    NOT_MENTIONED = "NOT_MENTIONED"
+
+
+class RelocationSupport(str, Enum):
+    CONFIRMED = "CONFIRMED"
+    NOT_OFFERED = "NOT_OFFERED"
+    MENTIONED_UNCLEAR = "MENTIONED_UNCLEAR"
+    NOT_MENTIONED = "NOT_MENTIONED"
+
+
+class EvidenceSnippet(BaseModel):
+    """A sentence quoted verbatim from the posting, with the section it appeared in."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    text: str = Field(max_length=600)
+    # Heading it appeared under ("Benefits", "About the Company"), or title / location /
+    # workplace_type / description when there is no heading.
+    section: str
+    signal: Literal["positive", "negative", "neutral", "unclear"]
+
+
+class VisaRemoteClassification(BaseModel):
+    """Discovery labels for visa sponsorship and remote scope. Labels only: they never
+    reject a job (profile matching decides relevance)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    visa_status: VisaStatus = VisaStatus.NOT_MENTIONED
+    remote_status: RemoteStatus = RemoteStatus.NOT_MENTIONED
+    visa_keyword_found: bool = False
+    remote_keyword_found: bool = False
+    # Mentions visas, relocation or remote work at all.
+    has_discovery_signal: bool = False
+    visa_evidence: list[EvidenceSnippet] = Field(default_factory=list)
+    relocation_evidence: list[EvidenceSnippet] = Field(default_factory=list)
+    remote_evidence: list[EvidenceSnippet] = Field(default_factory=list)
+    # Countries/regions a restricted remote role names; empty when none is named.
+    remote_countries_allowed: list[str] = Field(default_factory=list)
+    # Country of the posting location, None when it isn't a recognized country.
+    job_country: str | None = None
+    relocation_support: RelocationSupport = RelocationSupport.NOT_MENTIONED
+    onsite_requirement: bool = False
+    visa_conflict: bool = False
+    remote_conflict: bool = False
+    conflicting_evidence: bool = False
+    # 0.9 explicit, 0.5 vague, 0.3 contradictory; None when nothing was mentioned.
+    classification_confidence: float | None = Field(default=None, ge=0, le=1)
+    # "llm": the matcher's eligibility read (quotes verified against the posting) replaced the rules' labels.
+    method: Literal["rules", "llm"] = "rules"
+
+
 class Job(BaseModel):
     """Normalized, validated job — the only shape the matching pipeline understands."""
 
@@ -165,6 +232,8 @@ class Job(BaseModel):
     tags: list[str] = Field(default_factory=list)
     # Set only when JOB_WORLDWIDE_REMOTE_ENABLED is on.
     worldwide: WorldwideClassification | None = None
+    # Visa sponsorship / remote scope labels, also only with JOB_WORLDWIDE_REMOTE_ENABLED.
+    visa_remote: VisaRemoteClassification | None = None
     # Every configured search URL that listed this job in the run.
     search_urls: list[str] = Field(default_factory=list)
     raw_text_hash: str
@@ -197,6 +266,71 @@ Recommendation = Literal[
 ]
 
 
+class JobEligibility(BaseModel):
+    """Visa / relocation / remote-scope / India read of the posting, returned by the same
+    matcher call as the score (no extra LLM call). Decisive verdicts only count when
+    their quotes are found verbatim in the job text (``matching/visa_remote.py``)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    visa_status: Literal["POSITIVE_EVIDENCE", "NEGATIVE_EVIDENCE", "MENTIONED_UNCLEAR", "NOT_MENTIONED"] = Field(
+        description=(
+            "POSITIVE_EVIDENCE only if the employer says it sponsors / supports work visas for this role; "
+            "NEGATIVE_EVIDENCE if it says it won't sponsor or requires work authorization without sponsorship; "
+            "MENTIONED_UNCLEAR if visas are discussed in relation to this role without a clear answer; "
+            "NOT_MENTIONED if visas aren't discussed, or only in boilerplate unrelated to sponsorship "
+            "(e.g. an anti-scam notice that the company never asks for money for visas)."
+        )
+    )
+    visa_quotes: list[str] = Field(default_factory=list, description="Sentences copied verbatim that support visa_status.")
+    relocation_support: Literal["CONFIRMED", "NOT_OFFERED", "MENTIONED_UNCLEAR", "NOT_MENTIONED"] = Field(
+        description="Whether the employer helps the hire relocate. Visa sponsorship alone is not relocation support."
+    )
+    relocation_quotes: list[str] = Field(default_factory=list)
+    remote_status: Literal["GLOBAL_REMOTE_EVIDENCE", "RESTRICTED_REMOTE", "REMOTE_UNCLEAR", "NOT_MENTIONED"] = Field(
+        description=(
+            "GLOBAL_REMOTE_EVIDENCE only if the text says this role can be done from any country / anywhere in "
+            "the world and nothing restricts it; RESTRICTED_REMOTE if remote but limited to named countries or "
+            "regions (residence, location or work-authorization requirement); REMOTE_UNCLEAR if remote with no "
+            "stated geographic scope ('fully remote', 'remote-first') or contradictory statements; NOT_MENTIONED "
+            "if remote work isn't mentioned. A LinkedIn location like 'United States (Remote)' alone is not global."
+        )
+    )
+    remote_quotes: list[str] = Field(default_factory=list)
+    remote_countries_allowed: list[str] = Field(
+        default_factory=list, description="Countries/regions the text names as allowed for remote work; empty if none named."
+    )
+    india_category: Literal[
+        "worldwide_confirmed", "india_eligible", "needs_verification", "country_restricted", "insufficient_info"
+    ] = Field(
+        description=(
+            "Can someone living in India do this job remotely? worldwide_confirmed: explicitly anywhere in the world; "
+            "india_eligible: India explicitly allowed; country_restricted: limited to countries excluding India; "
+            "needs_verification: remote but not settled; insufficient_info: too little text."
+        )
+    )
+    india_quotes: list[str] = Field(default_factory=list)
+    reasoning: str = Field(default="", max_length=600, description="One or two short sentences.")
+
+
+FitTier = Literal["core", "required", "preferred"]
+FitVerdict = Literal["met", "partial", "missing"]
+
+
+class RequirementCheck(BaseModel):
+    """One job requirement judged against the profile — LLM output, never a number."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    requirement: str = Field(description="The requirement, short, copied or condensed from the job.")
+    tier: FitTier = Field(
+        description="core = central to the role / must-have; required = asked for; preferred = nice to have / a plus."
+    )
+    verdict: FitVerdict = Field(
+        description="met = shown in the profile; partial = related or weaker experience; missing = not in the profile."
+    )
+
+
 class JobMatchAnalysis(BaseModel):
     """Structured LLM output for the grounded matching stage (section 20/21).
 
@@ -208,16 +342,15 @@ class JobMatchAnalysis(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    # The job's match score, used as-is (no sub-scores / weighted blend). Older
-    # saved analyses that still carry role/technical/ai/experience sub-scores no
-    # longer validate, so those jobs are re-analyzed the next time they are seen.
-    score: float = Field(
-        ge=0,
-        le=100,
+    # The LLM gives no score: the score is computed in code from these checks
+    # (matching/fit_score.py). Older saved analyses that still carry a ``score``
+    # no longer validate, so those jobs are re-analyzed the next time they are seen.
+    requirements: list[RequirementCheck] = Field(
+        default_factory=list,
         description=(
-            "Overall, evidence-grounded fit of the candidate for this job (0-100), judged the way a "
-            "meticulous resume reviewer would: required skills demonstrated, seniority/experience "
-            "range, role focus and location. Conservative — unsupported claims lower the score."
+            "Every distinct skill / technology / responsibility requirement of the job, one entry each, "
+            "judged against the candidate profile. Leave out years-of-experience, location and "
+            "work-authorization lines (those are scored separately)."
         ),
     )
 
@@ -253,6 +386,8 @@ class JobMatchAnalysis(BaseModel):
 
     recommendation: Recommendation
     explanation: str = Field(max_length=2000)
+    # Filled in the same call; None on analyses saved before this field existed.
+    eligibility: JobEligibility | None = None
 
 
 class RuleEvaluation(BaseModel):
@@ -269,66 +404,27 @@ class RuleEvaluation(BaseModel):
     role_related: bool = True
 
 
-ReviewTier = Literal["core", "required", "preferred", "nice_to_have"]
-ReviewVerdict = Literal["met", "implied", "partial", "missing"]
-ReviewDecision = Literal["keep", "downgrade", "drop_implied", "drop_covered"]
-ConcernSeverity = Literal["blocking", "moderate", "minor"]
-ConcernCategory = Literal["skill", "experience", "location", "other"]
+class ScoredRequirement(RequirementCheck):
+    """A requirement as scored: the LLM's check after the code's corrections."""
 
-
-class ReviewedRequirement(BaseModel):
-    """One requirement line of the job, judged against the profile (``matching/concern_reviewer.py``)."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    requirement: str = Field(max_length=500)
-    tier: ReviewTier
-    verdict: ReviewVerdict
-    # Profile skill that implies this requirement (verdict "implied").
-    implied_by: str = ""
-    # Text copied from the candidate profile (verdict "met").
-    evidence: str = ""
-    # Set when code overrode the LLM's verdict, e.g. "implied-skills map" / "evidence not in profile".
+    # Why code overrode the LLM's verdict/tier, e.g. "Python is listed in the profile".
     adjusted: str = ""
 
 
-class ReviewedItem(BaseModel):
-    """The reviewer's decision on one of the matcher's concerns or missing skills,
-    or a concern the reviewer added (``added_concern``, backed by a job-text quote)."""
+class ScoreBreakdown(BaseModel):
+    """How ``match_score`` was computed from an LLM analysis (``matching/fit_score.py``)."""
 
     model_config = ConfigDict(extra="forbid")
 
-    item: str = Field(max_length=600)
-    kind: Literal["concern", "missing_skill", "added_concern"]
-    decision: ReviewDecision
-    severity: ConcernSeverity
-    category: ConcernCategory
-    reason: str = Field(default="", max_length=400)
-    implied_by: str = ""
-    evidence: str = ""
-    adjusted: str = ""
-
-    @property
-    def kept(self) -> bool:
-        return self.decision in ("keep", "downgrade")
-
-
-class JobReview(BaseModel):
-    """Stored result of the concern reviewer; reused while all three fingerprints match."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    requirements: list[ReviewedRequirement] = Field(default_factory=list)
-    items: list[ReviewedItem] = Field(default_factory=list)
-    # Matcher (LLM) score before the review, and the score computed in code after it.
-    score_before: float = Field(ge=0, le=100)
     score: float = Field(ge=0, le=100)
-    score_basis: Literal["requirements", "matcher"] = "requirements"
-    raw_text_hash: str
-    profile_hash: str
-    reviewer_version: str
-    model: str = ""
-    reviewed_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    skills: float = Field(ge=0, le=100)  # S: weighted share of requirements met
+    experience: float = Field(ge=0, le=100)  # E: years vs. the job's stated range
+    keywords: float = Field(ge=0, le=100)  # K: rule-based keyword overlap
+    core_missing: bool = False  # a core requirement is missing: score capped
+    required_years: str = ""  # the job's range as read from its text, e.g. "3-6"
+    candidate_years: float = 0.0
+    requirements: list[ScoredRequirement] = Field(default_factory=list)
+    formula_version: str = ""
 
 
 class MatchedJob(BaseModel):
@@ -341,8 +437,8 @@ class MatchedJob(BaseModel):
     recommendation: Recommendation
     rule_evaluation: RuleEvaluation
     llm_analysis: JobMatchAnalysis | None = None
-    # Set when the concern reviewer checked this job's concerns (JOB_REVIEWER_ENABLED).
-    review: JobReview | None = None
+    # Set when the score was computed from an LLM analysis.
+    score_breakdown: ScoreBreakdown | None = None
     matched_skills: list[str] = Field(default_factory=list)
     missing_required_skills: list[str] = Field(default_factory=list)
     strengths: list[str] = Field(default_factory=list)

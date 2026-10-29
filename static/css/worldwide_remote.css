@@ -68,3 +68,23 @@
   .ww-legend { margin-left: 0; }
   .ww-facts { grid-template-columns: 1fr; }
 }
+
+/* Visa sponsorship / remote scope labels (job.visa_remote, jobEngine/matching/visa_remote.py). */
+.vr-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 650;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  border: 1px dashed currentColor;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.vr-badge--POSITIVE_EVIDENCE { color: var(--ww-green); background: rgba(74, 222, 128, 0.14); border-style: solid; }
+.vr-badge--NEGATIVE_EVIDENCE { color: var(--ww-red); background: rgba(255, 107, 107, 0.1); }
+.vr-badge--MENTIONED_UNCLEAR { color: var(--ww-yellow); background: rgba(250, 204, 21, 0.12); }
+.vr-badge--GLOBAL_REMOTE_EVIDENCE { color: var(--ww-blue); background: rgba(56, 182, 255, 0.14); border-style: solid; }
+.vr-badge--RESTRICTED_REMOTE { color: var(--ww-red); background: rgba(255, 107, 107, 0.1); }
+.vr-badge--REMOTE_UNCLEAR { color: var(--ww-grey); background: rgba(156, 163, 175, 0.12); }
+.vr-badge--relocation { color: var(--ww-violet); background: rgba(167, 139, 250, 0.12); }
+.vr-panel { border-left-color: var(--ww-violet); }

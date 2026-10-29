@@ -36,8 +36,8 @@
             <a href="{{ url_for('main.basic_rag_search') }}" class="nav__dropdown-item">Basic RAG Search</a>
             <a href="{{ url_for('main.dynamic_rag_search') }}" class="nav__dropdown-item">Dynamic RAG Search</a>
             <a href="{{ url_for('main.enterprise_rag_search') }}" class="nav__dropdown-item">Autonomous Multi-Agent RAG</a>
-            <span class="nav__dropdown-item nav__dropdown-item--soon">Ask Virender Career Consultant</span>
-            <span class="nav__dropdown-item nav__dropdown-item--soon">Stock Market Prediction</span>
+            <a href="{{ url_for('profile_assistant.career_consultant_ui') }}" class="nav__dropdown-item">Ask Virender Career Consultant</a>
+            <a href="{{ url_for('code_assistant.code_assistant_ui') }}" class="nav__dropdown-item">Code Assistant</a>
           </div>
         </details>
         <a href="{{ url_for('main.home') }}" class="nav__dropdown-item">Login</a>

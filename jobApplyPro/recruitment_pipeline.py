@@ -121,7 +121,11 @@ def extract_profile_data(path: str) -> str:
 async def run_recruitment_pipeline(
     job_requirement_text: str,
     hiring_manager_email: str,
+    *,
+    open_email_client: bool = True,
 ) -> dict[str, Any] | None:
+    """``open_email_client=False`` skips the Gmail compose tab (for unattended runs
+    such as the job engine's HR drafts, which save a mailbox draft instead)."""
     logger.info("run_recruitment_pipeline started")
     if not os.environ.get("OPENAI_API_KEY"):
         raise ValueError("OPENAI_API_KEY environment variable is not set.")
@@ -201,11 +205,14 @@ async def run_recruitment_pipeline(
             "body": final_output["final_email_body"],
         }
         save_data_json(email_payload, str(EMAIL_DRAFT_PATH))
-        email_status = open_email_default(
-            hiring_manager_email,
-            email_payload["subject"],
-            email_payload["body"],
-        )
+        if open_email_client:
+            email_status = open_email_default(
+                hiring_manager_email,
+                email_payload["subject"],
+                email_payload["body"],
+            )
+        else:
+            email_status = {"status": "skipped", "message": "Email client not opened (unattended run)."}
 
         result = {
             "domain": domain,

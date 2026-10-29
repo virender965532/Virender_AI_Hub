@@ -10,8 +10,8 @@ import pytest
 
 from jobEngine.config.settings import get_settings
 from jobEngine.graph.nodes import matching, source_discovery
-from jobEngine.matching.concern_reviewer import profile_fingerprint
-from jobEngine.models.job import Job, JobMatchAnalysis
+from jobEngine.matching.fit_score import profile_fingerprint
+from jobEngine.models.job import Job, JobMatchAnalysis, RequirementCheck
 from jobEngine.persistence import rejected_jobs, saved_jobs
 
 _DESCRIPTION = "Build Node.js and React services on AWS with TypeScript."
@@ -19,21 +19,25 @@ _DESCRIPTION = "Build Node.js and React services on AWS with TypeScript."
 
 @pytest.fixture()
 def llm(monkeypatch):
-    """Fake matcher: every job scores ``llm.score``; ``llm.calls`` lists the jobs sent to it."""
+    """Fake matcher: every job meets (``llm.fits``) or misses its one core requirement, so it
+    scores well or below 50; ``llm.calls`` lists the jobs sent to it."""
     monkeypatch.setenv("JOB_LLM_TOP_K", "-1")
-    monkeypatch.setenv("JOB_REVIEWER_ENABLED", "false")
     monkeypatch.setenv("JOB_WORLDWIDE_REMOTE_ENABLED", "true")
     monkeypatch.setenv("JOB_WORLDWIDE_LLM_REVIEW", "false")
     get_settings.cache_clear()
 
     class Fake:
-        score = 40.0
+        fits = False
         calls: list[str] = []
 
     def analyze(self, *, profile, job, metrics):
         Fake.calls.append(job.source_job_id)
         metrics.calls += 1
-        return JobMatchAnalysis(score=Fake.score, recommendation="poor_match", explanation="weak fit")
+        verdict = "met" if Fake.fits else "missing"
+        return JobMatchAnalysis(
+            requirements=[RequirementCheck(requirement="Mainframe COBOL batch jobs", tier="core", verdict=verdict)],
+            recommendation="poor_match", explanation="weak fit",
+        )
 
     monkeypatch.setattr(matching.LLMMatcher, "available", lambda self: True)
     monkeypatch.setattr(matching.LLMMatcher, "_get_structured_llm", lambda self: None)
@@ -99,7 +103,25 @@ def test_rule_rejected_job_is_not_sent_to_llm(llm, candidate_profile):
     assert by_id["1"]["rejected"] is True and by_id["1"]["llm_analysis"] is None
 
 
-def test_country_restricted_job_is_rejected_without_llm(llm, candidate_profile):
+@pytest.fixture()
+def reject_restricted(llm, monkeypatch):
+    monkeypatch.setenv("JOB_REJECT_COUNTRY_RESTRICTED", "true")
+    get_settings.cache_clear()
+
+
+def test_country_restricted_job_is_kept_and_matched_by_default(llm, candidate_profile, monkeypatch):
+    monkeypatch.setenv("JOB_REJECT_COUNTRY_RESTRICTED", "false")
+    get_settings.cache_clear()
+    llm.fits = True
+    out = _run([_job("1", worldwide=_restricted()), _job("2")], candidate_profile)
+    by_id = {m["job"]["source_job_id"]: m for m in out["matched_jobs"]}
+    assert sorted(llm.calls) == ["1", "2"]
+    assert by_id["1"]["rejected"] is False
+    assert by_id["1"]["job"]["worldwide"]["category"] == "country_restricted"
+    assert out["metrics"]["jobs_rejected_not_eligible"] == 0
+
+
+def test_country_restricted_job_is_rejected_without_llm(reject_restricted, llm, candidate_profile):
     out = _run([_job("1", worldwide=_restricted()), _job("2")], candidate_profile)
     by_id = {m["job"]["source_job_id"]: m for m in out["matched_jobs"]}
     assert llm.calls == ["2"]
@@ -115,11 +137,11 @@ def test_llm_rejected_job_is_not_matched_again(llm, candidate_profile):
     out = _run([_job("1")], candidate_profile)
     assert llm.calls == ["1"]  # no second call
     (matched,) = out["matched_jobs"]
-    assert matched["rejected"] is True and matched["match_score"] == 40.0
+    assert matched["rejected"] is True and matched["match_score"] < 50
     assert out["metrics"]["jobs_reused_from_rejected"] == 1
 
     # A lower bar on a later (manual) search shows it, still without an LLM call.
-    (matched,) = _run([_job("1")], candidate_profile, minimum=30)["matched_jobs"]
+    (matched,) = _run([_job("1")], candidate_profile, minimum=1)["matched_jobs"]
     assert matched["rejected"] is False
     assert llm.calls == ["1"]
 
@@ -136,9 +158,9 @@ def test_changed_job_text_or_profile_is_matched_again(llm, candidate_profile):
     assert llm.calls == ["1", "1", "1"]
 
 
-def test_stored_restriction_wins_over_fresh_rules_verdict(llm, candidate_profile):
+def test_stored_restriction_wins_over_fresh_rules_verdict(reject_restricted, llm, candidate_profile):
     """An LLM worldwide review found it restricted; the rules alone only say "needs verification"."""
-    llm.score = 90.0
+    llm.fits = True
     stored = {"job": _job("1", worldwide={**_restricted(), "method": "llm"}), "rejected": True,
               "match_score": 0.0, "recommendation": "reject",
               "rule_evaluation": {"passed": True, "rule_score": 50.0}}

@@ -58,6 +58,7 @@ AWS Cognito
 Vercel
 CI/CD Pipelines
 Git
+Docker
 
 Databases & Search:
 PostgreSQL

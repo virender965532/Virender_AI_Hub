@@ -43,3 +43,10 @@ tzdata
 torch==2.7.1+cpu
 --extra-index-url https://download.pytorch.org/whl/cpu
 pageindex
+# Profile Assistant (profile_assistant/): Gradio chat UI, mounted into Flask via a2wsgi.
+gradio>=5.0.0
+a2wsgi>=1.10.0
+# Code Assistant (code_assistant/): git checkpoints, .gitignore parsing, token counting.
+gitpython>=3.1.40
+pathspec>=0.12.0
+tiktoken>=0.7.0

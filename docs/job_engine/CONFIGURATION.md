@@ -54,13 +54,18 @@ it — see `degrade_on_llm_failure`).
 | `JOB_WORLDWIDE_REMOTE_ENABLED` | `false` | Classify every job's eligibility from India (worldwide / India-eligible / needs verification / restricted / insufficient info) with quoted evidence, read LinkedIn's workplace + employment chips, and show badges, filters and an eligibility sort in the UI. Country-restricted jobs (by the rules, or by the LLM review below) are rejected without an LLM match, remembered in `rejected_jobs`, and left out of the Saved Jobs page. Off = previous behaviour |
 | `JOB_WORLDWIDE_LLM_REVIEW` | `true` | With the flag above on and the LLM available, send shown "needs verification" jobs to the existing OpenAI model for a second opinion; its quotes must appear verbatim in the posting or the verdict is ignored |
 | `JOB_WORLDWIDE_LLM_MAX_JOBS` | `25` | Cap on those review calls per run (a saved review is reused while the description is unchanged) |
-| `JOB_REVIEWER_ENABLED` | `true` | Concern reviewer (`jobEngine/matching/concern_reviewer.py`): a second LLM pass over LLM-analyzed jobs that have concerns or missing skills. It classifies every requirement (core / required / preferred / nice-to-have × met / implied / partial / missing), drops concerns that are sub-topics of a skill the profile shows, and the score is then computed in code from those verdicts. "Implied" is only accepted when `config/implied_skills.yaml` supports it; evidence must be found in the profile / job text. A failed call keeps the matcher's result |
-| `JOB_REVIEWER_MODEL` | `gpt-4o-mini` | Model for the reviewer (always temperature 0) |
-| `JOB_REVIEWER_MIN_SCORE` | `50` | Only jobs whose matcher score is at least this are reviewed. Keep it below `JOB_MIN_MATCH_SCORE` / the search's min score, since the review can lift a job over that bar |
 | `JOB_REJECTION_MODEL` | `gpt-4o` | Model for the rejection analysis on the Applied Jobs page (`jobEngine/matching/rejection_analyzer.py`). Called only when a job is marked rejected and has no stored analysis, or on Re-evaluate; the result is stored on the applied job. Candidate-side facts the resume lacks (timezone, expected pay, job types, work authorization) come from `config/candidate_preferences.yaml` |
-| `JOB_REVIEWER_MAX_JOBS` | `30` | Cap on new reviews per run, highest matcher scores first. A stored review is reused (no call) until the job text, `Profile/Summary.txt`, the reviewer prompt or `config/implied_skills.yaml` changes |
 
-**Reviewed score** — weights core 3, required 2, preferred 1, nice-to-have 0.5; verdict met / implied = 1, partial = 0.5, missing = 0; score = 100 × weighted share. Then −5 per kept *moderate* experience/other concern, capped at 75 by any kept *blocking* experience/other concern and at 60 when a core requirement is missing (skill gaps count only through the requirement verdicts). Location / eligibility concerns are shown but never change the score. Constants live at the top of `concern_reviewer.py`.
+| `ANALYSIS_CACHE_MAX_AGE_HOURS` | `720` | LLM match analyses are cached in MongoDB `job_analysis_cache`, keyed by job text + `Profile/Summary.txt` + matcher version (prompts, model, schema). A job seen again, even after it was removed from Saved Jobs, reuses its analysis instead of a new call, so its score does not change between runs |
+
+**Match score** (`jobEngine/matching/fit_score.py`) — the LLM gives no number; it lists the job's requirements as tier (core / required / preferred) × verdict (met / partial / missing). Code corrects the labels it can check: a requirement naming a skill from the profile's skills list, or a sub-topic in `config/implied_skills.yaml` of a skill the profile shows, is *met*; one the job marks "nice to have" / "preferred" / "a plus" is *preferred*; a years-of-experience line is dropped (scored by E). Then:
+
+- S = 100 × Σ(w × v) / Σ(w), with w core 3 / required 2 / preferred 1 and v met 1 / partial 0.5 / missing 0 (no requirements: S = K)
+- E = 100 when the job states no years range or the candidate is within it; under-qualified 100 − 25 per missing year (min 0); over-qualified 100 − 10 per extra year (min 70)
+- K = the rule evaluation's keyword/stack overlap
+- score = round(0.90·S + 0.05·E + 0.05·K), capped at 60 when a core requirement is missing
+
+Location / eligibility never change the score; they are shown separately. Saved and rejected jobs have their score recomputed from the stored analysis on every run, so a formula change applies without new LLM calls.
 
 ## Request-level overrides (`POST /api/jobs/search` body)
 
@@ -103,4 +108,21 @@ machine that should not run it (e.g. a local dev box).
 | `JOB_CRON_MAX_RESULTS` | `-1` | Jobs per search URL, `-1` = all |
 | `JOB_CRON_REMOTE_ONLY` | `true` | Keep only remote/hybrid roles |
 | `JOB_CRON_SOURCES` | page defaults | Comma-separated source ids |
-| `JOB_CRON_SAVED_JOBS_URL` | `https://ai.ritishka.in/saved-jobs` | Link opened from the push |
+| `JOB_CRON_SAVED_JOBS_URL` | `https://ai.ritishka.in/saved-jobs` | Link opened from the push and the job email |
+
+**Job email** (`jobEngine/notifications/job_alerts.py`) — after every search run (manual or scheduled) whose jobs are saved, jobs scoring strictly above the threshold are emailed in one message. Each job is mailed once (`mailed_at` on its saved-jobs document); a failed send is retried by the next run.
+
+| Variable | Default | Effect |
+|---|---|---|
+| `JOB_MAIL_THRESHOLD_SCORE` | unset (off) | Mail jobs whose match score is above this |
+| `JOB_MAIL_TO` | `virenderfullstack@gmail.com` | Recipient |
+| `EMAIL_SENDER` / `EMAIL_PASSWORD` | — | SMTP login and From address; for Gmail an App Password. No email is sent if missing |
+| `SMTP_HOST` / `SMTP_PORT` | `smtp.gmail.com` / `587` | SMTP server; port 465 uses implicit TLS, others STARTTLS |
+
+**HR drafts** (`jobEngine/notifications/hr_drafts.py`) — when a job in that email has an HR / recruiter address in its posting, the Autonomous Application Agent (`jobApplyPro`) is run with the job description and that address, as if pasted into its page; the generated subject and body are saved over IMAP as a draft to the HR address (resume attached) in the `EMAIL_SENDER` mailbox, logging in with `EMAIL_PASSWORD`. If that login fails, a prefilled Gmail compose window is opened in this computer's browser instead (signed in as `EMAIL_SENDER`, no password needed), which Gmail keeps in Drafts without the attachment. The alert email says, highlighted, "Draft email is saved with HR email id as: …". A saved draft is recorded on the saved job (`hr_draft`) and never made twice; a failed one is reported in the email and tried again on a later alert.
+
+| Variable | Default | Effect |
+|---|---|---|
+| `JOB_HR_DRAFTS_ENABLED` | `true` | `false` = never run the agent |
+| `JOB_HR_DRAFTS_MAX_PER_RUN` | `5` | Agent runs per search (each is several LLM calls); highest scores first |
+| `IMAP_HOST` | `imap.gmail.com` | IMAP server |

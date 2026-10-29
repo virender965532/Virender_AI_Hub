@@ -25,7 +25,6 @@ def _job() -> Job:
 
 def _valid_analysis() -> JobMatchAnalysis:
     return JobMatchAnalysis(
-        score=90,
         matched_skills=["Python"], recommendation="strong_match", explanation="Great fit.",
     )
 

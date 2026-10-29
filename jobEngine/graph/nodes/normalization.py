@@ -18,6 +18,7 @@ from ...concurrency import map_cpu
 from ...config.settings import get_settings
 from ...guardrails.url_guardrails import check_url
 from ...matching.global_remote import GLOBAL_REMOTE_TAG, is_global_remote
+from ...matching.visa_remote import classify_visa_remote, with_global_remote_tag
 from ...matching.worldwide_remote import classify_worldwide
 from ...models.errors import ErrorSeverity, ErrorType, WorkflowError
 from ...models.job import Job, RemoteType, content_hash
@@ -123,8 +124,16 @@ def _normalize_raw(
     if remote_type != RemoteType.ONSITE and is_global_remote(raw.get("location"), description):
         tags.append(GLOBAL_REMOTE_TAG)
     extra = raw.get("extra") or {}
-    worldwide = None
+    worldwide = visa_remote = None
     if worldwide_enabled:
+        # Labels only, never a reason to drop the job (see matching/visa_remote.py).
+        visa_remote = classify_visa_remote(
+            title=raw.get("title") or "",
+            location=raw.get("location"),
+            description=description,
+            workplace_type=extra.get("workplace_type"),
+        )
+        tags = with_global_remote_tag(tags, visa_remote)
         worldwide = classify_worldwide(
             title=raw.get("title") or "",
             location=raw.get("location"),
@@ -161,6 +170,7 @@ def _normalize_raw(
             remote_type=remote_type,
             tags=tags,
             worldwide=worldwide,
+            visa_remote=visa_remote,
             search_urls=extra.get("search_urls") or [],
             raw_text_hash=job_id,
             discovered_at=raw.get("discovered_at"),

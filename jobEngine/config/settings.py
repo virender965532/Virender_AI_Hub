@@ -247,24 +247,11 @@ class EngineSettings:
     worldwide_llm_max_jobs: int = field(
         default_factory=lambda: _env_int("JOB_WORLDWIDE_LLM_MAX_JOBS", 25, minimum=0)
     )
-
-    # --- Concern reviewer (see jobEngine/matching/concern_reviewer.py) ---
-    # A second, cheaper LLM pass that drops concerns/missing skills already implied by
-    # the profile (e.g. SSR under Next.js) and recomputes the score in code.
-    reviewer_enabled: bool = field(
-        default_factory=lambda: _env_bool("JOB_REVIEWER_ENABLED", True)
-    )
-    reviewer_model: str = field(
-        default_factory=lambda: _env_str("JOB_REVIEWER_MODEL", "gpt-4o-mini")
-    )
-    # Only jobs whose matcher score is at least this are reviewed; keep it below
-    # JOB_MIN_MATCH_SCORE so a job the review lifts over that bar is not missed.
-    reviewer_min_score: float = field(
-        default_factory=lambda: _env_float("JOB_REVIEWER_MIN_SCORE", 50.0, minimum=0.0)
-    )
-    # Cap on new reviews per run (highest matcher scores first); stored reviews don't count.
-    reviewer_max_jobs: int = field(
-        default_factory=lambda: _env_int("JOB_REVIEWER_MAX_JOBS", 30, minimum=0)
+    # Off (default): country-restricted jobs are kept and labelled, so restricted or
+    # on-site roles abroad stay visible. On: they are rejected before LLM matching,
+    # except jobs whose text offers visa sponsorship (matching/visa_remote.py).
+    reject_country_restricted: bool = field(
+        default_factory=lambda: _env_bool("JOB_REJECT_COUNTRY_RESTRICTED", False)
     )
 
     # --- Rejection analysis (see jobEngine/matching/rejection_analyzer.py) ---

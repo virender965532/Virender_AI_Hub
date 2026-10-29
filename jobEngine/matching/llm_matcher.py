@@ -10,6 +10,7 @@ than crashing the run (section 13: parse -> validate -> repair -> reject).
 
 from __future__ import annotations
 
+import json
 import logging
 import time
 from pathlib import Path
@@ -18,10 +19,12 @@ from ..config.settings import EngineSettings, get_settings
 from ..guardrails.prompt_injection import detect_suspicious_patterns, wrap_untrusted_content
 from ..models.job import Job, JobMatchAnalysis
 from ..models.profile import CandidateProfile
+from .fit_score import fingerprint
 
 logger = logging.getLogger(__name__)
 
 _PROMPTS_DIR = Path(__file__).resolve().parent.parent / "prompts"
+_SEED = 7
 
 
 class LLMCallMetrics:
@@ -66,6 +69,15 @@ class LLMMatcher:
         self._structured_llm = None
         self._system_template = _load_prompt("job_matching_system.txt")
         self._user_template = _load_prompt("job_matching_user.txt")
+        # Changes with the prompts, the model or the output schema; a cached
+        # analysis is only reused under the same version.
+        self.version = fingerprint(
+            self._system_template,
+            self._user_template,
+            self.settings.openai_model,
+            self.settings.prompt_version,
+            json.dumps(JobMatchAnalysis.model_json_schema(), sort_keys=True),
+        )
 
     def available(self) -> bool:
         return self.settings.llm_enabled and bool(self.settings.openai_api_key)
@@ -74,11 +86,14 @@ class LLMMatcher:
         if self._structured_llm is None:
             from langchain_openai import ChatOpenAI
 
+            # Temperature 0 and a fixed seed keep repeat analyses of a job as close
+            # as the API allows; the analysis cache makes them identical.
             base = ChatOpenAI(
                 model=self.settings.openai_model,
                 api_key=self.settings.openai_api_key,
                 timeout=self.settings.openai_timeout,
-                temperature=0.1,
+                temperature=0,
+                seed=_SEED,
             )
             self._structured_llm = base.with_structured_output(JobMatchAnalysis, include_raw=True)
         return self._structured_llm

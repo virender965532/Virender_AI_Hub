@@ -19,8 +19,9 @@ from ..config.settings import get_settings
 from ..config.sources import enabled_sources, load_job_sources
 from ..graph.builder import build_graph
 from ..graph.state import initial_state
-from ..matching.concern_reviewer import profile_fingerprint
+from ..matching.fit_score import profile_fingerprint
 from ..models.profile import CandidateProfile
+from ..notifications.job_alerts import mail_high_score_jobs
 from ..observability.logging import log_event, new_run_id
 from ..persistence.rejected_jobs import save_rejected_jobs
 from ..persistence.repository import save_run
@@ -114,6 +115,12 @@ def _persist_saved_jobs(result: dict[str, Any], run_id: str) -> None:
         save_jobs_from_run(result)
     except Exception:  # noqa: BLE001
         logger.exception("Failed to update saved jobs store for run %s", run_id)
+        return
+    try:
+        # After the save: the "already mailed" mark lives on the saved-job document.
+        mail_high_score_jobs(result)
+    except Exception:  # noqa: BLE001
+        logger.exception("Failed to email high-score jobs for run %s", run_id)
 
 
 def _persist_rejected_jobs(final_state: dict[str, Any], run_id: str) -> None:

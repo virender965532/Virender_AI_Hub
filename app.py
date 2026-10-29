@@ -18,6 +18,8 @@ from routes.remote_job_finder_routes import remote_job_finder_bp
 from interviewSimulator.graph import show_graph
 from jobEngine.api.routes import job_engine_bp
 from resumeIntel.api.routes import resume_intel_bp
+from profile_assistant import register_profile_assistant
+from code_assistant import register_code_assistant
 
 load_dotenv()
 
@@ -48,6 +50,8 @@ def create_app() -> Flask:
     app.register_blueprint(remote_job_finder_bp)
     app.register_blueprint(job_engine_bp)
     app.register_blueprint(resume_intel_bp)
+    register_profile_assistant(app)
+    register_code_assistant(app)
 
     return app
 

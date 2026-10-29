@@ -24,6 +24,8 @@
   var WW = window.WorldwideRemote || null;
   var wwFilterInput = document.getElementById("rjf-ww-filter");
   var wwSortInput = document.getElementById("rjf-ww-sort");
+  var visaFilterInput = document.getElementById("rjf-visa-filter");
+  var remoteFilterInput = document.getElementById("rjf-remote-filter");
   var lastJobs = [];
 
   function loadJsonScript(id) {
@@ -133,6 +135,10 @@
       title.appendChild(document.createTextNode(" "));
       title.appendChild(wwBadge);
     }
+    (WW ? WW.visaRemoteBadges(job) : []).forEach(function (b) {
+      title.appendChild(document.createTextNode(" "));
+      title.appendChild(b);
+    });
     var company = document.createElement("p");
     company.className = "rjf-card__company";
     company.textContent = [job.company, job.location].filter(Boolean).join(" · ");
@@ -151,7 +157,7 @@
     recBadge.className = "rjf-tag";
     recBadge.textContent = recommendationLabel(matched.recommendation);
     card.appendChild(recBadge);
-    (job.tags || []).forEach(function (t) {
+    (WW ? WW.displayTags(job) : job.tags || []).forEach(function (t) {
       var tag = document.createElement("span");
       tag.className = "rjf-tag";
       tag.textContent = t;
@@ -160,6 +166,8 @@
 
     var wwPanel = WW && WW.panel(job);
     if (wwPanel) card.appendChild(wwPanel);
+    var vrPanel = WW && WW.visaRemotePanel(job);
+    if (vrPanel) card.appendChild(vrPanel);
 
     if (matched.explanation) {
       var explanation = document.createElement("p");
@@ -303,7 +311,11 @@
     });
     if (WW && wwFilterInput) {
       var filter = wwFilterInput.value;
-      jobs = jobs.filter(function (matched) { return WW.matches(matched.job, filter); });
+      var visaFilter = visaFilterInput ? visaFilterInput.value : "";
+      var remoteFilter = remoteFilterInput ? remoteFilterInput.value : "";
+      jobs = jobs.filter(function (matched) {
+        return WW.matches(matched.job, filter) && WW.matchesVisa(matched.job, visaFilter) && WW.matchesRemote(matched.job, remoteFilter);
+      });
       if (wwSortInput && wwSortInput.value === "eligibility") {
         // Stable: server order (match score) is kept within each eligibility group.
         jobs = jobs
@@ -317,7 +329,7 @@
       var empty = document.createElement("div");
       empty.className = "rjf-empty glass";
       empty.textContent = lastJobs.length
-        ? "No jobs in this run match the selected eligibility filter."
+        ? "No jobs in this run match the selected eligibility / visa / remote filters."
         : "No jobs matched the selected filters for this search.";
       cardsEl.appendChild(empty);
     } else {
@@ -431,6 +443,14 @@
     WW.fillFilterSelect(wwFilterInput);
     wwFilterInput.addEventListener("change", renderCards);
     if (wwSortInput) wwSortInput.addEventListener("change", renderCards);
+    if (visaFilterInput) {
+      WW.fillVisaSelect(visaFilterInput);
+      visaFilterInput.addEventListener("change", renderCards);
+    }
+    if (remoteFilterInput) {
+      WW.fillRemoteSelect(remoteFilterInput);
+      remoteFilterInput.addEventListener("change", renderCards);
+    }
   }
   searchBtn.addEventListener("click", startSearch);
 })();

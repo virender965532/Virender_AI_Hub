@@ -370,9 +370,9 @@
     <span class="module-card__tag module-card__tag--accent">LangGraph · Self-RAG</span>
   </a>
 
-  <article class="module-card glass" data-tilt>
+  <a href="{{ url_for('profile_assistant.career_consultant_ui') }}" class="module-card module-card--link glass module-card--featured" data-tilt>
     <div class="module-card__glow"></div>
-    <div class="module-card__badge">Coming Soon</div>
+    <div class="module-card__badge">Live</div>
     <div class="module-card__icon module-card__icon--pulse module-card__icon--svg" aria-hidden="true">
       <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
         <defs>
@@ -399,39 +399,36 @@
       </svg>
     </div>
     <h2 class="module-card__title">Ask Virender career consultant</h2>
-    <p class="module-card__desc">Ask Virender career consultant with multi-agent orchestration.</p>
+    <p class="module-card__desc">Ask about Virender's career, answered only from the profile and checked by a critic agent.</p>
     <span class="module-card__tag module-card__tag--accent">Agentic AI</span>
-  </article>
+  </a>
 
-  <article class="module-card glass" data-tilt>
+  <a href="{{ url_for('code_assistant.code_assistant_ui') }}" class="module-card module-card--link glass" data-tilt>
     <div class="module-card__glow"></div>
-    <div class="module-card__badge">Coming Soon</div>
+    <div class="module-card__badge">Live</div>
     <div class="module-card__icon module-card__icon--pulse module-card__icon--svg" aria-hidden="true">
       <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <linearGradient id="stockGrad" x1="10" y1="44" x2="54" y2="12" gradientUnits="userSpaceOnUse">
+          <linearGradient id="codeGrad" x1="10" y1="44" x2="54" y2="12" gradientUnits="userSpaceOnUse">
             <stop stop-color="#5cf0e8"/><stop offset="0.55" stop-color="#38b6ff"/><stop offset="1" stop-color="#b967ff"/>
           </linearGradient>
         </defs>
-        <path d="M12 48 H52" stroke="#38b6ff" stroke-width="0.8" opacity="0.5"/>
-        <path d="M12 48 V14" stroke="#38b6ff" stroke-width="0.8" opacity="0.5"/>
-        <rect x="18" y="34" width="4" height="14" rx="1" fill="#07111f" stroke="#5cf0e8" stroke-width="0.7"/>
-        <rect x="26" y="28" width="4" height="20" rx="1" fill="#07111f" stroke="#38b6ff" stroke-width="0.7"/>
-        <rect x="34" y="22" width="4" height="26" rx="1" fill="#07111f" stroke="#b967ff" stroke-width="0.7"/>
-        <rect x="42" y="16" width="4" height="32" rx="1" fill="#07111f" stroke="#5cf0e8" stroke-width="0.7"/>
-        <path d="M16 38 L24 30 L32 34 L40 24 L48 18" stroke="url(#stockGrad)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-        <circle cx="48" cy="18" r="2.2" fill="#5cf0e8" class="icon-glow"/>
-        <path class="icon-rise" d="M44 12 C46 10 50 10 52 12 C54 14 54 18 52 20" stroke="#b967ff" stroke-width="0.9" stroke-linecap="round" opacity="0.85"/>
-        <path d="M14 42 H18 M26 36 H30 M34 30 H38 M42 24 H46" stroke="#5cf0e8" stroke-width="0.6" opacity="0.45"/>
+        <rect x="10" y="14" width="44" height="34" rx="4" fill="#07111f" stroke="#38b6ff" stroke-width="0.8" opacity="0.9"/>
+        <path d="M10 20 H54" stroke="#38b6ff" stroke-width="0.6" opacity="0.5"/>
+        <circle cx="14" cy="17" r="1" fill="#5cf0e8"/><circle cx="18" cy="17" r="1" fill="#38b6ff"/><circle cx="22" cy="17" r="1" fill="#b967ff"/>
+        <path d="M22 28 L16 34 L22 40" stroke="url(#codeGrad)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M42 28 L48 34 L42 40" stroke="url(#codeGrad)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M35 25 L29 43" stroke="#b967ff" stroke-width="1.4" stroke-linecap="round"/>
+        <circle cx="48" cy="44" r="2.2" fill="#5cf0e8" class="icon-glow"/>
         <g class="icon-orbit icon-orbit--delay">
-          <circle cx="32" cy="32" r="26" stroke="url(#stockGrad)" stroke-width="0.5" stroke-dasharray="3 7" opacity="0.3"/>
+          <circle cx="32" cy="32" r="26" stroke="url(#codeGrad)" stroke-width="0.5" stroke-dasharray="3 7" opacity="0.3"/>
         </g>
       </svg>
     </div>
-    <h2 class="module-card__title">Stock Market Prediction</h2>
-    <p class="module-card__desc">Stock Market Prediction with multi-agent orchestration.</p>
-    <span class="module-card__tag module-card__tag--accent">Automation</span>
-  </article>
+    <h2 class="module-card__title">Code Assistant</h2>
+    <p class="module-card__desc">An AI coding agent for your project: explain, fix, refactor and test code, with verified diffs you approve.</p>
+    <span class="module-card__tag module-card__tag--accent">Agentic AI · ReAct</span>
+  </a>
 </section>
 {% endblock %}
 

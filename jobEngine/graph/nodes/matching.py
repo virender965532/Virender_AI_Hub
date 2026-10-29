@@ -2,20 +2,26 @@
 deterministic rule evaluation, is ranked by rule score, and the top-K
 (cost-capped; ``JOB_LLM_TOP_K<=0`` means all) get a grounded LLM analysis; everyone else degrades to
 rule-only scoring — never silently dropped, just less deeply analyzed.
+The score is computed in code from the analysis (matching/fit_score.py), so the
+same analysis always gives the same score.
 Jobs already in the saved-jobs store with an LLM analysis reuse that stored
-analysis (no rule evaluation, no LLM call); only the minimum match score of
-the current request is re-applied to them. The same goes for jobs an earlier
-run rejected (persistence/rejected_jobs.py) while their text and the candidate
-profile are unchanged, so a job turned down once is never paid for again.
-Jobs the rules reject, and (with JOB_WORLDWIDE_REMOTE_ENABLED) jobs classified
-country-restricted — not doable from India — are rejected without an LLM call.
-With JOB_REVIEWER_ENABLED, LLM-analyzed jobs scoring at least JOB_REVIEWER_MIN_SCORE
-that have concerns or missing skills get a concern review (matching/concern_reviewer.py)
-that drops irrelevant concerns and recomputes the score; a stored review is reused
-while the job text, profile and reviewer version are unchanged.
-With JOB_WORLDWIDE_REMOTE_ENABLED, shown jobs the rules left at "needs
-verification" get an LLM eligibility review (capped by JOB_WORLDWIDE_LLM_MAX_JOBS;
-a saved review is reused while the job's description is unchanged).
+analysis (no rule evaluation, no LLM call); their score is recomputed from it and
+the minimum match score of the current request is re-applied. The same goes for
+jobs an earlier run rejected (persistence/rejected_jobs.py) while their text and
+the candidate profile are unchanged, so a job turned down once is never paid for
+again. Any other job whose text, profile and matcher version were analyzed before
+reuses that analysis from persistence/analysis_cache.py instead of a new call.
+Jobs the rules reject, and (with JOB_WORLDWIDE_REMOTE_ENABLED and
+JOB_REJECT_COUNTRY_RESTRICTED) jobs classified country-restricted — not doable from
+India, and not offering visa sponsorship — are rejected without an LLM call. By
+default they are kept and only labelled (job.worldwide / job.visa_remote).
+With JOB_WORLDWIDE_REMOTE_ENABLED, the matcher's single call per job also returns
+the job's eligibility (visa sponsorship, relocation, remote scope, India), merged
+into job.visa_remote / job.worldwide (grounded quotes only); a saved analysis
+re-applies its stored read with no new call. Only shown jobs without that read
+(analyses saved before it existed) and left at "needs verification" get the separate
+worldwide LLM review (capped by JOB_WORLDWIDE_LLM_MAX_JOBS; a saved review is reused
+while the job's description is unchanged).
 Blocking LLM calls run in worker threads, up to JOB_LLM_CONCURRENCY at a time
 (every job is analyzed independently); each call counts into its own metrics,
 merged afterwards.
@@ -28,26 +34,26 @@ import logging
 from typing import Any
 
 from ...config.settings import get_settings
-from ...matching.concern_reviewer import (
-    ConcernReviewer,
-    apply_review,
-    needs_review,
-    profile_fingerprint,
-    review_is_current,
-)
+from ...matching.fit_score import compute_fit_score, profile_fingerprint
 from ...matching.llm_matcher import LLMCallMetrics, LLMMatcher
 from ...matching.rules import evaluate_rules
-from ...matching.scorer import build_matched_job, is_below_minimum
-from ...matching.worldwide_llm import WorldwideReviewer
+from ...matching.scorer import build_matched_job, is_below_minimum, recommendation_for_score
+from ...matching.visa_remote import apply_llm_eligibility, india_quotes_support, with_global_remote_tag
+from ...matching.worldwide_llm import WorldwideReview, WorldwideReviewer
+from ...matching.worldwide_llm import apply_review as apply_worldwide_review
 from ...models.job import (
     Job,
+    JobEligibility,
     JobMatchAnalysis,
     MatchedJob,
     RuleEvaluation,
+    VisaRemoteClassification,
+    VisaStatus,
     WorldwideCategory,
     WorldwideClassification,
 )
 from ...models.profile import CandidateProfile
+from ...persistence.analysis_cache import analysis_key, cached_analyses, store_analyses
 from ...persistence.rejected_jobs import rejected_jobs_by_key
 from ...persistence.saved_jobs import list_saved_jobs, saved_job_key
 
@@ -72,12 +78,38 @@ def _rejected_jobs(keys: list[str]) -> dict[str, dict[str, Any]]:
         return {}
 
 
+def _cached_analyses(keys: list[str]) -> dict[str, JobMatchAnalysis]:
+    try:
+        stored = cached_analyses(keys)
+    except Exception:  # noqa: BLE001
+        logger.exception("matching_node: could not read the analysis cache; analyzing every job")
+        return {}
+    out: dict[str, JobMatchAnalysis] = {}
+    for key, analysis in stored.items():
+        try:
+            out[key] = JobMatchAnalysis.model_validate(analysis)
+        except Exception:  # noqa: BLE001
+            continue  # no longer validates: analyzed again
+    return out
+
+
+def _store_analyses(analyses: dict[str, dict[str, Any]]) -> None:
+    try:
+        store_analyses(analyses)
+    except Exception:  # noqa: BLE001
+        logger.exception("matching_node: could not write the analysis cache")
+
+
 def _not_eligible_reason(job_dict: dict[str, Any], settings) -> str | None:
-    """Why a job can't be done from India, or None (only with JOB_WORLDWIDE_REMOTE_ENABLED)."""
-    if not settings.worldwide_remote_enabled:
+    """Why a job is rejected as not doable from India, or None. Only with both
+    JOB_WORLDWIDE_REMOTE_ENABLED and JOB_REJECT_COUNTRY_RESTRICTED; a job abroad
+    that offers visa sponsorship is never rejected for its location."""
+    if not settings.worldwide_remote_enabled or not settings.reject_country_restricted:
         return None
     worldwide = job_dict.get("worldwide") or {}
     if worldwide.get("category") != WorldwideCategory.COUNTRY_RESTRICTED.value:
+        return None
+    if (job_dict.get("visa_remote") or {}).get("visa_status") == VisaStatus.POSITIVE_EVIDENCE.value:
         return None
     return f"Not eligible from India: {worldwide.get('reason') or 'remote only within other countries'}"
 
@@ -89,6 +121,27 @@ def _rejection_is_current(prior: dict[str, Any], job_dict: dict[str, Any], *, pr
     if prior_job.get("raw_text_hash") != job_dict.get("raw_text_hash") or prior.get("profile_hash") != profile_hash:
         return False
     return bool(prior.get("llm_analysis")) or _not_eligible_reason(prior_job, settings) is not None
+
+
+def _apply_eligibility(job_dict: dict[str, Any], analysis: dict[str, Any] | None) -> dict[str, Any]:
+    """The job with the matcher's eligibility read merged into its rule labels (no LLM call)."""
+    eligibility = (analysis or {}).get("eligibility")
+    if not eligibility or not job_dict.get("visa_remote"):
+        return job_dict
+    read = JobEligibility.model_validate(eligibility)
+    text = job_dict.get("description") or ""
+    visa_remote = apply_llm_eligibility(VisaRemoteClassification.model_validate(job_dict["visa_remote"]), read, text)
+    update: dict[str, Any] = {
+        "visa_remote": visa_remote.model_dump(mode="json"),
+        "tags": with_global_remote_tag(job_dict.get("tags") or [], visa_remote),
+    }
+    worldwide = job_dict.get("worldwide")
+    if worldwide and worldwide.get("category") == WorldwideCategory.NEEDS_VERIFICATION.value:
+        review = WorldwideReview(
+            category=read.india_category, evidence_quotes=india_quotes_support(read.india_category, read.india_quotes), reasoning=read.reasoning or "matcher read"
+        )
+        update["worldwide"] = apply_worldwide_review(WorldwideClassification.model_validate(worldwide), review, text).model_dump(mode="json")
+    return {**job_dict, **update}
 
 
 def _rejected_without_llm(job: Job, rule_eval: RuleEvaluation, reason: str) -> dict[str, Any]:
@@ -129,6 +182,8 @@ async def _review_worldwide(matched_jobs: list[dict[str, Any]], saved: list[dict
         current = job_dict.get("worldwide")
         if matched.get("rejected") or not current or current.get("category") != WorldwideCategory.NEEDS_VERIFICATION.value:
             continue
+        if (matched.get("llm_analysis") or {}).get("eligibility"):
+            continue  # the matcher call already read eligibility; never a second call for this job
         prior = previous.get(saved_job_key(matched) or "")
         if prior and prior.get("raw_text_hash") == job_dict.get("raw_text_hash"):
             job_dict["worldwide"] = prior["worldwide"]
@@ -156,59 +211,9 @@ async def _review_worldwide(matched_jobs: list[dict[str, Any]], saved: list[dict
     return len(pending)
 
 
-async def _review_concerns(
-    matched_jobs: list[dict[str, Any]],
-    profile: CandidateProfile,
-    *,
-    settings,
-    metrics: LLMCallMetrics,
-    minimum_match_score,
-) -> tuple[int, int]:
-    """Concern review of gated jobs, in place; returns (reviewed now, stored review reused)."""
-    reviewer = ConcernReviewer(settings)
-    if not reviewer.available():
-        return 0, 0
-    profile_hash = profile_fingerprint(profile)
-    pending: list[int] = []
-    reused = 0
-    for idx, matched in enumerate(matched_jobs):
-        if not needs_review(matched, settings) or _not_eligible_reason(matched.get("job") or {}, settings):
-            continue
-        if review_is_current(matched, profile_hash=profile_hash, version=reviewer.version):
-            reused += 1  # restored from the saved job together with its reviewed score
-            continue
-        pending.append(idx)
-    # Highest matcher scores first, so the per-run cap spends reviews where they matter most.
-    pending.sort(key=lambda i: float(matched_jobs[i]["llm_analysis"]["score"]), reverse=True)
-    pending = pending[: settings.reviewer_max_jobs]
-
-    if pending:
-        reviewer._structured_llm()  # build the client once; the worker threads share it
-    semaphore = asyncio.Semaphore(settings.llm_concurrency)
-
-    async def _review(idx: int) -> None:
-        matched = matched_jobs[idx]
-        async with semaphore:
-            call_metrics = LLMCallMetrics()
-            review = await asyncio.to_thread(
-                lambda: reviewer.review(
-                    job=Job.model_validate(matched["job"]),
-                    analysis=JobMatchAnalysis.model_validate(matched["llm_analysis"]),
-                    profile=profile,
-                    metrics=call_metrics,
-                )
-            )
-        metrics.merge(call_metrics)
-        if review is not None:
-            matched_jobs[idx] = apply_review(
-                matched, review, settings=settings, minimum_match_score=minimum_match_score
-            )
-
-    await asyncio.gather(*(_review(i) for i in pending))
-    return len(pending), reused
-
-
-def _reuse_saved(job_dict: dict[str, Any], saved: dict[str, Any], *, settings, minimum_match_score) -> dict[str, Any] | None:
+def _reuse_saved(
+    job_dict: dict[str, Any], saved: dict[str, Any], *, profile: CandidateProfile, settings, minimum_match_score
+) -> dict[str, Any] | None:
     """The saved analysis applied to the freshly scraped job, or None if it no longer validates."""
     # Saved jobs aren't opened again, so the scrape may lack what only the detail pane
     # shows (posted age on a "Viewed" card, employment type); take it from the saved copy.
@@ -222,10 +227,27 @@ def _reuse_saved(job_dict: dict[str, Any], saved: dict[str, Any], *, settings, m
             restored["worldwide"] = saved_job["worldwide"]
     if restored:
         job_dict = {**job_dict, **restored}
+    job_dict = _apply_eligibility(job_dict, saved.get("llm_analysis"))
     try:
         matched = MatchedJob.model_validate({"job": job_dict, **{k: saved[k] for k in _MATCH_FIELDS if k in saved}})
     except Exception:  # noqa: BLE001
         return None
+    if matched.llm_analysis is not None and matched.rule_evaluation.passed:
+        # Recomputed, not taken from the stored copy, so every job is on the current formula.
+        breakdown = compute_fit_score(
+            analysis=matched.llm_analysis,
+            job=matched.job,
+            profile=profile,
+            rule_eval=matched.rule_evaluation,
+            settings=settings,
+        )
+        matched = matched.model_copy(
+            update={
+                "match_score": breakdown.score,
+                "recommendation": recommendation_for_score(breakdown.score),
+                "score_breakdown": breakdown,
+            }
+        )
     not_eligible = _not_eligible_reason(job_dict, settings)
     rejected = (
         not matched.rule_evaluation.passed
@@ -275,7 +297,9 @@ async def matching_node(state: dict[str, Any]) -> dict[str, Any]:
         key = saved_job_key({"job": job_dict}) or ""
         saved = saved_analyses.get(key)
         if saved is not None:
-            matched = _reuse_saved(job_dict, saved, settings=settings, minimum_match_score=minimum_match_score)
+            matched = _reuse_saved(
+                job_dict, saved, profile=profile, settings=settings, minimum_match_score=minimum_match_score
+            )
             if matched is not None:
                 reused.append(matched)
                 continue
@@ -284,7 +308,9 @@ async def matching_node(state: dict[str, Any]) -> dict[str, Any]:
             # The stored worldwide verdict may come from an LLM review the rules can't repeat.
             stored_worldwide = (prior.get("job") or {}).get("worldwide")
             restored = {**job_dict, "worldwide": stored_worldwide} if stored_worldwide else job_dict
-            matched = _reuse_saved(restored, prior, settings=settings, minimum_match_score=minimum_match_score)
+            matched = _reuse_saved(
+                restored, prior, profile=profile, settings=settings, minimum_match_score=minimum_match_score
+            )
             if matched is not None:
                 reused.append(matched)
                 reused_rejected += 1
@@ -336,13 +362,31 @@ async def matching_node(state: dict[str, Any]) -> dict[str, Any]:
         return analysis
 
     to_analyze = [job for job, _ in scored[:llm_limit]] if llm_available else []
-    if to_analyze:
+    # Same job text, profile and matcher version as an earlier analysis: reuse it,
+    # so the score doesn't move between runs.
+    keys = [
+        analysis_key(job.raw_text_hash, profile_hash=profile_hash, matcher_version=llm_matcher.version)
+        for job in to_analyze
+    ]
+    cached = await asyncio.to_thread(_cached_analyses, keys) if keys else {}
+    analyses: list[JobMatchAnalysis | None] = [cached.get(key) for key in keys]
+    pending = [idx for idx, analysis in enumerate(analyses) if analysis is None]
+    if pending:
         llm_matcher._get_structured_llm()  # build the client once; the worker threads share it
-    analyses = await asyncio.gather(*(_analyze(job) for job in to_analyze))
+    fresh = await asyncio.gather(*(_analyze(to_analyze[idx]) for idx in pending))
+    for idx, analysis in zip(pending, fresh):
+        analyses[idx] = analysis
+    new_analyses = {keys[idx]: a.model_dump(mode="json") for idx, a in zip(pending, fresh) if a is not None}
+    if new_analyses:
+        await asyncio.to_thread(_store_analyses, new_analyses)
 
     matched_jobs: list[dict[str, Any]] = list(reused) + rejected_up_front
     for idx, (job, rule_eval) in enumerate(scored):
         llm_analysis = analyses[idx] if idx < len(analyses) else None
+        if llm_analysis is not None and llm_analysis.eligibility is not None:
+            job = Job.model_validate(
+                _apply_eligibility(job.model_dump(mode="json"), llm_analysis.model_dump(mode="json"))
+            )
         matched = build_matched_job(
             job=job,
             profile=profile,
@@ -352,12 +396,6 @@ async def matching_node(state: dict[str, Any]) -> dict[str, Any]:
             minimum_match_score=minimum_match_score,
         )
         matched_jobs.append(matched.model_dump(mode="json"))
-
-    # Before the worldwide review: it only looks at shown jobs, and the concern
-    # review can lift a job over the minimum score (or drop it below).
-    concern_reviews, concern_reviews_reused = await _review_concerns(
-        matched_jobs, profile, settings=settings, metrics=llm_metrics, minimum_match_score=minimum_match_score
-    )
 
     worldwide_reviews = 0
     if settings.worldwide_remote_enabled:
@@ -371,14 +409,13 @@ async def matching_node(state: dict[str, Any]) -> dict[str, Any]:
                 not_eligible += 1
 
     metrics = dict(state.get("metrics") or {})
-    metrics["concern_reviews"] = concern_reviews
-    metrics["concern_reviews_reused"] = concern_reviews_reused
+    metrics["jobs_reused_from_analysis_cache"] = len(to_analyze) - len(pending)
     metrics["worldwide_llm_reviews"] = worldwide_reviews
     metrics["jobs_rejected_by_rules"] = metrics.get("jobs_rejected_by_rules", 0) + rejected_by_rules
     metrics["jobs_reused_from_saved"] = len(reused) - reused_rejected
     metrics["jobs_reused_from_rejected"] = reused_rejected
     metrics["jobs_rejected_not_eligible"] = not_eligible
-    metrics["jobs_sent_to_llm"] = llm_limit if llm_available else 0
+    metrics["jobs_sent_to_llm"] = len(pending)
     metrics["llm_calls"] = llm_metrics.calls
     metrics["llm_retries"] = llm_metrics.retries
     metrics["llm_prompt_tokens"] = llm_metrics.prompt_tokens

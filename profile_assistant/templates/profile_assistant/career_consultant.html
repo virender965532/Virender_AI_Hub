@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} — Virender AI Hub{% endblock %}
+
+{% block extra_head %}
+<style>
+  .career-wrap {
+    max-width: 1100px;
+    margin: 0 auto 3rem;
+  }
+  .career-chat {
+    padding: 0.75rem;
+    overflow: hidden;
+  }
+  .career-chat iframe {
+    display: block;
+    width: 100%;
+    height: min(78vh, 820px);
+    min-height: 520px;
+    border: 0;
+    border-radius: calc(var(--radius) - 6px);
+    background: #080a16;
+  }
+  .career-api-hint {
+    margin-top: 1rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    text-align: center;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="career-wrap">
+  <section class="page-head hero">
+    <p class="hero__eyebrow neon-text">Agentic AI · Critic-reviewed</p>
+    <h1 class="hero__title">Ask {{ first_name }} <span class="hero__accent">Career Consultant</span></h1>
+    <p class="hero__subtitle">
+      Ask about {{ name }}'s career, skills and experience. Every answer comes only from the profile and is
+      reviewed by a separate critic model before you see it. If the profile doesn't say, the answer is
+      "I don't know."
+    </p>
+  </section>
+
+  <section class="career-chat glass">
+    <iframe src="{{ ui_url }}" title="{{ title }} chat"></iframe>
+  </section>
+
+  <p class="career-api-hint">
+    JSON API: <code class="inline-code">POST {{ api_url }}</code>
+  </p>
+</div>
+{% endblock %}
