@@ -15,6 +15,8 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
+from llm_provider import warn_if_shared_model
+
 load_dotenv()
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -146,6 +148,10 @@ class CodeAssistantSettings:
             )
         if not self.command_allowlist:
             raise CodeAssistantConfigError("CA_COMMAND_ALLOWLIST must contain at least one command")
+
+    def warn_if_critic_shared(self) -> None:
+        """On Ollama, warn if coder and reviewer map to one local model (called on first use, not at startup)."""
+        warn_if_shared_model("Code Assistant", {"CA_CODER_MODEL": self.coder_model, "CA_REVIEWER_MODEL": self.reviewer_model})
 
 
 def load_settings() -> CodeAssistantSettings:

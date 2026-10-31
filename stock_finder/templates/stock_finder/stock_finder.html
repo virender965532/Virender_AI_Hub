@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} — Virender AI Hub{% endblock %}
+
+{% block extra_head %}
+<style>
+  .stock-wrap {
+    max-width: 1500px;
+    margin: 0 auto 3rem;
+  }
+  .stock-disclaimer {
+    margin: 0 auto 1rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid rgba(255, 200, 87, 0.45);
+    border-radius: calc(var(--radius) - 6px);
+    background: rgba(255, 200, 87, 0.08);
+    color: var(--text-muted);
+    font-size: 0.92rem;
+  }
+  .stock-disclaimer strong { color: #ffc857; }
+  .stock-app {
+    padding: 0.75rem;
+    overflow: hidden;
+  }
+  .stock-app iframe {
+    display: block;
+    width: 100%;
+    height: min(88vh, 1040px);
+    min-height: 640px;
+    border: 0;
+    border-radius: calc(var(--radius) - 6px);
+    background: #080a16;
+  }
+  .stock-api-hint {
+    margin-top: 1rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    text-align: center;
+  }
+  .stock-api-hint code { word-break: break-all; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="stock-wrap">
+  <section class="page-head hero">
+    <p class="hero__eyebrow neon-text">Agentic AI · RAG + Map-Reduce · ReAct screener · Critic-reviewed</p>
+    <h1 class="hero__title">Stock <span class="hero__accent">Finder</span></h1>
+    <p class="hero__subtitle">
+      Reads current market news, identifies the key themes and sentiment, finds companies that may benefit, and
+      analyses each one on fundamentals, technicals, valuation, news and risk. Every number is computed in code,
+      every news claim is cited, and a second model reviews each recommendation. It can also review your portfolio
+      and suggest buy more / hold / trim / sell. Research only: it never places trades.
+    </p>
+  </section>
+
+  <p class="stock-disclaimer"><strong>Disclaimer:</strong> {{ disclaimer }}</p>
+
+  {% if ui_enabled %}
+  <section class="stock-app glass">
+    <iframe src="{{ ui_url }}" title="Stock Finder"></iframe>
+  </section>
+  {% else %}
+  <p class="stock-api-hint">The interactive UI is disabled (<code class="inline-code">SF_UI_ENABLED=false</code>); the API below still works.</p>
+  {% endif %}
+
+  <p class="stock-api-hint">
+    Market: <code class="inline-code">{{ market }}</code> ·
+    API: <code class="inline-code">{{ api_url }}/market-overview</code>,
+    <code class="inline-code">{{ api_url }}/find-opportunities</code> (Server-Sent Events),
+    <code class="inline-code">{{ api_url }}/analyze</code>,
+    <code class="inline-code">{{ api_url }}/portfolio</code>
+  </p>
+</div>
+{% endblock %}

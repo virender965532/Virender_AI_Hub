@@ -36,6 +36,7 @@ class _LazyUI:
                 if self._app is None:
                     from .ui import build_wsgi_app
 
+                    self.settings.warn_if_critic_shared()
                     self._app = build_wsgi_app(self.settings)  # None if Gradio failed; retried next request
         return self._app
 

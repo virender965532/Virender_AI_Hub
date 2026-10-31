@@ -14,6 +14,8 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
+from llm_provider import warn_if_shared_model
+
 load_dotenv()
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -102,6 +104,7 @@ class ProfileAssistantSettings:
                 "PA_ANSWER_MODEL and PA_CRITIC_MODEL must be different models "
                 f"(both are {self.answer_model!r}); the critic must be an independent reviewer."
             )
+        warn_if_shared_model("Profile Assistant", {"PA_ANSWER_MODEL": self.answer_model, "PA_CRITIC_MODEL": self.critic_model})
 
 
 def load_settings() -> ProfileAssistantSettings:

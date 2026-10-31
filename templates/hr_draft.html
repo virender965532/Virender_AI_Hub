@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}HR draft email — Virender AI Hub{% endblock %}
+
+{% block extra_head %}
+<style>
+  .hr-draft-wrap { max-width: 760px; margin: 0 auto 3rem; }
+  .hr-draft-card { padding: 1.5rem 1.75rem; margin-top: 1.25rem; }
+  .hr-draft-card h2 { font-family: var(--font-display); font-size: 1.05rem; margin: 0 0 0.75rem; }
+  .hr-draft-quote { border-left: 3px solid var(--neon-cyan); padding-left: 0.85rem; color: var(--text-muted); margin: 0.75rem 0; }
+  .hr-draft-subject { font-family: var(--font-display); color: var(--neon-cyan); margin: 0 0 1rem; font-size: 1rem; }
+  .hr-draft-body { white-space: pre-wrap; color: var(--text-muted); line-height: 1.6; margin: 0; }
+  .hr-draft-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; margin-top: 1rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <p class="hero__eyebrow neon-text">Autonomous application agent</p>
+  <h1 class="hero__title">HR <span class="hero__accent">draft email</span></h1>
+  <p class="hero__subtitle">
+    The agent writes an application email from this job description and your profile and saves it as a draft
+    addressed to the HR email found in the posting. Back to
+    <a href="{{ url_for('remote_job_finder.saved_jobs_ui') }}">Saved Jobs</a>.
+  </p>
+</section>
+
+<div class="hr-draft-wrap">
+  {% if job is none %}
+  <div class="alert alert--error glass" role="alert">This job is no longer in Saved Jobs (it may have been purged).</div>
+  {% else %}
+  <div class="hr-draft-card glass">
+    <h2>{{ job.title or "Untitled" }} at {{ job.company or "Unknown company" }}</h2>
+    {% if contact.email_id %}
+    <p>HR email: <strong>{{ contact.email_id }}</strong>{% if not contact.is_hr_mail %} <small>(the posting may not mean it for applications)</small>{% endif %}</p>
+    {% if contact.reason %}<p class="hr-draft-quote">&ldquo;{{ contact.reason }}&rdquo;</p>{% endif %}
+    {% else %}
+    <p>{{ contact.reason or "No HR email in the job description." }}</p>
+    {% endif %}
+    {% set link = job.application_url or job.source_url %}
+    {% if link %}<p><a href="{{ link }}" target="_blank" rel="noopener">Open the posting</a></p>{% endif %}
+  </div>
+
+  {% if contact.email_id %}
+  <div id="hr-loading" class="loading-panel glass hidden" role="status" aria-live="polite">
+    <div class="loading-panel__row">
+      <div class="spinner" aria-hidden="true"></div>
+      <div>
+        <p class="loading-panel__text">Drafting your application…</p>
+        <p class="loading-panel__hint">Analyzing the job description, matching your profile, writing subject &amp; email. This may take a minute.</p>
+      </div>
+    </div>
+  </div>
+  <div id="hr-error" class="alert alert--error glass hidden" role="alert"></div>
+  <div id="hr-result" class="hr-draft-card glass hidden">
+    <p id="hr-status"></p>
+    <p class="hr-draft-subject" id="hr-subject"></p>
+    <pre class="hr-draft-body" id="hr-body"></pre>
+    <div class="hr-draft-actions">
+      <a id="hr-compose" class="btn btn--ghost hidden" target="_blank" rel="noopener">Open draft in Gmail</a>
+      <button type="button" id="hr-again" class="btn btn--ghost">Create again</button>
+    </div>
+  </div>
+  {% endif %}
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if job is not none and contact.email_id %}
+<script>
+(function () {
+  var url = {{ url_for('remote_job_finder.api_create_hr_draft', key=key) | tojson }};
+  var $ = function (id) { return document.getElementById(id); };
+
+  function show(draft, existing) {
+    $("hr-result").classList.remove("hidden");
+    var status;
+    if (draft.saved) {
+      status = (existing ? "A draft was already saved" : "Draft saved") + " in your mailbox's Drafts, to " + draft.hr_email + " (resume attached).";
+    } else if (draft.compose_url) {
+      status = "Could not save the draft over IMAP (" + draft.error + "). Open it in Gmail: Gmail keeps it in Drafts — attach the resume before sending.";
+    } else {
+      status = "Draft not created: " + (draft.error || "unknown error");
+    }
+    $("hr-status").textContent = status;
+    $("hr-subject").textContent = draft.subject || "";
+    $("hr-body").textContent = draft.body || "";
+    var compose = $("hr-compose");
+    compose.classList.toggle("hidden", !draft.compose_url);
+    if (draft.compose_url) compose.href = draft.compose_url;
+  }
+
+  function create(force) {
+    $("hr-result").classList.add("hidden");
+    $("hr-error").classList.add("hidden");
+    $("hr-loading").classList.remove("hidden");
+    fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ force: !!force }) })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (!data.ok) throw new Error(data.error || "request failed");
+        show(data.draft, data.existing);
+      })
+      .catch(function (err) {
+        $("hr-error").textContent = "Could not create the draft: " + err.message;
+        $("hr-error").classList.remove("hidden");
+      })
+      .finally(function () { $("hr-loading").classList.add("hidden"); });
+  }
+
+  $("hr-again").addEventListener("click", function () { create(true); });
+  create(false);
+})();
+</script>
+{% endif %}
+{% endblock %}

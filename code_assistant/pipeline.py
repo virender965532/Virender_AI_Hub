@@ -25,6 +25,8 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from typing import Any, Callable
 
+from llm_provider import resolve_embedding_model
+
 from .agents.coder_agent import AgentRun, CoderAgent, Mode
 from .agents.planner import Planner, layers, render_plan
 from .agents.reviewer_agent import Reviewer, passes
@@ -88,6 +90,8 @@ class CodeAssistantPipeline:
         self.workspaces = workspaces or WorkspaceRegistry(settings.workspace_roots, max_file_bytes=settings.max_file_bytes)
         self.indexer = indexer or Indexer(
             settings.index_dir, embed_fn=self._embed if llm.available else None, max_file_bytes=settings.max_file_bytes,
+            embedding_model=resolve_embedding_model(settings.embedding_model),
+            legacy_embedding_model=settings.embedding_model,
         )
         self.checkpoints = checkpoints or CheckpointManager(settings.checkpoint_dir)
         self.runner = runner or CommandRunner(settings)
@@ -545,6 +549,7 @@ def get_pipeline() -> CodeAssistantPipeline:
     if _pipeline is None:
         with _pipeline_lock:
             if _pipeline is None:
+                get_settings().warn_if_critic_shared()
                 _pipeline = CodeAssistantPipeline(get_settings(), get_llm_client())
     return _pipeline
 

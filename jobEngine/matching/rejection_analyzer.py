@@ -22,6 +22,8 @@ from typing import Any
 
 import yaml
 
+from llm_provider import get_chat_model, llm_configured, resolve_model
+
 from ..config.settings import PROJECT_ROOT, EngineSettings, get_settings
 from ..guardrails.prompt_injection import wrap_untrusted_content
 from ..models.profile import CandidateProfile
@@ -167,15 +169,13 @@ class RejectionAnalyzer:
         self._llm = None
 
     def available(self) -> bool:
-        return self.settings.llm_enabled and bool(self.settings.openai_api_key)
+        return self.settings.llm_enabled and llm_configured(self.settings.openai_api_key)
 
     def _get_llm(self):
         if self._llm is None:
-            from langchain_openai import ChatOpenAI
-
-            self._llm = ChatOpenAI(
-                model=self.settings.rejection_model,
-                api_key=self.settings.openai_api_key,
+            self._llm = get_chat_model(
+                self.settings.rejection_model,
+                openai_api_key=self.settings.openai_api_key,
                 timeout=self.settings.openai_timeout,
                 temperature=0.2,
             ).with_structured_output(RejectionAnalysis, include_raw=True)
@@ -200,7 +200,7 @@ class RejectionAnalyzer:
     def analyze(self, saved: dict[str, Any], profile: CandidateProfile, prefs: dict[str, Any] | None = None) -> dict[str, Any]:
         """The stored analysis (normalized fields + metadata); raises RejectionAnalysisError."""
         if not self.available():
-            raise RejectionAnalysisError("LLM is not configured (set OPENAI_API_KEY and JOB_ENGINE_LLM_ENABLED).")
+            raise RejectionAnalysisError("LLM is not configured (set OPENAI_API_KEY or LLM_PROVIDER=ollama, and JOB_ENGINE_LLM_ENABLED).")
         prefs = load_candidate_preferences() if prefs is None else prefs
         metrics = LLMCallMetrics()
         repair_hint = ""
@@ -224,7 +224,7 @@ class RejectionAnalyzer:
                 return {
                     **normalize(parsed),
                     "evaluated_at": datetime.now(timezone.utc).isoformat(),
-                    "model": self.settings.rejection_model,
+                    "model": resolve_model(self.settings.rejection_model),
                     "prompt_version": self.version,
                     "tokens": metrics.total_tokens,
                     "llm_calls": metrics.calls,

@@ -1,4 +1,4 @@
-"""High-score job email: threshold, once-per-job, retry after a failed send, HR drafts."""
+"""High-score job email: threshold, once-per-job, retry after a failed send, HR email + draft link."""
 
 from __future__ import annotations
 
@@ -18,25 +18,24 @@ def _matched(job_id: str, score: float, **extra):
 
 @pytest.fixture
 def store(monkeypatch):
-    """In-memory stand-in for the saved-jobs ``mailed_at`` / ``hr_draft`` fields, plus a captured outbox."""
+    """In-memory stand-in for the saved-jobs ``mailed_at`` / ``hr_contact`` fields, plus a captured outbox."""
     mailed: set[str] = set()
     outbox: list[dict] = []
-    state = {"send_ok": True, "draft_ok": True, "agent_calls": [], "recorded": {}}
+    state = {"send_ok": True, "llm": None, "llm_calls": [], "recorded": {}}
 
     monkeypatch.setattr(job_alerts, "unmailed_job_keys", lambda keys: {k for k in keys if k not in mailed})
     monkeypatch.setattr(job_alerts, "mark_jobs_mailed", lambda keys: mailed.update(keys))
     monkeypatch.setattr(job_alerts, "email_configured", lambda: True)
     monkeypatch.setattr(
-        job_alerts, "stored_hr_drafts",
-        lambda keys: {k: v for k, v in state["recorded"].items() if k in keys and v["saved"]},
+        job_alerts, "stored_hr_contacts", lambda keys: {k: v for k, v in state["recorded"].items() if k in keys}
     )
-    monkeypatch.setattr(job_alerts, "record_hr_draft", lambda key, outcome: state["recorded"].__setitem__(key, outcome))
+    monkeypatch.setattr(job_alerts, "record_hr_contact", lambda key, c: state["recorded"].__setitem__(key, c))
 
-    def fake_draft(job, hr_email):
-        state["agent_calls"].append((job.get("description"), hr_email))
-        return {"hr_email": hr_email, "saved": state["draft_ok"], "subject": "S", "error": None if state["draft_ok"] else "imap down"}
+    def fake_llm(job, text):
+        state["llm_calls"].append(text)
+        return state["llm"]
 
-    monkeypatch.setattr(job_alerts, "create_hr_draft", fake_draft)
+    monkeypatch.setattr(hr_drafts, "_llm_extract", fake_llm)
 
     def fake_send(to, subject, text, *, html=None):
         outbox.append({"to": to, "subject": subject, "text": text, "html": html})
@@ -45,8 +44,7 @@ def store(monkeypatch):
     monkeypatch.setattr(job_alerts, "send_email", fake_send)
     monkeypatch.setenv("JOB_MAIL_THRESHOLD_SCORE", "80")
     monkeypatch.delenv("JOB_MAIL_TO", raising=False)
-    monkeypatch.delenv("JOB_HR_DRAFTS_ENABLED", raising=False)
-    monkeypatch.delenv("JOB_HR_DRAFTS_MAX_PER_RUN", raising=False)
+    monkeypatch.delenv("JOB_HR_DRAFT_URL", raising=False)
     return mailed, outbox, state
 
 
@@ -92,49 +90,74 @@ def _with_hr(job_id: str, score: float, description: str):
     return m
 
 
-def test_hr_email_in_posting_creates_a_draft_and_is_highlighted(store):
+def test_hr_sentence_and_draft_link_are_shown(store):
     _, outbox, state = store
-    result = {"jobs": [_with_hr("a", 90, "Send your CV to careers@acme.io or call us."), _matched("b", 85)]}
+    result = {"jobs": [_with_hr("a", 90, "We are hiring. Send your CV to careers@acme.io or call us. Thanks."), _matched("b", 85)]}
     assert job_alerts.mail_high_score_jobs(result) == 2
-    assert state["agent_calls"] == [("Send your CV to careers@acme.io or call us.", "careers@acme.io")]
     mail = outbox[0]
-    assert "Draft email is saved with HR email id as: careers@acme.io" in mail["text"]
-    assert "background:#fff3a3" in mail["html"] and "careers@acme.io" in mail["html"]
-    assert "1 HR draft saved" in mail["subject"]
+    assert 'HR email in the posting: "Send your CV to careers@acme.io or call us."' in mail["text"]
+    assert "Create draft email: https://ai.ritishka.in/hr-draft/linkedin:a" in mail["text"]
+    assert "Draft email is saved" not in mail["text"]
+    assert "background:#fff3a3" in mail["html"] and "<u>careers@acme.io</u>" in mail["html"]
+    assert 'href="https://ai.ritishka.in/hr-draft/linkedin:a">Create draft email</a>' in mail["html"]
+    assert "1 with HR email" in mail["subject"]
+    assert state["recorded"]["linkedin:a"] == {
+        "email_id": "careers@acme.io", "is_hr_mail": True, "reason": "Send your CV to careers@acme.io or call us.",
+    }
 
 
-def test_retried_alert_does_not_draft_twice(store):
+def test_llm_decides_whether_the_address_is_for_applications(store):
+    _, outbox, state = store
+    state["llm"] = hr_drafts.HREmail(email_id="legal@acme.io", is_hr_mail=False, reason="x")
+    job = _with_hr("a", 90, "To report fraud write to legal@acme.io.")
+    assert job_alerts.mail_high_score_jobs({"jobs": [job]}) == 1
+    assert len(state["llm_calls"]) == 1
+    assert "Create draft email" not in outbox[0]["text"]
+    assert state["recorded"]["linkedin:a"]["reason"] == "To report fraud write to legal@acme.io."
+
+
+def test_llm_address_not_in_posting_is_ignored(store):
+    _, outbox, state = store
+    state["llm"] = hr_drafts.HREmail(email_id="made.up@acme.io", is_hr_mail=True, reason="made up")
+    assert job_alerts.mail_high_score_jobs({"jobs": [_with_hr("a", 90, "Apply: jobs@acme.io")]}) == 1
+    assert state["recorded"]["linkedin:a"]["email_id"] == "jobs@acme.io"
+
+
+def test_retried_alert_does_not_extract_twice(store):
     _, outbox, state = store
     state["send_ok"] = False
     result = {"jobs": [_with_hr("a", 90, "Apply: hr@acme.io")]}
     assert job_alerts.mail_high_score_jobs(result) == 0
     state["send_ok"] = True
     assert job_alerts.mail_high_score_jobs(result) == 1
-    assert len(state["agent_calls"]) == 1
-    assert "Draft email is saved with HR email id as: hr@acme.io" in outbox[-1]["text"]
+    assert len(state["llm_calls"]) == 1
+    assert "hr-draft/linkedin:a" in outbox[-1]["text"]
 
 
-def test_failed_draft_is_reported_and_retried(store):
-    _, outbox, state = store
-    state["draft_ok"] = False
-    assert job_alerts.mail_high_score_jobs({"jobs": [_with_hr("a", 90, "hr@acme.io")]}) == 1
-    assert "draft could not be saved: imap down" in outbox[0]["text"]
+def test_no_llm_call_without_an_address(store):
+    _, _, state = store
+    assert job_alerts.mail_high_score_jobs({"jobs": [_with_hr("a", 90, "No contact here.")]}) == 1
+    assert not state["llm_calls"] and not state["recorded"]
 
 
-def test_no_drafts_when_alert_cannot_be_sent(store, monkeypatch):
+def test_no_extraction_when_alert_cannot_be_sent(store, monkeypatch):
     _, outbox, state = store
     monkeypatch.setattr(job_alerts, "email_configured", lambda: False)
     assert job_alerts.mail_high_score_jobs({"jobs": [_with_hr("a", 90, "hr@acme.io")]}) == 0
-    assert not state["agent_calls"] and not outbox
+    assert not state["llm_calls"] and not outbox
 
 
-def test_draft_cap_per_run(store, monkeypatch):
-    _, outbox, state = store
-    monkeypatch.setenv("JOB_HR_DRAFTS_MAX_PER_RUN", "1")
-    jobs = [_with_hr("a", 95, "hr@a.io"), _with_hr("b", 90, "hr@b.io")]
-    assert job_alerts.mail_high_score_jobs({"jobs": jobs}) == 2
-    assert [c[1] for c in state["agent_calls"]] == ["hr@a.io"]  # highest score drafted first
-    assert "drafting skipped" in outbox[0]["text"]
+@pytest.mark.parametrize(
+    ("text", "email", "expected"),
+    [
+        ("Intro. Mail jobs@acme.io today! Bye.", "jobs@acme.io", "Mail jobs@acme.io today!"),
+        ("line one\nContact: hr@acme.io\nline three", "hr@acme.io", "Contact: hr@acme.io"),
+        ("Send to hr@acme.io.", "hr@acme.io", "Send to hr@acme.io."),
+        ("nothing", "hr@acme.io", ""),
+    ],
+)
+def test_sentence_with(text, email, expected):
+    assert hr_drafts.sentence_with(text, email) == expected
 
 
 @pytest.mark.parametrize(
@@ -149,23 +172,6 @@ def test_draft_cap_per_run(store, monkeypatch):
 )
 def test_find_hr_email(text, expected):
     assert hr_drafts.find_hr_email({"description": text}) == expected
-
-
-def test_gmail_compose_draft_is_noted(store):
-    _, outbox, state = store
-    original = job_alerts.create_hr_draft
-
-    def compose_draft(job, hr_email):
-        out = original(job, hr_email)
-        return {**out, "method": "gmail_compose"}
-
-    job_alerts.create_hr_draft = compose_draft
-    try:
-        assert job_alerts.mail_high_score_jobs({"jobs": [_with_hr("a", 90, "hr@acme.io")]}) == 1
-    finally:
-        job_alerts.create_hr_draft = original
-    assert "Draft email is saved with HR email id as: hr@acme.io" in outbox[0]["text"]
-    assert "attach the resume" in outbox[0]["text"]
 
 
 def test_hr_draft_falls_back_to_gmail_compose(monkeypatch):
@@ -185,11 +191,10 @@ def test_hr_draft_falls_back_to_gmail_compose(monkeypatch):
         sys.modules, "jobApplyPro.config", types.SimpleNamespace(PROFILE_DIR=Path("."), RESUME_FILENAME="none.pdf")
     )
     monkeypatch.setattr(hd, "save_draft", lambda *a, **k: "login refused")
-    opened = []
-    monkeypatch.setattr(hd, "open_gmail_compose", lambda to, s, b: opened.append((to, s, b)))
     out = hd.create_hr_draft({"title": "SE", "description": "x"}, "hr@acme.io")
-    assert out["saved"] and out["method"] == "gmail_compose"
-    assert opened == [("hr@acme.io", "Hi", "Body")]
+    assert not out["saved"] and out["method"] == "gmail_compose" and out["error"] == "IMAP: login refused"
+    assert out["subject"] == "Hi" and out["body"] == "Body"
+    assert "to=hr%40acme.io" in out["compose_url"]
 
 
 def test_compose_url_targets_sender_account(monkeypatch):

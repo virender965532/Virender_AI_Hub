@@ -1,9 +1,11 @@
 import os
 import json
 import logging
-from openai import OpenAI
 
-client = OpenAI()
+from llm_provider import get_openai_client
+
+# OpenAI or Ollama per LLM_PROVIDER; on Ollama, MODEL is mapped to the local model.
+client = get_openai_client()
 MODEL = "gpt-4o-mini"
 
 logger = logging.getLogger(__name__)

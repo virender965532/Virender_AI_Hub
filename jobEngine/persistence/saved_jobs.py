@@ -121,6 +121,7 @@ def _merged_doc(matched: dict[str, Any], previous: dict[str, Any] | None, *, key
         "status": (previous or {}).get("status", "new"),
         "applied_at": (previous or {}).get("applied_at"),
         "mailed_at": (previous or {}).get("mailed_at"),
+        "hr_contact": (previous or {}).get("hr_contact"),
         "hr_draft": (previous or {}).get("hr_draft"),
         "first_seen_at": (previous or {}).get("first_seen_at", seen_at),
         "last_seen_at": seen_at,
@@ -207,13 +208,16 @@ def mark_jobs_mailed(keys: list[str]) -> None:
         _saved_jobs().update_many({"_id": {"$in": keys}}, {"$set": {"mailed_at": _now()}})
 
 
-def stored_hr_drafts(keys: list[str]) -> dict[str, dict[str, Any]]:
-    """The saved HR draft already recorded for each of ``keys`` (so a retried email doesn't draft twice).
-    Failed attempts aren't returned: they are tried again."""
+def stored_hr_contacts(keys: list[str]) -> dict[str, dict[str, Any]]:
+    """The HR email extraction already recorded for each of ``keys`` (so a retried alert doesn't redo it)."""
     if not keys:
         return {}
-    cursor = _saved_jobs().find({"_id": {"$in": keys}, "hr_draft.saved": True}, {"_id": 1, "hr_draft": 1})
-    return {doc["_id"]: doc["hr_draft"] for doc in cursor}
+    cursor = _saved_jobs().find({"_id": {"$in": keys}, "hr_contact": {"$ne": None}}, {"_id": 1, "hr_contact": 1})
+    return {doc["_id"]: doc["hr_contact"] for doc in cursor}
+
+
+def record_hr_contact(key: str, contact: dict[str, Any]) -> None:
+    _saved_jobs().update_one({"_id": key}, {"$set": {"hr_contact": contact}})
 
 
 def record_hr_draft(key: str, outcome: dict[str, Any]) -> None:

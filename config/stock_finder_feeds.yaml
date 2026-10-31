@@ -1,0 +1,26 @@
+# Stock Finder RSS news sources (stock_finder/data/news_data.py).
+# market_feeds: fetched for market-wide news. company_search: URL template for
+# per-company news ({query} is URL-encoded). Feed URLs change over time — if a
+# feed stops returning items it is skipped (and logged); edit this list freely.
+
+IN:
+  market_feeds:
+    - {name: "Economic Times Markets", url: "https://economictimes.indiatimes.com/markets/rssfeeds/1977021501.cms"}
+    - {name: "Moneycontrol Market Reports", url: "https://www.moneycontrol.com/rss/marketreports.xml"}
+    - {name: "Moneycontrol Business", url: "https://www.moneycontrol.com/rss/business.xml"}
+    - {name: "Livemint Markets", url: "https://www.livemint.com/rss/markets"}
+    - {name: "Business Standard Markets", url: "https://www.business-standard.com/rss/markets-106.rss"}
+    - {name: "Hindu BusinessLine Markets", url: "https://www.thehindubusinessline.com/markets/feeder/default.rss"}
+    - {name: "Google News: Indian stock market", url: "https://news.google.com/rss/search?q=indian+stock+market+sensex+nifty&hl=en-IN&gl=IN&ceid=IN:en"}
+  company_search: "https://news.google.com/rss/search?q={query}&hl=en-IN&gl=IN&ceid=IN:en"
+  newsapi_market_query: "(Sensex OR Nifty OR \"Indian stock market\" OR RBI OR \"Indian economy\")"
+
+US:
+  market_feeds:
+    - {name: "CNBC Markets", url: "https://www.cnbc.com/id/10000664/device/rss/rss.html"}
+    - {name: "MarketWatch Top Stories", url: "https://feeds.content.dowjones.io/public/rss/mw_topstories"}
+    - {name: "Yahoo Finance", url: "https://finance.yahoo.com/news/rssindex"}
+    - {name: "Nasdaq Markets", url: "https://www.nasdaq.com/feed/rssoutbound?category=Markets"}
+    - {name: "Google News: US stock market", url: "https://news.google.com/rss/search?q=stock+market+S%26P+500+Federal+Reserve&hl=en-US&gl=US&ceid=US:en"}
+  company_search: "https://news.google.com/rss/search?q={query}&hl=en-US&gl=US&ceid=US:en"
+  newsapi_market_query: "(\"stock market\" OR \"S&P 500\" OR Nasdaq OR \"Federal Reserve\" OR earnings)"

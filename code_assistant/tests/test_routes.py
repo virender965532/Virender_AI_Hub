@@ -40,6 +40,7 @@ HUB_ENDPOINTS = {
     "remote_job_finder": ["remote_job_finder_ui", "saved_jobs_ui", "applied_jobs_ui"],
     "resume_intel": ["resume_intelligence_ui"],
     "profile_assistant": ["career_consultant_ui"],
+    "stock_finder": ["stock_finder_ui"],
 }
 
 

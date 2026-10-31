@@ -26,6 +26,8 @@ from typing import Any, Callable, TypeVar
 import openai
 from pydantic import BaseModel, ValidationError
 
+from llm_provider import get_openai_client, llm_configured, missing_credentials_message
+
 from .config import CodeAssistantSettings, get_settings
 from .observability import Trace
 from .prompts import PARSE_REPAIR_TEMPLATE
@@ -172,15 +174,15 @@ class LLMClient:
 
     @property
     def available(self) -> bool:
-        return self._client is not None or bool(self.settings.openai_api_key)
+        return self._client is not None or llm_configured(self.settings.openai_api_key)
 
     def _get_client(self) -> Any:
         if self._client is None:
             with self._lock:
                 if self._client is None:
-                    if not self.settings.openai_api_key:
-                        raise LLMUnavailableError("OPENAI_API_KEY is not set")
-                    self._client = openai.OpenAI(
+                    if not llm_configured(self.settings.openai_api_key):
+                        raise LLMUnavailableError(missing_credentials_message())
+                    self._client = get_openai_client(
                         api_key=self.settings.openai_api_key,
                         timeout=self.settings.request_timeout,
                         max_retries=0,

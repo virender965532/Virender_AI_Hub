@@ -345,7 +345,7 @@ async def matching_node(state: dict[str, Any]) -> dict[str, Any]:
     if not llm_available and settings.degrade_on_llm_failure:
         degraded = True
         degraded_reason = (
-            "LLM matching unavailable (no OPENAI_API_KEY or JOB_ENGINE_LLM_ENABLED=false); "
+            "LLM matching unavailable (LLM_PROVIDER=openai without OPENAI_API_KEY, or JOB_ENGINE_LLM_ENABLED=false); "
             "scores reflect rule-based signals only."
         )
 

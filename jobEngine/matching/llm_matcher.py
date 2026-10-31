@@ -1,6 +1,7 @@
 """LLM-based grounded matching (sections 16/20/21/22).
 
-Uses ``ChatOpenAI.with_structured_output`` so the model's response is always
+Uses ``with_structured_output`` on the configured provider's chat model
+(``llm_provider.get_chat_model``: OpenAI or Ollama) so the model's response is always
 parsed into ``JobMatchAnalysis`` or rejected — there is no free-form output
 path. On a malformed/invalid response the call is retried once with an
 explicit repair instruction; if it still fails, the caller treats this job
@@ -14,6 +15,8 @@ import json
 import logging
 import time
 from pathlib import Path
+
+from llm_provider import get_chat_model, llm_configured, resolve_model
 
 from ..config.settings import EngineSettings, get_settings
 from ..guardrails.prompt_injection import detect_suspicious_patterns, wrap_untrusted_content
@@ -74,23 +77,21 @@ class LLMMatcher:
         self.version = fingerprint(
             self._system_template,
             self._user_template,
-            self.settings.openai_model,
+            resolve_model(self.settings.openai_model),
             self.settings.prompt_version,
             json.dumps(JobMatchAnalysis.model_json_schema(), sort_keys=True),
         )
 
     def available(self) -> bool:
-        return self.settings.llm_enabled and bool(self.settings.openai_api_key)
+        return self.settings.llm_enabled and llm_configured(self.settings.openai_api_key)
 
     def _get_structured_llm(self):
         if self._structured_llm is None:
-            from langchain_openai import ChatOpenAI
-
             # Temperature 0 and a fixed seed keep repeat analyses of a job as close
             # as the API allows; the analysis cache makes them identical.
-            base = ChatOpenAI(
-                model=self.settings.openai_model,
-                api_key=self.settings.openai_api_key,
+            base = get_chat_model(
+                self.settings.openai_model,
+                openai_api_key=self.settings.openai_api_key,
                 timeout=self.settings.openai_timeout,
                 temperature=0,
                 seed=_SEED,

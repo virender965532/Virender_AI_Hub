@@ -11,6 +11,8 @@ from dotenv import load_dotenv
 
 from agents import Agent, Runner, trace
 
+from llm_provider import get_agents_model, llm_configured, missing_credentials_message
+
 from .config import (
     EMAIL_DRAFT_PATH,
     JD_ANALYSIS_PATH,
@@ -127,8 +129,10 @@ async def run_recruitment_pipeline(
     """``open_email_client=False`` skips the Gmail compose tab (for unattended runs
     such as the job engine's HR drafts, which save a mailbox draft instead)."""
     logger.info("run_recruitment_pipeline started")
-    if not os.environ.get("OPENAI_API_KEY"):
-        raise ValueError("OPENAI_API_KEY environment variable is not set.")
+    if not llm_configured(os.environ.get("OPENAI_API_KEY")):
+        raise ValueError(missing_credentials_message())
+    # The model name on OpenAI; a local Chat Completions model on LLM_PROVIDER=ollama.
+    agent_model = get_agents_model(OPENAI_AGENT_MODEL)
 
     domain = extract_domain(hiring_manager_email)
     try:
@@ -144,7 +148,7 @@ async def run_recruitment_pipeline(
         job_analyser = Agent(
             name="Job Requirement Analyzer",
             instructions=PROMPTS["JobRequirementAnalyzer"],
-            model=OPENAI_AGENT_MODEL,
+            model=agent_model,
         )
 
         with trace(f"{domain} JD Tracking for Autonomous Application Agent"):
@@ -159,7 +163,7 @@ async def run_recruitment_pipeline(
                 f"{PROMPTS['EmailSubjectLineCreator']} Job Requirement Analysis:\n{jd_data}\n\n"
                 f"Candidate Summary:\n{profile_data}"
             ),
-            model=OPENAI_AGENT_MODEL,
+            model=agent_model,
         )
         email_draftsman = Agent(
             name="Hiring Manager Email Draftsman",
@@ -167,7 +171,7 @@ async def run_recruitment_pipeline(
                 f"{PROMPTS['HiringManagerEmailDraftsman']} Job Requirement Analysis:\n{jd_data}\n\n"
                 f"Candidate Summary:\n{profile_data}"
             ),
-            model=OPENAI_AGENT_MODEL,
+            model=agent_model,
         )
         subject_tool = subject_creator.as_tool(
             tool_name="subject_creator",
@@ -183,7 +187,7 @@ async def run_recruitment_pipeline(
                 f"{PROMPTS['EmailReviewerEvaluator']} Job Requirement Analysis:\n{jd_data}\n\n"
                 f"Candidate Summary:\n{profile_data}"
             ),
-            model=OPENAI_AGENT_MODEL,
+            model=agent_model,
             tools=[draftsman_tool, subject_tool],
         )
 

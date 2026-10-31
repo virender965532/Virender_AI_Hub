@@ -20,11 +20,11 @@ from langchain_community.document_loaders import (
 )
 from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
-from langchain_openai import OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from openai import OpenAI
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
+
+from llm_provider import get_embeddings, get_openai_client, llm_configured, missing_credentials_message
 
 load_dotenv()
 
@@ -50,7 +50,7 @@ UPLOADS_DIR = MODULE_DIR / "uploads"
 SUPPORTED_EXTENSIONS = frozenset({".pdf", ".txt", ".docx", ".doc", ".xlsx", ".xls"})
 
 OPENAI_API_KEY = os.getenv("DYNAMIC_RAG_OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY", "")
-OPENAI_CLIENT = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
+OPENAI_CLIENT = get_openai_client(api_key=OPENAI_API_KEY) if llm_configured(OPENAI_API_KEY) else None
 
 _ANSWER_SYSTEM_PROMPT = """You are a helpful assistant answering questions using an uploaded document as the primary source.
 
@@ -374,13 +374,13 @@ def _get_vector_db(cache_key: str) -> FAISS:
     )
     chunks = splitter.split_documents(documents)
 
-    embeddings = OpenAIEmbeddings(model=EMBEDDING_MODEL)
+    embeddings = get_embeddings(EMBEDDING_MODEL, openai_api_key=OPENAI_API_KEY)
     return FAISS.from_documents(chunks, embeddings)
 
 
 def _embed_query(query: str, trace_id: str) -> tuple[list[float], dict[str, Any]]:
     if not OPENAI_CLIENT:
-        raise RuntimeError("OPENAI_API_KEY is missing in environment.")
+        raise RuntimeError(missing_credentials_message())
 
     started_at = _utc_now_iso()
     t0 = time.perf_counter()
@@ -472,7 +472,7 @@ def _generate_answer(
     document_name: str,
 ) -> tuple[str, dict[str, Any]]:
     if not OPENAI_CLIENT:
-        raise RuntimeError("OPENAI_API_KEY is missing in environment.")
+        raise RuntimeError(missing_credentials_message())
 
     if not chunks:
         return "No relevant information found in the document.", {}
@@ -542,8 +542,8 @@ def ask_dynamic_rag_question(query: str) -> dict[str, Any]:
     if not cleaned_query:
         raise ValueError("Question is required.")
 
-    if not OPENAI_API_KEY:
-        raise RuntimeError("OPENAI_API_KEY is missing in environment.")
+    if not llm_configured(OPENAI_API_KEY):
+        raise RuntimeError(missing_credentials_message())
 
     uploaded = get_uploaded_file()
     if not uploaded:

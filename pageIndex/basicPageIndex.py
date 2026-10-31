@@ -10,8 +10,9 @@ from pathlib import Path
 from typing import Any
 
 from dotenv import load_dotenv
-from openai import OpenAI
 from pageindex import PageIndexClient
+
+from llm_provider import get_openai_client, llm_configured, missing_credentials_message
 
 load_dotenv()
 
@@ -34,7 +35,7 @@ PDF_PATH = (
 )
 
 PI_CLIENT = PageIndexClient(api_key=PAGEINDEX_API_KEY)
-OPENAI_CLIENT = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
+OPENAI_CLIENT = get_openai_client(api_key=OPENAI_API_KEY) if llm_configured(OPENAI_API_KEY) else None
 
 _ANSWER_SYSTEM_PROMPT = """You are an expert AI Architect and tutor.
 
@@ -323,8 +324,8 @@ def ask_pageindex_question(query: str) -> dict[str, Any]:
     if not cleaned_query:
         raise ValueError("Question is required.")
 
-    if not OPENAI_API_KEY:
-        raise RuntimeError("OPENAI_API_KEY is missing in environment.")
+    if not llm_configured(OPENAI_API_KEY):
+        raise RuntimeError(missing_credentials_message())
 
     # Upload flow from notebook intentionally kept as comment because doc is static.
     # upload_result = PI_CLIENT.submit_document(PDF_PATH)

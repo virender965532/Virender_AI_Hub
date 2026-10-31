@@ -346,9 +346,17 @@ def _normalise(vec: np.ndarray) -> np.ndarray:
 class Indexer:
     """Builds, persists and incrementally refreshes ``CodeIndex`` objects."""
 
-    def __init__(self, index_dir: Path, *, embed_fn: EmbedFn | None = None, max_file_bytes: int = 1_000_000) -> None:
+    def __init__(
+        self, index_dir: Path, *, embed_fn: EmbedFn | None = None, max_file_bytes: int = 1_000_000,
+        embedding_model: str = "", legacy_embedding_model: str = "",
+    ) -> None:
         self.index_dir = index_dir
         self.embed_fn = embed_fn
+        # The model that makes the vectors. A saved index from a different one (e.g. after
+        # switching LLM_PROVIDER) has vectors of another size/space, so it is rebuilt.
+        # Indexes saved before this was recorded count as ``legacy_embedding_model``.
+        self.embedding_model = embedding_model
+        self.legacy_embedding_model = legacy_embedding_model or embedding_model
         self.max_file_bytes = max_file_bytes
         self._indexes: dict[str, CodeIndex] = {}
         self._threads: dict[str, threading.Thread] = {}
@@ -463,6 +471,7 @@ class Indexer:
                               for p, e in index.files.items()},
                     "chunks": [asdict(c) for c in index.chunks.values()],
                     "vector_ids": list(index.vectors),
+                    "embedding_model": self.embedding_model,
                     "updated_at": index.updated_at,
                     "error": index.error,
                 }
@@ -479,6 +488,10 @@ class Indexer:
         try:
             meta = json.loads((directory / "meta.json").read_text(encoding="utf-8"))
             if meta.get("version") != INDEX_VERSION:
+                return None
+            if meta.get("embedding_model", self.legacy_embedding_model) != self.embedding_model:
+                logger.info("Rebuilding index for workspace %s: embedding model changed to %s",
+                            workspace_id, self.embedding_model)
                 return None
             matrix = np.load(directory / "vectors.npy")
         except (OSError, ValueError):

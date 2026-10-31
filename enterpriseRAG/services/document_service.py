@@ -14,10 +14,11 @@ from langchain_community.document_loaders import (
 )
 from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
-from langchain_openai import OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
+
+from llm_provider import get_embeddings
 
 from enterpriseRAG.config.settings import SUPPORTED_EXTENSIONS, UPLOADS_DIR, get_settings
 from enterpriseRAG.services.observability import ObservabilityService
@@ -185,10 +186,7 @@ class DocumentService:
         docs = self.load_document(file_path)
         children, parents = self._split_documents(docs)
 
-        embeddings = OpenAIEmbeddings(
-            model=self.settings.embedding_model,
-            openai_api_key=self.settings.openai_api_key,
-        )
+        embeddings = get_embeddings(self.settings.embedding_model, openai_api_key=self.settings.openai_api_key)
         vector_store = FAISS.from_documents(children, embeddings)
 
         child_texts = [d.page_content for d in children]

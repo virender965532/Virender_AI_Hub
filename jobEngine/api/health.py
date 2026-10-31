@@ -7,6 +7,8 @@ from __future__ import annotations
 import importlib.util
 from typing import Any
 
+from llm_provider import llm_configured, provider_health, provider_name, resolve_model
+
 from ..config.settings import JOB_SOURCES_CONFIG_PATH, get_settings
 from ..config.sources import enabled_sources, load_job_sources
 
@@ -21,13 +23,17 @@ def check_configuration() -> dict[str, Any]:
 
 def check_llm_provider() -> dict[str, Any]:
     settings = get_settings()
-    configured = bool(settings.openai_api_key)
-    return {
-        "ok": configured and settings.llm_enabled,
+    configured = llm_configured(settings.openai_api_key)
+    status = {
+        "provider": provider_name(),
         "configured": configured,
         "enabled": settings.llm_enabled,
-        "model": settings.openai_model,
+        "model": resolve_model(settings.openai_model),
     }
+    service = provider_health(include_embeddings=False)  # the job engine embeds nothing
+    if not service["ok"]:
+        status["error"] = service["error"]
+    return {"ok": configured and settings.llm_enabled and service["ok"], **status}
 
 
 def check_browser_available() -> dict[str, Any]:

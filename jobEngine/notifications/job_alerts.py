@@ -4,16 +4,19 @@ Called after a run's jobs are saved (manual search and scheduled run alike).
 Each job is mailed once: a successful send stamps ``mailed_at`` on its saved-jobs
 document, and jobs already stamped are skipped by later runs.
 
-When a mailed job's posting lists an HR / recruiter email, an application email
-is generated for it with the Autonomous Application Agent and saved as a draft
-(``hr_drafts.py``); the alert says so, highlighted. The draft outcome is stored on
-the saved job (``hr_draft``) so a retried alert reuses it instead of drafting twice.
+When a mailed job's posting lists an email address, the LLM reads it into an
+``HREmail`` (``hr_drafts.extract_hr_email``). If it is an HR / recruiter address the
+alert shows, highlighted, the posting's sentence quoting it and a "Create draft
+email" link; opening that link runs the Autonomous Application Agent with the job
+description and the profile and saves the draft (``/hr-draft/<saved key>``). The
+extraction is stored on the saved job (``hr_contact``) so a retried alert reuses it.
 
 Environment (defaults in brackets):
     JOB_MAIL_THRESHOLD_SCORE [unset = off]  mail jobs scoring strictly above this
     JOB_MAIL_TO              [virenderfullstack@gmail.com]
     JOB_CRON_SAVED_JOBS_URL  [https://ai.ritishka.in/saved-jobs] link in the email
-plus the SMTP settings read by ``email.send_email`` and the draft settings in ``hr_drafts.py``.
+    JOB_HR_DRAFT_URL         [https://ai.ritishka.in/hr-draft] "Create draft email" link
+plus the SMTP settings read by ``email.send_email``.
 """
 
 from __future__ import annotations
@@ -22,21 +25,23 @@ import html
 import logging
 import os
 from typing import Any
+from urllib.parse import quote
 
 from ..persistence.saved_jobs import (
     mark_jobs_mailed,
-    record_hr_draft,
+    record_hr_contact,
     saved_job_key,
-    stored_hr_drafts,
+    stored_hr_contacts,
     unmailed_job_keys,
 )
 from .email import email_configured, send_email
-from .hr_drafts import create_hr_draft, find_hr_email, hr_drafts_enabled, max_drafts_per_run
+from .hr_drafts import extract_hr_email, find_hr_email
 
 logger = logging.getLogger(__name__)
 
 _DEFAULT_TO = "virenderfullstack@gmail.com"
 _DEFAULT_SAVED_JOBS_URL = "https://ai.ritishka.in/saved-jobs"
+_DEFAULT_HR_DRAFT_URL = "https://ai.ritishka.in/hr-draft"
 _HIGHLIGHT = "background:#fff3a3;padding:2px 6px;border-radius:3px;font-weight:bold"
 
 
@@ -72,27 +77,36 @@ def _line(matched: dict[str, Any]) -> tuple[str, str, str]:
     return heading, details, str(job.get("application_url") or job.get("source_url") or "")
 
 
-def _draft_note(draft: dict[str, Any] | None) -> tuple[str, str]:
-    """(plain text, html) for a job's HR draft outcome; empty when no HR email was found."""
-    if not draft:
+def hr_draft_link(key: str) -> str:
+    base = os.getenv("JOB_HR_DRAFT_URL", "").strip() or _DEFAULT_HR_DRAFT_URL
+    return f"{base.rstrip('/')}/{quote(key, safe=':')}"
+
+
+def _hr_note(key: str, contact: dict[str, Any] | None) -> tuple[str, str]:
+    """(plain text, html) for a job's HR email; empty unless the posting lists an HR address."""
+    if not contact or not contact.get("is_hr_mail") or not contact.get("email_id"):
         return "", ""
-    email = str(draft.get("hr_email") or "")
-    extra = ""
-    if draft.get("saved"):
-        text = f"Draft email is saved with HR email id as: {email}"
-        if draft.get("method") == "gmail_compose":
-            extra = "via Gmail compose in the browser; attach the resume before sending"
-    else:
-        text = f"HR email id found: {email} (draft could not be saved: {draft.get('error') or 'unknown error'})"
-    note_html = f'<div style="margin-top:4px"><span style="{_HIGHLIGHT}">{html.escape(text)}</span>'
-    if extra:
-        note_html += f" <small>({html.escape(extra)})</small>"
-        text += f" ({extra})"
-    return text, note_html + "</div>"
+    email = str(contact["email_id"])
+    sentence = str(contact.get("reason") or "") or f"HR email id: {email}"
+    link = hr_draft_link(key)
+    text = f'HR email in the posting: "{sentence}"\nCreate draft email: {link}'
+    # The sentence, highlighted, with the address underlined.
+    quoted = html.escape(sentence)
+    at = sentence.lower().find(email.lower())
+    if at >= 0:
+        quoted = (
+            html.escape(sentence[:at]) + f"<u>{html.escape(sentence[at:at + len(email)])}</u>"
+            + html.escape(sentence[at + len(email):])
+        )
+    note_html = (
+        f'<div style="margin-top:4px"><span style="{_HIGHLIGHT}">&ldquo;{quoted}&rdquo;</span>'
+        f' &nbsp;<a href="{html.escape(link, quote=True)}">Create draft email</a></div>'
+    )
+    return text, note_html
 
 
 def _compose(
-    jobs: list[dict[str, Any]], threshold: float, drafts: dict[str, dict[str, Any]]
+    jobs: list[dict[str, Any]], threshold: float, contacts: dict[str, dict[str, Any]]
 ) -> tuple[str, str, str]:
     saved_url = os.getenv("JOB_CRON_SAVED_JOBS_URL", "").strip() or _DEFAULT_SAVED_JOBS_URL
     if len(jobs) == 1:
@@ -100,15 +114,16 @@ def _compose(
         subject = f"{round(_score(jobs[0]))}% match: {job.get('title') or 'New job'} at {job.get('company') or ''}".strip()
     else:
         subject = f"{len(jobs)} new jobs above {threshold:g}% match"
-    saved_drafts = sum(1 for d in drafts.values() if d.get("saved"))
-    if saved_drafts:
-        subject += f" ({saved_drafts} HR draft{'s' if saved_drafts != 1 else ''} saved)"
+    with_hr = sum(1 for k in (saved_job_key(j) for j in jobs) if _hr_note(k or "", contacts.get(k or ""))[0])
+    if with_hr:
+        subject += f" ({with_hr} with HR email)"
 
     text_parts, html_items = [], []
     for matched in jobs:
         heading, details, link = _line(matched)
-        note_text, note_html = _draft_note(drafts.get(saved_job_key(matched) or ""))
-        text_parts.append("\n".join(p for p in (heading, details, link, f">>> {note_text} <<<" if note_text else "") if p))
+        key = saved_job_key(matched) or ""
+        note_text, note_html = _hr_note(key, contacts.get(key))
+        text_parts.append("\n".join(p for p in (heading, details, link, note_text) if p))
         title = html.escape(heading)
         if link:
             title = f'<a href="{html.escape(link, quote=True)}">{title}</a>'
@@ -127,31 +142,25 @@ def _compose(
     return subject, text, body
 
 
-def _hr_drafts(jobs: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
-    """Draft outcome per saved key, for the jobs whose posting lists an HR email."""
+def _hr_contacts(jobs: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    """``HREmail`` (as a dict) per saved key, for the jobs whose posting contains an email address."""
     with_email = {}
     for matched in jobs:
         key = saved_job_key(matched)
-        hr_email = find_hr_email(matched.get("job") or {})
-        if key and hr_email:
-            with_email[key] = (matched, hr_email)
+        if key and find_hr_email(matched.get("job") or {}):
+            with_email[key] = matched
     if not with_email:
         return {}
 
-    drafts = stored_hr_drafts(list(with_email))  # from an earlier run whose alert failed to send
-    budget = max_drafts_per_run()
-    for key, (matched, hr_email) in with_email.items():
-        if key in drafts:
+    contacts = stored_hr_contacts(list(with_email))  # from an earlier run whose alert failed to send
+    for key, matched in with_email.items():
+        if key in contacts:
             continue
-        if not hr_drafts_enabled() or budget <= 0:
-            drafts[key] = {"hr_email": hr_email, "saved": False, "error": "drafting skipped (disabled or per-run cap reached)"}
-            continue
-        budget -= 1
-        outcome = create_hr_draft(matched.get("job") or {}, hr_email)
-        logger.info("HR draft for %s (%s): %s", key, hr_email, "saved" if outcome["saved"] else outcome["error"])
-        drafts[key] = outcome
-        record_hr_draft(key, outcome)
-    return drafts
+        contact = extract_hr_email(matched.get("job") or {}).model_dump()
+        logger.info("HR email for %s: %s (is_hr_mail=%s)", key, contact["email_id"], contact["is_hr_mail"])
+        contacts[key] = contact
+        record_hr_contact(key, contact)
+    return contacts
 
 
 def mail_high_score_jobs(result: dict[str, Any]) -> int:
@@ -174,15 +183,15 @@ def mail_high_score_jobs(result: dict[str, Any]) -> int:
     if not jobs:
         return 0
     if not email_configured():
-        # Checked before drafting: an alert that can't be sent would retry (and draft) every run.
+        # Checked before the HR email extraction: an alert that can't be sent would retry it every run.
         logger.warning("%s job(s) above %s%% not mailed: EMAIL_SENDER / EMAIL_PASSWORD missing", len(jobs), threshold)
         return 0
 
-    drafts = _hr_drafts(jobs)
+    contacts = _hr_contacts(jobs)
     to = os.getenv("JOB_MAIL_TO", "").strip() or _DEFAULT_TO
-    subject, text, body = _compose(jobs, threshold, drafts)
+    subject, text, body = _compose(jobs, threshold, contacts)
     if not send_email(to, subject, text, html=body):
-        return 0  # not stamped: the next run retries (stored drafts are reused)
+        return 0  # not stamped: the next run retries (stored extractions are reused)
     mark_jobs_mailed([saved_job_key(j) for j in jobs])
     logger.info("Mailed %s job(s) above %s%% to %s (run %s)", len(jobs), threshold, to, result.get("run_id"))
     return len(jobs)
