@@ -13,7 +13,9 @@ from ...guardrails.content_limits import enforce_description_size
 from ...models.job import RawJob
 from ..registry import register_adapter
 from ..title_filter import title_passes
-from .base import _PAGE_SIZE, _POSTED_TEXT_RE, LinkedInBaseAdapter, note_relisted, parse_job_insights
+from .base import (
+    _PAGE_SIZE, _POSTED_TEXT_RE, LinkedInBaseAdapter, is_remote_filter, note_relisted, parse_job_insights,
+)
 
 # Logged-in search page (left results list) first, guest page second.
 _CARD_SELECTORS = [
@@ -67,6 +69,10 @@ _POSTED_SELECTORS = [
 
 @register_adapter("linkedin_search")
 class LinkedInSearchAdapter(LinkedInBaseAdapter):
+    def _target_search_url(self, search_url: str) -> str:
+        """This adapter reads the classic page's markup, so never rewrite its URL."""
+        return search_url
+
     async def _extract_page(
         self, page: Page, *, cfg, source_url: str, seen_ids: set[str], limit: int,
         known: dict[str, str] | None = None,
@@ -135,7 +141,7 @@ class LinkedInSearchAdapter(LinkedInBaseAdapter):
                     description=enforce_description_size(description or ""),
                     posted_date_raw=posted,
                     employment_type=employment_type,
-                    remote_type="remote" if "f_WT=2" in source_url else None,
+                    remote_type="remote" if is_remote_filter(source_url) or workplace == "Remote" else None,
                     application_url=(
                         f"{cfg.base_url.rstrip('/')}/jobs/view/{job_id}/" if job_id else cfg.base_url
                     ),

@@ -24,6 +24,12 @@ for the candidate to resolve it by hand — only useful with
 Card extraction is page-specific and lives in the subclasses:
 ``search_results_adapter.py`` (``/jobs/search-results/``) and
 ``search_adapter.py`` (``/jobs/search/``).
+
+LinkedIn has retired the classic ``/jobs/search/`` page and redirects it to the
+new ``/jobs/search-results/`` one. ``_target_search_url`` therefore rewrites
+classic search URLs to the new path (same filters) before any page is loaded, so
+pagination never depends on the redirect. Only ``LinkedInSearchAdapter`` (the
+explicit ``linkedin_search`` adapter) opts out and keeps the classic URL.
 """
 
 from __future__ import annotations
@@ -129,6 +135,32 @@ def _is_checkpoint_url(url: str) -> bool:
     return any(marker in url.lower() for marker in _CHECKPOINT_URL_MARKERS)
 
 
+_CLASSIC_SEARCH_PATH_RE = re.compile(r"/jobs/search/?$")
+SEARCH_RESULTS_PATH = "/jobs/search-results/"
+
+
+def is_classic_search_url(url: str) -> bool:
+    """True for the retired ``/jobs/search/`` page (with or without trailing slash)."""
+    return bool(_CLASSIC_SEARCH_PATH_RE.search(urlparse(url).path))
+
+
+def to_search_results_url(url: str) -> str:
+    """``/jobs/search/?<filters>`` -> ``/jobs/search-results/?<filters>``; other URLs
+    are returned unchanged. The new page accepts the same filter parameters
+    (``keywords``, ``geoId``, ``f_TPR``, ``f_WT``, ``f_E``, ``f_JT``, ``f_SAL``, ...)."""
+    if not is_classic_search_url(url):
+        return url
+    parsed = urlparse(url)
+    return urlunparse(parsed._replace(path=_CLASSIC_SEARCH_PATH_RE.sub(SEARCH_RESULTS_PATH, parsed.path)))
+
+
+def is_remote_filter(url: str) -> bool:
+    """The search URL's workplace filter includes Remote (``f_WT=2``, also in a list
+    such as ``f_WT=1,2``)."""
+    values = parse_qs(urlparse(url).query).get("f_WT", [])
+    return any("2" in v.split(",") for v in values)
+
+
 def _page_url(search_url: str, page_index: int) -> str:
     """LinkedIn paginates with ``start=<offset>`` (0, 25, 50, ...) on both the classic
     ``/jobs/search/`` and the new ``/jobs/search-results/`` page; ``currentJobId`` only
@@ -212,6 +244,11 @@ class _SessionState:
 class LinkedInBaseAdapter(JobSourceAdapter):
     """Signs in, walks every search URL page by page and hands each loaded page
     to ``_extract_page``, which subclasses implement for their page layout."""
+
+    def _target_search_url(self, search_url: str) -> str:
+        """The URL actually loaded for a configured search URL. LinkedIn redirects the
+        retired classic page to ``/jobs/search-results/``, so load that directly."""
+        return to_search_results_url(search_url)
 
     @abstractmethod
     async def _extract_page(
@@ -381,7 +418,10 @@ class LinkedInBaseAdapter(JobSourceAdapter):
         context: SourceExecutionContext, timer: TimedDiscovery, seen_ids: SeenJobIds, session: _SessionState,
     ) -> tuple[list[RawJob], int, str] | None:
         """Load one results page in a borrowed tab and extract it; None if it won't load."""
-        url = validate_navigation_url(_page_url(search_url, page_index), allowed_domains=cfg.allowed_domains)
+        target = self._target_search_url(search_url)
+        if page_index == 0 and target != search_url:
+            logger.info("LinkedIn: classic search URL rewritten to the new search page: %s", target[:120])
+        url = validate_navigation_url(_page_url(target, page_index), allowed_domains=cfg.allowed_domains)
         seen_ids.search_url_for[url] = search_url
         page = await tabs.acquire()
         try:

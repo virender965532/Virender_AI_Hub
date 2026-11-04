@@ -40,8 +40,8 @@ mongomock>=4.1.0
 APScheduler>=3.10,<4
 tzdata
 # Force CPU PyTorch (no CUDA packages)
-torch==2.7.1+cpu
---extra-index-url https://download.pytorch.org/whl/cpu
+# torch==2.7.1+cpu
+# --extra-index-url https://download.pytorch.org/whl/cpu
 pageindex
 # Profile Assistant (profile_assistant/): Gradio chat UI, mounted into Flask via a2wsgi.
 gradio>=5.0.0

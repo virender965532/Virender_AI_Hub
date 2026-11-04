@@ -66,10 +66,14 @@ use_reloader = debug and os.environ.get("DEV_WATCH") != "1"
 # only restarts the server on code changes (it never serves requests), and in the serving
 # child (WERKZEUG_RUN_MAIN=true). Build the app and log startup only in the serving process.
 is_reloader_watcher = __name__ == "__main__" and use_reloader and os.environ.get("WERKZEUG_RUN_MAIN") != "true"
+# The job engine's CPU process pool (jobEngine/concurrency.py) spawns workers that
+# re-import this file as "__mp_main__". They only run pure functions, never serve
+# requests, so don't rebuild the app (and re-log every registration) in each of them.
+is_pool_worker = __name__ == "__mp_main__"
 
 setup_logging()
-if is_reloader_watcher:
-    app = Flask(__name__)  # placeholder; the serving child builds the real app
+if is_reloader_watcher or is_pool_worker:
+    app = Flask(__name__)  # placeholder; only the serving process builds the real app
 else:
     # Which LLM backend (LLM_PROVIDER) is active; warns if Ollama or a model is missing.
     log_startup_status()
