@@ -89,6 +89,21 @@ def test_store_keeps_only_rejected_jobs_and_hides_expired():
 def test_source_nodes_treat_rejected_jobs_as_known(monkeypatch):
     rejected_jobs.save_rejected_jobs([{"job": _job("9"), "rejected": True}], run_id="r1", profile_hash="p")
     assert source_discovery._known_descriptions("linkedin") == {"9": _DESCRIPTION}
+    known, seen_before = source_discovery._known_jobs("linkedin")
+    assert known == {"9": _DESCRIPTION} and seen_before == {"9"}
+
+
+def test_jobs_rejected_as_too_old_are_skipped_next_run():
+    """LinkedIn rejects too-old cards before fetching them: stored with no description,
+    they are not "known" (nothing to reuse) but are still skipped on the results page."""
+    too_old = {**_job("10"), "description": "", "posted_date_raw": "2 days ago"}
+    rejected_jobs.save_rejected_jobs(
+        [{"job": too_old, "rejected": True, "rejection_reason": "posted more than 8h ago"}],
+        run_id="r1", profile_hash="",
+    )
+    assert rejected_jobs.rejected_job_ids("linkedin") == {"10"}
+    known, seen_before = source_discovery._known_jobs("linkedin")
+    assert "10" not in known and "10" in seen_before
 
 
 # --- matching --------------------------------------------------------------
@@ -182,3 +197,11 @@ def test_saved_jobs_page_can_leave_out_restricted_jobs():
     ]})
     assert len(saved_jobs.list_saved_jobs()) == 2
     assert [j["saved_key"] for j in saved_jobs.list_saved_jobs(include_not_eligible=False)] == ["linkedin:2"]
+
+
+def test_saved_jobs_without_analysis_are_seen_before_but_still_opened(monkeypatch):
+    monkeypatch.setattr(source_discovery, "list_saved_jobs", saved_jobs.list_saved_jobs)
+    saved_jobs.save_jobs_from_run({"run_id": "r1", "jobs": [{"job": _job("5"), "match_score": 60}]})
+    known, seen_before = source_discovery._known_jobs("linkedin")
+    assert "5" not in known  # no LLM analysis yet: the adapter opens it again
+    assert "5" in seen_before  # but an earlier run handled it: it doesn't keep pagination going

@@ -101,8 +101,6 @@ class LLMMatcher:
 
     def _build_messages(self, *, profile: CandidateProfile, job: Job, repair_hint: str = "") -> list[dict[str, str]]:
         system = self._system_template.format(prompt_version=self.settings.prompt_version)
-        if repair_hint:
-            system = f"{system}\n\nIMPORTANT: {repair_hint}"
 
         job_text = "\n".join(
             [
@@ -120,6 +118,10 @@ class LLMMatcher:
             job_location=job.location or "not specified",
             wrapped_job_content=wrap_untrusted_content(job_text),
         )
+        # At the end, not in the system prompt: a retry then keeps the cached
+        # system prompt + profile prefix (OpenAI prompt caching).
+        if repair_hint:
+            user = f"{user}\n\nIMPORTANT: {repair_hint}"
         return [{"role": "system", "content": system}, {"role": "user", "content": user}]
 
     def analyze(

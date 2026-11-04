@@ -51,6 +51,14 @@ class JobSourceConfig(BaseModel):
     # Jobs whose title contains any of these are dropped the same way (never opened,
     # never matched). Same matching rules as ``title_keywords``. Empty = drop none.
     title_exclude_keywords: list[str] = Field(default_factory=list)
+    # Jobs whose listed age ("11 hours ago") exceeds this are dropped before their
+    # details are opened. Jobs with no visible age are kept. None = no age limit.
+    # Currently enforced by the LinkedIn ``/jobs/search-results/`` adapter.
+    max_posted_age_hours: float | None = Field(default=None, gt=0, le=720)
+    # LinkedIn: load results newest first (``sortBy=DD``) and stop paginating after a
+    # page with nothing new on it (every card already seen, too old or excluded) —
+    # every later page is older still. Off = relevance order, walk up to ``max_pages``.
+    sort_newest_first: bool = False
     notes: str | None = None
 
     @field_validator("id")

@@ -123,7 +123,7 @@ def test_matcher_repairs_invalid_output_on_ollama(ollama, candidate_profile):
     metrics = LLMCallMetrics()
     result = LLMMatcher(settings).analyze(profile=candidate_profile, job=_job(), metrics=metrics)
     assert result is not None and metrics.calls == 2 and metrics.retries == 1
-    assert "did not match the required structured schema" in seen[1]["messages"][0]["content"]
+    assert "did not match the required structured schema" in seen[1]["messages"][-1]["content"]
 
 
 def test_analysis_cache_version_separates_providers(monkeypatch, ollama):

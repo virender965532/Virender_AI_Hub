@@ -54,7 +54,6 @@ def build_graph(source_configs: list[JobSourceConfig]) -> Any:
     graph.add_edge("profile_loader", "source_configuration")
 
     if source_configs:
-        print(source_configs)
         for cfg in source_configs:
             graph.add_node(cfg.graph_node, create_source_node(cfg))
             graph.add_edge("source_configuration", cfg.graph_node)

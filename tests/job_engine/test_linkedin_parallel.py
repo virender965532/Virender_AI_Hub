@@ -60,7 +60,7 @@ class _Adapter(LinkedInBaseAdapter):
         self.active = self.peak = 0
         self.pages_seen = []
 
-    async def _extract_page(self, page, *, cfg, source_url, seen_ids, limit, known=None):
+    async def _extract_page(self, page, *, cfg, source_url, seen_ids, limit, skip_ids=None):
         search_url = seen_ids.search_url_for[source_url]
         page_index = int(parse_qs(urlparse(source_url).query)["start"][0]) // 25
         self.pages_seen.append((search_url, page_index))
@@ -73,7 +73,7 @@ class _Adapter(LinkedInBaseAdapter):
                 continue
             seen_ids.add(job_id)
             await asyncio.sleep(0.02)  # the detail-pane click
-            jobs.append(RawJob(source=cfg.id, source_job_id=job_id, title="Engineer", company="Acme",
+            jobs.append(RawJob(source=cfg.id, source_job_id=job_id, title="Engineer", company="Acme", description="d",
                                application_url=f"https://www.linkedin.com/jobs/view/{job_id}/", source_url=source_url))
         await asyncio.sleep(0.05)
         self.active -= 1
@@ -104,7 +104,9 @@ def test_one_search_url_scrapes_two_pages_at_once(monkeypatch):
     assert not result.errors
     assert adapter.peak == 2
     assert len(result.jobs) == 25 * 3 + 1
-    assert sorted(i for _, i in adapter.pages_seen) == [0, 1, 2, 3]  # stopped after the short page
+    # Page 1 alone, then [2, 3] and [4, 5] in parallel: page 5 (empty) is read alongside
+    # the short last page 4, then the walk stops.
+    assert sorted(i for _, i in adapter.pages_seen) == [0, 1, 2, 3, 4]
     assert len(browser.context.pages) == 2 and browser.context.pages[1].closed
 
 

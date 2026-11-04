@@ -41,11 +41,16 @@ class LinkedInAdapter(LinkedInBaseAdapter):
         self._search = LinkedInSearchAdapter()
         self._search_results = LinkedInSearchResultsAdapter()
 
+    def _pick(self, page: Page | None, source_url: str) -> LinkedInBaseAdapter:
+        return self._search if _is_search_page(_landed_url(page, source_url)) else self._search_results
+
     async def _extract_page(
         self, page: Page, *, cfg, source_url: str, seen_ids: set[str], limit: int,
-        known: dict[str, str] | None = None,
+        skip_ids: set[str] | None = None,
     ) -> tuple[list[RawJob], int]:
-        adapter = self._search if _is_search_page(_landed_url(page, source_url)) else self._search_results
-        return await adapter._extract_page(
-            page, cfg=cfg, source_url=source_url, seen_ids=seen_ids, limit=limit, known=known
+        return await self._pick(page, source_url)._extract_page(
+            page, cfg=cfg, source_url=source_url, seen_ids=seen_ids, limit=limit, skip_ids=skip_ids
         )
+
+    async def _page_count(self, page: Page) -> int | None:
+        return await self._pick(page, getattr(page, "url", "") or "")._page_count(page)

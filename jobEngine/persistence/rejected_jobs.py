@@ -99,6 +99,14 @@ def rejected_descriptions(source_id: str) -> dict[str, str]:
     return known
 
 
+def rejected_job_ids(source_id: str) -> set[str]:
+    """``source_job_id`` of every rejected job of this source — also those stored
+    without a description (e.g. LinkedIn cards rejected as too old before their
+    details were fetched)."""
+    query = {"job.source": source_id, "job.source_job_id": {"$nin": [None, ""]}, **_not_expired()}
+    return {str((doc.get("job") or {})["source_job_id"]) for doc in _rejected_jobs().find(query, {"job.source_job_id": 1})}
+
+
 def clear_rejected_jobs() -> int:
     count = _rejected_jobs().delete_many({}).deleted_count
     logger.info("Rejected jobs store cleared (%s jobs removed)", count)

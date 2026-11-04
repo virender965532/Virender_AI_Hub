@@ -94,8 +94,16 @@ class BrowserManager:
                     await route.abort()
                     return
                 if allowed_domains and not is_domain_allowed(request.url, allowed_domains):
-                    logger.warning(
-                        "Blocked navigation to disallowed domain for source=%s url=%s",
+                    # Trackers/analytics/anti-bot scripts and iframes the page pulls in
+                    # (demdex, googletagmanager, recaptcha, protechts, ...) are aborted
+                    # quietly; only a blocked top-level page navigation is worth a warning.
+                    try:
+                        top_level = request.is_navigation_request() and request.frame.parent_frame is None
+                    except Exception:  # noqa: BLE001 — e.g. service-worker requests have no frame
+                        top_level = False
+                    (logger.warning if top_level else logger.debug)(
+                        "Blocked %s to disallowed domain for source=%s url=%s",
+                        "navigation" if top_level else "request",
                         source_id,
                         request.url,
                     )

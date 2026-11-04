@@ -92,13 +92,12 @@ def _card(job_id, title="Senior Node.js Engineer"):
 def test_duplicate_job_ids_from_different_search_urls_are_scraped_once():
     adapter = LinkedInSearchResultsAdapter()
     cfg = SimpleNamespace(id="linkedin", title_keywords=[], title_exclude_keywords=[], base_url="https://www.linkedin.com")
-    known = {i: _DESCRIPTION for i in ("111", "222", "333")}  # already saved: the detail pane is not opened
     seen = SeenJobIds()
     jobs = []
     for url, cards in ((URL_A, [_card("111"), _card("222")]), (URL_B, [_card("111"), _card("333")])):
         seen.search_url_for[url] = url  # what LinkedInBaseAdapter._walk_search_url registers
         found, _ = asyncio.run(
-            adapter._extract_page(_FakePage(cards), cfg=cfg, source_url=url, seen_ids=seen, limit=25, known=known)
+            adapter._extract_page(_FakePage(cards), cfg=cfg, source_url=url, seen_ids=seen, limit=25)
         )
         for job in found:  # what LinkedInBaseAdapter.discover_jobs does per search URL
             job.extra.setdefault("search_urls", [url])
@@ -110,6 +109,32 @@ def test_duplicate_job_ids_from_different_search_urls_are_scraped_once():
     assert by_id["111"].extra["search_urls"] == [URL_A, URL_B]
     assert by_id["222"].extra["search_urls"] == [URL_A]
     assert by_id["333"].extra["search_urls"] == [URL_B]
+
+
+def test_search_results_skips_saved_rejected_and_excluded_cards():
+    """Age is not checked per page any more (``base.split_by_age`` does it once every
+    page is read); a page only drops saved / rejected ids and excluded titles."""
+    adapter = LinkedInSearchResultsAdapter()
+    cfg = SimpleNamespace(
+        id="linkedin", title_keywords=["unrelated"], title_exclude_keywords=["java"],
+        max_posted_age_hours=8, base_url="https://www.linkedin.com",
+    )
+    cards = [
+        {**_card("1"), "posted": "30 minutes ago"},
+        {**_card("2"), "posted": "9 hours ago"},
+        {**_card("3"), "posted": None},  # "Viewed" card
+        {**_card("4", title="Java Developer"), "posted": "1 hour ago"},
+        {**_card("5"), "posted": "1 hour ago"},  # saved by an earlier run
+        {**_card("6"), "posted": "1 hour ago"},  # rejected by an earlier run
+    ]
+    found, skipped = asyncio.run(adapter._extract_page(
+        _FakePage(cards), cfg=cfg, source_url=URL_A, seen_ids=SeenJobIds(), limit=25, skip_ids={"5", "6"}
+    ))
+    # title_keywords is ignored on this page; only the exclude list and skip_ids apply.
+    assert [j.source_job_id for j in found] == ["1", "2", "3"]
+    assert [j.posted_date_raw for j in found] == ["30 minutes ago", "9 hours ago", None]
+    assert all(j.description == "" for j in found)  # fetched later, all together
+    assert skipped == 3
 
 
 def test_search_urls_reach_the_normalized_job(worldwide_on):

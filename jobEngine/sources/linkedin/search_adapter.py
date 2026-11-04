@@ -75,9 +75,9 @@ class LinkedInSearchAdapter(LinkedInBaseAdapter):
 
     async def _extract_page(
         self, page: Page, *, cfg, source_url: str, seen_ids: set[str], limit: int,
-        known: dict[str, str] | None = None,
+        skip_ids: set[str] | None = None,
     ) -> tuple[list[RawJob], int]:
-        known = known or {}
+        skip_ids = skip_ids or set()
         await self._load_all_cards(page)
 
         cards = []
@@ -104,6 +104,9 @@ class LinkedInSearchAdapter(LinkedInBaseAdapter):
             # in other tabs and must not scrape the same job.
             if job_id:
                 seen_ids.add(job_id)
+                if job_id in skip_ids:
+                    filtered += 1  # saved or rejected by an earlier run
+                    continue
 
             try:
                 await card.scroll_into_view_if_needed(timeout=3_000)
@@ -122,13 +125,8 @@ class LinkedInSearchAdapter(LinkedInBaseAdapter):
             company = await self._first_text(card, _COMPANY_SELECTORS)
             location = await self._first_text(card, _LOCATION_SELECTORS)
             insights = ""
-            if job_id and job_id in known:
-                # Already saved: never opened again. A card that says "Viewed" has no
-                # age; the saved posted date is reused for it (matching node / saved store).
-                description, posted = known[job_id], await self._card_posted(card)
-            else:
-                description, posted, insights = await self._read_details(page, card)
-                posted = posted or await self._card_posted(card)
+            description, posted, insights = await self._read_details(page, card)
+            posted = posted or await self._card_posted(card)
             workplace, employment_type = parse_job_insights(insights)
 
             jobs.append(
