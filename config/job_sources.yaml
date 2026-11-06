@@ -36,8 +36,8 @@ job_sources:
     base_url: "https://www.linkedin.com"
     search_urls:
       - "https://www.linkedin.com/jobs/search-results/?currentJobId=4487242363&keywords=Full%20Stack%20Developer%20OR%20Full%20Stack%20Engineer%20OR%20AI%20Engineer%20OR%20Generative%20AI%20Engineer%20OR%20Software%20Engineer%20OR%20Backend%20Engineer&origin=JOB_SEARCH_PAGE_JOB_FILTER&referralSearchId=u2EZhNq3C5zN5rJ1rpm8%2Fg%3D%3D&geoId=102713980&f_TPR=r86400"
-      # - "https://www.linkedin.com/jobs/search-results/?currentJobId=4362132219&keywords=Full%20Stack%20Developer%20OR%20Full%20Stack%20Engineer%20OR%20AI%20Engineer%20OR%20Generative%20AI%20Engineer%20OR%20Software%20Engineer%20OR%20Backend%20Engineer&origin=JOB_SEARCH_PAGE_LOCATION_HISTORY&referralSearchId=cPaVqFNJtgXcoyDG2k2FPg%3D%3D&geoId=100205264&f_TPR=r86400"
       # - "https://www.linkedin.com/jobs/search-results/?currentJobId=4486024839&keywords=Full%20Stack%20Developer%20OR%20Full%20Stack%20Engineer%20OR%20AI%20Engineer%20OR%20Generative%20AI%20Engineer%20OR%20Software%20Engineer%20OR%20Backend%20Engineer&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&referralSearchId=rvZL4DP%2Fy2Q5WkuT%2Frbrog%3D%3D&geoId=102454443&f_TPR=r86400"
+      # - "https://www.linkedin.com/jobs/search-results/?currentJobId=4362132219&keywords=Full%20Stack%20Developer%20OR%20Full%20Stack%20Engineer%20OR%20AI%20Engineer%20OR%20Generative%20AI%20Engineer%20OR%20Software%20Engineer%20OR%20Backend%20Engineer&origin=JOB_SEARCH_PAGE_LOCATION_HISTORY&referralSearchId=cPaVqFNJtgXcoyDG2k2FPg%3D%3D&geoId=100205264&f_TPR=r86400"
     adapter: linkedin
     signin_url: "https://www.linkedin.com/login/?trk=guest_homepage-basic_nav-header-signin"
     allowed_domains: ["linkedin.com", "licdn.com"]
