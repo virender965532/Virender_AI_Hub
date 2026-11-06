@@ -106,5 +106,17 @@
       "status": "skipped",
       "message": "Email client not opened (unattended run)."
     }
+  },
+  {
+    "timestamp": "2026-11-05T06:21:57.312317+00:00",
+    "domain": "teceze.com",
+    "hiring_manager_email": "madan.kumar@teceze.com",
+    "job_description_preview": "Job title: Senior JavaScript Full Stack Developer\nCompany: TECEZE\nLocation: Bengaluru (Remote)\n\n🚀 We're Hiring: Senior JavaScript Full Stack Developer\n\nWe are looking for experienced JavaScript Full Stack Developers to join our team for an exciting opportunity!\n\n📍 Location: Remote – India\n\n💼 Experience: 6–10 Years\n\n🕑 Shift: 2 PM – 11 PM IST\n\n🏢 Work Mode: Remote\n\nMandatory Technical Skills:\n\nStrong experience in JavaScript Full Stack Development\n\nNext.js (App Router) and React\n\nTypeScript\n\nAWS Se",
+    "subject": "Senior Full Stack Developer — 7+ yrs, Next.js, React, AWS & PostgreSQL",
+    "body": "Dear Hiring Manager,\n\nI hope this message finds you well. I am writing to express my interest in the Senior JavaScript Full Stack Developer position at TECEZE. With over 7 years of extensive experience in designing and building scalable cloud-native applications, I have honed my skills in JavaScript, Next.js, React, TypeScript, and AWS, which align perfectly with the requirements outlined in the job description.\n\nAt Impressico Business Solutions, I successfully led the migration of Strapi CMS, optimizing backend performance by 30% and reducing deployment failures by 50% through enhanced CI/CD practices. My hands-on experience with PostgreSQL, including advanced SQL queries, equips me to handle the database management responsibilities that are crucial for this role. Additionally, I utilized AWS services like Lambda and S3 for efficient application deployment, further aligning with your cloud services requirements.\n\nMy proficiency in integrating AI tools like GitHub Copilot has not only streamlined development processes but also improved code quality, demonstrating my commitment to leveraging innovative solutions. I am also experienced in mentoring junior developers, which reflects my ability to collaborate effectively in remote teams.\n\nI am excited about the opportunity to contribute to TECEZE and am confident that my background and skills make me an excellent fit. I look forward to discussing my application further.\n\nThank you for your time and consideration.\n\nBest regards,\nVirender Kumar\nPhone: +91 9821592146\nEmail: virenderfullstack@gmail.com\nLinkedIn: https://www.linkedin.com/in/ai-virender-kumar/",
+    "email_status": {
+      "status": "skipped",
+      "message": "Email client not opened (unattended run)."
+    }
   }
 ]

@@ -1,68 +1,64 @@
-Here's a detailed breakdown of the job requirements for the Senior Software Engineer position at ServiceNow:
+## Job Breakdown for Senior JavaScript Full Stack Developer at TECEZE
 
 ### Key Responsibilities
-1. **Application Development**: Build highly interactive and scalable applications.
-2. **Tool and Framework Creation**: Design tools, libraries, and frameworks for use by other developers.
-3. **Innovative Solutions**: Implement new technologies to improve platform functionality.
-4. **Code Quality Assurance**: Write clean, reusable, and maintainable code and enforce best practices such as code reviews and unit testing.
-5. **Collaboration with Product Owners**: Work closely with product owners to gather requirements and take ownership of the code from design to delivery.
-6. **User-Centric Design**: Design software that is intuitive for customers, allowing customization and extension of functionality.
-7. **Product Enhancement**: Contribute to the design and implementation of new products/features while enhancing existing products.
-8. **Mentorship**: Mentor team members and promote knowledge sharing within the team.
+1. **Full Stack Development**: Design and develop complex applications using JavaScript, focusing on both frontend and backend.
+2. **Framework Utilization**: Implement features using Next.js (with emphasis on the App Router) and React to build user-friendly interfaces.
+3. **Database Management**: Utilize PostgreSQL for data storage and management which includes writing advanced SQL queries.
+4. **Cloud Services**: Leverage AWS Services for application deployment, including but not limited to AWS Lambda, SQS, and S3.
+5. **Debugging and Troubleshooting**: Conduct practical debugging and troubleshooting on AWS environments and applications.
+6. **AI Tools Integration**: Use AI coding tools such as GitHub Copilot to enhance productivity and streamline development processes.
+7. **Performance Optimization**: Ensure applications are scalable and optimized for performance, focusing on both server-side and client-side efficiency.
 
 ### Required Skills
+
 #### Hard Skills
-- **Programming Languages**: 
-  - Backend: Java, JUnit
-  - APIs: REST, JSON
-  - Databases: Relational databases, SQL
-  - Frameworks: Spring, Hibernate
-  - Frontend: Solid experience in JavaScript
-- **Software Design & Architecture**: Competence in creating scalable and usable designs.
-- **Performance Tuning**: Experience in developing high-performance applications.
+- **JavaScript Expertise**: Strong experience in JavaScript and full-stack development.
+- **Frameworks**: Advanced knowledge of Next.js and React.
+- **TypeScript**: Proficiency in TypeScript for robust type challenges.
+- **Database Skills**: Strong experience with PostgreSQL including SQL query-writing and optimization.
+- **AWS Proficiency**: Hands-on experience with multiple AWS services, particularly AWS Lambda, SQS, S3, and EventBridge.
   
 #### Soft Skills
-- **Communication**: Strong written and verbal communication skills.
-- **Team Collaboration**: Ability to work well within a team and collaborate with colleagues.
-- **Problem-Solving**: Strong analytical skills and eagerness to tackle challenges.
+- **Problem-Solving**: Strong analytical and troubleshooting skills.
+- **Communication**: Ability to work effectively in a remote team and communicate technical concepts clearly.
+- **Collaboration**: Experience in mentoring junior developers and collaborating with cross-functional teams.
 
 ### Seniority Level
-- **Experience**: 5+ years in software development, indicating a senior-level position suitable for individuals with substantial industry background.
-- **Educational Requirement**: Bachelor's or Master's degree in Computer Science or a related field.
+- **Experience Required**: 6 to 10 years.
 
-### Qualifications
-#### Mandatory
-- Significant experience in designing and implementing high-volume applications.
-- Expertise in the listed backend and frontend technologies.
-- Ability to work in a hybrid environment and willingness to adapt to collaborative work dynamics.
+### Mandatory vs Nice-to-Have Qualifications
 
-#### Nice-to-Have
-- Hands-on experience with DevOps practices, including CI/CD pipeline design.
-- Knowledge of containerization and orchestration technologies (e.g., Docker, Kubernetes).
-- Familiarity with cloud services (AWS, Azure, GCP).
-- Experience with microservices architecture.
-- Proficiency in monitoring and observability tools (e.g., Grafana, Prometheus, Splunk).
-- Python experience is preferred.
+#### Mandatory Qualifications
+- Strong JavaScript full-stack development experience.
+- Proficiency in Next.js, React, TypeScript, and PostgreSQL.
+- Practical experience with AWS services.
+  
+#### Nice-to-Have Qualifications
+- Experience with Next.js Server Actions and Route Handlers.
+- Familiarity with NestJS or Fastify.
+- Knowledge of Databricks for data processing.
+- Experience testing frameworks like Vitest or Jest.
+- Familiarity with AI coding tools like GitHub Copilot.
 
 ### Suggested Interview Topics
-1. **Technical Skills Assessment**:
-   - Coding tests focusing on Java, Spring, and JavaScript.
-   - Problem-solving scenarios based on real-world challenges.
-   - Discussion on system design, focusing on scalability and performance.
+1. **Technical Proficiency**:
+   - Discussion on past projects using Next.js and React.
+   - Deep dive into PostgreSQL usage, including complex queries and optimizations.
+   - Practical scenarios testing AWS experience, such as deployment strategies or troubleshooting examples.
 
-2. **DevOps Practices**:
-   - Questions about CI/CD pipeline experiences.
-   - Scenarios involving Docker and Kubernetes.
+2. **Hands-on Coding**:
+   - Live coding session focused on building a small feature using Next.js or React.
+   - Problem-solving exercises related to database queries or AWS functionalities.
 
-3. **Collaboration and Communication**:
-   - Situational questions about working with product owners and team members.
-   - Experiences in mentoring and knowledge sharing.
+3. **Experience with Tools**:
+   - Discuss familiarity and experience using AI coding tools like GitHub Copilot.
+   - Explore testing approaches using Vitest or Jest.
 
-4. **Innovative Thinking**:
-   - Instances where new technologies were adopted to solve complex problems.
-   - Specific examples of improving application functionality or performance.
+4. **Behavioral Questions**:
+   - How do you manage collaboration in a remote environment?
+   - Experience mentoring junior developers or leading project teams.
 
-5. **User-Centric Design**:
-   - Discussion of design principles and past projects focused on usability.
+5. **Performance Optimization**:
+   - Discuss strategies you've employed for optimizing full-stack applications.
 
-By addressing these areas of focus, both candidates and hiring managers can ensure a comprehensive evaluation aligns with the responsibilities and expectations of the Senior Software Engineer role at ServiceNow.
+This detailed breakdown should assist in preparing for the role and understanding the expectations from TECEZE.
