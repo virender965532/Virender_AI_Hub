@@ -240,7 +240,7 @@ async def test_saved_jobs_reuse_stored_analysis_without_rescoring(monkeypatch):
         recommendation="strong_match",
         explanation="stored analysis",
         llm_analysis={
-            "score": 88,
+            "requirements": [{"requirement": "Mainframe COBOL batch jobs", "tier": "core", "verdict": "partial"}],
             "recommendation": "strong_match", "explanation": "stored analysis",
         },
     )
@@ -253,7 +253,10 @@ async def test_saved_jobs_reuse_stored_analysis_without_rescoring(monkeypatch):
     second = (await _run(configs, request={"max_jobs": 2, "max_results": 500, "minimum_match_score": 0}))["final_result"]
     reused = next(j for j in second["jobs"] if saved_job_key(j) == cached["saved_key"])
 
-    assert reused["match_score"] == 88.0 and reused["explanation"] == "stored analysis"
+    # The stored 88 is ignored: the score is recomputed from the stored analysis.
+    assert reused["score_breakdown"]["skills"] == 50.0
+    assert reused["match_score"] == reused["score_breakdown"]["score"] != 88.0
+    assert reused["explanation"] == "stored analysis"
     assert second["metrics"]["jobs_reused_from_saved"] == 1
     assert rule_calls == [j["job"]["title"] for j in second["jobs"] if saved_job_key(j) != cached["saved_key"]]
 
@@ -275,9 +278,9 @@ async def test_saved_llm_analyzed_jobs_are_passed_to_the_adapter(monkeypatch):
     from jobEngine.graph.nodes import source_discovery
 
     saved = [
-        {"job": {"source": "known_src", "source_job_id": "111", "description": "saved text"}, "llm_analysis": {"score": 80}},
+        {"job": {"source": "known_src", "source_job_id": "111", "description": "saved text"}, "llm_analysis": {"explanation": "saved"}},
         {"job": {"source": "known_src", "source_job_id": "222", "description": "rule-only"}, "llm_analysis": None},
-        {"job": {"source": "other_src", "source_job_id": "333", "description": "other"}, "llm_analysis": {"score": 70}},
+        {"job": {"source": "other_src", "source_job_id": "333", "description": "other"}, "llm_analysis": {"explanation": "other"}},
     ]
     monkeypatch.setattr(source_discovery, "list_saved_jobs", lambda: saved)
 

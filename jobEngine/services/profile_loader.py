@@ -173,9 +173,9 @@ def _parse_work_experience(lines: list[str]) -> list[RoleInfo]:
         role_match = _ROLE_HEADER_RE.match(stripped)
         loc_dates_match = _ROLE_LOCATION_DATES_RE.match(stripped) if current and not current.date_range_raw else None
 
-        if stripped.startswith("•"):
+        if stripped.startswith(("•", "- ")):
             if current:
-                current.achievements.append(stripped.lstrip("•").strip())
+                current.achievements.append(stripped.lstrip("•-").strip())
             continue
 
         if loc_dates_match and current and not current.date_range_raw:

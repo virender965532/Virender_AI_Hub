@@ -67,7 +67,7 @@ Common conventions observed everywhere:
 
 `Profile/Summary.txt` is a clean, section-headed plain-text resume (profile summary, technical
 skills grouped by category, work experience with bullet achievements, key projects, education).
-`Profile/VirenderFullstackResumeUpdated.pdf` is the same content as a PDF (used as a secondary/raw-text
+`Profile/SeniorFullStackAIEngineer.pdf` is the same content as a PDF (used as a secondary/raw-text
 cross-check only, via `pypdf`, mirroring `jobApplyPro.recruitment_pipeline.extract_resume_data`).
 The engine parses `Summary.txt` structurally (it is authored consistently enough to parse by
 section headers) into a `CandidateProfile` Pydantic model; nothing is hard-coded/invented — if a

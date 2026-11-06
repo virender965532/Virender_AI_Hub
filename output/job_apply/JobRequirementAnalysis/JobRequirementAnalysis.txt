@@ -1,82 +1,64 @@
-### Job Breakdown for Backend Engineer at Azodha
+## Job Breakdown for Senior JavaScript Full Stack Developer at TECEZE
 
-#### Key Responsibilities
-- **Design and Development**: 
-  - Design, build, and scale backend services and APIs (REST and GraphQL) using Node.js and TypeScript.
-  - Create and maintain data pipelines and data warehousing solutions using tools like Airbyte, dbt, Apache Airflow, or AWS Glue.
+### Key Responsibilities
+1. **Full Stack Development**: Design and develop complex applications using JavaScript, focusing on both frontend and backend.
+2. **Framework Utilization**: Implement features using Next.js (with emphasis on the App Router) and React to build user-friendly interfaces.
+3. **Database Management**: Utilize PostgreSQL for data storage and management which includes writing advanced SQL queries.
+4. **Cloud Services**: Leverage AWS Services for application deployment, including but not limited to AWS Lambda, SQS, and S3.
+5. **Debugging and Troubleshooting**: Conduct practical debugging and troubleshooting on AWS environments and applications.
+6. **AI Tools Integration**: Use AI coding tools such as GitHub Copilot to enhance productivity and streamline development processes.
+7. **Performance Optimization**: Ensure applications are scalable and optimized for performance, focusing on both server-side and client-side efficiency.
+
+### Required Skills
+
+#### Hard Skills
+- **JavaScript Expertise**: Strong experience in JavaScript and full-stack development.
+- **Frameworks**: Advanced knowledge of Next.js and React.
+- **TypeScript**: Proficiency in TypeScript for robust type challenges.
+- **Database Skills**: Strong experience with PostgreSQL including SQL query-writing and optimization.
+- **AWS Proficiency**: Hands-on experience with multiple AWS services, particularly AWS Lambda, SQS, S3, and EventBridge.
   
-- **Infrastructure Management**: 
-  - Manage and optimize AWS infrastructure, including ECS, EC2, S3, RDS, and Lambda.
+#### Soft Skills
+- **Problem-Solving**: Strong analytical and troubleshooting skills.
+- **Communication**: Ability to work effectively in a remote team and communicate technical concepts clearly.
+- **Collaboration**: Experience in mentoring junior developers and collaborating with cross-functional teams.
+
+### Seniority Level
+- **Experience Required**: 6 to 10 years.
+
+### Mandatory vs Nice-to-Have Qualifications
+
+#### Mandatory Qualifications
+- Strong JavaScript full-stack development experience.
+- Proficiency in Next.js, React, TypeScript, and PostgreSQL.
+- Practical experience with AWS services.
   
-- **CI/CD Management**: 
-  - Own CI/CD pipelines and automated testing to ensure fast and reliable release cycles.
-  
-- **Data Security**: 
-  - Develop secure, compliant systems focusing on handling protected health information (PHI).
-  
-- **Collaboration**: 
-  - Participate in code reviews and share best practices.
-  - Collaborate with product, QA, and clinical stakeholders throughout the development lifecycle.
-  
-- **Production Support**: 
-  - Support production stability, including on-call coverage as specified in the contract.
+#### Nice-to-Have Qualifications
+- Experience with Next.js Server Actions and Route Handlers.
+- Familiarity with NestJS or Fastify.
+- Knowledge of Databricks for data processing.
+- Experience testing frameworks like Vitest or Jest.
+- Familiarity with AI coding tools like GitHub Copilot.
 
-#### Required Skills
+### Suggested Interview Topics
+1. **Technical Proficiency**:
+   - Discussion on past projects using Next.js and React.
+   - Deep dive into PostgreSQL usage, including complex queries and optimizations.
+   - Practical scenarios testing AWS experience, such as deployment strategies or troubleshooting examples.
 
-**Hard Skills**
-- 5+ years of professional experience in backend development with Node.js and TypeScript.
-- Strong grasp of PostgreSQL, SQL, and ORMs (e.g., Prisma, TypeORM, Sequelize).
-- Hands-on experience with AWS services and infrastructure management.
-- Proficiency in data pipeline tools (Airbyte, dbt, Airflow, AWS Glue).
-- Familiarity with event-driven architectures and message queuing systems.
-- Experience with automated testing frameworks and CI/CD practices.
+2. **Hands-on Coding**:
+   - Live coding session focused on building a small feature using Next.js or React.
+   - Problem-solving exercises related to database queries or AWS functionalities.
 
-**Soft Skills**
-- Excellent written and verbal communication skills.
-- Ability to work independently and manage one's own schedule effectively.
-- Strong problem-solving skills and the ability to deliver against milestones.
+3. **Experience with Tools**:
+   - Discuss familiarity and experience using AI coding tools like GitHub Copilot.
+   - Explore testing approaches using Vitest or Jest.
 
-#### Seniority Level
-- **Mid to Senior-Level**: This position requires significant experience (5+ years), indicating a mid to senior-level candidate.
+4. **Behavioral Questions**:
+   - How do you manage collaboration in a remote environment?
+   - Experience mentoring junior developers or leading project teams.
 
-#### Mandatory vs. Nice-to-Have Qualifications
+5. **Performance Optimization**:
+   - Discuss strategies you've employed for optimizing full-stack applications.
 
-**Mandatory Qualifications**
-- 5+ years of backend development experience with Node.js and TypeScript.
-- Experience with PostgreSQL and ORMs.
-- Familiarity with AWS services and infrastructure management.
-- Strong communication skills.
-- Availability for approx. 40 hours/week, with overlap with Eastern Time.
-- Bachelor’s degree in Computer Science or a related field, or equivalent practical experience.
-
-**Nice-to-Have Qualifications**
-- Experience in healthcare technology with knowledge of HIPAA compliance and standards (FHIR or HL7).
-- Infrastructure as Code experience (Terraform or CloudFormation).
-- Container orchestration experience (Docker, Kubernetes).
-- Knowledge of disaster recovery and backup strategies in AWS.
-- Experience with GCP or Azure.
-- Contributions to open-source projects.
-
-#### Suggested Interview Topics
-- **Technical Questions**: 
-  - Discuss your experience with Node.js and TypeScript—can you walk us through a significant project?
-  - Explain your understanding and experience with REST and GraphQL APIs.
-  - Describe how you have optimized AWS infrastructure in previous roles.
-  - What tools have you used for CI/CD, and what practices do you follow?
-  
-- **Data Management**: 
-  - Discuss any experience you have with data pipelines (Airbyte, dbt, etc.) and data warehousing.
-  - How do you ensure data security and compliance, especially when dealing with PHI?
-
-- **Collaboration and Communication**: 
-  - Provide an example of how you have collaborated with cross-functional teams.
-  - Discuss a time when clear communication made a difference in a project.
-
-- **Problem Solving and Autonomy**: 
-  - Describe how you prioritize and manage your tasks independently.
-  - Have you ever had to troubleshoot a production issue? How did you handle it?
-
-- **Healthcare Technology Environment**: (If applicable)
-  - What experience do you have with healthcare technology standards like HIPAA, FHIR, or HL7?
-
-This breakdown should provide a comprehensive overview of the role you're considering at Azodha, ensuring clarity for both candidates and hiring teams.
+This detailed breakdown should assist in preparing for the role and understanding the expectations from TECEZE.

@@ -7,6 +7,8 @@ import sys
 from dotenv import load_dotenv
 from flask import Flask
 
+from llm_provider import log_startup_status
+
 # Scraped job text is full of non-cp1252 characters (₹, ē, emoji); on a Windows
 # console a stray print() of it would otherwise raise UnicodeEncodeError mid-run.
 for _stream in (sys.stdout, sys.stderr):
@@ -18,6 +20,9 @@ from routes.remote_job_finder_routes import remote_job_finder_bp
 from interviewSimulator.graph import show_graph
 from jobEngine.api.routes import job_engine_bp
 from resumeIntel.api.routes import resume_intel_bp
+from profile_assistant import register_profile_assistant
+from code_assistant import register_code_assistant
+from stock_finder import register_stock_finder
 
 load_dotenv()
 
@@ -48,28 +53,43 @@ def create_app() -> Flask:
     app.register_blueprint(remote_job_finder_bp)
     app.register_blueprint(job_engine_bp)
     app.register_blueprint(resume_intel_bp)
+    register_profile_assistant(app)
+    register_code_assistant(app)
+    register_stock_finder(app)
 
     return app
 
 
+debug = os.environ.get("FLASK_DEBUG", "1").strip().lower() not in ("0", "false", "no")
+use_reloader = debug and os.environ.get("DEV_WATCH") != "1"
+# With `python app.py` and the reloader on, this file runs twice: in a watcher parent that
+# only restarts the server on code changes (it never serves requests), and in the serving
+# child (WERKZEUG_RUN_MAIN=true). Build the app and log startup only in the serving process.
+is_reloader_watcher = __name__ == "__main__" and use_reloader and os.environ.get("WERKZEUG_RUN_MAIN") != "true"
+# The job engine's CPU process pool (jobEngine/concurrency.py) spawns workers that
+# re-import this file as "__mp_main__". They only run pure functions, never serve
+# requests, so don't rebuild the app (and re-log every registration) in each of them.
+is_pool_worker = __name__ == "__mp_main__"
+
 setup_logging()
-app = create_app()
+if is_reloader_watcher or is_pool_worker:
+    app = Flask(__name__)  # placeholder; only the serving process builds the real app
+else:
+    # Which LLM backend (LLM_PROVIDER) is active; warns if Ollama or a model is missing.
+    log_startup_status()
+    app = create_app()
 
 
 if __name__ == "__main__":
-    use_reloader = os.environ.get("DEV_WATCH") != "1"
-    try:
-        show_graph()
-    except Exception:
-        logging.getLogger(__name__).exception("Skipping interview graph export")
-
     host = os.environ.get("FLASK_HOST", "127.0.0.1")
     port = int(os.environ.get("FLASK_PORT", "8000"))
-    debug = os.environ.get("FLASK_DEBUG", "1").strip().lower() not in ("0", "false", "no")
 
-    # With the reloader on, this block also runs in the watcher parent, which never
-    # serves requests; schedule only in the serving process so a run never doubles.
-    if not (use_reloader and debug) or os.environ.get("WERKZEUG_RUN_MAIN") == "true":
+    if not is_reloader_watcher:
+        try:
+            show_graph()
+        except Exception:
+            logging.getLogger(__name__).exception("Skipping interview graph export")
+
         from jobEngine.scheduler import start_scheduler
 
         try:
@@ -81,6 +101,6 @@ if __name__ == "__main__":
         host=host,
         port=port,
         debug=debug,
-        use_reloader=use_reloader and debug,
+        use_reloader=use_reloader,
         threaded=True,
     )

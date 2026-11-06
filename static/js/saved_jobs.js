@@ -58,6 +58,8 @@
     minScore: document.getElementById("sj-min-score"),
     sort: document.getElementById("sj-sort"),
     worldwide: document.getElementById("sj-worldwide"),
+    visa: document.getElementById("sj-visa"),
+    remoteScope: document.getElementById("sj-remote-scope"),
     outcome: document.getElementById("sj-outcome"),
     evaluated: document.getElementById("sj-evaluated"),
     error: document.getElementById("sj-error"),
@@ -113,13 +115,13 @@
   }
 
   /**
-   * The reviewed score when the concern reviewer checked the job, else the LLM score
-   * (older saves also kept a blended match_score).
+   * The score computed from the requirement checks (jobEngine/matching/fit_score.py);
+   * older saves have only the LLM's own score or a blended match_score.
    */
   function score(saved) {
-    var llm = saved.llm_analysis;
-    var s = saved.review ? saved.review.score
-      : Number(llm && llm.score !== undefined && llm.score !== null ? llm.score : saved.match_score);
+    var b = saved.score_breakdown, llm = saved.llm_analysis;
+    var s = b ? b.score
+      : llm && llm.score !== undefined && llm.score !== null ? llm.score : saved.match_score;
     s = Number(s);
     return isNaN(s) ? 0 : s;
   }
@@ -166,6 +168,8 @@
       minScore: Number(els.minScore.value) || 0,
       sort: els.sort.value,
       worldwide: els.worldwide ? els.worldwide.value : "",
+      visa: els.visa ? els.visa.value : "",
+      remoteScope: els.remoteScope ? els.remoteScope.value : "",
       outcome: els.outcome ? els.outcome.value : "",
       evaluated: els.evaluated ? els.evaluated.value : "",
     };
@@ -181,6 +185,8 @@
       if (f.source && job.source !== f.source) return false;
       if (score(saved) < f.minScore) return false;
       if (WW && f.worldwide && !WW.matches(job, f.worldwide)) return false;
+      if (WW && f.visa && !WW.matchesVisa(job, f.visa)) return false;
+      if (WW && f.remoteScope && !WW.matchesRemote(job, f.remoteScope)) return false;
       if (f.outcome && (f.outcome === "rejected") !== isRejected(saved)) return false;
       if (f.evaluated && (f.evaluated === "evaluated") !== !!saved.rejection_analysis) return false;
       if (terms.length) {
@@ -276,82 +282,35 @@
     return bar;
   }
 
-  // --- concern review (jobEngine/matching/concern_reviewer.py) -----------------
+  // --- score breakdown (jobEngine/matching/fit_score.py) -------------------------
 
-  var VERDICT_LABELS = { met: "Met", implied: "Implied", partial: "Partial", missing: "Missing" };
-  var TIER_LABELS = { core: "Core", required: "Required", preferred: "Preferred", nice_to_have: "Nice to have" };
-  var DECISION_LABELS = {
-    drop_implied: "Implied by",
-    drop_covered: "Shown in profile",
-  };
-
-  function keptItems(review) {
-    return (review.items || []).filter(function (i) { return i.decision === "keep" || i.decision === "downgrade"; });
-  }
+  var VERDICT_LABELS = { met: "Met", partial: "Partial", missing: "Missing" };
+  var TIER_LABELS = { core: "Core", required: "Required", preferred: "Preferred" };
 
   function scoreBlock(saved) {
-    var review = saved.review;
+    var b = saved.score_breakdown;
     var wrap = el("div");
-    wrap.appendChild(scoreBar(score(saved), review ? "Reviewed score" : "LLM score"));
-    if (review) {
-      var dropped = (review.items || []).length - keptItems(review).length;
-      var basis = review.score_basis === "requirements"
-        ? "computed from " + (review.requirements || []).length + " requirements"
-        : "kept the matcher's score (no requirements found)";
-      wrap.appendChild(el("p", "sj-review-note",
-        "Matcher scored " + Math.round(review.score_before) + "; the reviewer dismissed " + dropped +
-        " concern" + (dropped === 1 ? "" : "s") + " and the score was " + basis + "."));
+    wrap.appendChild(scoreBar(score(saved), "Match score"));
+    if (b) {
+      var years = b.required_years ? "job asks " + b.required_years + " yrs, you have " + b.candidate_years
+        : "job states no years range";
+      var note = "0.90 × skills " + Math.round(b.skills) + " + 0.05 × experience " + Math.round(b.experience) +
+        " (" + years + ") + 0.05 × keywords " + Math.round(b.keywords) + ".";
+      if (b.core_missing) note += " Capped at 60: a core requirement is missing.";
+      wrap.appendChild(el("p", "sj-review-note", note));
     }
     return wrap;
   }
 
-  /** Kept concerns with their severity; dismissed ones in a collapsed list with the reason. */
-  function concernsBlock(review) {
-    var wrap = el("div");
-    var kept = keptItems(review).filter(function (i) { return i.kind !== "missing_skill"; });
-    if (kept.length) {
-      var ul = el("ul", "sj-points");
-      kept.forEach(function (i) {
-        var li = el("li");
-        li.appendChild(el("span", "sj-sev sj-sev--" + i.severity, i.severity));
-        li.appendChild(document.createTextNode(" " + i.item));
-        if (i.kind === "added_concern") li.appendChild(el("span", "sj-review-tag", "added by reviewer"));
-        // Why code downgraded it, e.g. "GraphQL is listed in the profile".
-        if (i.decision === "downgrade" && i.adjusted) li.appendChild(el("div", "sj-review-note", "Downgraded: " + i.adjusted));
-        ul.appendChild(li);
-      });
-      wrap.appendChild(ul);
-    } else {
-      wrap.appendChild(el("p", "sj-review-note", "No concerns left after review."));
-    }
-    var dismissed = (review.items || []).filter(function (i) { return i.decision !== "keep" && i.decision !== "downgrade"; });
-    if (dismissed.length) {
-      var details = el("details", "sj-dismissed");
-      details.appendChild(el("summary", null, "Dismissed by reviewer (" + dismissed.length + ")"));
-      var list = el("ul", "sj-points");
-      dismissed.forEach(function (i) {
-        var li = el("li", null, i.item);
-        var why = i.decision === "drop_implied" && i.implied_by
-          ? DECISION_LABELS.drop_implied + " " + i.implied_by
-          : DECISION_LABELS[i.decision] || titleCase(i.decision);
-        if (i.reason) why += " — " + i.reason;
-        li.appendChild(el("div", "sj-review-note", why));
-        list.appendChild(li);
-      });
-      details.appendChild(list);
-      wrap.appendChild(details);
-    }
-    return wrap;
-  }
-
-  function requirementsBlock(review) {
+  function requirementsBlock(breakdown) {
     var ul = el("ul", "sj-points sj-reqs");
-    (review.requirements || []).forEach(function (r) {
+    (breakdown.requirements || []).forEach(function (r) {
       var li = el("li");
       li.appendChild(el("span", "sj-verdict sj-verdict--" + r.verdict, VERDICT_LABELS[r.verdict] || r.verdict));
       li.appendChild(document.createTextNode(" " + r.requirement + " "));
       li.appendChild(el("span", "sj-review-tag", TIER_LABELS[r.tier] || r.tier));
-      if (r.verdict === "implied" && r.implied_by) li.appendChild(el("span", "sj-review-tag", "via " + r.implied_by));
+      // Why code overrode the LLM, e.g. "Python is listed in the profile".
+      if (r.adjusted) li.appendChild(el("span", "sj-review-tag", r.adjusted));
       ul.appendChild(li);
     });
     return ul;
@@ -568,22 +527,22 @@
     if (APPLIED_MODE) body.appendChild(rejectionSection(saved, card));
     var wwPanel = WW && WW.panel(job);
     if (wwPanel) body.appendChild(section("Eligibility from India", wwPanel));
+    var vrPanel = WW && WW.visaRemotePanel(job);
+    if (vrPanel) body.appendChild(section("Visa sponsorship & remote scope", vrPanel));
 
     var explanation = saved.explanation || (llm && llm.explanation);
     if (explanation) body.appendChild(section("Why it matches", el("p", "sj-explanation", explanation)));
-    var review = saved.review || null;
+    var breakdown = saved.score_breakdown || null;
     if (llm) body.appendChild(section("Score", scoreBlock(saved)));
 
     var cols = el("div", "sj-cols");
     var strengths = saved.strengths || (llm && llm.strengths) || [];
     var concerns = saved.concerns || (llm && llm.concerns) || [];
     if (strengths.length) cols.appendChild(section("Strengths", pointList(strengths)));
-    if (review) cols.appendChild(section("Honest concerns", concernsBlock(review)));
-    else if (concerns.length) cols.appendChild(section("Honest concerns", pointList(concerns)));
+    if (concerns.length) cols.appendChild(section("Honest concerns", pointList(concerns)));
     if (cols.childNodes.length) body.appendChild(cols);
-    if (review && (review.requirements || []).length) {
-      body.appendChild(section("Requirements check", requirementsBlock(review)));
-    }
+    var hasChecks = breakdown && (breakdown.requirements || []).length;
+    if (hasChecks) body.appendChild(section("Requirements check", requirementsBlock(breakdown)));
 
     var skills = el("div", "sj-cols");
     if ((saved.matched_skills || []).length) skills.appendChild(section("Matched skills", tagList(saved.matched_skills)));
@@ -594,8 +553,8 @@
     if (skills.childNodes.length) body.appendChild(skills);
 
     var reqs = el("div", "sj-cols");
-    // The reviewer's requirements check supersedes the matcher's list.
-    if (!(review && (review.requirements || []).length) && llm && (llm.matched_requirements || []).length) {
+    // The requirements check supersedes the matcher's list.
+    if (!hasChecks && llm && (llm.matched_requirements || []).length) {
       reqs.appendChild(section("Requirements you meet", pointList(llm.matched_requirements)));
     }
     if ((job.requirements || []).length) reqs.appendChild(section("Requirements", pointList(job.requirements)));
@@ -685,7 +644,7 @@
 
     var badge = el("div", "sj-score sj-score--" + rec);
     badge.appendChild(document.createTextNode(Math.round(score(saved))));
-    badge.appendChild(el("small", null, saved.review ? "reviewed" : "score"));
+    badge.appendChild(el("small", null, "score"));
     badge.title = RECOMMENDATION_LABELS[rec] || titleCase(rec);
     head.appendChild(badge);
 
@@ -711,7 +670,8 @@
     }
     var wwBadge = WW && WW.badge(job);
     if (wwBadge) titleRow.appendChild(wwBadge);
-    (job.tags || []).forEach(function (t) { titleRow.appendChild(el("span", "sj-pill sj-pill--tag", t)); });
+    (WW ? WW.visaRemoteBadges(job) : []).forEach(function (b) { titleRow.appendChild(b); });
+    (WW ? WW.displayTags(job) : job.tags || []).forEach(function (t) { titleRow.appendChild(el("span", "sj-pill sj-pill--tag", t)); });
     main.appendChild(titleRow);
     var meta = el("p", "sj-job__meta");
     [job.company, job.location, relTime(stampIso)]
@@ -933,7 +893,9 @@
     debounce = setTimeout(render, 150);
   });
   if (WW && els.worldwide) WW.fillFilterSelect(els.worldwide);
-  [els.recommendation, els.status, els.source, els.minScore, els.sort, els.worldwide, els.outcome, els.evaluated].filter(Boolean).forEach(function (node) {
+  if (WW && els.visa) WW.fillVisaSelect(els.visa);
+  if (WW && els.remoteScope) WW.fillRemoteSelect(els.remoteScope);
+  [els.recommendation, els.status, els.source, els.minScore, els.sort, els.worldwide, els.visa, els.remoteScope, els.outcome, els.evaluated].filter(Boolean).forEach(function (node) {
     node.addEventListener("change", render);
   });
   load();

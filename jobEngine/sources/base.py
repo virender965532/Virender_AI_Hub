@@ -30,6 +30,10 @@ class SourceExecutionContext:
     # an LLM analysis. Adapters may use it instead of opening the job again;
     # the matching node reuses the stored analysis for these jobs anyway.
     known_descriptions: dict[str, str] = field(default_factory=dict)
+    # source_job_id of every job an earlier run already handled: saved (with or
+    # without an LLM analysis) or rejected (also as too old). LinkedIn skips these
+    # on the results page — they are never returned or fetched again.
+    seen_before_ids: set[str] = field(default_factory=set)
 
 
 class SourceDiscoveryResult(BaseModel):
@@ -66,6 +70,12 @@ class TimedDiscovery:
 
     def elapsed_ms(self) -> int:
         return int((time.perf_counter() - self._t0) * 1000)
+
+    def merge(self, other: "TimedDiscovery") -> None:
+        """Fold in a per-URL timer (search URLs scraped concurrently, merged in URL order)."""
+        self.pages_processed += other.pages_processed
+        self.jobs.extend(other.jobs)
+        self.errors.extend(other.errors)
 
     def to_result(self) -> SourceDiscoveryResult:
         if self.jobs and self.errors:

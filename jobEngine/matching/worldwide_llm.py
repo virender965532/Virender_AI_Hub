@@ -1,7 +1,7 @@
 """LLM second opinion for jobs the rules leave at "needs verification".
 
-Reuses the existing OpenAI integration (same model, key, timeout and cost metrics
-as ``llm_matcher.py``) — no new service. The model must quote the sentences it
+Reuses the job engine's LLM integration (same provider, model, timeout and cost
+metrics as ``llm_matcher.py``) — no new service. The model must quote the sentences it
 relied on; every quote is checked against the job text and dropped if it isn't
 there verbatim. A verdict of A/B/D with no surviving quote is ignored, so the job
 stays at "needs verification" rather than being upgraded on invented evidence.
@@ -13,6 +13,8 @@ import logging
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
+
+from llm_provider import get_chat_model, llm_configured
 
 from ..config.settings import EngineSettings, get_settings
 from ..guardrails.prompt_injection import wrap_untrusted_content
@@ -82,15 +84,13 @@ class WorldwideReviewer:
 
     def available(self) -> bool:
         s = self.settings
-        return s.worldwide_remote_enabled and s.worldwide_llm_review and s.llm_enabled and bool(s.openai_api_key)
+        return s.worldwide_remote_enabled and s.worldwide_llm_review and s.llm_enabled and llm_configured(s.openai_api_key)
 
     def _structured_llm(self):
         if self._llm is None:
-            from langchain_openai import ChatOpenAI
-
-            self._llm = ChatOpenAI(
-                model=self.settings.openai_model,
-                api_key=self.settings.openai_api_key,
+            self._llm = get_chat_model(
+                self.settings.openai_model,
+                openai_api_key=self.settings.openai_api_key,
                 timeout=self.settings.openai_timeout,
                 temperature=0,
             ).with_structured_output(WorldwideReview, include_raw=True)

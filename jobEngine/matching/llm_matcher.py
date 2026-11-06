@@ -1,6 +1,7 @@
 """LLM-based grounded matching (sections 16/20/21/22).
 
-Uses ``ChatOpenAI.with_structured_output`` so the model's response is always
+Uses ``with_structured_output`` on the configured provider's chat model
+(``llm_provider.get_chat_model``: OpenAI or Ollama) so the model's response is always
 parsed into ``JobMatchAnalysis`` or rejected — there is no free-form output
 path. On a malformed/invalid response the call is retried once with an
 explicit repair instruction; if it still fails, the caller treats this job
@@ -10,18 +11,23 @@ than crashing the run (section 13: parse -> validate -> repair -> reject).
 
 from __future__ import annotations
 
+import json
 import logging
 import time
 from pathlib import Path
+
+from llm_provider import get_chat_model, llm_configured, resolve_model
 
 from ..config.settings import EngineSettings, get_settings
 from ..guardrails.prompt_injection import detect_suspicious_patterns, wrap_untrusted_content
 from ..models.job import Job, JobMatchAnalysis
 from ..models.profile import CandidateProfile
+from .fit_score import fingerprint
 
 logger = logging.getLogger(__name__)
 
 _PROMPTS_DIR = Path(__file__).resolve().parent.parent / "prompts"
+_SEED = 7
 
 
 class LLMCallMetrics:
@@ -66,27 +72,35 @@ class LLMMatcher:
         self._structured_llm = None
         self._system_template = _load_prompt("job_matching_system.txt")
         self._user_template = _load_prompt("job_matching_user.txt")
+        # Changes with the prompts, the model or the output schema; a cached
+        # analysis is only reused under the same version.
+        self.version = fingerprint(
+            self._system_template,
+            self._user_template,
+            resolve_model(self.settings.openai_model),
+            self.settings.prompt_version,
+            json.dumps(JobMatchAnalysis.model_json_schema(), sort_keys=True),
+        )
 
     def available(self) -> bool:
-        return self.settings.llm_enabled and bool(self.settings.openai_api_key)
+        return self.settings.llm_enabled and llm_configured(self.settings.openai_api_key)
 
     def _get_structured_llm(self):
         if self._structured_llm is None:
-            from langchain_openai import ChatOpenAI
-
-            base = ChatOpenAI(
-                model=self.settings.openai_model,
-                api_key=self.settings.openai_api_key,
+            # Temperature 0 and a fixed seed keep repeat analyses of a job as close
+            # as the API allows; the analysis cache makes them identical.
+            base = get_chat_model(
+                self.settings.openai_model,
+                openai_api_key=self.settings.openai_api_key,
                 timeout=self.settings.openai_timeout,
-                temperature=0.1,
+                temperature=0,
+                seed=_SEED,
             )
             self._structured_llm = base.with_structured_output(JobMatchAnalysis, include_raw=True)
         return self._structured_llm
 
     def _build_messages(self, *, profile: CandidateProfile, job: Job, repair_hint: str = "") -> list[dict[str, str]]:
         system = self._system_template.format(prompt_version=self.settings.prompt_version)
-        if repair_hint:
-            system = f"{system}\n\nIMPORTANT: {repair_hint}"
 
         job_text = "\n".join(
             [
@@ -104,6 +118,10 @@ class LLMMatcher:
             job_location=job.location or "not specified",
             wrapped_job_content=wrap_untrusted_content(job_text),
         )
+        # At the end, not in the system prompt: a retry then keeps the cached
+        # system prompt + profile prefix (OpenAI prompt caching).
+        if repair_hint:
+            user = f"{user}\n\nIMPORTANT: {repair_hint}"
         return [{"role": "system", "content": system}, {"role": "user", "content": user}]
 
     def analyze(

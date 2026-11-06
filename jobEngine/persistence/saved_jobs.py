@@ -120,6 +120,9 @@ def _merged_doc(matched: dict[str, Any], previous: dict[str, Any] | None, *, key
         "saved_key": key,
         "status": (previous or {}).get("status", "new"),
         "applied_at": (previous or {}).get("applied_at"),
+        "mailed_at": (previous or {}).get("mailed_at"),
+        "hr_contact": (previous or {}).get("hr_contact"),
+        "hr_draft": (previous or {}).get("hr_draft"),
         "first_seen_at": (previous or {}).get("first_seen_at", seen_at),
         "last_seen_at": seen_at,
         "run_ids": run_ids[-_MAX_RUN_IDS:],
@@ -175,13 +178,50 @@ def list_saved_jobs(*, include_not_eligible: bool = True) -> list[dict[str, Any]
     """
     with _lock:
         _purge_expired()
-    query: dict[str, Any] = {} if include_not_eligible else {"job.worldwide.category": {"$ne": "country_restricted"}}
+    query: dict[str, Any] = (
+        {}
+        if include_not_eligible
+        else {
+            "$or": [
+                {"job.worldwide.category": {"$ne": "country_restricted"}},
+                {"job.visa_remote.visa_status": "POSITIVE_EVIDENCE"},
+            ]
+        }
+    )
     return list(_saved_jobs().find(query, _HIDDEN_FIELDS).sort("last_seen_at", DESCENDING))
 
 
 def saved_job_keys() -> set[str]:
     """Keys of every saved job — a cheap existence check (no purge, ids only)."""
     return {doc["_id"] for doc in _saved_jobs().find({}, {"_id": 1})}
+
+
+def unmailed_job_keys(keys: list[str]) -> set[str]:
+    """The saved ``keys`` whose job has not been emailed yet (see ``notifications.job_alerts``)."""
+    if not keys:
+        return set()
+    return {doc["_id"] for doc in _saved_jobs().find({"_id": {"$in": keys}, "mailed_at": None}, {"_id": 1})}
+
+
+def mark_jobs_mailed(keys: list[str]) -> None:
+    if keys:
+        _saved_jobs().update_many({"_id": {"$in": keys}}, {"$set": {"mailed_at": _now()}})
+
+
+def stored_hr_contacts(keys: list[str]) -> dict[str, dict[str, Any]]:
+    """The HR email extraction already recorded for each of ``keys`` (so a retried alert doesn't redo it)."""
+    if not keys:
+        return {}
+    cursor = _saved_jobs().find({"_id": {"$in": keys}, "hr_contact": {"$ne": None}}, {"_id": 1, "hr_contact": 1})
+    return {doc["_id"]: doc["hr_contact"] for doc in cursor}
+
+
+def record_hr_contact(key: str, contact: dict[str, Any]) -> None:
+    _saved_jobs().update_one({"_id": key}, {"$set": {"hr_contact": contact}})
+
+
+def record_hr_draft(key: str, outcome: dict[str, Any]) -> None:
+    _saved_jobs().update_one({"_id": key}, {"$set": {"hr_draft": {**outcome, "at": _now()}}})
 
 
 def get_saved_job(key: str) -> dict[str, Any] | None:

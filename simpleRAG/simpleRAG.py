@@ -14,9 +14,9 @@ from typing import Any
 from dotenv import load_dotenv
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_community.vectorstores import FAISS
-from langchain_openai import OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from openai import OpenAI
+
+from llm_provider import get_embeddings, get_openai_client, llm_configured, missing_credentials_message
 
 load_dotenv()
 
@@ -45,7 +45,7 @@ PDF_PATH = (
 )
 
 OPENAI_API_KEY = os.getenv("SIMPLE_RAG_OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY", "")
-OPENAI_CLIENT = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
+OPENAI_CLIENT = get_openai_client(api_key=OPENAI_API_KEY) if llm_configured(OPENAI_API_KEY) else None
 
 _ANSWER_SYSTEM_PROMPT = """You are a helpful assistant answering questions about the AI Agents guidebook.
 
@@ -144,13 +144,13 @@ def _get_vector_db() -> FAISS:
     )
     chunks = splitter.split_documents(documents)
 
-    embeddings = OpenAIEmbeddings(model=EMBEDDING_MODEL)
+    embeddings = get_embeddings(EMBEDDING_MODEL, openai_api_key=OPENAI_API_KEY)
     return FAISS.from_documents(chunks, embeddings)
 
 
 def _embed_query(query: str, trace_id: str) -> tuple[list[float], dict[str, Any]]:
     if not OPENAI_CLIENT:
-        raise RuntimeError("OPENAI_API_KEY is missing in environment.")
+        raise RuntimeError(missing_credentials_message())
 
     started_at = _utc_now_iso()
     t0 = time.perf_counter()
@@ -241,7 +241,7 @@ def _generate_answer(
     trace_id: str,
 ) -> tuple[str, dict[str, Any]]:
     if not OPENAI_CLIENT:
-        raise RuntimeError("OPENAI_API_KEY is missing in environment.")
+        raise RuntimeError(missing_credentials_message())
 
     if not chunks:
         return "No relevant information found in the document.", {}
@@ -311,8 +311,8 @@ def ask_simple_rag_question(query: str) -> dict[str, Any]:
     if not cleaned_query:
         raise ValueError("Question is required.")
 
-    if not OPENAI_API_KEY:
-        raise RuntimeError("OPENAI_API_KEY is missing in environment.")
+    if not llm_configured(OPENAI_API_KEY):
+        raise RuntimeError(missing_credentials_message())
 
     trace_id = str(uuid.uuid4())
     _trace_id_ctx.set(trace_id)

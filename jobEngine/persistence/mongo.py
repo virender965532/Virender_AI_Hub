@@ -28,6 +28,7 @@ RUNS_COLLECTION = "job_engine_runs"
 SAVED_JOBS_COLLECTION = "saved_jobs"
 APPLIED_JOBS_COLLECTION = "applied_jobs"
 REJECTED_JOBS_COLLECTION = "rejected_jobs"
+ANALYSIS_CACHE_COLLECTION = "job_analysis_cache"
 SESSIONS_COLLECTION = "browser_sessions"
 
 _INDEXES: dict[str, list[tuple[list[tuple[str, int]], dict[str, Any]]]] = {
@@ -46,6 +47,9 @@ _INDEXES: dict[str, list[tuple[list[tuple[str, int]], dict[str, Any]]]] = {
         # TTL: MongoDB deletes each document once its own expires_at has passed.
         ([("expires_at", ASCENDING)], {"expireAfterSeconds": 0}),
         ([("job.source", ASCENDING)], {}),
+    ],
+    ANALYSIS_CACHE_COLLECTION: [
+        ([("expires_at", ASCENDING)], {"expireAfterSeconds": 0}),
     ],
     SESSIONS_COLLECTION: [],
 }

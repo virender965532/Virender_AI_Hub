@@ -19,6 +19,7 @@ selector set, fall back to a link-scan if it finds nothing):
 
 from __future__ import annotations
 
+import asyncio
 import logging
 
 from playwright.async_api import TimeoutError as PlaywrightTimeoutError
@@ -55,70 +56,76 @@ class InstinctoolsAdapter(JobSourceAdapter):
     async def discover_jobs(self, context: SourceExecutionContext) -> SourceDiscoveryResult:
         cfg = context.config
         timer = TimedDiscovery(cfg.id)
+        # Every search URL in its own page, concurrently (the browser manager caps open
+        # contexts); merged in URL order so the job cap keeps the same jobs as before.
+        per_url = await asyncio.gather(*(self._discover_url(context, u) for u in cfg.search_urls))
+        for url_timer in per_url:
+            timer.merge(url_timer)
 
+        timer.jobs = enforce_job_count(timer.jobs, max_jobs=cfg.max_jobs, source=cfg.id)
+        return timer.to_result()
+
+    async def _discover_url(self, context: SourceExecutionContext, search_url: str) -> TimedDiscovery:
+        cfg = context.config
+        timer = TimedDiscovery(cfg.id)
         try:
+            url = validate_navigation_url(search_url, allowed_domains=cfg.allowed_domains)
             async with context.browser_manager.open_page(
                 source_id=cfg.id, allowed_domains=cfg.allowed_domains
             ) as managed:
                 page = managed.page
-                for search_url in cfg.search_urls:
-                    if len(timer.jobs) >= cfg.max_jobs:
-                        break
-                    url = validate_navigation_url(search_url, allowed_domains=cfg.allowed_domains)
-                    try:
-                        await page.goto(url, wait_until="domcontentloaded", timeout=cfg.timeout_seconds * 1000)
-                        await page.wait_for_load_state("networkidle", timeout=cfg.timeout_seconds * 1000)
-                    except PlaywrightTimeoutError:
-                        logger.info(
-                            "instinctools: networkidle timeout at %s; continuing with current DOM", url
+                try:
+                    await page.goto(url, wait_until="domcontentloaded", timeout=cfg.timeout_seconds * 1000)
+                    await page.wait_for_load_state("networkidle", timeout=cfg.timeout_seconds * 1000)
+                except PlaywrightTimeoutError:
+                    logger.info(
+                        "instinctools: networkidle timeout at %s; continuing with current DOM", url
+                    )
+                except Exception as exc:  # noqa: BLE001
+                    timer.errors.append(
+                        SourceError(
+                            source_id=cfg.id,
+                            status=SourceErrorStatus.NAVIGATION_ERROR,
+                            message=f"navigation failed for {url}: {exc}",
+                            retryable=True,
                         )
-                    except Exception as exc:  # noqa: BLE001
-                        timer.errors.append(
-                            SourceError(
-                                source_id=cfg.id,
-                                status=SourceErrorStatus.NAVIGATION_ERROR,
-                                message=f"navigation failed for {url}: {exc}",
-                                retryable=True,
-                            )
+                    )
+                    return timer
+
+                timer.pages_processed += 1
+
+                found = await self._extract_structured(page, cfg=cfg)
+                if not found:
+                    found = await self._extract_via_link_scan(page, cfg=cfg, listing_url=url)
+
+                if not found:
+                    timer.errors.append(
+                        SourceError(
+                            source_id=cfg.id,
+                            status=SourceErrorStatus.SELECTOR_MISSING,
+                            message=(
+                                "no vacancies found via structured selectors or link-scan "
+                                f"fallback at {url}; markup may have changed"
+                            ),
+                            retryable=False,
                         )
-                        continue
+                    )
+                    return timer
 
-                    timer.pages_processed += 1
-
-                    found = await self._extract_structured(page, cfg=cfg)
-                    if not found:
-                        found = await self._extract_via_link_scan(page, cfg=cfg, listing_url=url)
-
-                    if not found:
-                        timer.errors.append(
-                            SourceError(
-                                source_id=cfg.id,
-                                status=SourceErrorStatus.SELECTOR_MISSING,
-                                message=(
-                                    "no vacancies found via structured selectors or link-scan "
-                                    f"fallback at {url}; markup may have changed"
-                                ),
-                                retryable=False,
-                            )
-                        )
-                        continue
-
-                    if cfg.max_jobs_per_url:
-                        found = found[: cfg.max_jobs_per_url]
-                    timer.jobs.extend(found)
+                if cfg.max_jobs_per_url:
+                    found = found[: cfg.max_jobs_per_url]
+                timer.jobs.extend(found)
 
         except SSRFViolation as exc:
             timer.errors.append(
                 SourceError(source_id=cfg.id, status=SourceErrorStatus.NAVIGATION_ERROR, message=str(exc))
             )
         except Exception as exc:  # noqa: BLE001
-            logger.exception("InstinctoolsAdapter failed for source=%s", cfg.id)
+            logger.exception("InstinctoolsAdapter failed for source=%s url=%s", cfg.id, search_url)
             timer.errors.append(
                 SourceError(source_id=cfg.id, status=SourceErrorStatus.UNKNOWN, message=str(exc), retryable=True)
             )
-
-        timer.jobs = enforce_job_count(timer.jobs, max_jobs=cfg.max_jobs, source=cfg.id)
-        return timer.to_result()
+        return timer
 
     async def _extract_structured(self, page, *, cfg) -> list[RawJob]:
         for card_selector in _CARD_SELECTORS:

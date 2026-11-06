@@ -40,6 +40,22 @@ mongomock>=4.1.0
 APScheduler>=3.10,<4
 tzdata
 # Force CPU PyTorch (no CUDA packages)
-torch==2.7.1+cpu
---extra-index-url https://download.pytorch.org/whl/cpu
+# torch==2.7.1+cpu
+# --extra-index-url https://download.pytorch.org/whl/cpu
 pageindex
+# Profile Assistant (profile_assistant/): Gradio chat UI, mounted into Flask via a2wsgi.
+gradio>=5.0.0
+a2wsgi>=1.10.0
+# Code Assistant (code_assistant/): git checkpoints, .gitignore parsing, token counting.
+gitpython>=3.1.40
+pathspec>=0.12.0
+tiktoken>=0.7.0
+# Stock Finder (stock_finder/): market data, RSS news, charts (Gradio/a2wsgi/faiss/pymongo already above).
+yfinance>=0.2.40
+feedparser>=6.0.11
+plotly>=5.20.0
+# Global LLM provider switch (llm_provider/, LLM_PROVIDER=openai|ollama): the official
+# Ollama client (health checks) and LangChain's ChatOllama/OllamaEmbeddings. These do NOT
+# install the Ollama app or download models — see docs/LLM_PROVIDER.md.
+ollama>=0.6.0
+langchain-ollama>=1.0.0

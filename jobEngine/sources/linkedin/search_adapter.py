@@ -13,7 +13,9 @@ from ...guardrails.content_limits import enforce_description_size
 from ...models.job import RawJob
 from ..registry import register_adapter
 from ..title_filter import title_passes
-from .base import _PAGE_SIZE, _POSTED_TEXT_RE, LinkedInBaseAdapter, note_relisted, parse_job_insights
+from .base import (
+    _PAGE_SIZE, _POSTED_TEXT_RE, LinkedInBaseAdapter, is_remote_filter, note_relisted, parse_job_insights,
+)
 
 # Logged-in search page (left results list) first, guest page second.
 _CARD_SELECTORS = [
@@ -67,11 +69,15 @@ _POSTED_SELECTORS = [
 
 @register_adapter("linkedin_search")
 class LinkedInSearchAdapter(LinkedInBaseAdapter):
+    def _target_search_url(self, search_url: str) -> str:
+        """This adapter reads the classic page's markup, so never rewrite its URL."""
+        return search_url
+
     async def _extract_page(
         self, page: Page, *, cfg, source_url: str, seen_ids: set[str], limit: int,
-        known: dict[str, str] | None = None,
+        skip_ids: set[str] | None = None,
     ) -> tuple[list[RawJob], int]:
-        known = known or {}
+        skip_ids = skip_ids or set()
         await self._load_all_cards(page)
 
         cards = []
@@ -98,6 +104,9 @@ class LinkedInSearchAdapter(LinkedInBaseAdapter):
             # in other tabs and must not scrape the same job.
             if job_id:
                 seen_ids.add(job_id)
+                if job_id in skip_ids:
+                    filtered += 1  # saved or rejected by an earlier run
+                    continue
 
             try:
                 await card.scroll_into_view_if_needed(timeout=3_000)
@@ -116,13 +125,8 @@ class LinkedInSearchAdapter(LinkedInBaseAdapter):
             company = await self._first_text(card, _COMPANY_SELECTORS)
             location = await self._first_text(card, _LOCATION_SELECTORS)
             insights = ""
-            if job_id and job_id in known:
-                # Already saved: never opened again. A card that says "Viewed" has no
-                # age; the saved posted date is reused for it (matching node / saved store).
-                description, posted = known[job_id], await self._card_posted(card)
-            else:
-                description, posted, insights = await self._read_details(page, card)
-                posted = posted or await self._card_posted(card)
+            description, posted, insights = await self._read_details(page, card)
+            posted = posted or await self._card_posted(card)
             workplace, employment_type = parse_job_insights(insights)
 
             jobs.append(
@@ -135,7 +139,7 @@ class LinkedInSearchAdapter(LinkedInBaseAdapter):
                     description=enforce_description_size(description or ""),
                     posted_date_raw=posted,
                     employment_type=employment_type,
-                    remote_type="remote" if "f_WT=2" in source_url else None,
+                    remote_type="remote" if is_remote_filter(source_url) or workplace == "Remote" else None,
                     application_url=(
                         f"{cfg.base_url.rstrip('/')}/jobs/view/{job_id}/" if job_id else cfg.base_url
                     ),

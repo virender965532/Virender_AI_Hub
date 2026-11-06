@@ -1,0 +1,220 @@
+{
+  "name": "Virender Kumar",
+  "headline": "Senior Full Stack AI Developer",
+  "location": "Noida, Uttar Pradesh, India",
+  "summary": "Senior Full Stack AI Developer with 7+ years of experience designing, developing, and scaling cloud-native applications using Next.js, React.js, Node.js, TypeScript, and AWS. Experienced in building Generative AI solutions using Large Language Models (LLMs), Retrieval-Augmented Generation (RAG), vector databases, and LangGraph-based agentic workflows. Skilled in developing scalable web applications, REST and GraphQL APIs, microservices, and AI-powered solutions. Expertise also includes SQL, Microservices, OpenSearch and Event-Driven Architecture, with practical knowledge of AWS, Docker, CI/CD and production deployments. Strong focus on clean code, performance, security, scalability and maintainability, with a passion for continuously learning and building impactful AI-powered products.",
+  "skills": {
+    "Front-End Development": [
+      "Next.js",
+      "React.js",
+      "TypeScript",
+      "JavaScript",
+      "Angular",
+      "HTML5",
+      "CSS3",
+      "Tailwind CSS"
+    ],
+    "Back-End Development": [
+      "Node.js",
+      "Python",
+      "Strapi CMS",
+      "GraphQL",
+      "REST APIs",
+      "Microservices",
+      "Express.js",
+      "Flask",
+      "Laravel",
+      "PHP",
+      "Event-Driven Architecture"
+    ],
+    "AI & Generative AI": [
+      "Large Language Models (LLMs)",
+      "Generative AI",
+      "Retrieval-Augmented Generation (RAG)",
+      "Agentic AI",
+      "LangGraph",
+      "LangChain",
+      "Model Context Protocol (MCP)"
+    ],
+    "Cloud & Infrastructure": [
+      "Amazon Web Services (AWS)",
+      "AWS Lambda",
+      "AWS OpenSearch",
+      "AWS Cognito",
+      "Vercel",
+      "CI/CD Pipelines",
+      "Docker",
+      "Git"
+    ],
+    "Databases & Search": [
+      "PostgreSQL",
+      "MySQL",
+      "MongoDB",
+      "Vector Databases",
+      "Pinecone",
+      "Chroma",
+      "FAISS",
+      "OpenSearch"
+    ],
+    "AI-Assisted Development Tools": [
+      "Cursor",
+      "Claude AI",
+      "GitHub Copilot"
+    ]
+  },
+  "experience": [
+    {
+      "title": "Senior Full Stack AI Developer",
+      "company": "Impressico Business Solutions",
+      "location": "Noida, India",
+      "start": "August 2024",
+      "end": "Present",
+      "highlights": [
+        "Led the migration of Strapi CMS from v4 to v5, refactoring custom plugins, middleware, and database queries to improve backend response time by 30% and improve production memory efficiency.",
+        "Reduced annual infrastructure costs by more than $1,200 by replacing third-party dependencies with custom React hooks and reusable internal modules.",
+        "Developed automated, CRON-based data synchronization between Strapi CMS and HubSpot.",
+        "Optimized Vercel CI/CD pipelines, reducing deployment failures by 50%.",
+        "Reduced backend API calls by 40% through Next.js Static Site Generation (SSG) and caching strategies.",
+        "Strengthened application security through HTTP security headers, API rate limiting, and bot mitigation.",
+        "Contributed to post-acquisition integration initiatives for Pi.ai (Inflection AI) within Microsoft's ecosystem, supporting technical transition, system compatibility, and integration stability."
+      ]
+    },
+    {
+      "title": "Full Stack Developer",
+      "company": "Biz2Credit",
+      "location": "Noida, India",
+      "start": "August 2021",
+      "end": "August 2024",
+      "highlights": [
+        "Developed secure eSign and eNACH modules for Tata Capital's SME Loan platform, enabling end-to-end digital loan processing. This reduced dependency on manual verification.",
+        "Architected the 'Sugam Loan' digital approval workflow, optimizing business logic and API orchestration to reduce loan approval turnaround time and improve the experience for SME applicants.",
+        "Reduced production defects by 50% through code refactoring, structured logging, and improved testing practices.",
+        "Designed a reusable, configurable workflow framework using component-driven architecture and configurable business rules, accelerating feature delivery across multiple loan products.",
+        "Developed full-stack applications using Angular, React, Node.js, AWS Lambda, and MongoDB."
+      ]
+    },
+    {
+      "title": "Laravel Developer",
+      "company": "HestaBit",
+      "location": "Noida, India",
+      "start": "April 2020",
+      "end": "August 2021",
+      "highlights": [
+        "Worked on web application development using Laravel and PHP."
+      ]
+    },
+    {
+      "title": "PHP Developer",
+      "company": "ProProfs",
+      "location": "Noida, India",
+      "start": "November 2018",
+      "end": "January 2020",
+      "highlights": [
+        "Worked on web application development using PHP."
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "name": "Legal Technology Hub (Legaltech Hub)",
+      "duration": "August 2024 - Present",
+      "description": "Legal technology platform that helps law firms, corporate legal departments, and individuals manage and access legal services.",
+      "technologies": [
+        "Next.js",
+        "TypeScript",
+        "Node.js",
+        "PostgreSQL",
+        "Strapi",
+        "AWS",
+        "Tailwind CSS",
+        "Vector Databases",
+        "Generative AI",
+        "RAG"
+      ],
+      "highlights": [
+        "Led the Strapi v4-to-v5 migration and optimized backend performance.",
+        "Worked with Generative AI, RAG, and vector databases for AI-powered knowledge retrieval."
+      ]
+    },
+    {
+      "name": "Gunner Roofing Platform",
+      "duration": "October 2025 - June 2026",
+      "description": "Digital home improvement platform that enables homeowners to obtain roofing quotes and complete roof purchases online.",
+      "technologies": [
+        "Next.js",
+        "TypeScript",
+        "Node.js",
+        "MongoDB",
+        "Tailwind CSS"
+      ]
+    },
+    {
+      "name": "Pi.ai",
+      "duration": "September 2025 - November 2025",
+      "description": "Project associated with an AI-powered conversational platform designed for natural conversations, brainstorming, and everyday assistance.",
+      "technologies": [
+        "Next.js",
+        "TypeScript",
+        "Node.js",
+        "MongoDB"
+      ],
+      "highlights": [
+        "Contributed to post-acquisition integration initiatives for Pi.ai (Inflection AI) within Microsoft's ecosystem, supporting technical transition, system compatibility, and integration stability."
+      ]
+    },
+    {
+      "name": "Loan Origination System - NBFC in a Box",
+      "duration": "July 2022 - August 2024",
+      "description": "Digital loan origination platform for non-banking financial companies (NBFCs).",
+      "technologies": [
+        "Angular",
+        "React",
+        "Node.js",
+        "AWS Lambda",
+        "MongoDB"
+      ]
+    },
+    {
+      "name": "Tata Capital SME Loan Platform",
+      "duration": "August 2021 - August 2024",
+      "description": "Digital lending capabilities for Tata Capital's SME loan platform, including eSign and eNACH modules and the 'Sugam Loan' approval workflow.",
+      "technologies": [
+        "Angular",
+        "React",
+        "Node.js",
+        "AWS Lambda",
+        "MongoDB"
+      ]
+    }
+  ],
+  "education": [
+    {
+      "degree": "Bachelor of Technology (B.Tech) in Computer Science",
+      "institution": "HMR Institute of Technology and Management",
+      "location": "Delhi, India",
+      "start": "2013",
+      "end": "2017",
+      "details": "University: Guru Gobind Singh Indraprastha University. GPA: 6.7/10"
+    }
+  ],
+  "certifications": [
+    "The AI Engineer Course: Complete AI Engineer",
+    "AI Engineer Agentic Track: The Complete Agent & MCP Course",
+    "LangGraph Agentic Workflows",
+    "Master Vector Databases",
+    "SOLID Design Principles",
+    "MongoDB - The Complete Developer's Guide",
+    "React.js Essential Training",
+    "Learning Node.js",
+    "Databases for Node.js Developers",
+    "Node.js Essential Training",
+    "Learning npm the Node Package Manager"
+  ],
+  "languages": [
+    "English - Proficient"
+  ],
+  "interests": [],
+  "contact_preferences": {
+    "LinkedIn": "https://www.linkedin.com/in/ai-virender-kumar/"
+  }
+}

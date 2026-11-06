@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from jobEngine.matching.rules import evaluate_rules
 from jobEngine.matching.scorer import build_matched_job, compute_final_score, recommendation_for_score
-from jobEngine.models.job import Job, JobMatchAnalysis
+from jobEngine.models.job import Job, JobMatchAnalysis, RequirementCheck
 
 
 def _job(**overrides) -> Job:
@@ -57,7 +57,7 @@ def test_llm_analysis_drives_score_when_available(candidate_profile, settings):
     job = _job()
     rule_eval = evaluate_rules(job, candidate_profile, settings=settings)
     llm_analysis = JobMatchAnalysis(
-        score=95,
+        requirements=[RequirementCheck(requirement="Agentic systems with LangGraph", tier="core", verdict="met")],
         matched_skills=["Python", "LangGraph", "RAG"],
         recommendation="strong_match",
         explanation="Excellent alignment with the candidate's AI/full-stack background.",
@@ -67,15 +67,18 @@ def test_llm_analysis_drives_score_when_available(candidate_profile, settings):
         llm_analysis=llm_analysis, settings=settings,
     )
     assert not matched.rejected
-    assert matched.match_score == 95.0  # the LLM score is used as-is, no weighted blend
-    assert matched.recommendation == "strong_match"
+    # Computed from the requirement checks: 0.90·100 + 0.05·100 (no years range) + 0.05·K.
+    expected = round(0.90 * 100 + 0.05 * 100 + 0.05 * rule_eval.rule_score)
+    assert matched.match_score == expected
+    assert matched.score_breakdown.skills == 100.0
+    assert matched.recommendation == recommendation_for_score(expected)
 
 
 def test_request_level_minimum_score_overrides_settings_default(candidate_profile, settings):
     job = _job()
     rule_eval = evaluate_rules(job, candidate_profile, settings=settings)
     llm_analysis = JobMatchAnalysis(
-        score=60,
+        requirements=[RequirementCheck(requirement="Mainframe COBOL batch jobs", tier="core", verdict="missing")],
         recommendation="possible_match", explanation="Partial match.",
     )
     # With the engine default (70), this scores just under it and would be rejected...
@@ -89,6 +92,6 @@ def test_request_level_minimum_score_overrides_settings_default(candidate_profil
     override_result = build_matched_job(
         job=job, profile=candidate_profile, rule_eval=rule_eval,
         llm_analysis=llm_analysis, settings=settings,
-        minimum_match_score=10.0,
+        minimum_match_score=1.0,  # S = 0 here, so the score is only 0.05·E + 0.05·K
     )
     assert not override_result.rejected

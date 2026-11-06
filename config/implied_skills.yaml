@@ -1,11 +1,10 @@
-# Implied-skills map for the concern reviewer (jobEngine/matching/concern_reviewer.py).
+# Implied-skills map for the match score (jobEngine/matching/fit_score.py).
 #
 # A skill the candidate profile demonstrates covers its core sub-topics: a job that
 # asks for "SSR" is satisfied by Next.js experience, "Context API" by React.
-# The reviewer may only mark a requirement "implied" (or drop a concern/missing
-# skill as implied) when this map supports it — the map, not the LLM, decides
-# what counts as implied. Extend it as needed; editing this file invalidates
-# stored reviews, so jobs are re-reviewed with the new map.
+# A job requirement naming one of these sub-topics counts as "met" whatever the
+# LLM said — the map, not the LLM, decides what counts as implied. Extend it as
+# needed; scores are recomputed with the new map on the next run (no new LLM call).
 #
 # Each entry:
 #   aliases — how the skill can appear in Profile/Summary.txt (any one present = candidate has it)

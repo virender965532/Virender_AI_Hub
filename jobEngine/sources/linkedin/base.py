@@ -24,6 +24,26 @@ for the candidate to resolve it by hand — only useful with
 Card extraction is page-specific and lives in the subclasses:
 ``search_results_adapter.py`` (``/jobs/search-results/``) and
 ``search_adapter.py`` (``/jobs/search/``).
+
+LinkedIn has retired the classic ``/jobs/search/`` page and redirects it to the
+new ``/jobs/search-results/`` one. ``_target_search_url`` therefore rewrites
+classic search URLs to the new path (same filters) before any page is loaded, so
+pagination never depends on the redirect. Only ``LinkedInSearchAdapter`` (the
+explicit ``linkedin_search`` adapter) opts out and keeps the classic URL.
+
+Pipeline of one run (``discover_jobs``):
+  1. Load page 1 of each search URL and read how many results pages it has
+     (``_page_count``; capped by ``max_pages``).
+  2. Load the remaining pages ``LINKEDIN_MAX_TABS`` (default 3) at a time, each in
+     its own tab — 3 pages x 25 cards read at once.
+  3. Each page yields cards only (job id, title, company, location, card age).
+     Jobs already saved or rejected by an earlier run (``seen_before_ids``) and
+     excluded titles are skipped; the rest are collected across every page.
+  4. Once every page is read: jobs whose card age exceeds ``max_posted_age_hours``
+     (job_sources.yaml) go to the rejected-jobs store, so the next run skips them.
+  5. The remaining jobs' details are fetched together, concurrently, from LinkedIn's
+     public job-posting endpoint (``guest_posting.py``); a "Viewed" card shows no
+     age, so its fetched age is checked against ``max_posted_age_hours`` too.
 """
 
 from __future__ import annotations
@@ -38,14 +58,16 @@ from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
 from playwright.async_api import Page, TimeoutError as PlaywrightTimeoutError
 
-from ...config.settings import JOB_ENGINE_HISTORY_DIR
-from ...guardrails.content_limits import enforce_job_count, pagination_depth_exceeded
+from ...config.settings import JOB_ENGINE_HISTORY_DIR, get_settings
+from ...guardrails.content_limits import enforce_description_size, enforce_job_count, pagination_depth_exceeded
 from ...guardrails.url_guardrails import SSRFViolation, validate_navigation_url
 from ...models.errors import SourceError, SourceErrorStatus
 from ...models.job import RawJob
+from ...persistence.rejected_jobs import save_rejected_jobs
 from ...persistence.sessions import load_storage_state, mark_signed_out, save_storage_state
 from ..base import JobSourceAdapter, SourceDiscoveryResult, SourceExecutionContext, TimedDiscovery
 from ..dom_utils import extract_link_cards, text_or_none
+from .guest_posting import fetch_guest_postings
 
 logger = logging.getLogger(__name__)
 
@@ -57,6 +79,30 @@ _POSTED_TEXT_RE = re.compile(
     r"(\d+|an?)\s+(minute|min|hour|hr|day|week|month|year)s?\s+ago|just now|moments? ago",
     re.IGNORECASE,
 )
+_AGE_UNIT_SECONDS = {
+    "minute": 60, "min": 60, "hour": 3600, "hr": 3600, "day": 86400,
+    "week": 7 * 86400, "month": 30 * 86400, "year": 365 * 86400,
+}
+
+
+def posted_age_seconds(text: str | None) -> int | None:
+    """Age of a LinkedIn "11 hours ago" / "Reposted 2 days ago" / "just now" string,
+    or None when the text has no age."""
+    match = _POSTED_TEXT_RE.search(text or "")
+    if not match:
+        return None
+    if not match.group(1):  # "just now" / "moments ago"
+        return 0
+    count = 1 if match.group(1).lower() in ("a", "an") else int(match.group(1))
+    return count * _AGE_UNIT_SECONDS[match.group(2).lower()]
+
+
+def is_too_old(posted: str | None, max_age_hours: float | None) -> bool:
+    """True only when the age is known and exceeds ``max_age_hours``."""
+    age = posted_age_seconds(posted)
+    return bool(max_age_hours) and age is not None and age > max_age_hours * 3600
+
+
 _LOGIN_URL_MARKERS = ("/login", "/uas/login", "/authwall", "/signup")
 _CHECKPOINT_URL_MARKERS = ("/checkpoint/", "/challenge")
 
@@ -81,12 +127,12 @@ def _checkpoint_wait_seconds() -> int:
 
 def _max_tabs() -> int:
     """``LINKEDIN_MAX_TABS``: tabs of the signed-in browser context scraping at once —
-    results pages of a search URL, and several search URLs, share them (default 2;
+    results pages of a search URL, and several search URLs, share them (default 3;
     1 = one page at a time, as before)."""
     try:
-        return max(1, int((os.getenv("LINKEDIN_MAX_TABS") or "2").strip()))
+        return max(1, int((os.getenv("LINKEDIN_MAX_TABS") or "3").strip()))
     except ValueError:
-        return 2
+        return 3
 
 
 class _TabPool:
@@ -127,6 +173,56 @@ def _is_login_url(url: str) -> bool:
 
 def _is_checkpoint_url(url: str) -> bool:
     return any(marker in url.lower() for marker in _CHECKPOINT_URL_MARKERS)
+
+
+_CLASSIC_SEARCH_PATH_RE = re.compile(r"/jobs/search/?$")
+SEARCH_RESULTS_PATH = "/jobs/search-results/"
+
+
+def is_classic_search_url(url: str) -> bool:
+    """True for the retired ``/jobs/search/`` page (with or without trailing slash)."""
+    return bool(_CLASSIC_SEARCH_PATH_RE.search(urlparse(url).path))
+
+
+def to_search_results_url(url: str) -> str:
+    """``/jobs/search/?<filters>`` -> ``/jobs/search-results/?<filters>``; other URLs
+    are returned unchanged. The new page accepts the same filter parameters
+    (``keywords``, ``geoId``, ``f_TPR``, ``f_WT``, ``f_E``, ``f_JT``, ``f_SAL``, ...)."""
+    if not is_classic_search_url(url):
+        return url
+    parsed = urlparse(url)
+    return urlunparse(parsed._replace(path=_CLASSIC_SEARCH_PATH_RE.sub(SEARCH_RESULTS_PATH, parsed.path)))
+
+
+def is_remote_filter(url: str) -> bool:
+    """The search URL's workplace filter includes Remote (``f_WT=2``, also in a list
+    such as ``f_WT=1,2``)."""
+    values = parse_qs(urlparse(url).query).get("f_WT", [])
+    return any("2" in v.split(",") for v in values)
+
+
+def with_newest_first(url: str) -> str:
+    """``sortBy=DD`` (date posted, newest first) on a LinkedIn search URL, replacing
+    any other ``sortBy`` (``R`` = relevance, LinkedIn's default)."""
+    parsed = urlparse(url)
+    query = parse_qs(parsed.query, keep_blank_values=True)
+    query["sortBy"] = ["DD"]
+    return urlunparse(parsed._replace(query=urlencode(query, doseq=True)))
+
+
+def page_has_nothing_new(found: list[RawJob], max_age_hours: float | None) -> bool:
+    """True when no job kept from a page is still young enough. Cards already saved /
+    rejected by an earlier run, excluded titles and cards already read this run are
+    not in ``found``, so they count as "nothing new" too. A card with no age
+    ("Viewed") counts as new."""
+    return all(is_too_old(j.posted_date_raw, max_age_hours) for j in found)
+
+
+def split_by_age(jobs: list[RawJob], max_age_hours: float | None) -> tuple[list[RawJob], list[RawJob]]:
+    """``(young_enough, too_old)`` by each job's ``posted_date_raw``; no age = kept."""
+    kept = [j for j in jobs if not is_too_old(j.posted_date_raw, max_age_hours)]
+    too_old = [j for j in jobs if is_too_old(j.posted_date_raw, max_age_hours)]
+    return kept, too_old
 
 
 def _page_url(search_url: str, page_index: int) -> str:
@@ -213,18 +309,26 @@ class LinkedInBaseAdapter(JobSourceAdapter):
     """Signs in, walks every search URL page by page and hands each loaded page
     to ``_extract_page``, which subclasses implement for their page layout."""
 
+    def _target_search_url(self, search_url: str) -> str:
+        """The URL actually loaded for a configured search URL. LinkedIn redirects the
+        retired classic page to ``/jobs/search-results/``, so load that directly."""
+        return to_search_results_url(search_url)
+
     @abstractmethod
     async def _extract_page(
         self, page: Page, *, cfg, source_url: str, seen_ids: set[str], limit: int,
-        known: dict[str, str] | None = None,
+        skip_ids: set[str] | None = None,
     ) -> tuple[list[RawJob], int]:
-        """Returns the page's jobs and how many cards were dropped by
-        ``cfg.title_keywords`` / ``cfg.title_exclude_keywords`` (they still count toward
-        "this page had results").
-
-        ``known``: descriptions of already-saved jobs by id — those jobs are not
-        opened again (no click, no wait for the detail pane)."""
+        """Returns the page's jobs and how many cards were skipped — by
+        ``cfg.title_keywords`` / ``cfg.title_exclude_keywords`` or because their id is
+        in ``skip_ids`` (saved / rejected by an earlier run). Skipped cards still count
+        toward "this page had results". Jobs may come back without a description:
+        ``discover_jobs`` fetches those once every page is read."""
         raise NotImplementedError
+
+    async def _page_count(self, page: Page) -> int | None:
+        """How many results pages the loaded search has, or None if the page doesn't say."""
+        return None
 
     async def discover_jobs(self, context: SourceExecutionContext) -> SourceDiscoveryResult:
         cfg = context.config
@@ -288,6 +392,11 @@ class LinkedInBaseAdapter(JobSourceAdapter):
                 if failure is not None:
                     raise failure
 
+                # Steps 4-5: every page is read; drop/reject too-old jobs, then fetch
+                # the details of the rest all together.
+                timer.jobs = await self._reject_too_old(timer.jobs, cfg=cfg, run_id=context.run_id)
+                timer.jobs = await self._fetch_all_details(page, timer.jobs, cfg=cfg, run_id=context.run_id)
+
                 # Refresh the saved session (cookies rotate) for the next run; a
                 # signed-out context is refused by save_storage_state.
                 if await self._has_session(managed.context):
@@ -315,15 +424,19 @@ class LinkedInBaseAdapter(JobSourceAdapter):
         self, tabs: _TabPool, browser_context, search_url: str, *, cfg, context: SourceExecutionContext,
         timer: TimedDiscovery, seen_ids: SeenJobIds, session: _SessionState,
     ) -> None:
-        """Every results page of one search URL, ``tabs.size`` pages at a time (each in
-        its own tab, since a tab has one detail pane). After each batch the usual stop
-        rules are applied in page order: no cards, a short (last) page, or a cap."""
+        """Every results page of one search URL. Page 1 is loaded first and tells how
+        many pages there are; the rest are loaded ``tabs.size`` at a time, each in its
+        own tab. After each batch the usual stop rules are applied in page order: no
+        cards, a short (last) page, or a cap. When page 1 gives no count, batches go on
+        until one of those rules stops them."""
         url_jobs = 0
         page_index = 0
-        while page_index < cfg.max_pages and not pagination_depth_exceeded(page_index + 1, max_pages=cfg.max_pages):
+        end = cfg.max_pages  # exclusive; narrowed to the page count once page 1 is read
+        while page_index < end and not pagination_depth_exceeded(page_index + 1, max_pages=cfg.max_pages):
             if len(timer.jobs) >= cfg.max_jobs or (cfg.max_jobs_per_url and url_jobs >= cfg.max_jobs_per_url):
                 break
-            batch = list(range(page_index, min(page_index + tabs.size, cfg.max_pages)))
+            # Page 1 alone (it says how many pages follow), then batches of tabs.size.
+            batch = [0] if page_index == 0 else list(range(page_index, min(page_index + tabs.size, end)))
             limit = cfg.max_jobs - len(timer.jobs)
             if cfg.max_jobs_per_url:
                 limit = min(limit, cfg.max_jobs_per_url - url_jobs)
@@ -338,13 +451,20 @@ class LinkedInBaseAdapter(JobSourceAdapter):
                 return_exceptions=True,
             )
             stop = False
+            last_page_full = False
             for i, result in zip(batch, results):
                 if isinstance(result, BaseException):
                     raise result
                 if result is None:  # navigation failed (already recorded)
                     stop = True
                     continue
-                found, filtered, url = result
+                found, filtered, url, total_pages = result
+                if i == 0 and total_pages:
+                    end = min(cfg.max_pages, total_pages)
+                    logger.info(
+                        "LinkedIn %s: %s results pages (reading %s, %s at a time)",
+                        search_url[:80], total_pages, end, tabs.size,
+                    )
                 if not found and not filtered:
                     if i == 0:
                         timer.errors.append(
@@ -363,25 +483,45 @@ class LinkedInBaseAdapter(JobSourceAdapter):
                     job.extra.setdefault("search_urls", [search_url])
                 timer.jobs.extend(found)
                 url_jobs += len(found)
-                already_saved = sum(1 for j in found if j.source_job_id in context.known_descriptions)
                 logger.info(
-                    "LinkedIn %s page %s: %s new jobs (%s already saved, not opened; %s dropped by "
-                    "title keywords; %s from this URL, total %s)",
-                    search_url[:80], i + 1, len(found), already_saved, filtered, url_jobs, len(timer.jobs),
+                    "LinkedIn %s page %s: %s new jobs collected (%s skipped as saved / rejected / excluded "
+                    "title; %s from this URL, total %s)",
+                    search_url[:80], i + 1, len(found), filtered, url_jobs, len(timer.jobs),
                 )
-                if len(found) + filtered < _PAGE_SIZE // 2:
+                last_page_full = len(found) + filtered >= _PAGE_SIZE // 2
+                if not last_page_full:
+                    stop = True
+                elif getattr(cfg, "sort_newest_first", False) and page_has_nothing_new(
+                    found, getattr(cfg, "max_posted_age_hours", None)
+                ):
+                    # Newest first: every later page is older than this one.
+                    logger.info(
+                        "LinkedIn %s page %s: nothing new (all seen before, too old or excluded); "
+                        "stopping this search URL",
+                        search_url[:80], i + 1,
+                    )
                     stop = True
             if stop:
                 break
             page_index = batch[-1] + 1
+            if page_index >= end and end < cfg.max_pages and last_page_full:
+                # The count may have been truncated ("1 2 3 … 10"): a full last page
+                # means there may be more, so keep going until a short page.
+                end = cfg.max_pages
             await asyncio.sleep(cfg.rate_limit_delay_seconds)
 
     async def _scrape_results_page(
         self, tabs: _TabPool, browser_context, search_url: str, page_index: int, *, limit: int, cfg,
         context: SourceExecutionContext, timer: TimedDiscovery, seen_ids: SeenJobIds, session: _SessionState,
-    ) -> tuple[list[RawJob], int, str] | None:
-        """Load one results page in a borrowed tab and extract it; None if it won't load."""
-        url = validate_navigation_url(_page_url(search_url, page_index), allowed_domains=cfg.allowed_domains)
+    ) -> tuple[list[RawJob], int, str, int | None] | None:
+        """Load one results page in a borrowed tab and extract its cards; None if it
+        won't load. The last item is the search's page count (page 1 only)."""
+        target = self._target_search_url(search_url)
+        if page_index == 0 and target != search_url:
+            logger.info("LinkedIn: classic search URL rewritten to the new search page: %s", target[:120])
+        if getattr(cfg, "sort_newest_first", False):
+            target = with_newest_first(target)
+        url = validate_navigation_url(_page_url(target, page_index), allowed_domains=cfg.allowed_domains)
         seen_ids.search_url_for[url] = search_url
         page = await tabs.acquire()
         try:
@@ -411,11 +551,85 @@ class LinkedInBaseAdapter(JobSourceAdapter):
             timer.pages_processed += 1
             found, filtered = await self._extract_page(
                 page, cfg=cfg, source_url=url, seen_ids=seen_ids, limit=max(1, limit),
-                known=context.known_descriptions,
+                skip_ids=context.seen_before_ids,
             )
-            return found, filtered, url
+            total_pages = await self._page_count(page) if page_index == 0 else None
+            return found, filtered, url, total_pages
         finally:
             tabs.release(page)
+
+    async def _reject_too_old(self, jobs: list[RawJob], *, cfg, run_id: str) -> list[RawJob]:
+        """Step 4: jobs older than ``max_posted_age_hours`` go to the rejected-jobs store
+        (so the next run skips them on the results page); the rest are returned."""
+        max_age_hours = getattr(cfg, "max_posted_age_hours", None)
+        kept, too_old = split_by_age(jobs, max_age_hours)
+        if too_old:
+            await self._save_rejected(too_old, run_id=run_id, reason=f"posted more than {max_age_hours:g}h ago")
+        logger.info(
+            "LinkedIn: %s jobs collected from every page; %s older than %sh rejected; %s to fetch",
+            len(jobs), len(too_old), max_age_hours, len(kept),
+        )
+        return kept
+
+    async def _fetch_all_details(self, page: Page, jobs: list[RawJob], *, cfg, run_id: str) -> list[RawJob]:
+        """Step 5: every job without a description is fetched at once, concurrently,
+        from LinkedIn's public job-posting endpoint. A job whose card showed no age
+        ("Viewed") is checked against ``max_posted_age_hours`` with the fetched one.
+        Jobs the fetch can't answer stay without a description: validation drops them
+        and the next run tries again."""
+        ids = [j.source_job_id for j in jobs if not j.description and j.source_job_id]
+        if not ids:
+            return jobs
+        started = asyncio.get_running_loop().time()
+        try:
+            user_agent = await page.evaluate("navigator.userAgent")
+            details = await fetch_guest_postings(ids, user_agent=user_agent)
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("LinkedIn: fetching %s job details failed (%s)", len(ids), exc)
+            return jobs
+
+        worldwide = get_settings().worldwide_remote_enabled
+        max_age_hours = getattr(cfg, "max_posted_age_hours", None)
+        kept: list[RawJob] = []
+        too_old: list[RawJob] = []
+        errors: dict[str, int] = {}
+        for job in jobs:
+            detail = details.get(job.source_job_id or "") or {}
+            if detail.get("error"):
+                errors[detail["error"]] = errors.get(detail["error"], 0) + 1
+            if detail.get("description"):
+                job.description = enforce_description_size(detail["description"])
+            if not job.posted_date_raw and detail.get("posted"):
+                job.posted_date_raw = detail["posted"]
+                if is_too_old(job.posted_date_raw, max_age_hours):
+                    too_old.append(job)
+                    continue
+            if worldwide and detail.get("employment_type") and not job.employment_type:
+                job.employment_type = detail["employment_type"]
+            kept.append(job)
+        if too_old:
+            await self._save_rejected(too_old, run_id=run_id, reason=f"posted more than {max_age_hours:g}h ago")
+        logger.info(
+            "LinkedIn: details of %s jobs fetched in %.1fs (%s without a description%s; %s rejected as too old "
+            "after the fetch)",
+            len(ids), asyncio.get_running_loop().time() - started,
+            sum(1 for j in kept if not j.description),
+            f" — {', '.join(f'{e} x{n}' for e, n in sorted(errors.items()))}" if errors else "",
+            len(too_old),
+        )
+        return kept
+
+    async def _save_rejected(self, jobs: list[RawJob], *, run_id: str, reason: str) -> None:
+        """Best-effort: a store failure only means these jobs are read again next run."""
+        rejected = [
+            {"job": j.model_dump(mode="json"), "rejected": True, "rejection_reason": reason} for j in jobs
+        ]
+        try:
+            # profile_hash "" never matches a real profile, so the matching node never
+            # reuses these as an analysis; they only make the source skip the job.
+            await asyncio.to_thread(save_rejected_jobs, rejected, run_id=run_id, profile_hash="")
+        except Exception:  # noqa: BLE001
+            logger.exception("LinkedIn: could not store %s too-old jobs as rejected", len(jobs))
 
     async def _goto(self, page: Page, url: str, *, cfg, timer: TimedDiscovery) -> bool:
         try:

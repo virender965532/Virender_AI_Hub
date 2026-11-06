@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parent.parent
 PROFILE_DIR = ROOT / os.environ.get("JOB_APPLY_PROFILE_DIR", "Profile")
 OUTPUT_DIR = ROOT / os.environ.get("JOB_APPLY_OUTPUT_DIR", "output") / "job_apply"
 HISTORY_DIR = ROOT / os.environ.get("JOB_APPLY_HISTORY_DIR", "history") / "job_apply"
-RESUME_FILENAME = os.environ.get("JOB_APPLY_RESUME_FILE", "VirenderFullstackResumeUpdated.pdf")
+RESUME_FILENAME = os.environ.get("JOB_APPLY_RESUME_FILE", "SeniorFullStackAIEngineer.pdf")
 SUMMARY_FILENAME = os.environ.get("JOB_APPLY_SUMMARY_FILE", "Summary.txt")
 
 OPENAI_AGENT_MODEL = os.environ.get("JOB_APPLY_OPENAI_MODEL") or os.environ.get(

@@ -22,7 +22,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 JOB_SOURCES_CONFIG_PATH = PROJECT_ROOT / "config" / "job_sources.yaml"
 PROFILE_DIR = PROJECT_ROOT / "Profile"
 PROFILE_SUMMARY_PATH = PROFILE_DIR / "Summary.txt"
-PROFILE_RESUME_PDF_PATH = PROFILE_DIR / "VirenderFullstackResumeUpdated.pdf"
+PROFILE_RESUME_PDF_PATH = PROFILE_DIR / "SeniorFullStackAIEngineer.pdf"
 
 JOB_ENGINE_OUTPUT_DIR = PROJECT_ROOT / "output" / "job_engine"
 JOB_ENGINE_DEBUG_DIR = PROJECT_ROOT / "scraper_debug" / "job_engine"
@@ -205,7 +205,18 @@ class EngineSettings:
     # How many LLM calls (matching + worldwide review) run at the same time. Each job
     # is independent; keep this within your OpenAI rate limit (429s are retried).
     llm_concurrency: int = field(
-        default_factory=lambda: _env_int("JOB_LLM_CONCURRENCY", 6, minimum=1)
+        default_factory=lambda: _env_int("JOB_LLM_CONCURRENCY", 12, minimum=1)
+    )
+    # Worker processes for CPU-bound per-job work (worldwide classification in
+    # normalization: regex-heavy, ~25 ms/job). 0 disables the pool (all inline).
+    cpu_workers: int = field(
+        default_factory=lambda: _env_int(
+            "JOB_CPU_WORKERS", min(4, os.cpu_count() or 1), minimum=0
+        )
+    )
+    # Fewer jobs than this are processed inline: below it, process IPC costs more than it saves.
+    cpu_parallel_min_jobs: int = field(
+        default_factory=lambda: _env_int("JOB_CPU_PARALLEL_MIN_JOBS", 40, minimum=1)
     )
     rule_prefilter_min_score: float = field(
         default_factory=lambda: _env_float(
@@ -236,24 +247,11 @@ class EngineSettings:
     worldwide_llm_max_jobs: int = field(
         default_factory=lambda: _env_int("JOB_WORLDWIDE_LLM_MAX_JOBS", 25, minimum=0)
     )
-
-    # --- Concern reviewer (see jobEngine/matching/concern_reviewer.py) ---
-    # A second, cheaper LLM pass that drops concerns/missing skills already implied by
-    # the profile (e.g. SSR under Next.js) and recomputes the score in code.
-    reviewer_enabled: bool = field(
-        default_factory=lambda: _env_bool("JOB_REVIEWER_ENABLED", True)
-    )
-    reviewer_model: str = field(
-        default_factory=lambda: _env_str("JOB_REVIEWER_MODEL", "gpt-4o-mini")
-    )
-    # Only jobs whose matcher score is at least this are reviewed; keep it below
-    # JOB_MIN_MATCH_SCORE so a job the review lifts over that bar is not missed.
-    reviewer_min_score: float = field(
-        default_factory=lambda: _env_float("JOB_REVIEWER_MIN_SCORE", 50.0, minimum=0.0)
-    )
-    # Cap on new reviews per run (highest matcher scores first); stored reviews don't count.
-    reviewer_max_jobs: int = field(
-        default_factory=lambda: _env_int("JOB_REVIEWER_MAX_JOBS", 30, minimum=0)
+    # Off (default): country-restricted jobs are kept and labelled, so restricted or
+    # on-site roles abroad stay visible. On: they are rejected before LLM matching,
+    # except jobs whose text offers visa sponsorship (matching/visa_remote.py).
+    reject_country_restricted: bool = field(
+        default_factory=lambda: _env_bool("JOB_REJECT_COUNTRY_RESTRICTED", False)
     )
 
     # --- Rejection analysis (see jobEngine/matching/rejection_analyzer.py) ---

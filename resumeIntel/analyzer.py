@@ -1,6 +1,7 @@
 """LLM-based resume-vs-JD gap analysis.
 
-Uses ``ChatOpenAI.with_structured_output`` so the model's response is always
+Uses ``with_structured_output`` on the configured provider's chat model
+(``llm_provider.get_chat_model``: OpenAI or Ollama) so the model's response is always
 parsed into ``ResumeGapAnalysis`` or rejected — no free-form output path. On
 a malformed response, retries once with an explicit repair instruction; if
 it still fails, the caller surfaces a clear error rather than fabricating
@@ -11,6 +12,8 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
+
+from llm_provider import get_chat_model, llm_configured
 
 from .config.settings import ResumeIntelSettings, get_settings
 from .guardrails import clamp_text, detect_suspicious_patterns, wrap_untrusted_content
@@ -37,15 +40,13 @@ class ResumeGapAnalyzer:
         self._user_template = _load_prompt("gap_analysis_user.txt")
 
     def available(self) -> bool:
-        return self.settings.llm_enabled and bool(self.settings.openai_api_key)
+        return self.settings.llm_enabled and llm_configured(self.settings.openai_api_key)
 
     def _get_structured_llm(self):
         if self._structured_llm is None:
-            from langchain_openai import ChatOpenAI
-
-            base = ChatOpenAI(
-                model=self.settings.openai_model,
-                api_key=self.settings.openai_api_key,
+            base = get_chat_model(
+                self.settings.openai_model,
+                openai_api_key=self.settings.openai_api_key,
                 timeout=self.settings.openai_timeout,
                 temperature=0.1,
             )
@@ -78,7 +79,7 @@ class ResumeGapAnalyzer:
     def analyze(self, *, resume_text: str, jd_text: str) -> ResumeGapAnalysis:
         if not self.available():
             raise ResumeGapAnalysisError(
-                "Resume Intelligence LLM analysis is not configured (missing OPENAI_API_KEY or disabled)."
+                "Resume Intelligence LLM analysis is not configured (LLM_PROVIDER=openai without OPENAI_API_KEY, or disabled)."
             )
 
         repair_hint = ""

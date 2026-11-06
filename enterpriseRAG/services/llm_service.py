@@ -5,7 +5,7 @@ import logging
 import time
 from typing import Any
 
-from openai import OpenAI
+from llm_provider import get_openai_client, llm_configured, missing_credentials_message
 
 from enterpriseRAG.config.settings import get_settings
 from enterpriseRAG.services.observability import ObservabilityService, get_trace_id, utc_now_iso
@@ -14,13 +14,13 @@ logger = logging.getLogger(__name__)
 
 
 class LLMService:
-    """Centralized OpenAI client with observability hooks."""
+    """Centralized LLM client (OpenAI or Ollama, per LLM_PROVIDER) with observability hooks."""
 
     def __init__(self, observability: ObservabilityService | None = None) -> None:
         self.settings = get_settings()
-        if not self.settings.openai_api_key:
-            raise RuntimeError("OPENAI_API_KEY is missing in environment.")
-        self.client = OpenAI(api_key=self.settings.openai_api_key)
+        if not llm_configured(self.settings.openai_api_key):
+            raise RuntimeError(missing_credentials_message())
+        self.client = get_openai_client(api_key=self.settings.openai_api_key)
         self.obs = observability
 
     def chat(

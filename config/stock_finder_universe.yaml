@@ -1,0 +1,160 @@
+# Stock Finder screening universe (stock_finder/data/market_data.py).
+# Sector -> liquid large/mid caps. The screener and peer comparison only look inside
+# this list, which keeps data fetches bounded and avoids penny / illiquid stocks.
+# Symbols use the provider's ticker format (yfinance: ".NS" = NSE, ".BO" = BSE).
+# Edit freely; the sector names are what the screener maps market themes to.
+
+IN:
+  indices:
+    - {symbol: "^NSEI", name: "NIFTY 50"}
+    - {symbol: "^BSESN", name: "SENSEX"}
+    - {symbol: "^NSEBANK", name: "NIFTY Bank"}
+    - {symbol: "^CNXIT", name: "NIFTY IT"}
+    - {symbol: "^CNXPHARMA", name: "NIFTY Pharma"}
+    - {symbol: "^CNXAUTO", name: "NIFTY Auto"}
+    - {symbol: "^CNXFMCG", name: "NIFTY FMCG"}
+    - {symbol: "^CNXMETAL", name: "NIFTY Metal"}
+  benchmark: "^NSEI"
+  sectors:
+    Information Technology:
+      - {symbol: TCS.NS, name: Tata Consultancy Services}
+      - {symbol: INFY.NS, name: Infosys}
+      - {symbol: HCLTECH.NS, name: HCL Technologies}
+      - {symbol: WIPRO.NS, name: Wipro}
+      - {symbol: TECHM.NS, name: Tech Mahindra}
+      - {symbol: COFORGE.NS, name: Coforge}
+      - {symbol: PERSISTENT.NS, name: Persistent Systems}
+    Financials:
+      - {symbol: HDFCBANK.NS, name: HDFC Bank}
+      - {symbol: ICICIBANK.NS, name: ICICI Bank}
+      - {symbol: SBIN.NS, name: State Bank of India}
+      - {symbol: KOTAKBANK.NS, name: Kotak Mahindra Bank}
+      - {symbol: AXISBANK.NS, name: Axis Bank}
+      - {symbol: BAJFINANCE.NS, name: Bajaj Finance}
+      - {symbol: HDFCLIFE.NS, name: HDFC Life Insurance}
+    Energy:
+      - {symbol: RELIANCE.NS, name: Reliance Industries}
+      - {symbol: ONGC.NS, name: Oil and Natural Gas Corporation}
+      - {symbol: BPCL.NS, name: Bharat Petroleum}
+      - {symbol: IOC.NS, name: Indian Oil Corporation}
+      - {symbol: GAIL.NS, name: GAIL India}
+    Power & Utilities:
+      - {symbol: NTPC.NS, name: NTPC}
+      - {symbol: POWERGRID.NS, name: Power Grid Corporation}
+      - {symbol: TATAPOWER.NS, name: Tata Power}
+      - {symbol: ADANIGREEN.NS, name: Adani Green Energy}
+    Consumer Staples:
+      - {symbol: HINDUNILVR.NS, name: Hindustan Unilever}
+      - {symbol: ITC.NS, name: ITC}
+      - {symbol: NESTLEIND.NS, name: Nestle India}
+      - {symbol: BRITANNIA.NS, name: Britannia Industries}
+      - {symbol: DABUR.NS, name: Dabur India}
+      - {symbol: TATACONSUM.NS, name: Tata Consumer Products}
+    Consumer Discretionary:
+      - {symbol: TITAN.NS, name: Titan Company}
+      - {symbol: TRENT.NS, name: Trent}
+      - {symbol: ASIANPAINT.NS, name: Asian Paints}
+      - {symbol: DMART.NS, name: Avenue Supermarts}
+      - {symbol: ZOMATO.NS, name: Zomato (Eternal)}
+    Automobiles:
+      - {symbol: MARUTI.NS, name: Maruti Suzuki}
+      - {symbol: M&M.NS, name: Mahindra & Mahindra}
+      - {symbol: TATAMOTORS.NS, name: Tata Motors}
+      - {symbol: BAJAJ-AUTO.NS, name: Bajaj Auto}
+      - {symbol: EICHERMOT.NS, name: Eicher Motors}
+      - {symbol: HEROMOTOCO.NS, name: Hero MotoCorp}
+    Healthcare:
+      - {symbol: SUNPHARMA.NS, name: Sun Pharmaceutical}
+      - {symbol: DRREDDY.NS, name: Dr. Reddy's Laboratories}
+      - {symbol: CIPLA.NS, name: Cipla}
+      - {symbol: DIVISLAB.NS, name: Divi's Laboratories}
+      - {symbol: APOLLOHOSP.NS, name: Apollo Hospitals}
+    Industrials & Capital Goods:
+      - {symbol: LT.NS, name: Larsen & Toubro}
+      - {symbol: SIEMENS.NS, name: Siemens}
+      - {symbol: ABB.NS, name: ABB India}
+      - {symbol: BEL.NS, name: Bharat Electronics}
+      - {symbol: HAL.NS, name: Hindustan Aeronautics}
+      - {symbol: ADANIPORTS.NS, name: Adani Ports and SEZ}
+    Materials & Metals:
+      - {symbol: TATASTEEL.NS, name: Tata Steel}
+      - {symbol: JSWSTEEL.NS, name: JSW Steel}
+      - {symbol: HINDALCO.NS, name: Hindalco Industries}
+      - {symbol: ULTRACEMCO.NS, name: UltraTech Cement}
+      - {symbol: GRASIM.NS, name: Grasim Industries}
+      - {symbol: COALINDIA.NS, name: Coal India}
+    Telecom:
+      - {symbol: BHARTIARTL.NS, name: Bharti Airtel}
+      - {symbol: INDUSTOWER.NS, name: Indus Towers}
+    Real Estate:
+      - {symbol: DLF.NS, name: DLF}
+      - {symbol: GODREJPROP.NS, name: Godrej Properties}
+      - {symbol: OBEROIRLTY.NS, name: Oberoi Realty}
+
+US:
+  indices:
+    - {symbol: "^GSPC", name: "S&P 500"}
+    - {symbol: "^IXIC", name: "NASDAQ Composite"}
+    - {symbol: "^DJI", name: "Dow Jones Industrial Average"}
+    - {symbol: "^RUT", name: "Russell 2000"}
+  benchmark: "^GSPC"
+  sectors:
+    Information Technology:
+      - {symbol: AAPL, name: Apple}
+      - {symbol: MSFT, name: Microsoft}
+      - {symbol: NVDA, name: NVIDIA}
+      - {symbol: AVGO, name: Broadcom}
+      - {symbol: ORCL, name: Oracle}
+      - {symbol: CRM, name: Salesforce}
+      - {symbol: AMD, name: Advanced Micro Devices}
+    Communication Services:
+      - {symbol: GOOGL, name: Alphabet}
+      - {symbol: META, name: Meta Platforms}
+      - {symbol: NFLX, name: Netflix}
+      - {symbol: DIS, name: Walt Disney}
+    Financials:
+      - {symbol: JPM, name: JPMorgan Chase}
+      - {symbol: BAC, name: Bank of America}
+      - {symbol: GS, name: Goldman Sachs}
+      - {symbol: V, name: Visa}
+      - {symbol: MA, name: Mastercard}
+    Healthcare:
+      - {symbol: LLY, name: Eli Lilly}
+      - {symbol: UNH, name: UnitedHealth Group}
+      - {symbol: JNJ, name: Johnson & Johnson}
+      - {symbol: MRK, name: Merck}
+      - {symbol: ABBV, name: AbbVie}
+    Consumer Discretionary:
+      - {symbol: AMZN, name: Amazon}
+      - {symbol: TSLA, name: Tesla}
+      - {symbol: HD, name: Home Depot}
+      - {symbol: MCD, name: McDonald's}
+      - {symbol: NKE, name: Nike}
+    Consumer Staples:
+      - {symbol: PG, name: Procter & Gamble}
+      - {symbol: KO, name: Coca-Cola}
+      - {symbol: PEP, name: PepsiCo}
+      - {symbol: COST, name: Costco}
+      - {symbol: WMT, name: Walmart}
+    Energy:
+      - {symbol: XOM, name: Exxon Mobil}
+      - {symbol: CVX, name: Chevron}
+      - {symbol: COP, name: ConocoPhillips}
+    Industrials:
+      - {symbol: CAT, name: Caterpillar}
+      - {symbol: GE, name: GE Aerospace}
+      - {symbol: HON, name: Honeywell}
+      - {symbol: UNP, name: Union Pacific}
+      - {symbol: RTX, name: RTX}
+    Utilities:
+      - {symbol: NEE, name: NextEra Energy}
+      - {symbol: DUK, name: Duke Energy}
+      - {symbol: SO, name: Southern Company}
+    Materials:
+      - {symbol: LIN, name: Linde}
+      - {symbol: FCX, name: Freeport-McMoRan}
+      - {symbol: NEM, name: Newmont}
+    Real Estate:
+      - {symbol: PLD, name: Prologis}
+      - {symbol: AMT, name: American Tower}
+      - {symbol: EQIX, name: Equinix}

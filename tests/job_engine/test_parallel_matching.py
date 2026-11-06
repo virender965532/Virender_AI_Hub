@@ -38,9 +38,7 @@ def test_llm_calls_overlap_and_results_stay_with_their_job(monkeypatch, candidat
             active -= 1
         metrics.calls += 1
         metrics.total_tokens += 100
-        score = float(job.source_job_id) * 10  # ties each result to its job
         return JobMatchAnalysis(
-            score=score,
             recommendation="good_match", explanation=f"job {job.source_job_id}",
         )
 

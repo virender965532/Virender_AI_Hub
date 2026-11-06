@@ -1,8 +1,9 @@
 """Turns rule evaluation + LLM analysis into the final score and the resulting
-``MatchedJob`` record. With an LLM analysis the score is the LLM's single overall
-score; without one it is a configurable-weight blend of rule-based dimensions
-(section 17). The recommendation band is always derived from that score, never
-taken verbatim from the LLM.
+``MatchedJob`` record. With an LLM analysis the score is computed in code from
+the LLM's requirement checks (``fit_score.py``); without one it is a
+configurable-weight blend of rule-based dimensions (section 17). The
+recommendation band is always derived from that score, never taken verbatim
+from the LLM.
 """
 
 from __future__ import annotations
@@ -10,6 +11,7 @@ from __future__ import annotations
 from ..config.settings import EngineSettings
 from ..models.job import Job, JobMatchAnalysis, MatchedJob, Recommendation, RuleEvaluation
 from ..models.profile import CandidateProfile
+from .fit_score import compute_fit_score
 from .text_utils import normalize_tokens, overlap_score, skill_token_set
 
 _AI_KEYWORDS = {
@@ -151,10 +153,14 @@ def build_matched_job(
             rejection_reason="; ".join(rule_eval.rejection_reasons) or "failed hard-rejection rules",
         )
 
+    breakdown = None
     if llm_analysis is not None:
-        # The LLM score is the job's score (same single-score, resume-reviewer
-        # judgement as Resume Intelligence); the weighted blend is rule-only fallback.
-        score = round(min(100.0, max(0.0, llm_analysis.score)), 1)
+        # The score comes from the formula over the LLM's labels; the weighted
+        # blend below is the rule-only fallback.
+        breakdown = compute_fit_score(
+            analysis=llm_analysis, job=job, profile=profile, rule_eval=rule_eval, settings=settings
+        )
+        score = breakdown.score
     else:
         dims = compute_dimension_scores(job=job, profile=profile, rule_eval=rule_eval)
         score = compute_final_score(dims, settings.weights.as_dict())
@@ -188,6 +194,7 @@ def build_matched_job(
         recommendation=recommendation,
         rule_evaluation=rule_eval,
         llm_analysis=llm_analysis,
+        score_breakdown=breakdown,
         matched_skills=matched_skills,
         missing_required_skills=missing,
         strengths=strengths,

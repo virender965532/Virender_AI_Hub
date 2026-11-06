@@ -14,10 +14,19 @@
 #   allowed_domains   — SSRF allowlist; auto-derived from base_url/search_urls if omitted
 #   selectors         — optional overrides consumed by the "generic" adapter (CSS selectors)
 #   title_keywords    — optional; jobs whose title has none of these words are dropped
-#                       before their details are opened (case-insensitive, whole words;
-#                       "full-stack" also matches "Full Stack"/"Fullstack"). Empty = keep all.
+#                       before their details are opened (whole words; "full-stack" also
+#                       matches "Full Stack"/"Fullstack"). Lowercase keywords are matched
+#                       case-insensitively; a keyword with capitals (e.g. AI) is matched
+#                       exactly as written. Empty = keep all.
 #   title_exclude_keywords — optional; jobs whose title has any of these words are dropped
 #                       the same way (same matching; "java" never matches "JavaScript").
+#   max_posted_age_hours — optional; once every results page is read, jobs listed as older
+#                       than this ("11 hours ago") are stored as rejected (skipped by later
+#                       runs) and never fetched. A card with no visible age ("Viewed") is
+#                       checked with the age its fetched details show. LinkedIn only for now.
+#   sort_newest_first — optional (LinkedIn); adds sortBy=DD to the search URL and stops
+#                       paginating after a page where every card was already saved/rejected
+#                       by an earlier run, is older than max_posted_age_hours, or is excluded.
 #   max_jobs/max_pages — hard caps enforced by guardrails, independent of what the site offers
 
 job_sources:
@@ -26,9 +35,9 @@ job_sources:
     enabled: true
     base_url: "https://www.linkedin.com"
     search_urls:
-      - "https://www.linkedin.com/jobs/search/?currentJobId=4478760439&f_TPR=r7200&f_WT=2&geoId=92000000&keywords=full%20stack&origin=JOB_SEARCH_PAGE_SEARCH_BUTTON&refresh=true&sortBy=DD"
-      - "https://www.linkedin.com/jobs/search/?currentJobId=4479266384&f_TPR=r7200&geoId=106204383&keywords=full%20stack&origin=JOB_SEARCH_PAGE_SEARCH_BUTTON&refresh=true&sortBy=DD"
-      # - "https://www.linkedin.com/jobs/search/?currentJobId=4465971248&f_TPR=r7200&geoId=102713980&keywords=full%20stack&origin=JOB_SEARCH_PAGE_SEARCH_BUTTON&refresh=true&sortBy=DD"
+      - "https://www.linkedin.com/jobs/search-results/?currentJobId=4487242363&keywords=Full%20Stack%20Developer%20OR%20Full%20Stack%20Engineer%20OR%20AI%20Engineer%20OR%20Generative%20AI%20Engineer%20OR%20Software%20Engineer%20OR%20Backend%20Engineer&origin=JOB_SEARCH_PAGE_JOB_FILTER&referralSearchId=u2EZhNq3C5zN5rJ1rpm8%2Fg%3D%3D&geoId=102713980&f_TPR=r86400"
+      # - "https://www.linkedin.com/jobs/search-results/?currentJobId=4486024839&keywords=Full%20Stack%20Developer%20OR%20Full%20Stack%20Engineer%20OR%20AI%20Engineer%20OR%20Generative%20AI%20Engineer%20OR%20Software%20Engineer%20OR%20Backend%20Engineer&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&referralSearchId=rvZL4DP%2Fy2Q5WkuT%2Frbrog%3D%3D&geoId=102454443&f_TPR=r86400"
+      # - "https://www.linkedin.com/jobs/search-results/?currentJobId=4362132219&keywords=Full%20Stack%20Developer%20OR%20Full%20Stack%20Engineer%20OR%20AI%20Engineer%20OR%20Generative%20AI%20Engineer%20OR%20Software%20Engineer%20OR%20Backend%20Engineer&origin=JOB_SEARCH_PAGE_LOCATION_HISTORY&referralSearchId=cPaVqFNJtgXcoyDG2k2FPg%3D%3D&geoId=100205264&f_TPR=r86400"
     adapter: linkedin
     signin_url: "https://www.linkedin.com/login/?trk=guest_homepage-basic_nav-header-signin"
     allowed_domains: ["linkedin.com", "licdn.com"]
@@ -39,22 +48,14 @@ job_sources:
     max_jobs: 400
     max_pages: 20
     rate_limit_delay_seconds: 2.0
-    title_keywords: [
-      developer, engineer, software, senior, lead, fullstack, full-stack, frontend,
-      front-end, backend, back-end, web, application, platform, product, architect,
-      technical, principal, staff,
-      ai, artificial-intelligence, genai, generative-ai, llm, ml, machine-learning,
-      agentic-ai, ai-engineer, ai-developer, rag,
-      mern, mean, react, reactjs, nextjs, next, node, nodejs, javascript, typescript,
-      express, nestjs,
-      aws, cloud, serverless, microservices, api, rest, graphql, devops, cicd, docker,
-      kubernetes,
-      database, mongodb, postgresql, mysql, redis, sql, nosql,
-      langchain, langgraph, mcp, embeddings, vector, vectordb, openai, transformers,
-    ]
+    # LinkedIn's minimum "Date posted" filter is 24h (f_TPR=r86400); only jobs whose
+    # card/pane age is within this many hours are kept. No title_keywords allow-list.
+    max_posted_age_hours: 8
+    # Adds sortBy=DD (newest first) and stops after the first page with nothing new.
+    sort_newest_first: true
     # Dropped before their details are opened, so never sent to the LLM.
     title_exclude_keywords: [
-      java, python, intern, internship, c#, .net, dotnet, asp.net, go, golang, manager,
+      java, intern, internship, c#, .net, dotnet, asp.net, go, golang, manager,
     ]
     notes: >
       Reuses the saved Playwright session (cookies) from the MongoDB browser_sessions

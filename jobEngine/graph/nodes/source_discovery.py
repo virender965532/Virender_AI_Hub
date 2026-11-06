@@ -19,7 +19,7 @@ from ...config.sources import JobSourceConfig
 from ...guardrails.content_limits import enforce_description_size
 from ...guardrails.url_guardrails import SSRFViolation, validate_navigation_url
 from ...models.errors import SourceError, SourceErrorStatus
-from ...persistence.rejected_jobs import rejected_descriptions
+from ...persistence.rejected_jobs import rejected_descriptions, rejected_job_ids
 from ...persistence.saved_jobs import list_saved_jobs
 from ...sources import circuit_breaker
 from ...sources.base import SourceExecutionContext
@@ -31,24 +31,40 @@ from ..builder_types import NodeFn
 logger = logging.getLogger(__name__)
 
 
-def _known_descriptions(source_id: str) -> dict[str, str]:
-    """Saved, LLM-analyzed jobs and rejected jobs of this source: their descriptions by
-    source_job_id. The adapter doesn't open these again; matching reuses their analysis."""
+def _known_jobs(source_id: str) -> tuple[dict[str, str], set[str]]:
+    """``(known, seen_before)`` for this source.
+
+    ``known``: saved, LLM-analyzed jobs and rejected jobs — their descriptions by
+    source_job_id. The adapter doesn't open these again; matching reuses their analysis.
+    ``seen_before``: ids of ``known`` plus every other saved job (also those without an
+    LLM analysis) and every rejected job (also those rejected without a description,
+    e.g. as too old) — what an earlier run already handled. LinkedIn skips these jobs
+    outright on the results page."""
     known: dict[str, str] = {}
+    rejected_ids: set[str] = set()
     try:
         known.update(rejected_descriptions(source_id))
+        rejected_ids = rejected_job_ids(source_id)
     except Exception:  # noqa: BLE001
         logger.exception("source=%s: could not read rejected jobs; reading them again", source_id)
     try:
         saved = list_saved_jobs()
     except Exception:  # noqa: BLE001
         logger.exception("source=%s: could not read saved jobs; reading every job", source_id)
-        return known
+        return known, set(known) | rejected_ids
+    seen_before = set(known) | rejected_ids
     for entry in saved:
         job = entry.get("job") or {}
-        if job.get("source") == source_id and job.get("source_job_id") and job.get("description") and entry.get("llm_analysis"):
+        if job.get("source") != source_id or not job.get("source_job_id"):
+            continue
+        seen_before.add(str(job["source_job_id"]))
+        if job.get("description") and entry.get("llm_analysis"):
             known[str(job["source_job_id"])] = job["description"]
-    return known
+    return known, seen_before
+
+
+def _known_descriptions(source_id: str) -> dict[str, str]:
+    return _known_jobs(source_id)[0]
 
 
 async def _fetch_job_detail(browser_manager, cfg, application_url: str) -> str | None:
@@ -115,12 +131,15 @@ def create_source_node(source_config: JobSourceConfig) -> NodeFn:
         browser_manager = state.get("browser_manager")
         adapter_cls = get_adapter_class(cfg.adapter)
         adapter = adapter_cls()
+        # Blocking MongoDB reads: off the event loop, so the other sources keep scraping.
+        known, seen_before = await asyncio.to_thread(_known_jobs, cfg.id)
         context = SourceExecutionContext(
             run_id=run_id,
             config=cfg,
             browser_manager=browser_manager,
             settings=settings,
-            known_descriptions=_known_descriptions(cfg.id),
+            known_descriptions=known,
+            seen_before_ids=seen_before,
         )
 
         result = None

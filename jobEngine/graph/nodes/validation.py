@@ -74,6 +74,11 @@ def _matches_employment_type(job: dict[str, Any], employment_type: str | None) -
     return employment_type.lower() in job_type if job_type else True
 
 
+def _offers_visa_sponsorship(job: dict[str, Any]) -> bool:
+    """On-site abroad with sponsorship is a target too, so "remote only" lets it through."""
+    return (job.get("visa_remote") or {}).get("visa_status") == "POSITIVE_EVIDENCE"
+
+
 async def validation_node(state: dict[str, Any]) -> dict[str, Any]:
     run_id = state.get("run_id")
     request = state.get("request") or {}
@@ -114,7 +119,7 @@ async def validation_node(state: dict[str, Any]) -> dict[str, Any]:
             reason = "location"
         elif not _matches_employment_type(job, employment_type):
             reason = "employment_type"
-        elif remote_only and job.get("remote_type") not in ("remote", "hybrid"):
+        elif remote_only and job.get("remote_type") not in ("remote", "hybrid") and not _offers_visa_sponsorship(job):
             reason = f"remote_only (remote_type={job.get('remote_type')})"
         if reason:
             key = reason.split(" ")[0]

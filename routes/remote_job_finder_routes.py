@@ -12,11 +12,13 @@ from __future__ import annotations
 
 import logging
 
-from flask import Blueprint, jsonify, render_template, request
+from flask import Blueprint, Response, jsonify, render_template, request
 from pymongo.errors import PyMongoError
 
 from jobEngine.config.settings import get_settings
 from jobEngine.config.sources import DEFAULT_UNCHECKED_SOURCES, load_job_sources
+from jobEngine.graph.builder import draw_graph_png
+from jobEngine.services.job_engine_service import _resolve_sources
 from jobEngine.services.profile_loader import load_candidate_profile
 from jobEngine.sources.search_keywords import url_keywords
 from jobEngine.matching.rejection_analyzer import RejectionAnalysisError, RejectionAnalyzer
@@ -29,11 +31,15 @@ from jobEngine.persistence.applied_jobs import (
     set_rejected,
 )
 from jobEngine.persistence.mongo import MongoNotConfigured
+from jobEngine.notifications.hr_drafts import create_hr_draft, extract_hr_email
 from jobEngine.persistence.saved_jobs import (
     SAVED_JOB_STATUSES,
     clear_saved_jobs,
     delete_saved_job,
+    get_saved_job,
     list_saved_jobs,
+    record_hr_contact,
+    record_hr_draft,
     update_saved_job_status,
 )
 
@@ -97,6 +103,18 @@ def _default_keywords() -> str:
     return ""
 
 
+@remote_job_finder_bp.route("/api/remote-job-finder/graph.png")
+def api_graph_png():
+    """PNG of the LangGraph workflow a search with these ``?sources=a,b`` would run."""
+    requested = [s.strip() for s in request.args.get("sources", "").split(",") if s.strip()]
+    try:
+        png = draw_graph_png(_resolve_sources({"sources": requested}))
+    except Exception as exc:
+        logger.exception("Failed to render the job discovery graph")
+        return jsonify({"ok": False, "error": f"could not render graph: {exc}"}), 502
+    return Response(png, mimetype="image/png")
+
+
 @remote_job_finder_bp.route("/saved-jobs")
 def saved_jobs_ui():
     """Every job recommended by past searches, with its full match analysis."""
@@ -109,8 +127,12 @@ def saved_jobs_ui():
 
 @remote_job_finder_bp.route("/api/saved-jobs", methods=["GET"])
 def api_list_saved_jobs():
-    # Jobs not doable from India are never shown (they only linger from before that check).
-    jobs = list_saved_jobs(include_not_eligible=not get_settings().worldwide_remote_enabled)
+    # With JOB_REJECT_COUNTRY_RESTRICTED, jobs not doable from India (and not offering visa
+    # sponsorship) are never shown; by default they are kept and filtered in the UI.
+    settings = get_settings()
+    jobs = list_saved_jobs(
+        include_not_eligible=not (settings.worldwide_remote_enabled and settings.reject_country_restricted)
+    )
     return jsonify({"ok": True, "count": len(jobs), "jobs": jobs}), 200
 
 
@@ -138,6 +160,46 @@ def api_delete_saved_job(key: str):
     if not delete_saved_job(key):
         return jsonify({"ok": False, "error": "saved job not found"}), 404
     return jsonify({"ok": True, "saved_key": key}), 200
+
+
+def _hr_contact(key: str, saved: dict) -> dict:
+    """The saved job's ``HREmail``, extracted (and stored) now if the alert didn't."""
+    contact = saved.get("hr_contact")
+    if not contact:
+        contact = extract_hr_email(saved.get("job") or {}).model_dump()
+        record_hr_contact(key, contact)
+    return contact
+
+
+@remote_job_finder_bp.route("/hr-draft/<path:key>")
+def hr_draft_ui(key: str):
+    """Opened from the "Create draft email" link of the job alert email; drafts on load."""
+    saved = get_saved_job(key)
+    if saved is None:
+        return render_template("hr_draft.html", key=key, job=None, contact=None, draft=None), 404
+    return render_template(
+        "hr_draft.html", key=key, job=saved.get("job") or {}, contact=_hr_contact(key, saved), draft=saved.get("hr_draft")
+    )
+
+
+@remote_job_finder_bp.route("/api/saved-jobs/<path:key>/hr-draft", methods=["POST"])
+def api_create_hr_draft(key: str):
+    """Run the Autonomous Application Agent on the saved job's description + the profile
+    and save the email as a draft to the HR address. An already-saved draft is returned
+    as is unless ``{"force": true}``."""
+    saved = get_saved_job(key)
+    if saved is None:
+        return jsonify({"ok": False, "error": "saved job not found"}), 404
+    previous = saved.get("hr_draft") or {}
+    if previous.get("saved") and not (request.get_json(silent=True) or {}).get("force"):
+        return jsonify({"ok": True, "existing": True, "draft": previous}), 200
+    contact = _hr_contact(key, saved)
+    if not contact.get("email_id"):
+        return jsonify({"ok": False, "error": "no HR email in the job description", "contact": contact}), 400
+    outcome = create_hr_draft(saved.get("job") or {}, contact["email_id"])
+    logger.info("HR draft for %s (%s): %s", key, contact["email_id"], "saved" if outcome["saved"] else outcome["error"])
+    record_hr_draft(key, outcome)
+    return jsonify({"ok": True, "existing": False, "draft": outcome}), 200
 
 
 @remote_job_finder_bp.route("/applied-jobs")

@@ -1,8 +1,9 @@
 /**
  * Worldwide-remote classification UI helpers, shared by the Remote Job Finder and
  * Saved Jobs pages (loaded only when JOB_WORLDWIDE_REMOTE_ENABLED is on).
- * Reads ``job.worldwide`` (jobEngine/matching/worldwide_remote.py). All scraped
- * text goes through textContent — never innerHTML.
+ * Reads ``job.worldwide`` (jobEngine/matching/worldwide_remote.py) and
+ * ``job.visa_remote`` (jobEngine/matching/visa_remote.py). All scraped text goes
+ * through textContent — never innerHTML.
  */
 (function () {
   "use strict";
@@ -153,7 +154,153 @@
     });
   }
 
+  // --- visa sponsorship / remote scope (job.visa_remote) ---------------------
+
+  var VISA = {
+    POSITIVE_EVIDENCE: { label: "Visa sponsorship offered", short: "Visa sponsorship ✓" },
+    NEGATIVE_EVIDENCE: { label: "No visa sponsorship", short: "No visa sponsorship" },
+    MENTIONED_UNCLEAR: { label: "Visa mentioned — unclear", short: "Visa: unclear" },
+    NOT_MENTIONED: { label: "Visa not mentioned", short: null },
+  };
+  var REMOTE = {
+    GLOBAL_REMOTE_EVIDENCE: { label: "Global remote evidence", short: "Global remote ✓" },
+    RESTRICTED_REMOTE: { label: "Remote, geographically restricted", short: "Remote: restricted" },
+    REMOTE_UNCLEAR: { label: "Remote, scope unclear", short: "Remote: scope unclear" },
+    NOT_MENTIONED: { label: "Remote not mentioned", short: null },
+  };
+  var RELOCATION = {
+    CONFIRMED: "Confirmed",
+    NOT_OFFERED: "Not offered",
+    MENTIONED_UNCLEAR: "Mentioned — unclear",
+    NOT_MENTIONED: "Not mentioned",
+  };
+  var VISA_FILTERS = [
+    ["", "Any visa status"],
+    ["goal", "Visa sponsorship or global remote"],
+    ["POSITIVE_EVIDENCE", "Sponsorship offered"],
+    ["possible", "Sponsorship offered or unclear"],
+    ["not_refused", "Hide “no sponsorship”"],
+    ["relocation", "Relocation support confirmed"],
+    ["MENTIONED_UNCLEAR", "Mentioned — unclear"],
+    ["NEGATIVE_EVIDENCE", "No sponsorship"],
+    ["NOT_MENTIONED", "Not mentioned"],
+  ];
+  var REMOTE_FILTERS = [
+    ["", "Any remote scope"],
+    ["GLOBAL_REMOTE_EVIDENCE", "Global remote evidence"],
+    ["any_remote", "Any remote mention"],
+    ["REMOTE_UNCLEAR", "Remote — scope unclear"],
+    ["RESTRICTED_REMOTE", "Remote — restricted"],
+    ["NOT_MENTIONED", "Remote not mentioned"],
+    ["conflict", "Conflicting evidence"],
+  ];
+
+  function vr(job) {
+    return (job && job.visa_remote) || null;
+  }
+
+  function visaRemoteBadges(job) {
+    var v = vr(job);
+    if (!v) return [];
+    var out = [];
+    var visa = VISA[v.visa_status];
+    if (visa && visa.short) out.push(el("span", "vr-badge vr-badge--" + v.visa_status, visa.short + (v.visa_conflict ? " ⚠" : "")));
+    var remote = REMOTE[v.remote_status];
+    if (remote && remote.short) {
+      out.push(el("span", "vr-badge vr-badge--" + v.remote_status, remote.short + (v.remote_conflict ? " ⚠" : "")));
+    }
+    if (v.relocation_support === "CONFIRMED") out.push(el("span", "vr-badge vr-badge--relocation", "Relocation ✓"));
+    return out;
+  }
+
+  function evidenceList(snippets) {
+    var list = el("ul", "ww-evidence");
+    snippets.forEach(function (e) {
+      var li = el("li", "ww-evidence__item ww-evidence__item--" + (e.signal || "neutral"));
+      li.appendChild(el("span", "ww-evidence__where", (FOUND_IN[e.section] || e.section) + ":"));
+      li.appendChild(el("q", null, e.text));
+      list.appendChild(li);
+    });
+    return list;
+  }
+
+  /** Visa / relocation / remote-scope labels with their quoted evidence and section. */
+  function visaRemotePanel(job) {
+    var v = vr(job);
+    if (!v) return null;
+    var wrap = el("div", "ww-panel vr-panel");
+    wrap.appendChild(el("div", "ww-panel__title", "Visa sponsorship & remote scope"));
+    var facts = el("dl", "ww-facts");
+    [
+      ["Visa sponsorship", (VISA[v.visa_status] || {}).label + (v.visa_conflict ? " (conflicting statements)" : "")],
+      ["Relocation support", RELOCATION[v.relocation_support]],
+      ["Remote scope", (REMOTE[v.remote_status] || {}).label + (v.remote_conflict ? " (conflicting statements)" : "")],
+      ["Remote allowed in", (v.remote_countries_allowed || []).join(", ")],
+      ["Job country", v.job_country],
+      ["On-site requirement", v.onsite_requirement ? "Yes" : ""],
+      ["Confidence", v.classification_confidence == null ? "" : Math.round(v.classification_confidence * 100) + "%"],
+      ["Decided by", v.method === "llm" ? "Rules + the matcher's LLM read (quotes verified against the posting)" : "Rules only"],
+    ].forEach(function (row) {
+      if (!row[1]) return;
+      facts.appendChild(el("dt", null, row[0]));
+      facts.appendChild(el("dd", null, row[1]));
+    });
+    wrap.appendChild(facts);
+    [
+      ["Visa evidence", v.visa_evidence],
+      ["Relocation evidence", v.relocation_evidence],
+      ["Remote evidence", v.remote_evidence],
+    ].forEach(function (group) {
+      if (!(group[1] || []).length) return;
+      wrap.appendChild(el("p", "ww-reason", group[0]));
+      wrap.appendChild(evidenceList(group[1]));
+    });
+    if (!v.has_discovery_signal) wrap.appendChild(el("p", "ww-reason", "No visa, relocation or remote wording found in the posting."));
+    return wrap;
+  }
+
+  /** Tags to show: "Global Remote" is dropped when the remote-scope badge already says it. */
+  function displayTags(job) {
+    var tags = (job && job.tags) || [];
+    return vr(job) ? tags.filter(function (t) { return t !== "Global Remote"; }) : tags;
+  }
+
+  function matchesVisa(job, filter) {
+    if (!filter) return true;
+    var v = vr(job);
+    if (!v) return false;
+    if (filter === "goal") return v.visa_status === "POSITIVE_EVIDENCE" || v.remote_status === "GLOBAL_REMOTE_EVIDENCE" || category(job) === "worldwide_confirmed";
+    if (filter === "possible") return v.visa_status === "POSITIVE_EVIDENCE" || v.visa_status === "MENTIONED_UNCLEAR";
+    if (filter === "not_refused") return v.visa_status !== "NEGATIVE_EVIDENCE";
+    if (filter === "relocation") return v.relocation_support === "CONFIRMED";
+    return v.visa_status === filter;
+  }
+
+  function matchesRemote(job, filter) {
+    if (!filter) return true;
+    var v = vr(job);
+    if (!v) return false;
+    if (filter === "any_remote") return v.remote_status !== "NOT_MENTIONED";
+    if (filter === "conflict") return !!v.conflicting_evidence;
+    return v.remote_status === filter;
+  }
+
+  function fillOptions(select, options) {
+    options.forEach(function (f) {
+      var opt = el("option", null, f[1]);
+      opt.value = f[0];
+      select.appendChild(opt);
+    });
+  }
+
   window.WorldwideRemote = {
+    visaRemoteBadges: visaRemoteBadges,
+    displayTags: displayTags,
+    visaRemotePanel: visaRemotePanel,
+    matchesVisa: matchesVisa,
+    matchesRemote: matchesRemote,
+    fillVisaSelect: function (select) { fillOptions(select, VISA_FILTERS); },
+    fillRemoteSelect: function (select) { fillOptions(select, REMOTE_FILTERS); },
     badge: badge,
     cardClass: cardClass,
     panel: panel,
